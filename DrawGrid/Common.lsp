@@ -47,7 +47,7 @@
   )
  )
 )
-(defun MAKEENT (BLKNAME / )
+(defun RFL:MAKEENT (BLKNAME / )
  (cond ((= (strcase BLKNAME) "DRAWGRIDDEF")
         (progn
          (entmake)

@@ -30,7 +30,7 @@
 ;
 (defun C:MAKEENT (/ DCL_ID ACCEPTMAKEENT BLOCKINDEX BLOCKLIST CANCELMAKEENT UPDATEBLOCK)
  (defun ACCEPTMAKEENT (/ C)
-  (MAKEENT (nth BLOCKINDEX BLOCKLIST))
+  (RFL:MAKEENT (nth BLOCKINDEX BLOCKLIST))
   (setq BLOCKINDEX nil)
   (done_dialog)
   (unload_dialog DCL_ID)
@@ -115,5 +115,5 @@
   (start_dialog)
  )
 )
-(defun MAKEENT (BLKNAME / )
+(defun RFL:MAKEENT (BLKNAME / )
  (cond

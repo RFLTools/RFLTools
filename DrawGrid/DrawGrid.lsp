@@ -66,7 +66,7 @@
              MASTER (cdar ENTLIST)
        )
        (if (= nil (tblsearch "block" "DrawGridDef"))
-        (MAKEENT "DrawGridDef")
+        (RFL:MAKEENT "DrawGridDef")
        )
        (vla-insertblock ACTIVESPC
                         (vlax-3D-point BP)
@@ -425,7 +425,7 @@
   )
   (progn
    (if (= nil (tblsearch "block" "DrawGridDef"))
-    (MAKEENT "DrawGridDef")
+    (RFL:MAKEENT "DrawGridDef")
    )
    (setq P (getpoint "\nInsertion point for DrawGridDef block : "))
    (vla-insertblock ACTIVESPC
