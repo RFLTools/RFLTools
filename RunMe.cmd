@@ -2,9 +2,9 @@
 rem
 rem Simple copy batch to create combined lsp file
 rem
-if exist RFLTools.lsp del RFLTools.lsp
+if exist LoadRFLTools.lsp del LoadRFLTools.lsp
 rem
 COPY ".\MakeEnt\MakeEnt.lsp" + ^
      ".\DrawGrid\DrawGrid.lsp" ^
-     ".\RFLTools.lsp"
+     ".\LoadRFLTools.lsp"
 pause
