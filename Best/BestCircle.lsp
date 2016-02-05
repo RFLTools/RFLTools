@@ -62,7 +62,7 @@
   (if (< (length PLIST) 3)
    (eval nil)
    (if (= (length PLIST) 3)
-    (if (= nil (setq PC (CIRCLE3P (car PLIST) (cadr PLIST) (caddr PLIST))))
+    (if (= nil (setq PC (RFL:CIRCLE3P (car PLIST) (cadr PLIST) (caddr PLIST))))
      (eval nil)
      (append PC (list 0.0))
     )
@@ -76,7 +76,7 @@
      )
      (foreach NODE COMBLIST
       (progn
-       (if (/= nil (setq P (CIRCLE3P (nth (- (car NODE) 1) PLIST) (nth (- (cadr NODE) 1) PLIST) (nth (- (caddr NODE) 1) PLIST))))
+       (if (/= nil (setq P (RFL:CIRCLE3P (nth (- (car NODE) 1) PLIST) (nth (- (cadr NODE) 1) PLIST) (nth (- (caddr NODE) 1) PLIST))))
         (progn
          (setq C (+ C 1))
          (if (= nil PC)
