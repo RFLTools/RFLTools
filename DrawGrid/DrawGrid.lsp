@@ -5,6 +5,157 @@
 ;     DRAWGRID is a utility for drawing a profile/section grid
 ;
 ;
+(defun C:MATCHGRID (/ ACTIVEDOC ACTIVESPC ENT ENTLIST TITLE TITLEHEIGHT TITLEOFFSET BP BX BY W H VEXAG THEIGHT TOFFSET HINC HINCFINE HINCTEXT VINC VINCFINE VINCTEXT LAY LAYFINE LAYTEXT TFLAG MASTER P CODE TMP CLAYER)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ (if (/= nil (setq ENT (car (entsel "\nSource grid : "))))
+  (if (= "INSERT" (cdr (assoc 0 (setq ENTLIST (entget ENT)))))
+   (progn
+    (setq BP (cdr (assoc 10 ENTLIST)))
+    (setvar "CLAYER" (cdr (assoc 8 ENTLIST)))
+    (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+     (if (= (cdar ENTLIST) "RFLTOOLS_DRAWGRID")
+      (progn
+       (setq ENTLIST (cdr ENTLIST)
+             TITLE (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             TITLEHEIGHT (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             TITLEOFFSET (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             BX (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             BY (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             W (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             H (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             VEXAG (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             THEIGHT (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             TOFFSET (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             HINC (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             HINCFINE (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             HINCTEXT (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             VINC (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             VINCFINE (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             VINCTEXT (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             LAY (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             LAYFINE (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             LAYTEXT (cdar ENTLIST)
+             ENTLIST (cdr ENTLIST)
+             TFLAG (if (= 1 (cdar ENTLIST)) T nil)
+             ENTLIST (cdr ENTLIST)
+             MASTER (cdar ENTLIST)
+       )
+       (if (/= nil (setq ENT (car (entsel "\nSource grid : "))))
+        (if (= "INSERT" (cdr (assoc 0 (setq ENTLIST (entget ENT)))))
+         (progn
+          (setq BP (cdr (assoc 10 ENTLIST)))
+          (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+           (if (= (cdar ENTLIST) "RFLTOOLS_DRAWGRID")
+            (progn
+             (setq ENTLIST (cdr ENTLIST)
+                   TITLE (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   BX (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   BY (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   W (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   H (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (cdar ENTLIST)
+                   ENTLIST (cdr ENTLIST)
+                   TMP (if (= 1 (cdar ENTLIST)) T nil)
+                   ENTLIST (cdr ENTLIST)
+                   MASTER (cdar ENTLIST)
+             )
+             (entdel ENT)
+             (DRAWGRID TITLE                                                       ; Title Text
+                       TITLEHEIGHT                                                 ; Title Height
+                       TITLEOFFSET                                                 ; Title OFFSET
+                       BP                                                          ; Basepoint
+                       BX                                                          ; Base Station
+                       BY                                                          ; Base Elevation
+                       W                                                           ; Grid Width
+                       H                                                           ; Grid Height
+                       VEXAG                                                       ; Vertical Exageration
+                       THEIGHT                                                     ; Text Height
+                       TOFFSET                                                     ; Text OFFSET
+                       HINC                                                        ; Horizontal Grid
+                       HINCFINE                                                    ; Horizontal Fine Grid
+                       HINCTEXT                                                    ; Horizontal Text
+                       VINC                                                        ; Vertical Grid
+                       VINCFINE                                                    ; Vertical Fine Grid
+                       VINCTEXT                                                    ; Vertical Text
+                       LAY                                                         ; Grid Layer
+                       LAYFINE                                                     ; Fine Grid Layer
+                       LAYTEXT                                                     ; Text Layer
+                       TFLAG                                                       ; Label as Station
+                       MASTER                                                      ; Master Scale
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CLAYER" CLAYER)
+ T
+)
 (defun C:DEFGRID (/ ACTIVEDOC ACTIVESPC ENT ENTLIST TITLE TITLEHEIGHT TITLEOFFSET BP BX BY W H VEXAG THEIGHT TOFFSET HINC HINCFINE HINCTEXT VINC VINCFINE VINCTEXT LAY LAYFINE LAYTEXT TFLAG MASTER P CODE)
  (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
  (setq ACTIVESPC
@@ -66,7 +217,7 @@
              MASTER (cdar ENTLIST)
        )
        (if (= nil (tblsearch "block" "DrawGridDef"))
-        (RFL:MAKEENT "DrawGridDef")
+        (MAKEENT "DrawGridDef")
        )
        (vla-insertblock ACTIVESPC
                         (vlax-3D-point BP)
@@ -425,7 +576,7 @@
   )
   (progn
    (if (= nil (tblsearch "block" "DrawGridDef"))
-    (RFL:MAKEENT "DrawGridDef")
+    (MAKEENT "DrawGridDef")
    )
    (setq P (getpoint "\nInsertion point for DrawGridDef block : "))
    (vla-insertblock ACTIVESPC
