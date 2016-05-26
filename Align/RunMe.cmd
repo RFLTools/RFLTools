@@ -2,7 +2,7 @@
 rem
 rem Simple copy batch to create combined lsp file
 rem
-if exist LoadRFLTools.lsp del LoadRFLTools.lsp
+if exist LoadRFLAlign.lsp del LoadRFLAlign.lsp
 rem
 COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Align\RFLAlignDef.lsp" + ^
@@ -40,5 +40,5 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Spiral\RFLSpiralStaOff2.lsp" + ^
      ".\Spiral\RFLSpiralXY.lsp" + ^
      ".\Spiral\RFLSpiralXY2.lsp" ^
-     ".\LoadRFLTools.lsp"
+     ".\LoadRFLAlign.lsp"
 pause
