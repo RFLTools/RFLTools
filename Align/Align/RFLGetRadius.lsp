@@ -6,13 +6,7 @@
 ;
 ;
 ;
-(defun RFL:GETRADIUS (STA / AL C DIR R SIGN)
- (defun SIGN (X)
-  (if (< X 0)
-   (eval -1)
-   (eval 1)
-  )
- )
+(defun RFL:GETRADIUS (STA / AL C DIR R)
  (if (/= nil ALIGNLIST)
   (progn
    (setq AL (last ALIGNLIST))
@@ -66,7 +60,7 @@
            (setq R 0.0)
           )
           (progn
-           (setq DIR (SIGN (cadddr AL)))
+           (setq DIR (RFL:SIGN (cadddr AL)))
            (setq R (* DIR (RFL:RADIUS (cadr AL) (caddr AL) (cadddr AL))))
           )
          )

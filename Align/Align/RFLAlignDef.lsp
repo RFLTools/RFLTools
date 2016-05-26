@@ -80,7 +80,7 @@
    )
    (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
     (progn
-     (setq L (GETSPIRALLS ENT2))
+     (setq L (RFL:GETSPIRALLS ENT2))
      (if (/= L nil)
       (progn
        (setq ENT3 (entnext ENT2))
@@ -95,7 +95,7 @@
         (setq ENT3 (entnext ENT3))
         (setq ENTLIST (entget ENT3))
        )
-       (setq BULGE (GETSPIRALDATA ENT2))
+       (setq BULGE (RFL:GETSPIRALDATA ENT2))
        (setq L (- L (last BULGE)))
        (if (< (distance P P1) RFL:TOL)
         (progn
@@ -118,12 +118,12 @@
    )
    (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
     (progn
-     (setq L (GETSPIRALLS ENT2))
+     (setq L (RFL:GETSPIRALLS ENT2))
      (if (/= L nil)
       (progn
        (setq P1 (cdr (assoc 10 ENTLIST)))
        (setq P2 (cdr (assoc 10 (reverse ENTLIST))))
-       (setq BULGE (GETSPIRALDATA ENT2))
+       (setq BULGE (RFL:GETSPIRALDATA ENT2))
        (setq L (- L (last BULGE)))
        (if (< (distance P P1) RFL:TOL)
         (progn

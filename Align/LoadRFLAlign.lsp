@@ -31,7 +31,31 @@
 (defun RFL:TAN (X)
  (/ (sin X) (cos X))
 )
-
+(defun RFL:CENTER (P1 P2 BULGE / ANG ATOTAL CHORD D R X Y)
+ (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+ (setq CHORD (distance P1 P2))
+ (if (< (abs BULGE) RFL:TOLFINE)
+  nil
+  (progn
+   (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
+   (setq ANG (angle P1 P2))
+   (setq D (distance P1 P2))
+   (setq X (/ D 2.0))
+   (setq Y (* (sqrt (- (* R R) (* X X))) (RFL:SIGN BULGE) (RFL:SIGN (- (abs BULGE) 1.0))))
+   (list (+ (+ (car P1) (* X (cos ANG))) (* Y (sin ANG)))
+         (- (+ (cadr P1) (* X (sin ANG))) (* Y (cos ANG)))
+   )
+  )
+ )
+)
+(defun RFL:RADIUS (P1 P2 BULGE / ATOTAL CHORD)
+ (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+ (setq CHORD (distance P1 P2))
+ (if (< (abs BULGE) RFL:TOLFINE)
+  nil
+  (/ CHORD (* 2 (sin (/ ATOTAL 2))))
+ )
+)
 ;
 ;
 ;   Program written by Robert Livingston, 98/06/12
@@ -114,7 +138,7 @@
    )
    (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
     (progn
-     (setq L (GETSPIRALLS ENT2))
+     (setq L (RFL:GETSPIRALLS ENT2))
      (if (/= L nil)
       (progn
        (setq ENT3 (entnext ENT2))
@@ -129,7 +153,7 @@
         (setq ENT3 (entnext ENT3))
         (setq ENTLIST (entget ENT3))
        )
-       (setq BULGE (GETSPIRALDATA ENT2))
+       (setq BULGE (RFL:GETSPIRALDATA ENT2))
        (setq L (- L (last BULGE)))
        (if (< (distance P P1) RFL:TOL)
         (progn
@@ -152,12 +176,12 @@
    )
    (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
     (progn
-     (setq L (GETSPIRALLS ENT2))
+     (setq L (RFL:GETSPIRALLS ENT2))
      (if (/= L nil)
       (progn
        (setq P1 (cdr (assoc 10 ENTLIST)))
        (setq P2 (cdr (assoc 10 (reverse ENTLIST))))
-       (setq BULGE (GETSPIRALDATA ENT2))
+       (setq BULGE (RFL:GETSPIRALDATA ENT2))
        (setq L (- L (last BULGE)))
        (if (< (distance P P1) RFL:TOL)
         (progn
@@ -344,17 +368,179 @@
 ;
 ;   Program written by Robert Livingston, 98/06/12
 ;
+;   RFL:DRAWALIGN draws the current alignmnet for alignments without spirals
+;
+;
+;
+(defun RFL:DRAWALIGN (/ ALLIST ALENT ENTLIST)
+ (setq ALLIST ALIGNLIST)
+ (entmake)
+ (setq ENTLIST (list (cons 0 "POLYLINE")
+                     (cons 66 1)))
+ (entmake ENTLIST)
+ (while (/= ALLIST nil)
+  (setq ALENT (car ALLIST))
+  (setq ALLIST (cdr ALLIST))
+  (setq ENTLIST (list (cons 0 "VERTEX")
+                      (append (list 10) (nth 1 ALENT))
+                      (cons 42 (nth 3 ALENT))
+                )
+  )
+  (entmake ENTLIST)
+  (if (= ALLIST nil)
+   (progn
+    (setq ENTLIST (list (cons 0 "VERTEX")
+                        (append (list 10) (nth 2 ALENT))
+                  )
+    )
+    (entmake ENTLIST)
+   )
+  )
+ )
+ (setq ENTLIST (list (cons 0 "SEQEND")))
+ (entmake ENTLIST)
+ (command "._convert" "P" "S" (entlast) "")
+);
+;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:DRAWALIGN2 draws the current alignmnet
+;
+;
+;
+(defun RFL:DRAWALIGN2 (/ ANG1 ANG2 ALLIST ALENT ENTLIST PC R)
+ (setq ALLIST ALIGNLIST)
+ (entmake)
+ (while (/= ALLIST nil)
+  (setq ALENT (car ALLIST))
+  (setq ALLIST (cdr ALLIST))
+  (if (listp (last ALENT))
+   (progn
+    (RFL:DRAWSPIRAL (nth 0 (last ALENT)) (nth 1 (last ALENT)) (nth 2 (last ALENT)) (nth 3 (last ALENT)) 0.0)
+   )
+   (progn
+    (if (> (abs (last ALENT)) RFL:TOLFINE)
+     (progn
+      (setq PC (RFL:CENTER (nth 1 ALENT) (nth 2 ALENT) (nth 3 ALENT)))
+      (setq R (RFL:RADIUS (nth 1 ALENT) (nth 2 ALENT) (nth 3 ALENT)))
+      (if (< (last ALENT) 0.0)
+       (progn
+        (setq ANG2 (angle PC (nth 1 ALENT)))
+        (setq ANG1 (angle PC (nth 2 ALENT)))
+       )
+       (progn
+        (setq ANG1 (angle PC (nth 1 ALENT)))
+        (setq ANG2 (angle PC (nth 2 ALENT)))
+       )
+      )
+      (setq ENTLIST (list (cons 0 "ARC")
+                          (list 10 (nth 0 PC) (nth 1 PC) 0.0)
+                          (cons 40 R)
+                          (cons 50 ANG1)
+                          (cons 51 ANG2)
+                    )
+      )
+      (entmake ENTLIST)
+     )
+     (progn
+      (setq ENTLIST (list (cons 0 "LINE")
+                          (list 10 (nth 0 (nth 1 ALENT)) (nth 1 (nth 1 ALENT)) 0.0)
+                          (list 11 (nth 0 (nth 2 ALENT)) (nth 1 (nth 2 ALENT)) 0.0)
+                    )
+      )
+      (entmake ENTLIST)
+     )
+    )
+   )
+  )
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:DRAWALIGNOS draws the current alignmnet at the specified offset
+;
+;
+;
+(defun RFL:DRAWALIGNOS (OS / ALLIST ALENT ENTLIST)
+ (RFL:DRAWALIGNOS2 OS)
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:DRAWALIGNOS2 draws the current alignmnet at the specified offset
+;
+;
+;
+(defun RFL:DRAWALIGNOS2 (OS / ANG ANG1 ANG2 ALLIST ALENT ENTLIST OS2 P1X P1Y P2X P2Y PC R)
+ (setq ALLIST ALIGNLIST)
+ (entmake)
+ (while (/= ALLIST nil)
+  (setq ALENT (car ALLIST))
+  (setq ALLIST (cdr ALLIST))
+  (if (listp (last ALENT))
+   (progn
+    (if (< (distance (nth 2 ALENT) (nth 2 (last ALENT))) (distance (nth 1 ALENT) (nth 2 (last ALENT))))
+     (setq OS2 OS)
+     (setq OS2 (* -1.0 OS))
+    )
+    (RFL:DRAWSPIRAL (nth 0 (last ALENT)) (nth 1 (last ALENT)) (nth 2 (last ALENT)) (nth 3 (last ALENT)) OS2)
+   )
+   (progn
+    (if (> (abs (last ALENT)) RFL:TOLFINE)
+     (progn
+      (setq PC (RFL:CENTER (nth 1 ALENT) (nth 2 ALENT) (nth 3 ALENT)))
+      (setq R (RFL:RADIUS (nth 1 ALENT) (nth 2 ALENT) (nth 3 ALENT)))
+      (if (> (last ALENT) 0.0)
+       (progn
+        (setq OS2 OS)
+        (setq ANG1 (angle PC (nth 1 ALENT)))
+        (setq ANG2 (angle PC (nth 2 ALENT)))
+       )
+       (progn
+        (setq OS2 (* -1.0 OS))
+        (setq ANG2 (angle PC (nth 1 ALENT)))
+        (setq ANG1 (angle PC (nth 2 ALENT)))
+       )
+      )
+      (setq ENTLIST (list (cons 0 "ARC")
+                          (list 10 (nth 0 PC) (nth 1 PC) 0.0)
+                          (cons 40 (+ R OS2))
+                          (cons 50 ANG1)
+                          (cons 51 ANG2)
+                    )
+      )
+      (entmake ENTLIST)
+     )
+     (progn
+      (setq ANG (angle (nth 1 ALENT) (nth 2 ALENT)))
+      (setq P1X (+ (nth 0 (nth 1 ALENT)) (* OS (sin ANG))))
+      (setq P1Y (- (nth 1 (nth 1 ALENT)) (* OS (cos ANG))))
+      (setq P2X (+ (nth 0 (nth 2 ALENT)) (* OS (sin ANG))))
+      (setq P2Y (- (nth 1 (nth 2 ALENT)) (* OS (cos ANG))))
+      (setq ENTLIST (list (cons 0 "LINE")
+                          (list 10 P1X P1Y 0.0)
+                          (list 11 P2X P2Y 0.0)
+                    )
+      )
+      (entmake ENTLIST)
+     )
+    )
+   )
+  )
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/12
+;
 ;   RFL:GETRADIUS returns the radius at a specified station
 ;
 ;
 ;
-(defun RFL:GETRADIUS (STA / AL C DIR R SIGN)
- (defun SIGN (X)
-  (if (< X 0)
-   (eval -1)
-   (eval 1)
-  )
- )
+(defun RFL:GETRADIUS (STA / AL C DIR R)
  (if (/= nil ALIGNLIST)
   (progn
    (setq AL (last ALIGNLIST))
@@ -408,7 +594,7 @@
            (setq R 0.0)
           )
           (progn
-           (setq DIR (SIGN (cadddr AL)))
+           (setq DIR (RFL:SIGN (cadddr AL)))
            (setq R (* DIR (RFL:RADIUS (cadr AL) (caddr AL) (cadddr AL))))
           )
          )
@@ -534,144 +720,132 @@
 )
 ;
 ;
-;    Program Written by Robert Livingston, 99/07/14
-;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
+;   Program written by Robert Livingston, 98/06/11
+;
+;   RFL:RALIGN reads a horizontal alignment from the specifiedfile
 ;
 ;
-(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq ENT (entsel "\nSelect line : "))
- (if (/= ENT nil) 
+(defun RFL:RALIGN (INFILENAME / ANGBASE ANGDIR CMDECHO INFILE INLINE LO P1X P1Y P2X P2Y
+                                PLTX PLTY PLTSTX PLTSTY PSTX PSTY BULGE)
+ (if (/= INFILENAME nil) (setq INFILENAME (findfile INFILENAME)))
+ (if (/= INFILENAME nil)
   (progn
-   (setq P (car (cdr ENT)))
-   (setq P (list (car P) (cadr P)))
-   (setq ENT (car ENT))
-   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory INFILENAME) "\\"))
+   (setq INFILE (open INFILENAME "r"))
+   (setq ALIGNLIST nil)
+   (setq INLINE (read-line INFILE))
+   (if (/= INLINE "#RFL HORIZONTAL ALIGNMENT FILE")
     (progn
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq P1 (list (car P1) (cadr P1)))
-     (setq P2 (cdr (assoc 11 ENTLIST)))
-     (setq P2 (list (car P2) (cadr P2)))
-     (if (< (distance P P1) (distance P P2))
-      (progn
-       (setq TMP P1)
-       (setq P1 P2)
-       (setq P2 TMP)
-      )
-     )
-     (setq ANG (angle P1 P2))
-     (if (/= (setq R (getreal "Radius : ")) nil)
-      (if (/= (setq L (getreal "Length : ")) nil)
+     (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
+    )
+    (progn
+     (setq INLINE (read-line INFILE))
+     (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
+      (setq STA (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq P1X (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq P1Y (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq P2X (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq P2Y (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (if (= INLINE "SPIRAL")
        (progn
-        (initget 1 "Left Right")
-        (setq LR (getkword "\n Left or Right : "))
-        (if (= LR "Left")
-         (setq DIR 1.0)
-         (setq DIR -1.0)
-        )
-        (setq THETA (/ L (* 2.0 R)))
-        (setq FX (* R (RFL:SPIRALFXR THETA)))
-        (setq FY (* R (RFL:SPIRALFYR THETA)))
-        (setq PLT P2)
-        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
-                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
-        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
-                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
-        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
+        (setq INLINE (read-line INFILE))
+        (setq PLTX (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq PLTY (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq PLTSTX (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq PLTSTY (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq PSTX (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq PSTY (atof INLINE))
+        (setq INLINE (read-line INFILE))
+        (setq LO (atof INLINE))
+        (setq BULGE (list (list PLTX PLTY) (list PLTSTX PLTSTY) (list PSTX PSTY) LO))
        )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
-;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
-;
-;
-(defun C:FITSPIRAL (/ CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 GETLS LS1 LS2 R)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun GETLS (R MSG / LS AL)
-  (setq LS nil)
-  (setq AL "L")
-  (if (= R 0.0)
-   (progn
-    (princ "\n*** Zero length arc selected - only spiral length valid!")
-    (setq LS (getreal (strcat MSG " length :")))
-   )
-   (progn
-    (while (= LS nil)
-     (if (= AL "L")
-      (progn
-       (setq LS (getreal (strcat MSG " length <return for A>:")))
-       (if (= LS nil)
-        (progn
-         (setq AL "A")
-        )
-       )
-      )
-      (progn
-       (setq LS (getreal (strcat MSG " A <return for length>:")))
-       (if (= LS nil)
-        (progn
-         (setq AL "L")
-        )
-        (progn
-         (setq LS (/ (* LS LS) R))
-        )
-       )
-      )
-     )
-    )
-   )
-  )
-  (eval LS)
- )
- 
- (if (/= (setq ENT1 (car (entsel "\nSelect first entity : "))) nil)
-  (if (/= (setq ENT2 (car (entsel "\nSelect second entity : "))) nil)
-   (progn
-    (setq ENTLIST1 (entget ENT1))
-    (setq ENTLIST2 (entget ENT2))
-    (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
-     (progn
-      (if (/= (setq R (getreal "\nEnter radius (0 for Spiral/Spiral) : ")) nil)
-       (if (/= (setq LS1 (GETLS R "\nSpiral IN")) nil)
-        (if (/= (setq LS2 (GETLS R "\nSpiral OUT")) nil)
-         (RFL:FITSPIRALLL ENT1 ENT2 LS1 R LS2)
-        )
-       )
-      )
-     )
-     (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
-      (progn
-       (RFL:FITSPIRALLA ENT1 ENT2)
-      )
-      (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
        (progn
-        (RFL:FITSPIRALLA ENT2 ENT1)
-       )
-       (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
-        (progn
-;         (RFL:FITSPIRALAA ENT1 ENT2)
-        )
+        (setq BULGE (atof INLINE))
        )
       )
+      (setq INLINE (read-line INFILE))
+      (setq ALIGNLIST (append ALIGNLIST (list (list STA (list P1X P1Y) (list P2X P2Y) BULGE))))
      )
+    )
+   )
+   (close INFILE)
+  )
+ )
+);
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   RFL:WALIGN writes a horizontal alignment to the specifiedfile
+;
+;
+(defun RFL:WALIGN (OUTFILENAME / C OUTFILE)
+ (if (/= OUTFILENAME nil)
+  (progn
+   (if (/= ".HOR" (strcase (substr OUTFILENAME (- (strlen OUTFILENAME) 3))))
+    (setq OUTFILENAME (strcat OUTFILENAME ".HOR"))
+   )
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory OUTFILENAME) "\\"))
+   (setq C 0)
+   (while (and (= nil (setq OUTFILE (open OUTFILENAME "w"))) (< C 5))
+    (setq C (+ C 1))
+    (princ (strcat "\nProblem openning file for writing : " (itoa C)))
+   )
+   (if (= nil OUTFILE)
+    (alert (strcat "Error openning file for writing : " OUTFILENAME))
+    (progn
+     (princ "#RFL HORIZONTAL ALIGNMENT FILE\n" OUTFILE)
+     (setq C 0)
+     (while (< C (length ALIGNLIST))
+      (princ (rtos (nth 0 (nth C ALIGNLIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 0 (nth 1 (nth C ALIGNLIST))) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 1 (nth 1 (nth C ALIGNLIST))) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 0 (nth 2 (nth C ALIGNLIST))) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 1 (nth 2 (nth C ALIGNLIST))) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (if (listp (nth 3 (nth C ALIGNLIST)))
+       (progn
+        (princ "SPIRAL\n" OUTFILE)
+        (princ (rtos (nth 0 (nth 0 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 1 (nth 0 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 0 (nth 1 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 1 (nth 1 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 0 (nth 2 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 1 (nth 2 (nth 3 (nth C ALIGNLIST)))) 2 16) OUTFILE)
+        (princ "\n" OUTFILE)
+        (princ (rtos (nth 3 (nth 3 (nth C ALIGNLIST))) 2 16) OUTFILE)
+       )
+       (progn
+        (princ (rtos (nth 3 (nth C ALIGNLIST)) 2 16) OUTFILE)
+       )
+      )
+      (princ "\n" OUTFILE)
+      (setq C (+ C 1))
+     )
+     (princ "#END DEFINITION\n" OUTFILE)
+     (close OUTFILE)
     )
    )
   )
  )
-
- (setvar "CMDECHO" CMDECHO)
 )
 ;
 ;
@@ -2003,5 +2177,349 @@
  )
 
  PXY
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   C:DALIGN draws the current alignment
+;
+;
+(defun C:DALIGN (/ AL ANGBASE ANGDIR CMDECHO OSMODE REP SFLAG STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (if (/= nil ALIGNLIST)
+  (progn
+   (setq AL ALIGNLIST)
+   (setq SFLAG 0)
+   (while (/= AL nil)
+    (if (listp (last (car AL)))
+     (progn
+      (setq SFLAG 1)
+     )
+    )
+    (setq AL (cdr AL))
+   )
+   (if (= SFLAG 0)
+    (RFL:DRAWALIGN)
+    (RFL:DRAWALIGN2)
+   )
+  )
+  (princ "\n*** ALIGNMENT NOT SET ***\n")
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   C:DALIGNOS draws the current alignment at a specified offset
+;
+;
+(defun C:DALIGNOS (/ AL ANGBASE ANGDIR CMDECHO OS OSMODE REP SFLAG)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (if (/= nil ALIGNLIST)
+  (progn
+   (setq OS (getreal "\nEnter offset (-ve = left, +ve = right) : "))
+   (setq AL ALIGNLIST)
+   (setq SFLAG 0)
+   (while (/= AL nil)
+    (if (listp (last (car AL)))
+     (progn
+      (setq SFLAG 1)
+     )
+    )
+    (setq AL (cdr AL))
+   )
+   (if (= SFLAG 0)
+    (RFL:DRAWALIGNOS OS)
+    (RFL:DRAWALIGNOS2 OS)
+   )
+  )
+  (princ "\n*** ALIGNMENT NOT SET ***\n")
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
+;
+;
+(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq ENT (entsel "\nSelect line : "))
+ (if (/= ENT nil) 
+  (progn
+   (setq P (car (cdr ENT)))
+   (setq P (list (car P) (cadr P)))
+   (setq ENT (car ENT))
+   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
+    (progn
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq P1 (list (car P1) (cadr P1)))
+     (setq P2 (cdr (assoc 11 ENTLIST)))
+     (setq P2 (list (car P2) (cadr P2)))
+     (if (< (distance P P1) (distance P P2))
+      (progn
+       (setq TMP P1)
+       (setq P1 P2)
+       (setq P2 TMP)
+      )
+     )
+     (setq ANG (angle P1 P2))
+     (if (/= (setq R (getreal "Radius : ")) nil)
+      (if (/= (setq L (getreal "Length : ")) nil)
+       (progn
+        (initget 1 "Left Right")
+        (setq LR (getkword "\n Left or Right : "))
+        (if (= LR "Left")
+         (setq DIR 1.0)
+         (setq DIR -1.0)
+        )
+        (setq THETA (/ L (* 2.0 R)))
+        (setq FX (* R (RFL:SPIRALFXR THETA)))
+        (setq FY (* R (RFL:SPIRALFYR THETA)))
+        (setq PLT P2)
+        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
+                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
+        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
+                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
+        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
+;
+;
+(defun C:FITSPIRAL (/ CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 GETLS LS1 LS2 R)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun GETLS (R MSG / LS AL)
+  (setq LS nil)
+  (setq AL "L")
+  (if (= R 0.0)
+   (progn
+    (princ "\n*** Zero length arc selected - only spiral length valid!")
+    (setq LS (getreal (strcat MSG " length :")))
+   )
+   (progn
+    (while (= LS nil)
+     (if (= AL "L")
+      (progn
+       (setq LS (getreal (strcat MSG " length <return for A>:")))
+       (if (= LS nil)
+        (progn
+         (setq AL "A")
+        )
+       )
+      )
+      (progn
+       (setq LS (getreal (strcat MSG " A <return for length>:")))
+       (if (= LS nil)
+        (progn
+         (setq AL "L")
+        )
+        (progn
+         (setq LS (/ (* LS LS) R))
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+  (eval LS)
+ )
+ 
+ (if (/= (setq ENT1 (car (entsel "\nSelect first entity : "))) nil)
+  (if (/= (setq ENT2 (car (entsel "\nSelect second entity : "))) nil)
+   (progn
+    (setq ENTLIST1 (entget ENT1))
+    (setq ENTLIST2 (entget ENT2))
+    (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
+     (progn
+      (if (/= (setq R (getreal "\nEnter radius (0 for Spiral/Spiral) : ")) nil)
+       (if (/= (setq LS1 (GETLS R "\nSpiral IN")) nil)
+        (if (/= (setq LS2 (GETLS R "\nSpiral OUT")) nil)
+         (RFL:FITSPIRALLL ENT1 ENT2 LS1 R LS2)
+        )
+       )
+      )
+     )
+     (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
+      (progn
+       (RFL:FITSPIRALLA ENT1 ENT2)
+      )
+      (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
+       (progn
+        (RFL:FITSPIRALLA ENT2 ENT1)
+       )
+       (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
+        (progn
+;         (RFL:FITSPIRALAA ENT1 ENT2)
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   GALIGN extracts a horizontal alignment from the current drawing
+;
+;
+(defun C:GALIGN (/ ALIGNENT ALIGNENTLIST ANGBASE ANGDIR CMDECHO PSTART STASTART)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (if (/= RFL:ALIGNDEF nil)
+  (progn
+   (setq ALIGNLIST nil)
+   (setq PSTART (getpoint "\nStart point:"))
+   (if (/= PSTART nil)
+    (progn
+     (setq STASTART (getreal "\nStart chainage:"))
+     (if (/= STASTART nil)
+      (progn
+       (princ "\nSelect R14 polyline (<return> to select SoftDesk entities):")
+       (setq ALIGNENT (car (entsel)))
+       (if (= ALIGNENT nil)
+        (progn
+         (setq ALIGNENT (ssget))
+         (setq ALIGNLIST (RFL:ALIGNDEF (list ALIGNENT) PSTART STASTART))
+        )
+        (progn
+         (setq ALIGNENTLIST (entget ALIGNENT))
+         (if (= (cdr (assoc 0 ALIGNENTLIST)) "POLYLINE")
+          (progn
+           (command "._CONVERT" "P" "S" ALIGNENT "")
+           (setq ALIGNENTLIST (entget ALIGNENT))
+          )
+         )
+         (if (= (cdr (assoc 0 ALIGNENTLIST)) "LWPOLYLINE")
+          (progn
+           (setq ALIGNLIST (RFL:ALIGNDEF ALIGNENT PSTART STASTART))
+          )
+          (princ "\n**** NOT A POLYLINE ****")
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+  (progn
+   (princ "\n!!!!! ALIGNMENT UTILITIES NOT LOADED !!!!!\n")
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   RALIGN reads a horizontal alignment from file
+;
+;
+(defun C:RALIGN (/ ANGBASE ANGDIR CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 2))
+ (RFL:RALIGN INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   WALIGN writes a horizontal alignment to file
+;
+;
+(defun C:WALIGN (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= ALIGNLIST nil)
+  (princ "\n*** NO ALIGNMENT EXISTS - USE RALIGN OR GALIGN ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 1))
+   (RFL:WALIGN OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
 )
 

@@ -8,10 +8,14 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Align\RFLAlignDef.lsp" + ^
      ".\Align\RFLArcLength.lsp" + ^
      ".\Align\RFLAXY.lsp" + ^
+     ".\Align\RFLDrawAlign.lsp" + ^
+     ".\Align\RFLDrawAlign2.lsp" + ^
+     ".\Align\RFLDrawAlignOS.lsp" + ^
+     ".\Align\RFLDrawAlignOS2.lsp" + ^
      ".\Align\RFLGetRadius.lsp" + ^
      ".\Align\RFLIntersA.lsp" + ^
-     ".\Spiral\CDSpiral.lsp" + ^
-     ".\Spiral\CFitSpiral.lsp" + ^
+     ".\Align\RFLRAlign.lsp" + ^
+     ".\Align\RFLWAlign.lsp" + ^
      ".\Spiral\RFLDrawSpiral.lsp" + ^
      ".\Spiral\RFLFitSpiralAA.lsp" + ^
      ".\Spiral\RFLFitSpiralLA.lsp" + ^
@@ -39,6 +43,13 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Spiral\RFLSpiralStaOff.lsp" + ^
      ".\Spiral\RFLSpiralStaOff2.lsp" + ^
      ".\Spiral\RFLSpiralXY.lsp" + ^
-     ".\Spiral\RFLSpiralXY2.lsp" ^
+     ".\Spiral\RFLSpiralXY2.lsp" + ^
+     ".\Commands\CDAlign.lsp" + ^
+     ".\Commands\CDAlignOS.lsp" + ^
+     ".\Commands\CDSpiral.lsp" + ^
+     ".\Commands\CFitSpiral.lsp" + ^
+     ".\Commands\CGAlign.lsp" + ^
+     ".\Commands\CRAlign.lsp" + ^
+     ".\Commands\CWAlign.lsp" ^
      ".\LoadRFLAlign.lsp"
 pause
