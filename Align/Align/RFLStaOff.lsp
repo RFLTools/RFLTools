@@ -1,0 +1,146 @@
+;
+;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:STAOFF returns a list of (STA OFFSET) for a provided (X Y)
+;
+;
+(defun RFL:STAOFF (P / ANG ANG1 ANG2 AL C D D1 D11 D2 D22 OFFSET
+                       P1 P2 PLT PLTST PST LO
+                       OFFSETBEST PC R STA STABEST TMP)
+ (setq STABEST nil)
+ (setq OFFSETBEST nil)
+ (if (/= ALIGNLIST nil)
+  (progn
+   (setq C 0)
+   (setq AL (nth C ALIGNLIST))
+   (while (/= AL nil)
+    (if (> (distance (cadr AL) (caddr AL)) RFL:TOLFINE)
+     (progn
+      (if (listp (cadddr AL))
+       (progn
+        (setq P1 (cadr AL))
+        (setq P2 (caddr AL))
+        (setq PLT (car (cadddr AL)))
+        (setq PLTST (cadr (cadddr AL)))
+        (setq PST (caddr (cadddr AL)))
+        (setq LO (cadddr (cadddr AL)))
+        (if (= (RFL:SPIRALPOINTON P PLT PLTST PST LO) 1)
+         (progn
+          (setq TMP (RFL:SPIRALSTAOFF2 P PLT PLTST PST LO))
+          (if (< (distance P2 PST) (distance P1 PST))
+           (progn
+            (setq STA (- (+ (car AL) (car TMP)) LO))
+            (setq OFFSET (cadr TMP))
+           )
+           (progn
+            (setq STA (- (+ (car AL) (RFL:GETSPIRALLS2 PLT PLTST PST)) (car TMP)))
+            (setq OFFSET (* -1.0 (cadr TMP)))
+           )
+          )
+          (if (= STABEST nil)
+           (progn
+            (setq STABEST STA)
+            (setq OFFSETBEST OFFSET)
+           )
+           (progn
+            (if (< (abs OFFSET) (abs OFFSETBEST))
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+       (progn
+        (if (< (abs (cadddr AL)) RFL:TOLFINE)
+         (progn
+          (setq D (distance (cadr AL) (caddr AL)))
+          (setq D1 (distance (cadr AL) P))
+          (setq D2 (distance (caddr AL) P))
+          (setq D11 (/ (+ (* D D)
+                          (- (* D1 D1)
+                             (* D2 D2)
+                          )
+                       )
+                       (* 2.0 D)
+                    )
+          )
+          (setq D22 (- D D11))
+          (if (and (<= D11 (+ D RFL:TOLFINE)) (<= D22 (+ D RFL:TOLFINE)))
+           (progn
+            (setq STA (+ (car AL) D11))
+            (setq OFFSET (sqrt (abs (- (* D1 D1) (* D11 D11)))))
+            (setq ANG (- (angle (cadr AL) (caddr AL)) (angle (cadr AL) P)))
+            (while (< ANG 0.0) (setq ANG (+ ANG (* 2.0 pi))))
+            (if (> ANG (/ pi 2.0)) (setq OFFSET (* OFFSET -1.0)))
+            (if (= STABEST nil)
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+             (progn
+              (if (< (abs OFFSET) (abs OFFSETBEST))
+               (progn
+                (setq STABEST STA)
+                (setq OFFSETBEST OFFSET)
+               )
+              )
+             )
+            )
+           )
+          )
+         )
+         (progn
+          (setq PC (RFL:CENTER (cadr AL) (caddr AL) (cadddr AL)))
+          (if (< (cadddr AL) 0.0)
+           (setq ANG1 (- (angle PC (cadr AL)) (angle PC P)))
+           (setq ANG1 (- (angle PC P) (angle PC (cadr AL))))
+          )
+          (while (< ANG1 0.0) (setq ANG1 (+ ANG1 (* 2.0 pi))))
+          (if (< (cadddr AL) 0.0)
+           (setq ANG2 (- (angle PC (cadr AL)) (angle PC (caddr AL))))
+           (setq ANG2 (- (angle PC (caddr AL)) (angle PC (cadr AL))))
+          )
+          (while (< ANG2 0.0) (setq ANG2 (+ ANG2 (* 2.0 pi))))
+          (if (<= ANG1 (+ ANG2 RFL:TOLFINE))
+           (progn
+            (setq R (RFL:RADIUS (cadr AL) (caddr AL) (cadddr AL)))
+            (setq STA (+ (car AL) (* R ANG1)))
+            (setq OFFSET (- (distance PC P) R))
+            (if (< (cadddr AL) 0.0) (setq OFFSET (* -1.0 OFFSET)))
+            (if (= STABEST nil)
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+             (progn
+              (if (< (abs OFFSET) (abs OFFSETBEST))
+               (progn
+                (setq STABEST STA)
+                (setq OFFSETBEST OFFSET)
+               )
+              )
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+    (setq C (+ C 1))
+    (setq AL (nth C ALIGNLIST))
+   )
+  )
+ )
+ (if (= STABEST nil)
+  (eval nil)
+  (list STABEST OFFSETBEST)
+ )
+)

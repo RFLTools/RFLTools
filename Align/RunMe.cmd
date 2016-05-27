@@ -15,7 +15,9 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Align\RFLGetRadius.lsp" + ^
      ".\Align\RFLIntersA.lsp" + ^
      ".\Align\RFLRAlign.lsp" + ^
+     ".\Align\RFLStaOff.lsp" + ^
      ".\Align\RFLWAlign.lsp" + ^
+     ".\Align\RFLXY.lsp" + ^
      ".\Spiral\RFLDrawSpiral.lsp" + ^
      ".\Spiral\RFLFitSpiralAA.lsp" + ^
      ".\Spiral\RFLFitSpiralLA.lsp" + ^

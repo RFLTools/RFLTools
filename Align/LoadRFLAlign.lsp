@@ -783,6 +783,152 @@
  )
 );
 ;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:STAOFF returns a list of (STA OFFSET) for a provided (X Y)
+;
+;
+(defun RFL:STAOFF (P / ANG ANG1 ANG2 AL C D D1 D11 D2 D22 OFFSET
+                       P1 P2 PLT PLTST PST LO
+                       OFFSETBEST PC R STA STABEST TMP)
+ (setq STABEST nil)
+ (setq OFFSETBEST nil)
+ (if (/= ALIGNLIST nil)
+  (progn
+   (setq C 0)
+   (setq AL (nth C ALIGNLIST))
+   (while (/= AL nil)
+    (if (> (distance (cadr AL) (caddr AL)) RFL:TOLFINE)
+     (progn
+      (if (listp (cadddr AL))
+       (progn
+        (setq P1 (cadr AL))
+        (setq P2 (caddr AL))
+        (setq PLT (car (cadddr AL)))
+        (setq PLTST (cadr (cadddr AL)))
+        (setq PST (caddr (cadddr AL)))
+        (setq LO (cadddr (cadddr AL)))
+        (if (= (RFL:SPIRALPOINTON P PLT PLTST PST LO) 1)
+         (progn
+          (setq TMP (RFL:SPIRALSTAOFF2 P PLT PLTST PST LO))
+          (if (< (distance P2 PST) (distance P1 PST))
+           (progn
+            (setq STA (- (+ (car AL) (car TMP)) LO))
+            (setq OFFSET (cadr TMP))
+           )
+           (progn
+            (setq STA (- (+ (car AL) (RFL:GETSPIRALLS2 PLT PLTST PST)) (car TMP)))
+            (setq OFFSET (* -1.0 (cadr TMP)))
+           )
+          )
+          (if (= STABEST nil)
+           (progn
+            (setq STABEST STA)
+            (setq OFFSETBEST OFFSET)
+           )
+           (progn
+            (if (< (abs OFFSET) (abs OFFSETBEST))
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+       (progn
+        (if (< (abs (cadddr AL)) RFL:TOLFINE)
+         (progn
+          (setq D (distance (cadr AL) (caddr AL)))
+          (setq D1 (distance (cadr AL) P))
+          (setq D2 (distance (caddr AL) P))
+          (setq D11 (/ (+ (* D D)
+                          (- (* D1 D1)
+                             (* D2 D2)
+                          )
+                       )
+                       (* 2.0 D)
+                    )
+          )
+          (setq D22 (- D D11))
+          (if (and (<= D11 (+ D RFL:TOLFINE)) (<= D22 (+ D RFL:TOLFINE)))
+           (progn
+            (setq STA (+ (car AL) D11))
+            (setq OFFSET (sqrt (abs (- (* D1 D1) (* D11 D11)))))
+            (setq ANG (- (angle (cadr AL) (caddr AL)) (angle (cadr AL) P)))
+            (while (< ANG 0.0) (setq ANG (+ ANG (* 2.0 pi))))
+            (if (> ANG (/ pi 2.0)) (setq OFFSET (* OFFSET -1.0)))
+            (if (= STABEST nil)
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+             (progn
+              (if (< (abs OFFSET) (abs OFFSETBEST))
+               (progn
+                (setq STABEST STA)
+                (setq OFFSETBEST OFFSET)
+               )
+              )
+             )
+            )
+           )
+          )
+         )
+         (progn
+          (setq PC (RFL:CENTER (cadr AL) (caddr AL) (cadddr AL)))
+          (if (< (cadddr AL) 0.0)
+           (setq ANG1 (- (angle PC (cadr AL)) (angle PC P)))
+           (setq ANG1 (- (angle PC P) (angle PC (cadr AL))))
+          )
+          (while (< ANG1 0.0) (setq ANG1 (+ ANG1 (* 2.0 pi))))
+          (if (< (cadddr AL) 0.0)
+           (setq ANG2 (- (angle PC (cadr AL)) (angle PC (caddr AL))))
+           (setq ANG2 (- (angle PC (caddr AL)) (angle PC (cadr AL))))
+          )
+          (while (< ANG2 0.0) (setq ANG2 (+ ANG2 (* 2.0 pi))))
+          (if (<= ANG1 (+ ANG2 RFL:TOLFINE))
+           (progn
+            (setq R (RFL:RADIUS (cadr AL) (caddr AL) (cadddr AL)))
+            (setq STA (+ (car AL) (* R ANG1)))
+            (setq OFFSET (- (distance PC P) R))
+            (if (< (cadddr AL) 0.0) (setq OFFSET (* -1.0 OFFSET)))
+            (if (= STABEST nil)
+             (progn
+              (setq STABEST STA)
+              (setq OFFSETBEST OFFSET)
+             )
+             (progn
+              (if (< (abs OFFSET) (abs OFFSETBEST))
+               (progn
+                (setq STABEST STA)
+                (setq OFFSETBEST OFFSET)
+               )
+              )
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+    (setq C (+ C 1))
+    (setq AL (nth C ALIGNLIST))
+   )
+  )
+ )
+ (if (= STABEST nil)
+  (eval nil)
+  (list STABEST OFFSETBEST)
+ )
+)
+;
+;
 ;   Program written by Robert Livingston, 98/06/11
 ;
 ;   RFL:WALIGN writes a horizontal alignment to the specifiedfile
@@ -844,6 +990,145 @@
      (close OUTFILE)
     )
    )
+  )
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/12
+;
+;   RFL:XY returns a list of (X Y) for a provided (STA OFFSET)
+;
+;
+(defun RFL:XY (P / ANG AL ALTMP C D DIST OFFSET P1 P2 PC POINT STA X Y TOL)
+ (setq TOL 0.00000001)
+ (defun POINT (P1 P2 BULGE L / A ATOTAL C CHORD LTOTAL P PC R SB X Y)
+  (setq CHORD (distance P1 P2))
+  (if (< (abs BULGE) TOL)
+   (progn
+    (list (+ (* (/ L CHORD) (- (car P2) (car P1))) (car P1))
+          (+ (* (/ L CHORD) (- (cadr P2) (cadr P1))) (cadr P1)))
+   )
+   (progn
+    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+    (setq PC (CENTER P1 P2 BULGE))
+    (setq R (RADIUS P1 P2 BULGE))
+    (setq A (+ (angle PC P1) (* (SIGN BULGE) (/ L R))))
+    (list (+ (car PC) (* R (cos A)))
+          (+ (cadr PC) (* R (sin A))))
+   )
+  )
+ )
+ (defun DIST (P1 P2 BULGE / ATOTAL CHORD R)
+  (if (listp BULGE)
+   (progn
+    (- (RFL:GETSPIRALLS2 (car BULGE) (cadr BULGE) (caddr BULGE)) (cadddr BULGE))
+   )
+   (progn
+    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+    (setq CHORD (distance P1 P2))
+    (if (= 0.0 BULGE)
+     (eval CHORD)
+     (progn 
+      (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
+      (* R ATOTAL)
+     )
+    )
+   )
+  )
+ )
+ (if (/= nil ALIGNLIST)
+  (progn
+   (setq STA (car P))
+   (setq OFFSET (cadr P))
+   (setq AL (last ALIGNLIST))
+   (if (<= STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))
+    (progn
+     (setq AL (car ALIGNLIST))
+     (setq ALTMP (cdr ALIGNLIST))
+     (if (>= STA (car AL))
+      (progn
+       (while (> STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))
+        (setq AL (car ALTMP))
+        (setq ALTMP (cdr ALTMP))
+       )
+       (if (listp (cadddr AL))
+        (progn
+         (if (< (distance (caddr AL) (caddr (cadddr AL))) (distance (cadr AL) (caddr (cadddr AL))))
+          (progn
+           (setq P1 (RFL:SPIRALXY2 (list (+ (- STA
+                                           (car AL)
+                                        )
+                                        (cadddr (cadddr AL))
+                                     )
+                                     OFFSET
+                               )
+                               (car (cadddr AL))
+                               (cadr (cadddr AL))
+                               (caddr (cadddr AL))
+                    )
+           )
+          )
+          (progn
+           (setq P1 (RFL:SPIRALXY2 (list (- (RFL:GETSPIRALLS2 (car (cadddr AL))
+                                                              (cadr (cadddr AL))
+                                                              (caddr (cadddr AL))
+                                            )
+                                            (- STA
+                                               (car AL)
+                                            )
+                                         )
+                                         (* -1.0 OFFSET)
+                                   )
+                                   (car (cadddr AL))
+                                   (cadr (cadddr AL))
+                                   (caddr (cadddr AL))
+                    )
+           )
+          )
+         )
+        )
+        (progn
+         (setq P2 (POINT (cadr AL) (caddr AL) (cadddr AL) (- STA (car AL))))
+         (if (< (abs (cadddr AL)) TOL)
+          (progn
+           (setq ANG (angle (cadr AL) (caddr AL)))
+           (setq D (distance (cadr AL) P2))
+           (setq P1 (list (+ (+ (car (cadr AL)) (* D (cos ANG))) (* OFFSET (sin ANG)))
+                          (- (+ (cadr (cadr AL)) (* D (sin ANG))) (* OFFSET (cos ANG)))
+                    )
+           )
+          )
+          (progn
+           (setq PC (RFL:CENTER (cadr AL) (caddr AL) (cadddr AL)))
+           (if (< (cadddr AL) 0.0)
+            (setq ANG (angle P2 PC))
+            (setq ANG (angle PC P2))
+           )
+           (setq P1 (list (+ (car P2) (* OFFSET (cos ANG)))
+                          (+ (cadr P2) (* OFFSET (sin ANG)))
+                    )
+           )
+          )
+         )
+        )
+       )
+      )
+      (progn
+       (princ "\n**** STATION OUT OF RANGE ****")
+       nil
+      )
+     )
+    )
+    (progn
+     (princ "\n**** STATION OUT OF RANGE ****")
+     nil
+    )
+   )
+  )
+  (progn
+   (princ "\n**** NO ALIGNMENT DEFINED ****")
+   nil
   )
  )
 )
