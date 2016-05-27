@@ -16,9 +16,9 @@
    )
    (progn
     (setq ATOTAL (* 4.0 (atan (abs BULGE))))
-    (setq PC (CENTER P1 P2 BULGE))
-    (setq R (RADIUS P1 P2 BULGE))
-    (setq A (+ (angle PC P1) (* (SIGN BULGE) (/ L R))))
+    (setq PC (RFL:CENTER P1 P2 BULGE))
+    (setq R (RFL:RADIUS P1 P2 BULGE))
+    (setq A (+ (angle PC P1) (* (RFL:SIGN BULGE) (/ L R))))
     (list (+ (car PC) (* R (cos A)))
           (+ (cadr PC) (* R (sin A))))
    )

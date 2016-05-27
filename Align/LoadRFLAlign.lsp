@@ -1011,9 +1011,9 @@
    )
    (progn
     (setq ATOTAL (* 4.0 (atan (abs BULGE))))
-    (setq PC (CENTER P1 P2 BULGE))
-    (setq R (RADIUS P1 P2 BULGE))
-    (setq A (+ (angle PC P1) (* (SIGN BULGE) (/ L R))))
+    (setq PC (RFL:CENTER P1 P2 BULGE))
+    (setq R (RFL:RADIUS P1 P2 BULGE))
+    (setq A (+ (angle PC P1) (* (RFL:SIGN BULGE) (/ L R))))
     (list (+ (car PC) (* R (cos A)))
           (+ (cadr PC) (* R (sin A))))
    )
@@ -1445,9 +1445,9 @@
 ;    RFL:FITSPIRALLA Fits a reverse engineered DCA spiral between a line and an arc
 ;
 ;
-(defun FITSPIRALLA (ENT1 ENT2 / A ANG ANG1 ANG2 ANG3 B C D1 D2 D3 DIR ENTLIST1 ENTLIST2
-                                K P P1 P2 PC PC1 PC2 PP PLT PLT1 PLT2 PLTST PLTST1 PLTST2 PST PST1 PST2
-                                R THETA THETA1 THETA2)
+(defun RFL:FITSPIRALLA (ENT1 ENT2 / A ANG ANG1 ANG2 ANG3 B C D1 D2 D3 DIR ENTLIST1 ENTLIST2
+                                    K P P1 P2 PC PC1 PC2 PP PLT PLT1 PLT2 PLTST PLTST1 PLTST2 PST PST1 PST2
+                                    R THETA THETA1 THETA2)
  (setq ENTLIST1 (entget ENT1))
  (setq ENTLIST2 (entget ENT2))
  (setq P1 (cdr (assoc 10 ENTLIST1)))
