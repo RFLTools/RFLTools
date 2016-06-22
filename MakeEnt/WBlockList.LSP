@@ -21,15 +21,59 @@
 
  (if (/= nil (setq ENT (car (entsel "\nSelect block : "))))
   (if (= "INSERT" (cdr (assoc 0 (setq ENTLIST (entget ENT)))))
-   (if (/= nil (setq OUTFILE (getfiled "Select a block file" "" "" 1)))
-    (progn
-     (setq OUTFILE (open OUTFILE "a"))
-     (princ "         (entmake)\n" OUTFILE)
+   (progn
+    (princ (strcat "\nFile written to: " (getenv "UserProfile") "\\Documents\\" (strcase (cdr (assoc 2 ENTLIST))) ".lsp"))
+    (setq OUTFILE (open (strcat (getenv "UserProfile") "\\Documents\\" (strcase (cdr (assoc 2 ENTLIST))) ".lsp") "w"))
+    (princ (strcat "       ((= (strcase BLKNAME) \"" (strcase (cdr (assoc 2 ENTLIST))) "\")\n") OUTFILE)
+    (princ "        (progn\n" OUTFILE)
+    (princ "         (entmake)\n" OUTFILE)
+    (princ "         (entmake\n" OUTFILE)
+    (princ "          (list\n" OUTFILE)
+    (setq ENTLIST (tblsearch "BLOCK" (cdr (assoc 2 ENTLIST))))
+    (setq ENT (cdr (assoc -2 ENTLIST)))
+    (while (/= nil ENTLIST)
+     (setq NODE (car ENTLIST))
+     (setq ENTLIST (cdr ENTLIST))
+     (setq CODE (car NODE))
+     (if (and (>= CODE 0) (<= CODE 100) (/= CODE 5))
+      (if (= (vl-list-length NODE) nil)
+       (progn
+        (princ
+         (strcat "           (cons "
+                 (itoa CODE)
+                 " "
+                 (if (numberp (cdr NODE))
+                  (rtos (cdr NODE) 2 8)
+                  (strcat "\"" (cdr NODE) "\"")
+                 )
+                 ")\n"
+         )
+         OUTFILE
+        )
+       )
+       (progn
+        (princ "           (list" OUTFILE)
+        (foreach VAL NODE (princ " " OUTFILE)
+                          (if (numberp VAL)
+                              (princ (rtos VAL 2 8) OUTFILE)
+                              (princ (strcat "\"" VAL "\"") OUTFILE)
+                          )
+        )
+        (princ ")\n" OUTFILE)
+       )
+      )
+     )
+    )
+
+    (princ "          )\n" OUTFILE)
+    (princ "         )\n" OUTFILE)
+
+    (while (/= ENT nil)
+     (setq ENTLIST (entget ENT))
+     (setq ENT (entnext ENT))
      (princ "         (entmake\n" OUTFILE)
      (princ "          (list\n" OUTFILE)
-     (setq ENTLIST (tblsearch "BLOCK" (cdr (assoc 2 ENTLIST))))
-     (setq ENT (cdr (assoc -2 ENTLIST)))
-     (while (/= nil ENTLIST)
+     (while (/= ENTLIST nil)
       (setq NODE (car ENTLIST))
       (setq ENTLIST (cdr ENTLIST))
       (setq CODE (car NODE))
@@ -62,55 +106,14 @@
        )
       )
      )
-
      (princ "          )\n" OUTFILE)
      (princ "         )\n" OUTFILE)
-
-     (while (/= ENT nil)
-      (setq ENTLIST (entget ENT))
-      (setq ENT (entnext ENT))
-      (princ "         (entmake\n" OUTFILE)
-      (princ "          (list\n" OUTFILE)
-      (while (/= ENTLIST nil)
-       (setq NODE (car ENTLIST))
-       (setq ENTLIST (cdr ENTLIST))
-       (setq CODE (car NODE))
-       (if (and (>= CODE 0) (<= CODE 100) (/= CODE 5))
-        (if (= (vl-list-length NODE) nil)
-         (progn
-          (princ
-           (strcat "           (cons "
-                   (itoa CODE)
-                   " "
-                   (if (numberp (cdr NODE))
-                    (rtos (cdr NODE) 2 8)
-                    (strcat "\"" (cdr NODE) "\"")
-                   )
-                   ")\n"
-           )
-           OUTFILE
-          )
-         )
-         (progn
-          (princ "           (list" OUTFILE)
-          (foreach VAL NODE (princ " " OUTFILE)
-                            (if (numberp VAL)
-                                (princ (rtos VAL 2 8) OUTFILE)
-                                (princ (strcat "\"" VAL "\"") OUTFILE)
-                            )
-          )
-          (princ ")\n" OUTFILE)
-         )
-        )
-       )
-      )
-      (princ "          )\n" OUTFILE)
-      (princ "         )\n" OUTFILE)
-     )
-     (princ "         (entmake (list (cons 0 \"ENDBLK\")))\n" OUTFILE)
-
-     (close OUTFILE)
     )
+    (princ "         (entmake (list (cons 0 \"ENDBLK\")))\n" OUTFILE)
+    (princ "        )\n" OUTFILE)
+    (princ "       )\n" OUTFILE)
+
+    (close OUTFILE)
    )
    (princ "\n*** Entity not a block ***")
   )
