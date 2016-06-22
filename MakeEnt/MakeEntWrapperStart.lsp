@@ -115,5 +115,17 @@
   (start_dialog)
  )
 )
-(defun RFL:MAKEENT (BLKNAME / )
+(defun RFL:MAKEENT (BLKNAME / BLOCKLIST NODE)
+ (setq BLOCKLIST (RFL:GETBLOCKLIST BLKNAME))
+ (if (/= nil BLOCKLIST)
+  (progn
+   (entmake)
+   (foreach NODE BLOCKLIST
+    (entmake NODE)
+   )
+  )
+  nil
+ )
+)
+(defun RFL:GETBLOCKLIST (BLKNAME)
  (cond
