@@ -12,3 +12,9 @@ C:MAKEENT : Command with dialog.
 (RFL:GETBLOCKLIST blockname) : Returns a list that can be called with entmake (see RFL:MAKEENT)
 
 C:WBLOCKLIST : Writes the selected blocks entitity information to the users documents folder under the name <blockname>.LSP.  This file can be placed into the ./Blocks folder
+
+Note :
+
+The textstyle used in the block definition will be as defined by (getvar "textstyle")
+
+Nested blocks will not be written and must be defined prior
