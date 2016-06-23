@@ -7,4 +7,3 @@ rem
 COPY ".\Common.lsp" + ^
      ".\DrawGrid.lsp" ^
      ".\LoadDrawGrid.lsp"
-pause

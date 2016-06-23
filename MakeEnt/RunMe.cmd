@@ -9,4 +9,3 @@ COPY ".\MakeEntCmd.lsp" + ^
      ".\Blocks\*.lsp" + ^
      ".\MakeEntWrapperEnd.lsp" ^
      ".\LoadMakeEnt.lsp"
-pause

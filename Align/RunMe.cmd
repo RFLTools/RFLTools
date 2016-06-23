@@ -54,4 +54,3 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Commands\CRAlign.lsp" + ^
      ".\Commands\CWAlign.lsp" ^
      ".\LoadRFLAlign.lsp"
-pause
