@@ -5,29 +5,6 @@
 ;     MAKEENT is a utility for creating RFL blocks within lisp
 ;
 ;
-;     Blocks included to date:
-;                              ALTABLE01
-;                              ALTABLE01DATA
-;                              BCCURVETABLE
-;                              BCCURVETABLEDATA
-;                              CIRC
-;                              CURVETABLE
-;                              CURVETABLEDATA
-;                              DRAWGRIDDEF
-;                              FORCE
-;                              POINT
-;                              PR-CIRCLE
-;                              PVI2
-;                              RFLALIGN
-;                              RFLPROF
-;                              SLOPE
-;                              SPOTELEVATION
-;                              SPOTELEVATION2
-;                              STALBL
-;                              STATICK
-;                              SUPER
-;                              SURVEYSPOT
-;
 (defun C:MAKEENT (/ DCL_ID ACCEPTMAKEENT BLOCKINDEX BLOCKLIST CANCELMAKEENT UPDATEBLOCK)
  (defun ACCEPTMAKEENT (/ C)
   (RFL:MAKEENT (nth BLOCKINDEX BLOCKLIST))
@@ -47,6 +24,9 @@
   (unload_dialog DCL_ID)
  )
 
+ ;
+ ;  This list must be updated with the names of all blocks that are to be included in the preview
+ ;
  (setq BLOCKLIST (list "ALTABLE01"
                        "ALTABLE01DATA"
                        "BCCURVETABLE"
@@ -115,6 +95,13 @@
   (start_dialog)
  )
 )
+;
+;
+;     Program written by Robert Livingston, 02-10-21
+;
+;     RFL:MAKEENT cycles through the block list returned by RFL:GETBLOCKLIST creating the block
+;
+;
 (defun RFL:MAKEENT (BLKNAME / BLOCKLIST NODE)
  (setq BLOCKLIST (RFL:GETBLOCKLIST BLKNAME))
  (if (/= nil BLOCKLIST)

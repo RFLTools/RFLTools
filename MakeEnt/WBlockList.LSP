@@ -1,6 +1,6 @@
 ;
 ;
-;     Program written by Robert Livingston, 02/10/18
+;     Program written by Robert Livingston, 2016/06/22
 ;
 ;     WBLOCKLIST writes lisp code to create a selected block
 ;
@@ -22,7 +22,7 @@
  (if (/= nil (setq ENT (car (entsel "\nSelect block : "))))
   (if (= "INSERT" (cdr (assoc 0 (setq ENTLIST (entget ENT)))))
    (progn
-    (princ (strcat "\nFile written to: " (getenv "UserProfile") "\\Documents\\" (strcase (cdr (assoc 2 ENTLIST))) ".lsp"))
+    (princ (strcat "\nFile written to: " (getenv "UserProfile") "\\Documents\\" (strcase (cdr (assoc 2 ENTLIST))) ".lsp\n"))
     (setq OUTFILE (open (strcat (getenv "UserProfile") "\\Documents\\" (strcase (cdr (assoc 2 ENTLIST))) ".lsp") "w"))
     (princ (strcat "       ((= (strcase BLKNAME) \"" (strcase (cdr (assoc 2 ENTLIST))) "\")\n") OUTFILE)
     (princ "        (list\n" OUTFILE)

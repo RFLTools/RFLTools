@@ -2,10 +2,11 @@
 rem
 rem Simple copy batch to create combined lsp file
 rem
-if exist MakeEnt.lsp del MakeEnt.lsp
+if exist LoadMakeEnt.lsp del MakeEnt.lsp
 rem
-COPY ".\MakeEntWrapperStart.lsp" + ^
+COPY ".\MakeEntCmd.lsp" + ^
+     ".\MakeEntWrapperStart.lsp" + ^
      ".\Blocks\*.lsp" + ^
      ".\MakeEntWrapperEnd.lsp" ^
-     ".\MakeEnt.lsp"
+     ".\LoadMakeEnt.lsp"
 pause

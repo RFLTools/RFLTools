@@ -3,10 +3,12 @@ AutoLisp Block Creation Tool
 
 Purpose:  Create RFLTools blocks
 
-Run RunMe.cmd to create/update with new blocks
+Run RunMe.cmd to create/update LoadMakeEnt.lsp including all the blocks found in the ./Blocks folder
 
 C:MAKEENT : Command with dialog.
 
-(MAKEENT blockname) : Creates blockname or nil if it does not exist.
+(RFL:MAKEENT blockname) : Creates blockname or nil if it does not exist.
 
-Note: For new blocks to be included the MakeEnt-Front.lsp must be editted to include the block definition and a slide must be added to the master slide library.
+(RFL:GETBLOCKLIST blockname) : Returns a list that can be called with entmake (see RFL:MAKEENT)
+
+C:WBLOCKLIST : Writes the selected blocks entitity information to the users documents folder under the name <blockname>.LSP.  This file can be placed into the ./Blocks folder
