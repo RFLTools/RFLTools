@@ -20,6 +20,14 @@ CD ..
 rem
 rem ---------------------------------------------
 rem
+rem Build MakeDCL
+rem
+CD .\MakeDCL
+CALL .\RunMe.cmd
+CD ..
+rem
+rem ---------------------------------------------
+rem
 rem Build RFLTools
 rem
 if exist LoadRFLTools.lsp del LoadRFLTools.lsp
@@ -28,6 +36,7 @@ COPY ".\Common\Common.lsp" + ^
      ".\Math\Trig.lsp" + ^
      ".\Align\LoadRFLALign.lsp" + ^
      ".\MakeEnt\LoadMakeEnt.lsp" + ^
+     ".\MakeDCL\LoadMakeDCL.lsp" + ^
      ".\DrawGrid\DrawGrid.lsp" + ^
      ".\Align\Align.lsp" + ^
      ".\Best\BestLine.lsp" + ^

@@ -5,9 +5,9 @@
 ;     MAKEENT is a utility for creating RFL blocks within lisp
 ;
 ;
-(defun C:MAKEENT (/ DCL_ID ACCEPTMAKEENT BLOCKINDEX BLOCKLIST CANCELMAKEENT UPDATEBLOCK)
+(defun C:MAKEENT (/ DCL_ID ACCEPTMAKEENT BLOCKINDEX CANCELMAKEENT UPDATEBLOCK)
  (defun ACCEPTMAKEENT (/ C)
-  (RFL:MAKEENT (nth BLOCKINDEX BLOCKLIST))
+  (RFL:MAKEENT (nth BLOCKINDEX RFL:MAKEENTBLOCKLIST))
   (setq BLOCKINDEX nil)
   (done_dialog)
   (unload_dialog DCL_ID)
@@ -22,32 +22,6 @@
   (setq BLOCKINDEX (atoi (get_tile "BLOCKNAME")))
   (done_dialog)
   (unload_dialog DCL_ID)
- )
-
- ;
- ;  This list must be updated with the names of all blocks that are to be included in the preview
- ;
- (setq BLOCKLIST (list "ALTABLE01"
-                       "ALTABLE01DATA"
-                       "BCCURVETABLE"
-                       "BCCURVETABLEDATA"
-                       "CIRC"
-                       "CURVETABLE"
-                       "CURVETABLEDATA"
-                       "FORCE"
-                       "POINT"
-                       "PR-CIRCLE"
-                       "PVI2"
-                       "RFLALIGN"
-                       "RFLPROF"
-                       "SLOPE"
-                       "SPOTELEVATION"
-                       "SPOTELEVATION2"
-                       "STALBL"
-                       "STATICK"
-                       "SUPER"
-                       "SURVEYSPOT"
-                 )
  )
 
  (setq BLOCKINDEX 0)
@@ -69,7 +43,7 @@
   (if (not (new_dialog "MAKEENT" DCL_ID)) (exit))
 
   (start_list "BLOCKNAME")
-  (mapcar 'add_list BLOCKLIST)
+  (mapcar 'add_list RFL:MAKEENTBLOCKLIST)
   (end_list)
 
   (set_tile "BLOCKNAME" (itoa BLOCKINDEX))
@@ -84,7 +58,7 @@
   (start_image "IMAGE")
   (slide_image 0 0 (- (dimx_tile "IMAGE") 1)
                    (- (dimy_tile "IMAGE") 1)
-                   (strcat RFLALIGNSLBNAME "(" (nth BLOCKINDEX BLOCKLIST) ")")
+                   (strcat RFLALIGNSLBNAME "(" (nth BLOCKINDEX RFL:MAKEENTBLOCKLIST) ")")
   )
   (end_image)
 

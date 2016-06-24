@@ -2,6 +2,8 @@
 ;
 ;     Program written by Robert Livingston
 ;
+;     COMMON.LSP is a subset of the master project which creates a standalone utility
+;
 ;     RFL:STATXT is a utility for converting numbers to station text (i.e 1234.567 => "1+234.567")
 ;     RFL:STAPOS is the number of digits between the '+' and the '.'
 ;     RFL:SIGN returns -1 for -ve and +1 for +ve
