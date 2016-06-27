@@ -46,6 +46,10 @@ COPY ".\Align\RFLAlignCommon.lsp" + ^
      ".\Spiral\RFLSpiralStaOff2.lsp" + ^
      ".\Spiral\RFLSpiralXY.lsp" + ^
      ".\Spiral\RFLSpiralXY2.lsp" + ^
+     ".\Profile\RFLProfDef.lsp" + ^
+     ".\Profile\RFLElevation.lsp" + ^
+     ".\Profile\RFLSlope.lsp" + ^
+     ".\Profile\RFLProfPoint.lsp" + ^
      ".\Commands\CDAlign.lsp" + ^
      ".\Commands\CDAlignOS.lsp" + ^
      ".\Commands\CDSpiral.lsp" + ^
