@@ -13,16 +13,16 @@
     (setq D (cdr (assoc "DIRECTION" PROFDEF)))
    )
    (setq X (+ (* (- STA
-                    (+ (* (cdr (assoc "STAH" PROFDEF)) 1000.0)
-                       (cdr (assoc "STAL" PROFDEF))
-                    )
+                    (cdr (assoc "STA" PROFDEF))
                  )
                  D
               )
               (car (cdr (assoc "BPOINT" PROFDEF)))
            )
    )
-   (setq Y (+ (* (- ELEV (cdr (assoc "ELEV" PROFDEF)))
+   (setq Y (+ (* (- ELEV
+                    (cdr (assoc "ELEV" PROFDEF))
+                 )
                  (cdr (assoc "VEXAG" PROFDEF))
               )
               (cadr (cdr (assoc "BPOINT" PROFDEF)))
@@ -32,7 +32,7 @@
   )
   (progn
    (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
-   (eval nil)
+   nil
   )
  )
 )
