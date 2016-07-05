@@ -1,0 +1,53 @@
+;
+;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   RFL:PROFHIGHLOW draws circles at the high and low points along a profile
+;
+;
+(defun RFL:PROFHIGHLOW (R / CLAYER OSMODE G1 G2 L P1 P2 P3 PVI STA STA1 STA2)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq CLAYER (getvar "CLAYER"))
+ (if (not (tblsearch "LAYER" (cdr (assoc "PTLAYER" PROFDEF))))
+  (entmake (list (cons 0 "LAYER")
+                 (cons 100 "AcDbSymbolTableRecord")
+                 (cons 100 "AcDbLayerTableRecord")
+                 (cons 2 (cdr (assoc "PTLAYER" PROFDEF)))
+                 (cons 70 0)
+           )
+  )
+ )
+ (setvar "CLAYER" (cdr (assoc "PTLAYER" PROFDEF)))
+
+ (setq PVI PVILIST)
+ (setq P1 (car PVI))
+ (setq PVI (cdr PVI))
+ (setq P2 (car PVI))
+ (setq PVI (cdr PVI))
+ (setq P3 (car PVI))
+ (setq PVI (cdr PVI))
+ (while (/= nil P3)
+  (setq G1 (/ (- (nth 1 P2) (nth 1 P1)) (- (nth 0 P2) (nth 0 P1))))
+  (setq G2 (/ (- (nth 1 P3) (nth 1 P2)) (- (nth 0 P3) (nth 0 P2))))
+  (setq L (nth 3 P2))
+  (setq STA1 (- (nth 0 P2) (/ L 2.0)))
+  (setq STA2 (+ (nth 0 P2) (/ L 2.0)))
+  (if (< (* G1 G2) 0.0)
+   (progn
+    (setq STA (+ STA1 (/ (* L G1) (- G1 G2))))
+    (entmake (list (cons 0 "CIRCLE")
+                   (cons 10 (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
+                   (cons 40 R)
+             )
+    )
+   )
+  )
+  (setq P1 P2)
+  (setq P2 P3)
+  (setq P3 (car PVI))
+  (setq PVI (cdr PVI))
+ )
+ (setvar "OSMODE" OSMODE)
+ (setvar "CLAYER" CLAYER)
+)

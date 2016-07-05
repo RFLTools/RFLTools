@@ -2,7 +2,7 @@
 ;
 ;   Program written by Robert Livingston, 98/06/11
 ;
-;   RFL:RALIGN reads a horizontal alignment from the specifiedfile
+;   RFL:RALIGN reads a horizontal alignment from the specified file
 ;
 ;
 (defun RFL:RALIGN (INFILENAME / ANGBASE ANGDIR CMDECHO INFILE INLINE LO P1X P1Y P2X P2Y
