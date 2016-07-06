@@ -17,7 +17,7 @@
        STA nil
        VEXAG 1.0
  )
- (setq ENT (car (entsel)))
+ (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
  (setq ENTLIST (entget ENT))
  (setq BPOINT (cdr (assoc 10 ENTLIST)))
  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST)))

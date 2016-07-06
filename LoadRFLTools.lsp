@@ -1224,7 +1224,7 @@
 ;
 ;   Program written by Robert Livingston, 98/06/11
 ;
-;   RFL:RALIGN reads a horizontal alignment from the specifiedfile
+;   RFL:RALIGN reads a horizontal alignment from the specified file
 ;
 ;
 (defun RFL:RALIGN (INFILENAME / ANGBASE ANGDIR CMDECHO INFILE INLINE LO P1X P1Y P2X P2Y
@@ -1633,6 +1633,21 @@
    nil
   )
  )
+)
+;
+;
+;     Program written by Robert Livingston, 2016/07/05
+;
+;     RFL:LALIGNSTALBL is a utility for placing STALBL blocks along and alignment
+;
+;
+(defun RFL:LALIGNSTALBL (STASTART STAEND INC OS R / HANDLE HANDLEPREV)
+ (if ALIGNLIST
+  (progn
+  )
+  (princ "\n*** No alignment defined! ***\n")
+ )
+ nil
 )
 ;
 ;
@@ -2984,7 +2999,7 @@
        STA nil
        VEXAG 1.0
  )
- (setq ENT (car (entsel)))
+ (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
  (setq ENTLIST (entget ENT))
  (setq BPOINT (cdr (assoc 10 ENTLIST)))
  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST)))
@@ -3306,17 +3321,20 @@
 ;   RFL:DRAWPROF draws the current profile as defined in PVILIST
 ;
 ;
-(defun RFL:PROFDRAW (/ ANG ATTREQ BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
-                       L L1 L2 L3 L4 P1 P2 P3 PLINETYPE SIGN SPLINETYPE SPLINESEGS STA STA1 STA2 TMP)
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 0)
+(defun RFL:DRAWPROF ( PVILIST / ACTIVEDOC ACTIVESPACE ANG BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
+                                L L1 L2 L3 L4 P1 P2 P3 PLINETYPE SIGN STA STA1 STA2 TMP)
  (setq CLAYER (getvar "CLAYER"))
+
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
 
  (if (= nil PROFDEF)
   (princ "\n*** Profile not set ***")
@@ -3324,7 +3342,7 @@
    (if (= (tblsearch "BLOCK" "PVI2") nil)
     (progn
      (princ "\n*** Creating LDD PVI node ***")
-     (MAKEENT "PVI2")
+     (RFL:MAKEENT "PVI2")
     )
    )
      (setq C 0)
@@ -3338,17 +3356,16 @@
       )
      )
      (setvar "CLAYER" (cdr (assoc "PTLAYER" PROFDEF)))
-     (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
+     (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
      (while (< C (length PVILIST))
-      (setvar "ATTREQ" 0)
-      (command "._INSERT"
-               "PVI2"
-               (PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST)))
-               25.4
-               25.4
-               0.0
+      (vla-insertblock ACTIVESPC
+                       (vlax-3D-point (RFL:PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST))))
+                       "PVI2"
+                       25.4
+                       25.4
+                       25.4
+                       0.0
       )
-      (setvar "ATTREQ" 1)
       (setq ENT (entlast))
       (setq ENTLIST (entget ENT))
       (if (= (cdr (assoc 66 ENTLIST)) 1)
@@ -3443,8 +3460,8 @@
    (setq STA1 (nth 0 (nth (- C 1) PVILIST)))
    (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
    (command "._LINE"
-            (profpoint STA1 (elevation STA1))
-            (profpoint STA2 (elevation STA2))
+            (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+            (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
             ""
    )
    (while (< C (- (length PVILIST) 1))
@@ -3487,33 +3504,226 @@
       (entmake)
       (setq STA1 (- (nth 0 (nth (- C 1) PVILIST)) L1))
       (setq STA2 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
-      (command "._PLINE")
-      (setq P1 (profpoint STA1 (elevation STA1)))
-      (command P1)
-      (setq P1 (profpoint (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST))))
-      (command P1)
-      (setq P1 (profpoint STA2 (elevation STA2)))
-      (command P1)
-      (command "")
-      (setq ENT (entlast))
-      (command "._PEDIT" ENT "S" "")
-     )
+      (RFL:DRAWPARABOLICVCURVE (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+                               (RFL:PROFPOINT (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST)))
+                               (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
+      )
+      )
     )
     (setq STA1 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
     (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
     (command "._LINE"
-             (profpoint STA1 (elevation STA1))
-             (profpoint STA2 (elevation STA2))
+             (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+             (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
              ""
     )
    )
   )
  )
- (setvar "ATTREQ" ATTREQ)
- (setvar "SPLINETYPE" SPLINETYPE)
- (setvar "SPLINESEGS" SPLINESEGS)
- (setvar "PLINETYPE" PLINETYPE)
  (setvar "CLAYER" CLAYER)
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   RPROF reads a vertical alignment from file INFILENAME and sets the global variable PVILIST
+;
+;
+(defun RFL:RPROF (INFILENAME / INFILE INLINE PVIENT PVISET STA ELEV LR VAL)
+ (if (/= INFILENAME nil) (setq INFILENAME (findfile INFILENAME)))
+ (if (/= INFILENAME nil)
+  (progn
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory INFILENAME) "\\"))
+   (setq INFILE (open INFILENAME "r"))
+   (setq PVILIST nil)
+   (setq INLINE (read-line INFILE))
+   (if (/= INLINE "#RFL VERTICAL ALIGNMENT FILE")
+    (progn
+     (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
+    )
+    (progn
+     (setq INLINE (read-line INFILE))
+     (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
+      (setq STA (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq ELEV (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq LR INLINE)
+      (setq INLINE (read-line INFILE))
+      (setq VAL (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq PVILIST (append PVILIST (list (list STA ELEV LR VAL))))
+     )
+    )
+   )
+   (close INFILE)
+  )
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   RFL:RPROFOG reads a vertical alignment from file INFILENAME and sets the global variable OGLIST
+;
+;
+(defun RFL:RPROFOG (INFILENAME / INFILE INLINE PVIENT PVISET STA ELEV LR VAL)
+ (if (/= INFILENAME nil) (setq INFILENAME (findfile INFILENAME)))
+ (if (/= INFILENAME nil)
+  (progn
+   (setq INFILE (open INFILENAME "r"))
+   (setq OGLIST nil)
+   (setq INLINE (read-line INFILE))
+   (if (/= INLINE "#RFL VERTICAL ALIGNMENT FILE")
+    (progn
+     (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
+    )
+    (progn
+     (setq INLINE (read-line INFILE))
+     (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
+      (setq STA (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq ELEV (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq LR INLINE)
+      (setq INLINE (read-line INFILE))
+      (setq VAL (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq OGLIST (append OGLIST (list (list STA ELEV))))
+     )
+    )
+   )
+   (close INFILE)
+  )
+ )
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   RFL:WPROF writes a vertical alignment to file
+;
+;
+(defun RFL:WPROF (OUTFILENAME / C OUTFILE)
+ (if (/= OUTFILENAME nil)
+  (progn
+   (if (/= ".VRT" (strcase (substr OUTFILENAME (- (strlen OUTFILENAME) 3))))
+    (setq OUTFILENAME (strcat OUTFILENAME ".VRT"))
+   )
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory OUTFILENAME) "\\"))
+   (setq C 0)
+   (while (and (= nil (setq OUTFILE (open OUTFILENAME "w"))) (< C 5))
+    (setq C (+ C 1))
+    (princ (strcat "\nProblem openning file for writing : " (itoa C)))
+   )
+   (if (= nil OUTFILE)
+    (alert (strcat "Error openning file for writing : " OUTFILENAME))
+    (progn
+     (princ "#RFL VERTICAL ALIGNMENT FILE\n" OUTFILE)
+     (setq C 0)
+     (while (< C (length PVILIST))
+      (princ (rtos (nth 0 (nth C PVILIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 1 (nth C PVILIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (nth 2 (nth C PVILIST)) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 3 (nth C PVILIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (setq C (+ C 1))
+     )
+     (princ "#END DEFINITION\n" OUTFILE)
+     (close OUTFILE)
+    )
+   )
+  )
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   RFL:WPROFOG writes a vertical alignment to file
+;
+;
+(defun RFL:WPROFOG (OUTFILENAME / C OUTFILE)
+ (if (/= OUTFILENAME nil)
+  (progn
+   (if (/= ".VRT" (strcase (substr OUTFILENAME (- (strlen OUTFILENAME) 3))))
+    (setq OUTFILENAME (strcat OUTFILENAME ".VRT"))
+   )
+   (setq C 0)
+   (while (and (= nil (setq OUTFILE (open OUTFILENAME "w"))) (< C 5))
+    (setq C (+ C 1))
+    (princ (strcat "\nProblem openning file for writing : " (itoa C)))
+   )
+   (if (= nil OUTFILE)
+    (alert (strcat "Error openning file for writing : " OUTFILENAME))
+    (progn
+     (princ "#RFL VERTICAL ALIGNMENT FILE\n" OUTFILE)
+     (setq C 0)
+     (while (< C (length OGLIST))
+      (princ (rtos (nth 0 (nth C OGLIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ (rtos (nth 1 (nth C OGLIST)) 2 16) OUTFILE)
+      (princ "\n" OUTFILE)
+      (princ "L\n" OUTFILE)
+      (princ "0.0\n" OUTFILE)
+      (setq C (+ C 1))
+     )
+     (princ "#END DEFINITION\n" OUTFILE)
+     (close OUTFILE)
+    )
+   )
+  )
+ )
+);
+;
+;     Program written by Robert Livingston, 2016/07/06
+;
+;     RFL:DRAWPARABOLICVCURVE draws a parabolic vertical curve through three input points.
+;         Note that P2 must be precisely between P1 and P3 for this to be a valid alignment curve
+;
+;
+(defun RFL:DRAWPARABOLICVCURVE (P1 P2 P3 / ENT ENTOB SPLINESEGS SPLINETYPE)
+ (setq SPLINESEGS (getvar "SPLINESEGS"))
+ (setq SPLINETYPE (getvar "SPLINETYPE"))
+ 
+ (setq P1 (list (car P1) (cadr P1) 0.0)
+       P2 (list (car P2) (cadr P2) 0.0)
+       P3 (list (car P3) (cadr P3) 0.0)
+ )
+
+ (entmake (list (cons 0 "POLYLINE")
+                (list 10 0.0 0.0 0.0)
+                (cons 66 1)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P1)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P2)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P3)
+          )
+ )
+ (setq ENT (entmake (list (cons 0 "SEQEND")
+                    )
+           )
+ )
+ (if ENT
+  (progn
+   (setvar "SPLINESEGS" 65)
+   (setvar "SPLINETYPE" 5)
+   (setq ENTOB (vlax-ename->vla-object (entlast)))
+   (vlax-put-property ENTOB "Type" 2)
+  )
+ )
+ 
+ (setvar "SPLINESEGS" SPLINESEGS)
+ (setvar "SPLINETYPE" SPLINETYPE)
 );
 ;
 ;    Program Written by Robert Livingston, 99/07/14
@@ -3893,7 +4103,7 @@
    (initget "Yes No")
    (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
    (if (= REP nil) (setq REP "No"))
-   (if (= REP "Yes") (RFL:PROFHIGHLOW))
+   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
   )
   (progn
    (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
@@ -3933,18 +4143,23 @@
  (setvar "CMDECHO" CMDECHO)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
-)(defun C:VCURVE (/ A ATTREQ B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
-                   OSMODE SPLINETYPE SPLINESEGS TMP VEXAG X Y Z)
+)(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
+                   OSMODE TMP VEXAG X Y Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
 
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ 
  (setq ENT (car (entsel "\nSelect first tangent :")))
  (if (/= nil ENT)
   (progn
@@ -4096,13 +4311,14 @@
                (command)
                (setvar "OSMODE" 0)
                (setvar "ATTREQ" 0)
-               (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
-               (command "._INSERT"
-                        "PVI2"
-                        P
-                        25.4
-                        25.4
-                        0.0
+               (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
+               (vla-insertblock ACTIVESPC
+                                (vlax-3D-point P)
+                                "PVI2"
+                                25.4
+                                25.4
+                                25.4
+                                0.0
                )
                (setq ENT (entlast))
                (setq ENTLIST (entget ENT))
@@ -4139,9 +4355,7 @@
                               (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
                         )
                )
-               (command "._PLINE" P2 P P3 "")
-               (setq ENT (entlast))
-               (command "._PEDIT" ENT "S" "")
+               (RFL:DRAWPARABOLICVCURVE P2 P P3)
                (setvar "OSMODE" OSMODE)
               )
               (princ "\n**** NOT VALID ****")
@@ -4161,7 +4375,393 @@
    )
   )
  )
-)(setq RFL:MAKEENTBLOCKLIST (list 
+)
+;
+;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   DPROFOG draws on the current layer the current OG profile defined in OGLIST
+;
+;
+(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (/= nil OGLIST)
+  (progn
+   (RFL:PROFDEF)
+   (setq C 0)
+   (command "._PLINE")
+   (while (< C (length OGLIST))
+    (command (RFL:PROFPOINT (nth 0 (nth C OGLIST)) (nth 1 (nth C OGLIST))))
+    (setq C (+ C 1))
+   )
+   (command "")
+  )
+  (progn
+   (princ "\n*** OG PROFILE NOT SET ***\n")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROF extracts a vertical alignment from the current drawing
+;
+;
+(defun C:GPROF (/ ANGBASE ANGDIR C CMDECHO ENT ENTSET PVIENT PVISET STA ELEV LR VAL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (RFL:PROFDEF)
+
+ (setq PVILIST nil)
+ (if (/= nil PROFDEF)
+  (progn
+   (princ "Select PVI blocks (or <return> to find all based on profile definition block) : ")
+   (setq ENTSET (ssget))
+   (if (= nil ENTSET)
+    (progn
+     (setq PVISET (ssget "X" (list (cons 0 "INSERT")
+                                   (cons -4 "<OR")
+                                   (cons 2 "RFLPVI")
+                                   (cons 2 "PVI2")
+                                   (cons -4 "OR>")
+                                   (cons 8 (cdr (assoc "PLAYER" PROFDEF))))))
+    )
+    (progn
+     (setq C 0)
+     (setq PVISET nil)
+     (while (< C (sslength ENTSET))
+      (setq ENT (ssname ENTSET C))
+      (if (and (/= nil (cdr (assoc 2 (entget ENT))))
+               (or (= "RFLPVI" (strcase (cdr (assoc 2 (entget ENT)))))
+                   (= "PVI2" (strcase (cdr (assoc 2 (entget ENT)))))
+               )
+          )
+       (if (= nil PVISET)
+        (setq PVISET (ssadd ENT))
+        (ssadd ENT PVISET)
+       )
+      )
+      (setq C (+ C 1))
+     )
+    )
+   )
+
+   (if (= PVISET nil)
+    (princ "\n*** NO PVI's EXIST ***\n")
+    (if (= (sslength PVISET) 1)
+     (princ "\n*** ONLY ONE PVI EXISTS ***\n")
+     (progn
+      (while (> (sslength PVISET) 0)
+       (setq C 1)
+       (setq PVIENT (ssname PVISET 0))
+       (while (< C (sslength PVISET))
+        (if (or (= (cdr (assoc "DIRECTION" PROFDEF)) 1) (= (assoc "DIRECTION" PROFDEF) nil))
+         (if (< (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
+          (setq PVIENT (ssname PVISET C))
+         )
+         (if (> (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
+          (setq PVIENT (ssname PVISET C))
+         )
+        )
+        (setq C (+ C 1))
+       )
+       (setq PVISET (ssdel PVIENT PVISET))
+       (setq STA (+ (* (- (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                          (nth 0 (cdr (assoc "BPOINT" PROFDEF))))
+                       (if (or (= (cdr (assoc "DIRECTION" PROFDEF)) 1) (= (assoc "DIRECTION" PROFDEF) nil)) 1.0 -1.0)
+                    )
+                    (cdr (assoc "STA" PROFDEF))
+                 )
+       )
+       (setq ELEV (+ (/ (- (nth 1 (cdr (assoc 10 (entget PVIENT))))
+                           (nth 1 (cdr (assoc "BPOINT" PROFDEF))))
+                        (cdr (assoc "VEXAG" PROFDEF)))
+                     (cdr (assoc "ELEV" PROFDEF))))
+       (setq PVIENT (entnext PVIENT))
+       (while (/= "SEQEND" (cdr (assoc 0 (entget PVIENT))))
+        (if (= "R" (cdr (assoc 2 (entget PVIENT))))
+         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
+          (progn
+           (setq LR "R")
+           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+          )
+         )
+        )
+        (if (= "L" (cdr (assoc 2 (entget PVIENT))))
+         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
+          (progn
+           (setq LR "L")
+           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+          )
+         )
+        )
+        (if (= "LENGTH" (cdr (assoc 2 (entget PVIENT))))
+         (progn
+          (setq LR "L")
+          (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+         )
+        )
+        (setq PVIENT (entnext PVIENT))
+       )
+       (setq PVILIST (append (list (list STA ELEV LR VAL)) PVILIST))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROFOG extracts an OG vertical alignment from the current drawing
+;
+;
+(defun C:GPROFOG (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P TOL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (setq TOL 0.0001)
+ (setq NODEPREV nil)
+ 
+ (RFL:PROFDEF)
+
+ (setq OGLIST nil)
+ (if (/= nil PROFDEF)
+  (progn
+   (princ "\nSelect OG polyline:")
+   (setq ENT (car (entsel)))
+   (if (= ENT nil)
+    (setq ENTLIST nil)
+    (setq ENTLIST (entget ENT))
+   )
+   (if (= nil ENT)
+    (princ "\n*** NO ENTITY SELECTED ***\n")
+    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+     (princ "\n*** NOT A R14 POLYLINE ***\n")
+     (progn
+      (while (/= ENTLIST nil)
+       (setq NODE (car ENTLIST))
+       (setq ENTLIST (cdr ENTLIST))
+       (if (= (car NODE) 10)
+        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
+         (progn
+          (setq STA (+ (* (- (nth 0 (cdr NODE))
+                             (nth 0 (cdr (assoc "BPOINT" PROFDEF))))
+                          (if (or (= (cdr (assoc "DIRECTION" PROFDEF)) 1) (= (assoc "DIRECTION" PROFDEF) nil)) 1.0 -1.0)
+                       )
+                       (cdr (assoc "STA" PROFDEF))
+                    )
+          )
+          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
+                              (nth 1 (cdr (assoc "BPOINT" PROFDEF))))
+                           (cdr (assoc "VEXAG" PROFDEF)))
+                        (cdr (assoc "ELEV" PROFDEF))))
+          (setq OGLIST (append (list (list STA ELEV)) OGLIST))
+          (setq NODEPREV NODE)
+         )
+        )
+       )
+      )
+      (if (> (nth 0 (car OGLIST)) (nth 0 (last OGLIST)))
+       (setq OGLIST (reverse OGLIST))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROFP extracts an vertical alignment from a selected polyline
+;
+;
+(defun C:GPROFP (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV OGLIST P TOL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (setq TOL 0.0001)
+ (setq NODEPREV nil)
+ 
+ (RFL:PROFDEF)
+
+ (setq OGLIST nil)
+ (if (/= nil PROFDEF)
+  (progn
+   (princ "\nSelect polyline:")
+   (setq ENT (car (entsel)))
+   (if (= ENT nil)
+    (setq ENTLIST nil)
+    (setq ENTLIST (entget ENT))
+   )
+   (if (= nil ENT)
+    (princ "\n*** NO ENTITY SELECTED ***\n")
+    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+     (princ "\n*** NOT A R14 POLYLINE ***\n")
+     (progn
+      (while (/= ENTLIST nil)
+       (setq NODE (car ENTLIST))
+       (setq ENTLIST (cdr ENTLIST))
+       (if (= (car NODE) 10)
+        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
+         (progn
+          (setq STA (+ (* (- (nth 0 (cdr NODE))
+                             (nth 0 (cdr (assoc "BPOINT" PROFDEF))))
+                          (if (or (= (cdr (assoc "DIRECTION" PROFDEF)) 1) (= (assoc "DIRECTION" PROFDEF) nil)) 1.0 -1.0)
+                       )
+                       (cdr (assoc "STA" PROFDEF))
+                    )
+          )
+          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
+                              (nth 1 (cdr (assoc "BPOINT" PROFDEF))))
+                           (cdr (assoc "VEXAG" PROFDEF)))
+                        (cdr (assoc "ELEV" PROFDEF))))
+          (setq OGLIST (append (list (list STA ELEV)) OGLIST))
+          (setq NODEPREV NODE)
+         )
+        )
+       )
+      )
+      (if (> (nth 0 (car OGLIST)) (nth 0 (last OGLIST)))
+       (setq OGLIST (reverse OGLIST))
+      )
+     )
+    )
+   )
+  )
+ )
+ (if (/= nil OGLIST)
+  (progn
+   (setq PVILIST nil)
+   (foreach NODE OGLIST
+    (progn
+     (setq PVILIST (append PVILIST (list (list (car NODE) (cadr NODE) "L" 0.0))))
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROF reads a vertical alignment from file
+;
+;
+(defun C:RPROF (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 2))
+ (RFL:RPROF INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable OGLIST
+;
+;
+(defun C:RPROFOG (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq INFILENAME (getfiled "Select an OG Vertical Alignment File" "" "vrt" 2))
+ (RFL:RPROFOG INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:WPROF writes a vertical alignment to file
+;
+;
+(defun C:WPROF (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= PVILIST nil)
+  (princ "\n*** NO VERTICAL EXISTS - USE RPROF OR GPROF ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 1))
+   (RFL:WPROF OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:WPROFOG writes a vertical alignment to file
+;
+;
+(defun C:WPROFOG (/ C CMDECHO OUTFILE OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= OGLIST nil)
+  (princ "\n*** NO OG EXISTS - USE GPROFOG ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Vertical OG File" "" "vrt" 1))
+   (RFL:WPROFOG OUTFILENAME)
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(setq RFL:MAKEENTBLOCKLIST (list 
                                  "ALTABLE01" 
                                  "ALTABLE01DATA" 
                                  "BCCURVETABLE" 

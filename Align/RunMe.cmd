@@ -8,5 +8,6 @@ COPY ".\Align\RFL*.lsp" + ^
      ".\Spiral\RFL*.lsp" + ^
      ".\Profile\RFL*.lsp" + ^
      ".\Super\RFL*.lsp" + ^
+     ".\Common\RFL*.lsp" + ^
      ".\Commands\C*.lsp" ^
      ".\LoadRFLAlign.lsp"

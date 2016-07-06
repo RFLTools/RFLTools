@@ -1,15 +1,20 @@
-(defun C:VCURVE (/ A ATTREQ B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
-                   OSMODE SPLINETYPE SPLINESEGS TMP VEXAG X Y Z)
+(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
+                   OSMODE TMP VEXAG X Y Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
 
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ 
  (setq ENT (car (entsel "\nSelect first tangent :")))
  (if (/= nil ENT)
   (progn
@@ -161,13 +166,14 @@
                (command)
                (setvar "OSMODE" 0)
                (setvar "ATTREQ" 0)
-               (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
-               (command "._INSERT"
-                        "PVI2"
-                        P
-                        25.4
-                        25.4
-                        0.0
+               (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
+               (vla-insertblock ACTIVESPC
+                                (vlax-3D-point P)
+                                "PVI2"
+                                25.4
+                                25.4
+                                25.4
+                                0.0
                )
                (setq ENT (entlast))
                (setq ENTLIST (entget ENT))
@@ -204,9 +210,7 @@
                               (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
                         )
                )
-               (command "._PLINE" P2 P P3 "")
-               (setq ENT (entlast))
-               (command "._PEDIT" ENT "S" "")
+               (RFL:DRAWPARABOLICVCURVE P2 P P3)
                (setvar "OSMODE" OSMODE)
               )
               (princ "\n**** NOT VALID ****")

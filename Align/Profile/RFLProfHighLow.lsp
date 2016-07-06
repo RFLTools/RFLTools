@@ -5,10 +5,11 @@
 ;   RFL:PROFHIGHLOW draws circles at the high and low points along a profile
 ;
 ;
-(defun RFL:PROFHIGHLOW (R / CLAYER OSMODE G1 G2 L P1 P2 P3 PVI STA STA1 STA2)
+(defun RFL:PROFHIGHLOW (R / CLAYER ENT OSMODE G1 G2 L P1 P2 P3 PREVENT PVI STA STA1 STA2)
  (setq OSMODE (getvar "OSMODE"))
  (setvar "OSMODE" 0)
  (setq CLAYER (getvar "CLAYER"))
+ (setq PREVENT nil)
  (if (not (tblsearch "LAYER" (cdr (assoc "PTLAYER" PROFDEF))))
   (entmake (list (cons 0 "LAYER")
                  (cons 100 "AcDbSymbolTableRecord")
@@ -41,6 +42,7 @@
                    (cons 40 R)
              )
     )
+    (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
    )
   )
   (setq P1 P2)

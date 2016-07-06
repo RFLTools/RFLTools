@@ -1134,6 +1134,21 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2016/07/05
+;
+;     RFL:LALIGNSTALBL is a utility for placing STALBL blocks along and alignment
+;
+;
+(defun RFL:LALIGNSTALBL (STASTART STAEND INC OS R / HANDLE HANDLEPREV)
+ (if ALIGNLIST
+  (progn
+  )
+  (princ "\n*** No alignment defined! ***\n")
+ )
+ nil
+)
+;
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
@@ -2482,7 +2497,7 @@
        STA nil
        VEXAG 1.0
  )
- (setq ENT (car (entsel)))
+ (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
  (setq ENTLIST (entget ENT))
  (setq BPOINT (cdr (assoc 10 ENTLIST)))
  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST)))
@@ -2804,17 +2819,20 @@
 ;   RFL:DRAWPROF draws the current profile as defined in PVILIST
 ;
 ;
-(defun RFL:DRAWPROF ( PVILIST / ANG ATTREQ BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
-                                L L1 L2 L3 L4 P1 P2 P3 PLINETYPE SIGN SPLINETYPE SPLINESEGS STA STA1 STA2 TMP)
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 0)
+(defun RFL:DRAWPROF ( PVILIST / ACTIVEDOC ACTIVESPACE ANG BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
+                                L L1 L2 L3 L4 P1 P2 P3 PLINETYPE SIGN STA STA1 STA2 TMP)
  (setq CLAYER (getvar "CLAYER"))
+
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
 
  (if (= nil PROFDEF)
   (princ "\n*** Profile not set ***")
@@ -2822,7 +2840,7 @@
    (if (= (tblsearch "BLOCK" "PVI2") nil)
     (progn
      (princ "\n*** Creating LDD PVI node ***")
-     (MAKEENT "PVI2")
+     (RFL:MAKEENT "PVI2")
     )
    )
      (setq C 0)
@@ -2836,17 +2854,16 @@
       )
      )
      (setvar "CLAYER" (cdr (assoc "PTLAYER" PROFDEF)))
-     (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
+     (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
      (while (< C (length PVILIST))
-      (setvar "ATTREQ" 0)
-      (command "._INSERT"
-               "PVI2"
-               (RFL:PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST)))
-               25.4
-               25.4
-               0.0
+      (vla-insertblock ACTIVESPC
+                       (vlax-3D-point (RFL:PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST))))
+                       "PVI2"
+                       25.4
+                       25.4
+                       25.4
+                       0.0
       )
-      (setvar "ATTREQ" 1)
       (setq ENT (entlast))
       (setq ENTLIST (entget ENT))
       (if (= (cdr (assoc 66 ENTLIST)) 1)
@@ -2941,8 +2958,8 @@
    (setq STA1 (nth 0 (nth (- C 1) PVILIST)))
    (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
    (command "._LINE"
-            (RFL:PROFPOINT STA1 (elevation STA1))
-            (RFL:PROFPOINT STA2 (elevation STA2))
+            (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+            (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
             ""
    )
    (while (< C (- (length PVILIST) 1))
@@ -2985,32 +3002,22 @@
       (entmake)
       (setq STA1 (- (nth 0 (nth (- C 1) PVILIST)) L1))
       (setq STA2 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
-      (command "._PLINE")
-      (setq P1 (RFL:PROFPOINT STA1 (elevation STA1)))
-      (command P1)
-      (setq P1 (RFL:PROFPOINT (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST))))
-      (command P1)
-      (setq P1 (RFL:PROFPOINT STA2 (elevation STA2)))
-      (command P1)
-      (command "")
-      (setq ENT (entlast))
-      (command "._PEDIT" ENT "S" "")
-     )
+      (RFL:DRAWPARABOLICVCURVE (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+                               (RFL:PROFPOINT (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST)))
+                               (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
+      )
+      )
     )
     (setq STA1 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
     (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
     (command "._LINE"
-             (RFL:PROFPOINT STA1 (elevation STA1))
-             (RFL:PROFPOINT STA2 (elevation STA2))
+             (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+             (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
              ""
     )
    )
   )
  )
- (setvar "ATTREQ" ATTREQ)
- (setvar "SPLINETYPE" SPLINETYPE)
- (setvar "SPLINESEGS" SPLINESEGS)
- (setvar "PLINETYPE" PLINETYPE)
  (setvar "CLAYER" CLAYER)
 );
 ;
@@ -3166,6 +3173,55 @@
    )
   )
  )
+);
+;
+;     Program written by Robert Livingston, 2016/07/06
+;
+;     RFL:DRAWPARABOLICVCURVE draws a parabolic vertical curve through three input points.
+;         Note that P2 must be precisely between P1 and P3 for this to be a valid alignment curve
+;
+;
+(defun RFL:DRAWPARABOLICVCURVE (P1 P2 P3 / ENT ENTOB SPLINESEGS SPLINETYPE)
+ (setq SPLINESEGS (getvar "SPLINESEGS"))
+ (setq SPLINETYPE (getvar "SPLINETYPE"))
+ 
+ (setq P1 (list (car P1) (cadr P1) 0.0)
+       P2 (list (car P2) (cadr P2) 0.0)
+       P3 (list (car P3) (cadr P3) 0.0)
+ )
+
+ (entmake (list (cons 0 "POLYLINE")
+                (list 10 0.0 0.0 0.0)
+                (cons 66 1)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P1)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P2)
+          )
+ )
+ (entmake (list (cons 0 "VERTEX")
+                (cons 10 P3)
+          )
+ )
+ (setq ENT (entmake (list (cons 0 "SEQEND")
+                    )
+           )
+ )
+ (if ENT
+  (progn
+   (setvar "SPLINESEGS" 65)
+   (setvar "SPLINETYPE" 5)
+   (setq ENTOB (vlax-ename->vla-object (entlast)))
+   (vlax-put-property ENTOB "Type" 2)
+  )
+ )
+ 
+ (setvar "SPLINESEGS" SPLINESEGS)
+ (setvar "SPLINETYPE" SPLINETYPE)
 );
 ;
 ;    Program Written by Robert Livingston, 99/07/14
@@ -3545,7 +3601,7 @@
    (initget "Yes No")
    (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
    (if (= REP nil) (setq REP "No"))
-   (if (= REP "Yes") (RFL:PROFHIGHLOW))
+   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
   )
   (progn
    (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
@@ -3585,18 +3641,23 @@
  (setvar "CMDECHO" CMDECHO)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
-)(defun C:VCURVE (/ A ATTREQ B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
-                   OSMODE SPLINETYPE SPLINESEGS TMP VEXAG X Y Z)
+)(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
+                   OSMODE TMP VEXAG X Y Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
 
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ 
  (setq ENT (car (entsel "\nSelect first tangent :")))
  (if (/= nil ENT)
   (progn
@@ -3748,13 +3809,14 @@
                (command)
                (setvar "OSMODE" 0)
                (setvar "ATTREQ" 0)
-               (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
-               (command "._INSERT"
-                        "PVI2"
-                        P
-                        25.4
-                        25.4
-                        0.0
+               (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
+               (vla-insertblock ACTIVESPC
+                                (vlax-3D-point P)
+                                "PVI2"
+                                25.4
+                                25.4
+                                25.4
+                                0.0
                )
                (setq ENT (entlast))
                (setq ENTLIST (entget ENT))
@@ -3791,9 +3853,7 @@
                               (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
                         )
                )
-               (command "._PLINE" P2 P P3 "")
-               (setq ENT (entlast))
-               (command "._PEDIT" ENT "S" "")
+               (RFL:DRAWPARABOLICVCURVE P2 P P3)
                (setvar "OSMODE" OSMODE)
               )
               (princ "\n**** NOT VALID ****")
@@ -3813,7 +3873,8 @@
    )
   )
  )
-);
+)
+;
 ;
 ;   Program written by Robert Livingston, 99/11/15
 ;
@@ -3849,7 +3910,8 @@
  (setvar "CMDECHO" CMDECHO)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
-);
+)
+;
 ;
 ;   Program written by Robert Livingston, 98/05/13
 ;

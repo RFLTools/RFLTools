@@ -33,7 +33,7 @@
    (initget "Yes No")
    (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
    (if (= REP nil) (setq REP "No"))
-   (if (= REP "Yes") (RFL:PROFHIGHLOW))
+   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
   )
   (progn
    (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")

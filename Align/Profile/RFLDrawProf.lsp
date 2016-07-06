@@ -5,17 +5,22 @@
 ;   RFL:DRAWPROF draws the current profile as defined in PVILIST
 ;
 ;
-(defun RFL:DRAWPROF ( PVILIST / ANG ATTREQ BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
-                                L L1 L2 L3 L4 P1 P2 P3 PLINETYPE SIGN SPLINETYPE SPLINESEGS STA STA1 STA2 TMP)
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 1)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 0)
+(defun RFL:DRAWPROF ( PVILIST / ACTIVEDOC ACTIVESPACE ANG BULGE C C2 CLAYER ENT ENTLIST G G1 G2 K
+                                L L1 L2 L3 L4 P1 P2 P3 PLINETYPE PREVENT SIGN STA STA1 STA2 TMP)
  (setq CLAYER (getvar "CLAYER"))
+ 
+ (setq PREVENT nil)
+
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
 
  (if (= nil PROFDEF)
   (princ "\n*** Profile not set ***")
@@ -23,7 +28,7 @@
    (if (= (tblsearch "BLOCK" "PVI2") nil)
     (progn
      (princ "\n*** Creating LDD PVI node ***")
-     (MAKEENT "PVI2")
+     (RFL:MAKEENT "PVI2")
     )
    )
      (setq C 0)
@@ -37,18 +42,18 @@
       )
      )
      (setvar "CLAYER" (cdr (assoc "PTLAYER" PROFDEF)))
-     (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
+     (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
      (while (< C (length PVILIST))
-      (setvar "ATTREQ" 0)
-      (command "._INSERT"
-               "PVI2"
-               (RFL:PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST)))
-               25.4
-               25.4
-               0.0
+      (vla-insertblock ACTIVESPC
+                       (vlax-3D-point (RFL:PROFPOINT (nth 0 (nth C PVILIST)) (nth 1 (nth C PVILIST))))
+                       "PVI2"
+                       25.4
+                       25.4
+                       25.4
+                       0.0
       )
-      (setvar "ATTREQ" 1)
       (setq ENT (entlast))
+      (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
       (setq ENTLIST (entget ENT))
       (if (= (cdr (assoc 66 ENTLIST)) 1)
        (progn
@@ -142,10 +147,11 @@
    (setq STA1 (nth 0 (nth (- C 1) PVILIST)))
    (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
    (command "._LINE"
-            (RFL:PROFPOINT STA1 (elevation STA1))
-            (RFL:PROFPOINT STA2 (elevation STA2))
+            (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+            (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
             ""
    )
+   (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
    (while (< C (- (length PVILIST) 1))
     (setq C (+ C 1))
     (setq G1 G2)
@@ -186,31 +192,23 @@
       (entmake)
       (setq STA1 (- (nth 0 (nth (- C 1) PVILIST)) L1))
       (setq STA2 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
-      (command "._PLINE")
-      (setq P1 (RFL:PROFPOINT STA1 (elevation STA1)))
-      (command P1)
-      (setq P1 (RFL:PROFPOINT (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST))))
-      (command P1)
-      (setq P1 (RFL:PROFPOINT STA2 (elevation STA2)))
-      (command P1)
-      (command "")
-      (setq ENT (entlast))
-      (command "._PEDIT" ENT "S" "")
+      (RFL:DRAWPARABOLICVCURVE (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+                               (RFL:PROFPOINT (nth 0 (nth (- C 1) PVILIST)) (nth 1 (nth (- C 1) PVILIST)))
+                               (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
+      )
+      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
      )
     )
     (setq STA1 (+ (nth 0 (nth (- C 1) PVILIST)) L2))
     (setq STA2 (- (nth 0 (nth C PVILIST)) L3))
     (command "._LINE"
-             (RFL:PROFPOINT STA1 (elevation STA1))
-             (RFL:PROFPOINT STA2 (elevation STA2))
+             (RFL:PROFPOINT STA1 (RFL:ELEVATION STA1))
+             (RFL:PROFPOINT STA2 (RFL:ELEVATION STA2))
              ""
     )
+    (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
    )
   )
  )
- (setvar "ATTREQ" ATTREQ)
- (setvar "SPLINETYPE" SPLINETYPE)
- (setvar "SPLINESEGS" SPLINESEGS)
- (setvar "PLINETYPE" PLINETYPE)
  (setvar "CLAYER" CLAYER)
 )

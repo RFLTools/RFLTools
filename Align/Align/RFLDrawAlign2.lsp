@@ -6,7 +6,7 @@
 ;
 ;
 ;
-(defun RFL:DRAWALIGN2 (/ ANG1 ANG2 ALLIST ALENT ENTLIST PC R)
+(defun RFL:DRAWALIGN2 (/ ANG1 ANG2 ALLIST ALENT ENT ENTLIST PC PREVENT R)
  (setq ALLIST ALIGNLIST)
  (entmake)
  (while (/= ALLIST nil)
@@ -15,6 +15,7 @@
   (if (listp (last ALENT))
    (progn
     (RFL:DRAWSPIRAL (nth 0 (last ALENT)) (nth 1 (last ALENT)) (nth 2 (last ALENT)) (nth 3 (last ALENT)) 0.0)
+    (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
    )
    (progn
     (if (> (abs (last ALENT)) RFL:TOLFINE)
@@ -39,6 +40,7 @@
                     )
       )
       (entmake ENTLIST)
+      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
      )
      (progn
       (setq ENTLIST (list (cons 0 "LINE")
@@ -47,6 +49,7 @@
                     )
       )
       (entmake ENTLIST)
+      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
      )
     )
    )
