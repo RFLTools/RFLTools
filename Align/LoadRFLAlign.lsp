@@ -1152,6 +1152,45 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2016/07/07
+;
+;     RFL:GETALIGNLENGTH returns the length the alignment defined by ALIGNLIST
+;
+;
+(defun RFL:GETALIGNLENGTH (/ DIST)
+ (defun DIST (P1 P2 BULGE / ATOTAL CHORD R)
+  (if (listp BULGE)
+   (progn
+    (- (RFL:GETSPIRALLS2 (car BULGE) (cadr BULGE) (caddr BULGE)) (cadddr BULGE))
+   )
+   (progn
+    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+    (setq CHORD (distance P1 P2))
+    (if (= 0.0 BULGE)
+     (eval CHORD)
+     (progn 
+      (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
+      (* R ATOTAL)
+     )
+    )
+   )
+  )
+ )
+ (if (= ALIGNLIST nil)
+  (progn
+   nil
+  )
+  (progn
+   (- (+ (car (last ALIGNLIST))
+         (DIST (cadr (last ALIGNLIST)) (caddr (last ALIGNLIST)) (cadddr (last ALIGNLIST)))
+      )
+      (car (car ALIGNLIST))
+   )
+  )
+ )
+)
+;
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
@@ -3239,150 +3278,198 @@
 ;
 ;     RFL:xxxENT is a collection of routines for adding extended data for linking entities
 ;
-;     (RFL:PUTNEXTENT E1 E2)  :  Adds handle of E2 as the next entity of E1
-;     (RFL:PUTPREVENT E1 E2)  :  Adds handle of E2 as the previous entity of E1
+;     (RFL:PUTENT E1 E2 E3)   :  Adds handle of E2 as the next entity, E3 as the previous entity to E1
+;     (RFL:PUTNEXTENT E1 E2)  :  Adds handle of E2 as the next entity to E1
+;     (RFL:PUTPREVENT E1 E2)  :  Adds handle of E2 as the previous entity to E1
 ;     (RFL:GETNEXTENT E1)     :  Returns the next entity of E1
 ;     (RFL:GETPREVENT E1)     :  Returns the previous entity of E1
 ;     (RFL:GETALLNEXTENT E1)  :  Returns all the next entities of E1
 ;     (RFL:GETALLPREVENT E1)  :  Returns all the previous entities of E1
 ;     (RFL:GETALLENT E1)      :  Returns all the entities linked to E1 (including E1)
+;     (RFL:BREAKENT E1)       :  Removes all the links to E1 and relinks the previous and next to eachother
 ;
-(defun RFL:PUTNEXTENT (ENT NEXTENT / ENTLIST PREVENT)
+(defun RFL:PUTENT (ENT NEXTENT PREVENT / ENTLIST)
  (vl-load-com)
  (if (not (tblsearch "APPID" "RFLTOOLS_XENT"))
   (regapp "RFLTOOLS_XENT")
  )
- (if (and (= (type ENT) 'ENAME)
-          (= (type NEXTENT) 'ENAME)
-     )
+ (setq ENTLIST nil)
+ (if (= (type ENT) 'ENAME)
   (progn
-   (if (setq PREVENT (RFL:GETPREVENT ENT))
-    (setq ENTLIST (append (entget ENT)
-                          (list
-                                (list -3 
-                                      (list "RFLTOOLS_XENT"
-                                            (cons 1000 "RFLTOOLS_NEXTENT")
-                                            (cons 1005 (cdr (assoc 5 (entget NEXTENT))))
-                                            (cons 1000 "RFLTOOLS_PREVENT")
-                                            (cons 1005 (cdr (assoc 5 (entget PREVENT))))
+   (cond ((and (= (type NEXTENT) 'ENAME)
+               (= (type PREVENT) 'ENAME)
+          )
+          (setq ENTLIST (append (entget ENT)
+                                (list
+                                      (list -3 
+                                            (list "RFLTOOLS_XENT"
+                                                  (cons 1000 "RFLTOOLS_NEXTENT")
+                                                  (cons 1005 (cdr (assoc 5 (entget NEXTENT))))
+                                                  (cons 1000 "RFLTOOLS_PREVENT")
+                                                  (cons 1005 (cdr (assoc 5 (entget PREVENT))))
+                                            )
                                       )
                                 )
-                          )
-                  )
-    )
-    (setq ENTLIST (append (entget ENT)
-                          (list
-                                (list -3 
-                                      (list "RFLTOOLS_XENT"
-                                            (cons 1000 "RFLTOOLS_NEXTENT")
-                                            (cons 1005 (cdr (assoc 5 (entget NEXTENT))))
+                        )
+          )
+         )
+         ((and (= (type NEXTENT) 'ENAME)
+               (= PREVENT nil)
+          )
+          (setq ENTLIST (append (entget ENT)
+                                (list
+                                      (list -3 
+                                            (list "RFLTOOLS_XENT"
+                                                  (cons 1000 "RFLTOOLS_NEXTENT")
+                                                  (cons 1005 (cdr (assoc 5 (entget NEXTENT))))
+                                            )
                                       )
                                 )
-                          )
-                  )
-    )
+                        )
+          )
+         )
+         ((and (= NEXTENT nil)
+               (= (type PREVENT) 'ENAME)
+          )
+          (setq ENTLIST (append (entget ENT)
+                                (list
+                                      (list -3 
+                                            (list "RFLTOOLS_XENT"
+                                                  (cons 1000 "RFLTOOLS_PREVENT")
+                                                  (cons 1005 (cdr (assoc 5 (entget PREVENT))))
+                                            )
+                                      )
+                                )
+                        )
+          )
+         )
+         ((and (= NEXTENT nil)
+               (= PREVENT nil)
+          )
+          (setq ENTLIST (list (cons -1 ENT) (list -3 (list "RFLTOOLS_XENT"))))
+         )
    )
+  )
+ )
+ (if ENTLIST
+  (progn
    (entmod ENTLIST)
+   ENT
+  )
+  nil
+ )
+)
+(defun RFL:PUTNEXTENT (ENT NEXTENT / ENTLIST PREVENT)
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (setq PREVENT (RFL:GETPREVENT ENT))
+   (RFL:PUTENT ENT NEXTENT PREVENT)
    ENT
   )
   nil
  )
 )
 (defun RFL:PUTPREVENT (ENT PREVENT / ENTLIST NEXTENT)
- (vl-load-com)
- (if (not (tblsearch "APPID" "RFLTOOLS_XENT"))
-  (regapp "RFLTOOLS_XENT")
- )
- (if (and (= (type ENT) 'ENAME)
-          (= (type PREVENT) 'ENAME)
-     )
+ (if (= (type ENT) 'ENAME)
   (progn
-   (if (setq NEXTENT (RFL:GETNEXTENT ENT))
-    (setq ENTLIST (append (entget ENT)
-                          (list
-                                (list -3 
-                                      (list "RFLTOOLS_XENT"
-                                            (cons 1000 "RFLTOOLS_NEXTENT")
-                                            (cons 1005 (cdr (assoc 5 (entget NEXTENT))))
-                                            (cons 1000 "RFLTOOLS_PREVENT")
-                                            (cons 1005 (cdr (assoc 5 (entget PREVENT))))
-                                      )
-                                )
-                          )
-                  )
-    )
-    (setq ENTLIST (append (entget ENT)
-                          (list
-                                (list -3 
-                                      (list "RFLTOOLS_XENT"
-                                            (cons 1000 "RFLTOOLS_PREVENT")
-                                            (cons 1005 (cdr (assoc 5 (entget PREVENT))))
-                                      )
-                                )
-                          )
-                  )
-    )
-   )
-   (entmod ENTLIST)
+   (setq NEXTENT (RFL:GETNEXTENT ENT))
+   (RFL:PUTENT ENT NEXTENT PREVENT)
    ENT
   )
   nil
  )
 )
 (defun RFL:GETNEXTENT (ENT / ENTLIST)
- (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
-  (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_NEXTENT"))
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_NEXTENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
    (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (handent (cdar ENTLIST))
+    nil
+   )
   )
- )
- (setq ENTLIST (cdr ENTLIST))
- (if ENTLIST
-  (handent (cdar ENTLIST))
   nil
  )
 )
 (defun RFL:GETPREVENT (ENT / ENTLIST)
- (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
-  (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_PREVENT"))
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_PREVENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
    (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (handent (cdar ENTLIST))
+    nil
+   )
   )
- )
- (setq ENTLIST (cdr ENTLIST))
- (if ENTLIST
-  (handent (cdar ENTLIST))
   nil
  )
 )
 (defun RFL:GETALLNEXTENT (ENT / ENT2 ENTSET)
- (setq ENTSET (ssadd)
-       ENT2 ENT
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (setq ENTSET (ssadd)
+         ENT2 ENT
+   )
+   (while (setq ENT2 (RFL:GETNEXTENT ENT2))
+    (ssadd ENT2 ENTSET)
+   )
+   ENTSET
+  )
+  nil
  )
- (while (setq ENT2 (RFL:GETNEXTENT ENT2))
-  (ssadd ENT2 ENTSET)
- )
- ENTSET
 )
 (defun RFL:GETALLPREVENT (ENT / ENT2 ENTSET)
- (setq ENTSET (ssadd)
-       ENT2 ENT
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (setq ENTSET (ssadd)
+         ENT2 ENT
+   )
+   (while (setq ENT2 (RFL:GETPREVENT ENT2))
+    (ssadd ENT2 ENTSET)
+   )
+   ENTSET
+  )
+  nil
  )
- (while (setq ENT2 (RFL:GETPREVENT ENT2))
-  (ssadd ENT2 ENTSET)
- )
- ENTSET
 )
 (defun RFL:GETALLENT (ENT / ENT2 ENTSET)
- (setq ENTSET (ssadd ENT)
-       ENT2 ENT
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (setq ENTSET (ssadd ENT)
+         ENT2 ENT
+   )
+   (while (setq ENT2 (RFL:GETNEXTENT ENT2))
+    (ssadd ENT2 ENTSET)
+   )
+   (setq ENT2 ENT)
+   (while (setq ENT2 (RFL:GETPREVENT ENT2))
+    (ssadd ENT2 ENTSET)
+   )
+   ENTSET
+  )
  )
- (while (setq ENT2 (RFL:GETNEXTENT ENT2))
-  (ssadd ENT2 ENTSET)
+)
+(defun RFL:BREAKENT (ENT / NEXTENT PREVENT)
+ (if (= (type ENT) 'ENAME)
+  (progn
+   (setq NEXTENT (RFL:GETNEXTENT ENT))
+   (setq PREVENT (RFL:GETPREVENT ENT))
+   (RFL:PUTNEXTENT PREVENT NEXTENT)
+   (RFL:PUTPREVENT NEXTENT PREVENT)
+   (entmod (list (cons -1 ENT) (list -3 (list "RFLTOOLS_XENT"))))
+   ENT
+  )
+  nil
  )
- (setq ENT2 ENT)
- (while (setq ENT2 (RFL:GETPREVENT ENT2))
-  (ssadd ENT2 ENTSET)
- )
- ENTSET
 );
 ;
 ;    Program Written by Robert Livingston, 99/07/14
@@ -3773,36 +3860,7 @@
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
 )
-(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (/= nil OGLIST)
-  (progn
-   (RFL:PROFDEF)
-   (setq C 0)
-   (command "._PLINE")
-   (while (< C (length OGLIST))
-    (command (RFL:PROFPOINT (nth 0 (nth C OGLIST)) (nth 1 (nth C OGLIST))))
-    (setq C (+ C 1))
-   )
-   (command "")
-  )
-  (progn
-   (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
+(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
                    OSMODE TMP VEXAG X Y Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -4419,5 +4477,208 @@
  )
 
  (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2016/07/07
+;
+;     C:LALIGN is a utility for labelling alignments
+;
+;
+;     NODEMODE = 0  :  LEFT
+;     NODEMODE = 1  :  RIGHT
+;     NODEMODE = 2  :  INSIDE
+;     NODEMODE = 3  :  OUTSIDE
+;
+;     xxxLAYER  :  '*' concatinates current layer
+;
+(setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")
+                           (cons "LABEL" 1)
+                           (cons "LABELLAYER" "*-LBL")
+                           (cons "LABELINC" 100.0)
+                           (cons "LABELSCALE" 1.0)
+                           (cons "LABELOFFSET" 3.0)
+                           (cons "TICKBLOCK" "STATICK")
+                           (cons "TICK" 1)
+                           (cons "TICKLAYER" "*-LBL")
+                           (cons "TICKINC" 20.0)
+                           (cons "TICKSCALE" 1.0)
+                           (cons "TICKOFFSET" 0.0)
+                           (cons "NODELEFTBLOCK" "STANODELEFT")
+                           (cons "NODERIGHTBLOCK" "STANODERIGHT")
+                           (cons "NODE" 1)
+                           (cons "NODELAYER" "*-LBL")
+                           (cons "NODEMODE" 0)
+                           (cons "NODESCALE" 1.0)
+                           (cons "NODEOFFSET" 0.0)
+                     )
+)
+(defun C:LALIGN (/ ACTIVEDOC ACTIVESPC ENT ENTLIST LLABEL LTICK LNODE P P1 PREVENT)
+ (command "._UNDO" "M")
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ (defun LLABEL (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAH STAL STAMAX)
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  (setq CLAYER (getvar "CLAYER"))
+  (setq NLAYER (cdr (assoc "LABELLAYER" RFL:LALIGNLIST)))
+  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+  (if (not (tblsearch "LAYER" NLAYER))
+   (entmake (list (cons 0 "LAYER")
+                  (cons 100 "AcDbSymbolTableRecord")
+                  (cons 100 "AcDbLayerTableRecord")
+                  (cons 2 NLAYER)
+                  (cons 70 0)
+            )
+   )
+  )
+  (setvar "CLAYER" NLAYER)
+  (if (not (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+   (progn
+    (setq STA (float (* (fix (/ (caar ALIGNLIST)
+                                (cdr (assoc "LABELINC" RFL:LALIGNLIST))
+                             )
+                        )
+                        (cdr (assoc "LABELINC" RFL:LALIGNLIST))
+                     )
+              )
+    )
+    (setq STAEND (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq INC (cdr (assoc "LABELINC" RFL:LALIGNLIST)))
+    (while (<= STA STAEND)
+     (if (setq P (RFL:XY (list STA (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)))))
+      (progn
+       (setq P1 (RFL:XY (list STA (- (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)) 1))))
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P)
+                        (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (+ (/ pi 2.0) (angle P1 P))
+       )
+       (setq ENT (entlast))
+       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+       (if (= 1 (cdr (assoc 66 (setq ENTLIST (entget ENT)))))
+        (progn
+         (setq STAH (RFL:STATXT STA))
+         (setq STAL (substr STAH (+ 2 (vl-string-search "+" STAH))))
+         (setq STAH (substr STAH 1 (vl-string-search "+" STAH)))
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
+          (cond ((= "STAH" (cdr (assoc 2 ENTLIST)))
+                 (entmod (subst (cons 1 STAH) (assoc 1 ENTLIST) ENTLIST))
+                )
+                ((= "STAL" (cdr (assoc 2 ENTLIST)))
+                 (entmod (subst (cons 1 STAL) (assoc 1 ENTLIST) ENTLIST))
+                )
+           )
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (setq STA (+ STA INC))
+    )
+   )
+   (princ "\n!!! Unable to locate or create Lable Block !!!")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  1
+ )
+ (defun LTICK (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAMAX)
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  (setq CLAYER (getvar "CLAYER"))
+  (setq NLAYER (cdr (assoc "TICKLAYER" RFL:LALIGNLIST)))
+  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+  (if (not (tblsearch "LAYER" NLAYER))
+   (entmake (list (cons 0 "LAYER")
+                  (cons 100 "AcDbSymbolTableRecord")
+                  (cons 100 "AcDbLayerTableRecord")
+                  (cons 2 NLAYER)
+                  (cons 70 0)
+            )
+   )
+  )
+  (setvar "CLAYER" NLAYER)
+  (if (not (tblsearch "BLOCK" (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+   (progn
+    (setq STA (float (* (fix (/ (caar ALIGNLIST)
+                                (cdr (assoc "TICKINC" RFL:LALIGNLIST))
+                             )
+                        )
+                        (cdr (assoc "TICKINC" RFL:LALIGNLIST))
+                     )
+              )
+    )
+    (setq STAEND (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq INC (cdr (assoc "TICKINC" RFL:LALIGNLIST)))
+    (while (<= STA STAEND)
+     (if (setq P (RFL:XY (list STA (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)))))
+      (progn
+       (setq P1 (RFL:XY (list STA (- (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)) 1))))
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P)
+                        (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (+ (/ pi 2.0) (angle P1 P))
+       )
+       (setq ENT (entlast))
+       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+      )
+     )
+     (setq STA (+ STA INC))
+    )
+   )
+   (princ "\n!!! Unable to locate or create Tick Block !!!")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  1
+ )
+ (defun LNODE ()
+  
+  1
+ )
+ (if ALIGNLIST
+  (progn
+   (setq PREVENT nil)
+   (if (= 1 (cdr (assoc "LABEL" RFL:LALIGNLIST))) (LLABEL))
+   (if (= 1 (cdr (assoc "TICK" RFL:LALIGNLIST))) (LTICK))
+   (if (= 1 (cdr (assoc "NODE" RFL:LALIGNLIST))) (LNODE))
+   T
+  )
+  (progn
+   (princ "\n!!! No alignment defined !!!")
+   nil
+  )
+ )
 )
 

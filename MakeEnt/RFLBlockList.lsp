@@ -17,6 +17,8 @@
                                  "SPOTELEVATION" 
                                  "SPOTELEVATION2" 
                                  "STALBL" 
+                                 "STANODELEFT" 
+                                 "STANODERIGHT" 
                                  "STATICK" 
                                  "SUPER" 
                                  "SURVEYSPOT" 
