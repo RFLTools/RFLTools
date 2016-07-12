@@ -30,12 +30,12 @@
   (if (= MAKEENTDCLNAME nil)
    (progn
     (setq MAKEENTDCLNAME (vl-filename-mktemp "rfl.dcl"))
-    (MAKEDCL MAKEENTDCLNAME "MAKEENT")
+    (RFL:MAKEDCL MAKEENTDCLNAME "MAKEENT")
    )
    (if (= nil (findfile MAKEENTDCLNAME))
     (progn
      (setq MAKEENTDCLNAME (vl-filename-mktemp "rfl.dcl"))
-     (MAKEDCL MAKEENTDCLNAME "MAKEENT")
+     (RFL:MAKEDCL MAKEENTDCLNAME "MAKEENT")
     )
    )
   )

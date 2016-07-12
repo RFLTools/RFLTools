@@ -36,8 +36,8 @@
          (setq P (inters P1 P2 P3 P4 nil))
          (if (/= nil P)
           (progn
-           (setq VEXAG (getreal (strcat "\nEnter vertical exageration <" (rtos (if PROFDEF (cdr (assoc "VEXAG" PROFDEF)) 10.0)) "> :")))
-           (if (= VEXAG nil) (setq VEXAG (if PROFDEF (cdr (assoc "VEXAG" PROFDEF)) 10.0)))
+           (setq VEXAG (getreal (strcat "\nEnter vertical exageration <" (rtos (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)) "> :")))
+           (if (= VEXAG nil) (setq VEXAG (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)))
            (if (/= VEXAG nil)
             (progn
              (if (> VEXAG 0.0)

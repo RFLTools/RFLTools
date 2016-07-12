@@ -22,7 +22,7 @@
        )
  )
 
- (if (= nil PROFDEF)
+ (if (= nil RFL:PROFDEFLIST)
   (princ "\n*** Profile not set ***")
   (progn
    (if (= (tblsearch "BLOCK" "PVI2") nil)
@@ -32,16 +32,16 @@
     )
    )
      (setq C 0)
-     (if (not (tblsearch "LAYER" (cdr (assoc "PTLAYER" PROFDEF))))
+     (if (not (tblsearch "LAYER" (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))
       (entmake (list (cons 0 "LAYER")
                      (cons 100 "AcDbSymbolTableRecord")
                      (cons 100 "AcDbLayerTableRecord")
-                     (cons 2 (cdr (assoc "PTLAYER" PROFDEF)))
+                     (cons 2 (cdr (assoc "PLAYER" RFL:PROFDEFLIST)))
                      (cons 70 0)
                )
       )
      )
-     (setvar "CLAYER" (cdr (assoc "PTLAYER" PROFDEF)))
+     (setvar "CLAYER" (cdr (assoc "PLAYER" RFL:PROFDEFLIST)))
      (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
      (while (< C (length PVILIST))
       (vla-insertblock ACTIVESPC

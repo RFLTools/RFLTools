@@ -2,11 +2,11 @@
 ;
 ;   Program written by Robert Livingston, 98/05/14
 ;
-;   RFL:PROFDEF locates and defines a global variable (PROFDEF) with the profile base point, stationing and elevations
+;   RFL:PROFDEF locates and defines a global variable RFL:PROFDEFLIST with the profile base point, stationing and elevations
 ;
 ;
 (defun RFL:PROFDEF (/ BPOINT DIRECTION ELEV ENT ENTLIST FNAME PLAYER PTLAYER SCALE STA STAH STAL TMP VEXAG)
- (setq PROFDEF nil
+ (setq RFL:PROFDEFLIST nil
        BPOINT nil
        DIRECTION nil
        ELEV nil
@@ -96,15 +96,15 @@
   )
  )
  (if (and BPOINT DIRECTION ELEV FNAME PLAYER PTLAYER SCALE STA VEXAG)
-  (setq PROFDEF (list (cons "BPOINT" BPOINT)
-                      (cons "DIRECTION" DIRECTION)
-                      (cons "ELEV" ELEV)
-                      (cons "FNAME" FNAME)
-                      (cons "PLAYER" PLAYER)
-                      (cons "PTLAYER" PTLAYER)
-                      (cons "SCALE" SCALE)
-                      (cons "STA" STA)
-                      (cons "VEXAG" VEXAG)
+  (setq RFL:PROFDEFLIST (list (cons "BPOINT" BPOINT)
+                              (cons "DIRECTION" DIRECTION)
+                              (cons "ELEV" ELEV)
+                              (cons "FNAME" FNAME)
+                              (cons "PLAYER" PLAYER)
+                              (cons "PTLAYER" PTLAYER)
+                              (cons "SCALE" SCALE)
+                              (cons "STA" STA)
+                              (cons "VEXAG" VEXAG)
                 )
   )
   nil

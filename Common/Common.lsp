@@ -344,3 +344,6 @@
 (defun RFL:MOD (A B)
  (rem (+ (rem A B) B) B)
 )
+(defun RFL:ROUND (X N / )
+ (/ (float (fix (+ (* (float X) (expt 10.0 N)) (if (minusp X) -0.5 0.5)))) (expt 10.0 N))
+)

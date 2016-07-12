@@ -26,7 +26,7 @@
      (initget "Yes No")
      (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
      (if (= REP nil) (setq REP "No"))
-     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" PROFDEF))))) ""))
+     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
      (RFL:DRAWPROF PVILIST)
     )
    )
