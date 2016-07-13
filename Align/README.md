@@ -59,11 +59,11 @@ C:WProfOG                    Writes an OG profile to file
 
 Global Variables:
 
-ALIGNLIST                    Horizontal Alignment
+RFL:ALIGNLIST                Horizontal Alignment
 
-OGLIST                       OG vertical Profile
+RFL:OGLIST                   OG vertical Profile
 
-PVILIST                      Vertical Profile
+RFL:PVILIST                  Vertical Profile
 
 RFL:LALIGNLIST               List describing alignment labeling variables
 
