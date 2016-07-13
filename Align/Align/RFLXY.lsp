@@ -42,15 +42,15 @@
    )
   )
  )
- (if (/= nil ALIGNLIST)
+ (if (/= nil RFL:ALIGNLIST)
   (progn
    (setq STA (car P))
    (setq OFFSET (cadr P))
-   (setq AL (last ALIGNLIST))
+   (setq AL (last RFL:ALIGNLIST))
    (if (<= STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))
     (progn
-     (setq AL (car ALIGNLIST))
-     (setq ALTMP (cdr ALIGNLIST))
+     (setq AL (car RFL:ALIGNLIST))
+     (setq ALTMP (cdr RFL:ALIGNLIST))
      (if (>= STA (car AL))
       (progn
        (while (> STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))

@@ -7,7 +7,7 @@
 ;
 ;
 (defun RFL:DRAWALIGN (/ ALLIST ALENT ENTLIST)
- (setq ALLIST ALIGNLIST)
+ (setq ALLIST RFL:ALIGNLIST)
  (entmake)
  (setq ENTLIST (list (cons 0 "POLYLINE")
                      (cons 66 1)))

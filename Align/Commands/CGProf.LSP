@@ -15,7 +15,7 @@
 
  (RFL:PROFDEF)
 
- (setq PVILIST nil)
+ (setq RFL:PVILIST nil)
  (if (/= nil RFL:PROFDEFLIST)
   (progn
    (princ "Select PVI blocks (or <return> to find all based on profile definition block) : ")
@@ -108,7 +108,7 @@
         )
         (setq PVIENT (entnext PVIENT))
        )
-       (setq PVILIST (append (list (list STA ELEV LR VAL)) PVILIST))
+       (setq RFL:PVILIST (append (list (list STA ELEV LR VAL)) RFL:PVILIST))
       )
      )
     )

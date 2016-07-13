@@ -12,7 +12,7 @@
  (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
  )
- (if (= PVILIST nil)
+ (if (= RFL:PVILIST nil)
   (princ "\n*** NO VERTICAL EXISTS - USE RPROF OR GPROF ***\n")
   (progn
    (setq OUTFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 1))

@@ -18,10 +18,10 @@
  (command "._UNDO" "M")
  (command "._UCS" "W")
 
- (if (/= nil ALIGNLIST)
+ (if (/= nil RFL:ALIGNLIST)
   (progn
    (setq OS (getreal "\nEnter offset (-ve = left, +ve = right) : "))
-   (setq AL ALIGNLIST)
+   (setq AL RFL:ALIGNLIST)
    (setq SFLAG 0)
    (while (/= AL nil)
     (if (listp (last (car AL)))

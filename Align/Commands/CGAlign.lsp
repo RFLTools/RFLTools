@@ -18,7 +18,7 @@
 
  (if (/= RFL:ALIGNDEF nil)
   (progn
-   (setq ALIGNLIST nil)
+   (setq RFL:ALIGNLIST nil)
    (setq PSTART (getpoint "\nStart point:"))
    (if (/= PSTART nil)
     (progn
@@ -30,7 +30,7 @@
        (if (= ALIGNENT nil)
         (progn
          (setq ALIGNENT (ssget))
-         (setq ALIGNLIST (RFL:ALIGNDEF (list ALIGNENT) PSTART STASTART))
+         (setq RFL:ALIGNLIST (RFL:ALIGNDEF (list ALIGNENT) PSTART STASTART))
         )
         (progn
          (setq ALIGNENTLIST (entget ALIGNENT))
@@ -42,7 +42,7 @@
          )
          (if (= (cdr (assoc 0 ALIGNENTLIST)) "LWPOLYLINE")
           (progn
-           (setq ALIGNLIST (RFL:ALIGNDEF ALIGNENT PSTART STASTART))
+           (setq RFL:ALIGNLIST (RFL:ALIGNDEF ALIGNENT PSTART STASTART))
           )
           (princ "\n**** NOT A POLYLINE ****")
          )

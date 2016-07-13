@@ -21,7 +21,7 @@
  )
  (setvar "CLAYER" (cdr (assoc "PTLAYER" RFL:PROFDEFLIST)))
 
- (setq PVI PVILIST)
+ (setq PVI RFL:PVILIST)
  (setq P1 (car PVI))
  (setq PVI (cdr PVI))
  (setq P2 (car PVI))

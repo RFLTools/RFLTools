@@ -12,7 +12,7 @@
  (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
  )
- (if (= ALIGNLIST nil)
+ (if (= RFL:ALIGNLIST nil)
   (princ "\n*** NO ALIGNMENT EXISTS - USE RALIGN OR GALIGN ***\n")
   (progn
    (setq OUTFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 1))

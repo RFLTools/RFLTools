@@ -71,7 +71,7 @@
   )
   (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
    (progn
-    (setq STA (float (* (fix (/ (caar ALIGNLIST)
+    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
                                 (cdr (assoc "LABELINC" RFL:LALIGNLIST))
                              )
                         )
@@ -79,7 +79,7 @@
                      )
               )
     )
-    (setq STAEND (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
     (setq INC (cdr (assoc "LABELINC" RFL:LALIGNLIST)))
     (while (<= STA STAEND)
      (if (setq P (RFL:XY (list STA (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)))))
@@ -150,7 +150,7 @@
   )
   (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
    (progn
-    (setq STA (float (* (fix (/ (caar ALIGNLIST)
+    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
                                 (cdr (assoc "TICKINC" RFL:LALIGNLIST))
                              )
                         )
@@ -158,7 +158,7 @@
                      )
               )
     )
-    (setq STAEND (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
     (setq INC (cdr (assoc "TICKINC" RFL:LALIGNLIST)))
     (while (<= STA STAEND)
      (if (setq P (RFL:XY (list STA (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)))))
@@ -467,16 +467,16 @@
       )
    (progn
     (setq NODEPREV nil)
-    (foreach NODE ALIGNLIST
+    (foreach NODE RFL:ALIGNLIST
      (setq STA (car NODE))
      (setq STAH (RFL:STATXT STA))
      (setq STAH (strcat (NODELABEL NODE NODEPREV) STAH))
      (NODEINSERT STA STAH)
      (setq NODEPREV NODE)
     )
-    (setq STA (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq STA (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
     (setq STAH (RFL:STATXT STA))
-    (setq STAH (strcat (NODELABEL (last ALIGNLIST) nil) STAH))
+    (setq STAH (strcat (NODELABEL (last RFL:ALIGNLIST) nil) STAH))
     (NODEINSERT STA STAH)
    )
    (princ "\n!!! Unable to locate or create Lable Block !!!")
@@ -486,7 +486,7 @@
   (setvar "ANGDIR" ANGDIR)
   1
  )
- (if ALIGNLIST
+ (if RFL:ALIGNLIST
   (progn
    (setq PREVENT nil)
    (if (= 1 (cdr (assoc "LABEL" RFL:LALIGNLIST))) (LLABEL))

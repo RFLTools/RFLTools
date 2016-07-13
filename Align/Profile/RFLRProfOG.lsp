@@ -2,7 +2,7 @@
 ;
 ;   Program written by Robert Livingston, 98/05/13
 ;
-;   RFL:RPROFOG reads a vertical alignment from file INFILENAME and sets the global variable OGLIST
+;   RFL:RPROFOG reads a vertical alignment from file INFILENAME and sets the global variable RFL:OGLIST
 ;
 ;
 (defun RFL:RPROFOG (INFILENAME / INFILE INLINE PVIENT PVISET STA ELEV LR VAL)
@@ -10,7 +10,7 @@
  (if (/= INFILENAME nil)
   (progn
    (setq INFILE (open INFILENAME "r"))
-   (setq OGLIST nil)
+   (setq RFL:OGLIST nil)
    (setq INLINE (read-line INFILE))
    (if (/= INLINE "#RFL VERTICAL ALIGNMENT FILE")
     (progn
@@ -27,7 +27,7 @@
       (setq INLINE (read-line INFILE))
       (setq VAL (atof INLINE))
       (setq INLINE (read-line INFILE))
-      (setq OGLIST (append OGLIST (list (list STA ELEV))))
+      (setq RFL:OGLIST (append RFL:OGLIST (list (list STA ELEV))))
      )
     )
    )

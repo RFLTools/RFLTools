@@ -7,18 +7,18 @@
 ;
 ;
 (defun RFL:GETRADIUS (STA / AL C DIR R)
- (if (/= nil ALIGNLIST)
+ (if (/= nil RFL:ALIGNLIST)
   (progn
-   (setq AL (last ALIGNLIST))
+   (setq AL (last RFL:ALIGNLIST))
    (if (<= STA (+ (car AL) (RFL:ARCLENGTH (cadr AL) (caddr AL) (cadddr AL))))
     (progn
      (setq C 0)
-     (setq AL (nth C ALIGNLIST))
+     (setq AL (nth C RFL:ALIGNLIST))
      (if (>= STA (car AL))
       (progn
        (while (> STA (+ (car AL) (RFL:ARCLENGTH (cadr AL) (caddr AL) (cadddr AL))))
         (setq C (+ C 1))
-        (setq AL (nth C ALIGNLIST))
+        (setq AL (nth C RFL:ALIGNLIST))
        )
        (if (listp (cadddr AL))
         (progn

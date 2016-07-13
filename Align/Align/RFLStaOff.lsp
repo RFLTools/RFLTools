@@ -10,10 +10,10 @@
                        OFFSETBEST PC R STA STABEST TMP)
  (setq STABEST nil)
  (setq OFFSETBEST nil)
- (if (/= ALIGNLIST nil)
+ (if (/= RFL:ALIGNLIST nil)
   (progn
    (setq C 0)
-   (setq AL (nth C ALIGNLIST))
+   (setq AL (nth C RFL:ALIGNLIST))
    (while (/= AL nil)
     (if (> (distance (cadr AL) (caddr AL)) RFL:TOLFINE)
      (progn
@@ -135,7 +135,7 @@
      )
     )
     (setq C (+ C 1))
-    (setq AL (nth C ALIGNLIST))
+    (setq AL (nth C RFL:ALIGNLIST))
    )
   )
  )

@@ -15,7 +15,7 @@
  (setq ANGDIR (getvar "ANGDIR"))
  (setvar "ANGDIR" 0)
 
- (if (/= nil PVILIST)
+ (if (/= nil RFL:PVILIST)
   (progn
    (RFL:PROFDEF)
    (initget "Yes No")
@@ -27,7 +27,7 @@
      (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
      (if (= REP nil) (setq REP "No"))
      (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
-     (RFL:DRAWPROF PVILIST)
+     (RFL:DRAWPROF RFL:PVILIST)
     )
    )
    (initget "Yes No")

@@ -185,13 +185,13 @@
  )
  OBALIGNMENT
 )
-(defun RFL:GETSECTIONSET (STASTART STAEND SWATH STEP OBSURFACE ALIGNLIST / P1 P2 PLIST SECTIONSET STA SLIST)
+(defun RFL:GETSECTIONSET (STASTART STAEND SWATH STEP OBSURFACE RFL:ALIGNLIST / P1 P2 PLIST SECTIONSET STA SLIST)
  (princ "\nGetting sections : ")
  (setq STA STASTART)
  (while (<= STA STAEND)
   (princ (strcat "\n" (RFL:STATXT STA) "..."))
-  (setq P1 (XY (list STA (/ SWATH -2.0))))
-  (setq P2 (XY (list STA (/ SWATH 2.0))))
+  (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+  (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
   (if (and (/= nil P1) (/= nil P2))
    (progn
     (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))

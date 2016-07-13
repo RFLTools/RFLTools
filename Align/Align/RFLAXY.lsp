@@ -6,11 +6,11 @@
    (setq P2 (XY (list STA (/ SWATH 2.0))))
    (if (and (/= P1 nil) (/= P2 nil))
     (progn
-     (setq ALSAVE ALIGNLIST)
-     (setq ALIGNLIST AL)
-     (if (= nil ALIGNLIST)
+     (setq ALSAVE RFL:ALIGNLIST)
+     (setq RFL:ALIGNLIST AL)
+     (if (= nil RFL:ALIGNLIST)
       (progn
-       (setq ALIGNLIST ALSAVE)
+       (setq RFL:ALIGNLIST ALSAVE)
        (eval nil)
       )
       (progn
@@ -36,7 +36,7 @@
          (setq OFFSET2 (cadr OFFSET2))
          (if (> (* OFFSET1 OFFSET2) 0.0)
           (progn
-           (setq ALIGNLIST ALSAVE)
+           (setq RFL:ALIGNLIST ALSAVE)
            (eval nil)
           )
           (progn
@@ -48,7 +48,7 @@
              (setq P2 P3)
             )
            )
-           (setq ALIGNLIST ALSAVE)
+           (setq RFL:ALIGNLIST ALSAVE)
            (setq P3 P3)
           )
          )

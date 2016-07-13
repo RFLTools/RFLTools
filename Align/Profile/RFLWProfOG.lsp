@@ -21,10 +21,10 @@
     (progn
      (princ "#RFL VERTICAL ALIGNMENT FILE\n" OUTFILE)
      (setq C 0)
-     (while (< C (length OGLIST))
-      (princ (rtos (nth 0 (nth C OGLIST)) 2 16) OUTFILE)
+     (while (< C (length RFL:OGLIST))
+      (princ (rtos (nth 0 (nth C RFL:OGLIST)) 2 16) OUTFILE)
       (princ "\n" OUTFILE)
-      (princ (rtos (nth 1 (nth C OGLIST)) 2 16) OUTFILE)
+      (princ (rtos (nth 1 (nth C RFL:OGLIST)) 2 16) OUTFILE)
       (princ "\n" OUTFILE)
       (princ "L\n" OUTFILE)
       (princ "0.0\n" OUTFILE)

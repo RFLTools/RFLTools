@@ -9,7 +9,7 @@
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
 
- (if (= OGLIST nil)
+ (if (= RFL:OGLIST nil)
   (princ "\n*** NO OG EXISTS - USE GPROFOG ***\n")
   (progn
    (setq OUTFILENAME (getfiled "Select a Vertical OG File" "" "vrt" 1))

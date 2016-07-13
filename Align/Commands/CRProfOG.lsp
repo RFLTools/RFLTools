@@ -2,7 +2,7 @@
 ;
 ;   Program written by Robert Livingston, 98/05/13
 ;
-;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable OGLIST
+;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable RFL:OGLIST
 ;
 ;
 (defun C:RPROFOG (/ CMDECHO INFILENAME)

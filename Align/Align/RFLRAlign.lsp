@@ -12,7 +12,7 @@
   (progn
    (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory INFILENAME) "\\"))
    (setq INFILE (open INFILENAME "r"))
-   (setq ALIGNLIST nil)
+   (setq RFL:ALIGNLIST nil)
    (setq INLINE (read-line INFILE))
    (if (/= INLINE "#RFL HORIZONTAL ALIGNMENT FILE")
     (progn
@@ -54,7 +54,7 @@
        )
       )
       (setq INLINE (read-line INFILE))
-      (setq ALIGNLIST (append ALIGNLIST (list (list STA (list P1X P1Y) (list P2X P2Y) BULGE))))
+      (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list STA (list P1X P1Y) (list P2X P2Y) BULGE))))
      )
     )
    )

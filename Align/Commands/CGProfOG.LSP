@@ -18,7 +18,7 @@
  
  (RFL:PROFDEF)
 
- (setq OGLIST nil)
+ (setq RFL:OGLIST nil)
  (if (/= nil RFL:PROFDEFLIST)
   (progn
    (princ "\nSelect OG polyline:")
@@ -49,14 +49,14 @@
                               (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
                            (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
                         (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-          (setq OGLIST (append (list (list STA ELEV)) OGLIST))
+          (setq RFL:OGLIST (append (list (list STA ELEV)) RFL:OGLIST))
           (setq NODEPREV NODE)
          )
         )
        )
       )
-      (if (> (nth 0 (car OGLIST)) (nth 0 (last OGLIST)))
-       (setq OGLIST (reverse OGLIST))
+      (if (> (nth 0 (car RFL:OGLIST)) (nth 0 (last RFL:OGLIST)))
+       (setq RFL:OGLIST (reverse RFL:OGLIST))
       )
      )
     )

@@ -6,7 +6,7 @@
 ;
 ;
 (defun RFL:LALIGNSTALBL (STASTART STAEND INC OS R / HANDLE HANDLEPREV)
- (if ALIGNLIST
+ (if RFL:ALIGNLIST
   (progn
   )
   (princ "\n*** No alignment defined! ***\n")

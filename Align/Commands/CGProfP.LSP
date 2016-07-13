@@ -5,7 +5,7 @@
 ;   C:GPROFP extracts an vertical alignment from a selected polyline
 ;
 ;
-(defun C:GPROFP (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV OGLIST P TOL)
+(defun C:GPROFP (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P PLIST TOL)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq ANGBASE (getvar "ANGBASE"))
@@ -18,7 +18,7 @@
  
  (RFL:PROFDEF)
 
- (setq OGLIST nil)
+ (setq PLIST nil)
  (if (/= nil RFL:PROFDEFLIST)
   (progn
    (princ "\nSelect polyline:")
@@ -49,26 +49,26 @@
                               (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
                            (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
                         (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-          (setq OGLIST (append (list (list STA ELEV)) OGLIST))
+          (setq PLIST (append (list (list STA ELEV)) PLIST))
           (setq NODEPREV NODE)
          )
         )
        )
       )
-      (if (> (nth 0 (car OGLIST)) (nth 0 (last OGLIST)))
-       (setq OGLIST (reverse OGLIST))
+      (if (> (nth 0 (car PLIST)) (nth 0 (last PLIST)))
+       (setq PLIST (reverse PLIST))
       )
      )
     )
    )
   )
  )
- (if (/= nil OGLIST)
+ (if (/= nil PLIST)
   (progn
-   (setq PVILIST nil)
-   (foreach NODE OGLIST
+   (setq RFL:PVILIST nil)
+   (foreach NODE PLIST
     (progn
-     (setq PVILIST (append PVILIST (list (list (car NODE) (cadr NODE) "L" 0.0))))
+     (setq RFL:PVILIST (append RFL:PVILIST (list (list (car NODE) (cadr NODE) "L" 0.0))))
     )
    )
   )

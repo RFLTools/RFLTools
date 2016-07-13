@@ -7,7 +7,7 @@
 ;
 ;
 (defun RFL:DRAWALIGNOS2 (OS / ANG ANG1 ANG2 ALLIST ALENT ENTLIST OS2 P1X P1Y P2X P2Y PC R)
- (setq ALLIST ALIGNLIST)
+ (setq ALLIST RFL:ALIGNLIST)
  (entmake)
  (while (/= ALLIST nil)
   (setq ALENT (car ALLIST))
