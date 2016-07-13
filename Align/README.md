@@ -13,22 +13,64 @@ All you need to run is "LoadRFLAlign.lsp" unless you want to eval code.  If so c
 
 Commands currently working:
 
-C:DAlign        Draws the current alignment
+C:DAlign                     Draws the current alignment
 
-C:DAlignOS      Draws the current alignment at a specified offset
+C:DAlignOS                   Draws the current alignment at a specified offset
 
-C:FitSpiral     Draws a clothoid spiral between a line and an arc or a spiral/curve/spiral between two lines
+C:DProf                      Draws the current profile
 
-C:GAlign        Defines an alignment (Get) based on a polyline of a selected set of independent alignment entities
+C:DProfOG                    Draws the current OG profile
 
-C:RAlign        Reads an alignment from file
+C:FitSpiral                  Draws a clothoid spiral between a line and an arc or a spiral/curve/spiral between two lines
 
-C:LAlign        Labels an alignment from file
+C:GProfOG                    Defines a profile (Get) based on PVI blocks and a selected profile grid (see my Grid Tools for explanation)
 
-C:WAlign        Writes an alignment to file
+C:GAlign                     Defines an alignment (Get) based on a polyline of a selected set of independent alignment entities
 
-(RFL:STAOFF p)  Returns a list of (Station Offset) for a provided (X Y) point
+C:LAlign                     Labels an alignment
 
-(RFL:XY s)      Returns a point list (X Y) for a provided list of (Station Offset)
+C:LProf                      Labels a profile
+
+C:RAlign                     Reads an alignment from file
+
+C:RProf                      Reads a profile from file
+
+C:RProfOG                    Reads an OG profile from file
+
+C:VCurve                     Draws a vertical curve (and PVI block) between two selected lines
+
+C:WAlign                     Writes an alignment to file
+
+C:WProf                      Writes a profile to file
+
+C:WProfOG                    Writes an OG profile to file
+
+(RFL:Elevation Sta)          Returns the elevation at station Sta
+
+(RFL:ProfDef)                Will prompt for the user to select a grid and will define RFL:PROFDEFLIST
+
+(RFL:ProfPoint Sta Elev)     Returns the point based on RFL:PROFDEFLIST at Sta and Elev
+
+(RFL:Slope Sta)              Returns the slope at station Sta
+
+(RFL:STAOFF p)               Returns a list of (Station Offset) for a provided (X Y) point
+
+(RFL:XY s)                   Returns a point list (X Y) for a provided list of (Station Offset)
+
+Global Variables:
+
+ALIGNLIST                    Horizontal Alignment
+
+OGLIST                       OG vertical Profile
+
+PVILIST                      Vertical Profile
+
+RFL:LALIGNLIST               List describing alignment labeling variables
+
+RFL:LPROFLIST                List describing profile labeling variables
+
+RFL:PROFDEFLIST              List describing location of profile (or section) grid
+
+
 
 A registry value is written to "HKEY_CURRENT_USER\\rflAlignDirectory" for saving the last folder used.  This was added to simplify the searching for alignments
