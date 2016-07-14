@@ -21,11 +21,15 @@ C:DProf                      Draws the current profile
 
 C:DProfOG                    Draws the current OG profile
 
+C:DSuper                     Draws the superelevation blocks along the alignmnet
+
 C:FitSpiral                  Draws a clothoid spiral between a line and an arc or a spiral/curve/spiral between two lines
+
+C:GAlign                     Defines an alignment (Get) based on a polyline of a selected set of independent alignment entities
 
 C:GProfOG                    Defines a profile (Get) based on PVI blocks and a selected profile grid (see my Grid Tools for explanation)
 
-C:GAlign                     Defines an alignment (Get) based on a polyline of a selected set of independent alignment entities
+C:GSuper                     Defines the superelevation by selecting super blocks along an alignment
 
 C:LAlign                     Labels an alignment
 
@@ -37,6 +41,8 @@ C:RProf                      Reads a profile from file
 
 C:RProfOG                    Reads an OG profile from file
 
+C:RSuper                     Reads the superelevation from file
+
 C:VCurve                     Draws a vertical curve (and PVI block) between two selected lines
 
 C:WAlign                     Writes an alignment to file
@@ -44,6 +50,8 @@ C:WAlign                     Writes an alignment to file
 C:WProf                      Writes a profile to file
 
 C:WProfOG                    Writes an OG profile to file
+
+C:WSuper                     Writes the superelevation to file
 
 (RFL:Elevation Sta)          Returns the elevation at station Sta
 

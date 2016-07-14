@@ -3275,6 +3275,253 @@
  (setvar "SPLINETYPE" SPLINETYPE)
 );
 ;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RFL:SUPERDEF calculating superelevations from supplied entity set and setting RFL:SUPERLIST
+;
+;
+;(defun RFL:SUPERDEF (ENTSET / C ENT ENTLIST P PT SORTSUPER SUPERLEFT SUPERRIGHT SUPERLIST2)
+(defun RFL:SUPERDEF (ENTSET)
+ (defun SORTSUPER (SL / A B)
+  (vl-sort SL '(lambda (A B) (< (car A) (car B))))
+ )
+ (setq RFL:SUPERLIST nil)
+ (setq SUPERLIST2 nil)
+ (if (and (/= RFL:ALIGNLIST nil) (/= RFL:STAOFF nil))
+  (progn
+   (setq C 0)
+   (while (< C (sslength ENTSET))
+    (setq ENT (ssname ENTSET C))
+    (setq ENTLIST (entget ENT))
+    (if (and (= (cdr (assoc 0 ENTLIST)) "INSERT")
+             (= (strcase (cdr (assoc 2 ENTLIST))) "SUPER")
+             (= (cdr (assoc 66 ENTLIST)) 1))
+     (progn
+      (setq PT (cdr (assoc 10 ENTLIST)))
+      (setq P (RFL:STAOFF PT))
+      ;
+      ; The following are to 'nudge' the point - sometimes RFL:STAOFF returns nil when the point is an an entity endpoint
+      ;
+      (if (= nil P) (setq P (RFL:STAOFF (list (+ (car PT) 0.00000001) (+ (cadr PT) 0.00000001)))))
+      (if (= nil P) (setq P (RFL:STAOFF (list (- (car PT) 0.00000001) (- (cadr PT) 0.00000001)))))
+      (if (= nil P) (setq P (RFL:STAOFF (list (+ (car PT) 0.00000001) (- (cadr PT) 0.00000001)))))
+      (if (= nil P) (setq P (RFL:STAOFF (list (- (car PT) 0.00000001) (+ (cadr PT) 0.00000001)))))
+      (if (/= P nil)
+       (progn
+        (setq SUPERLEFT nil)
+        (setq SUPERRIGHT nil)
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+         (if (= (cdr (assoc 2 ENTLIST)) "LEFT") (setq SUPERLEFT (atof (cdr (assoc 1 ENTLIST)))))
+         (if (= (cdr (assoc 2 ENTLIST)) "RIGHT") (setq SUPERRIGHT (atof (cdr (assoc 1 ENTLIST)))))
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+        (setq SUPERLIST2 (append SUPERLIST2 (list (list (car P) SUPERLEFT SUPERRIGHT))))
+       )
+      )
+     )
+    )
+    (setq C (+ C 1))
+   )
+  )
+ )
+ (setq RFL:SUPERLIST (SORTSUPER SUPERLIST2))
+ (princ (strcat "\n" (itoa (length RFL:SUPERLIST)) " nodes found."))
+ T
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RFL:SUPER returns a list (left super , right super) for the given station
+;
+;
+(defun RFL:SUPER (STA / C NODE1 NODE2 S1 S2 STA1 STA2 VAL)
+ (setq VAL nil)
+ (if (/= RFL:SUPERLIST nil)
+  (progn
+   (if (and (>= STA (car (car RFL:SUPERLIST))) (<= STA (car (last RFL:SUPERLIST))))
+    (progn
+     (setq C 0)
+     (while (>= STA (car (nth C RFL:SUPERLIST)))
+      (setq C (+ C 1))
+     )
+     (setq NODE1 (nth (- C 1) RFL:SUPERLIST))
+     (setq NODE2 (nth C RFL:SUPERLIST))
+     (setq STA1 (car NODE1))
+     (setq STA2 (car NODE2))
+     (setq S1 (cadr NODE1))
+     (setq S2 (cadr NODE2))
+     (setq VAL (list (+ S1 (* (- S2 S1) (/ (- STA STA1) (- STA2 STA1))))))
+     (setq S1 (caddr NODE1))
+     (setq S2 (caddr NODE2))
+     (setq VAL (append VAL (list (+ S1 (* (- S2 S1) (/ (- STA STA1) (- STA2 STA1)))))))
+    )
+   )
+  )
+ )
+ VAL
+);
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RFL:DSUPER inserts SUPER blocks along the current alignment
+;
+;
+(defun RFL:DSUPER (/ ACTIVEDOC ACTIVESPACE ANGBASE ANGDIR ATTREQ DIMZIN ENT ENTLIST NODE OSMODE P1 P2 PREVENT SL)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 8)
+ (setq ATTREQ (getvar "ATTREQ"))
+
+ (setq PREVENT nil)
+
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+
+ (command "._UNDO" "M")
+
+ (if (and (/= nil RFL:ALIGNLIST) (/= RFL:XY nil) (/= RFL:SUPERLIST nil))
+  (progn
+   (setq SL RFL:SUPERLIST)
+   (while (/= SL nil)
+    (setq NODE (car SL))
+    (setq SL (cdr SL))
+    (setq P1 (RFL:XY (list (nth 0 NODE) 0.0)))
+    (if (/= P1 nil)
+     (progn
+      (setq P2 (RFL:XY (list (nth 0 NODE) 10.0)))
+      (if (= nil (tblsearch "BLOCK" "SUPER")) (RFL:MAKEENT "SUPER"))
+      (vla-insertblock ACTIVESPC
+                       (vlax-3D-point P1)
+                       "SUPER"
+                       1.0
+                       1.0
+                       1.0
+                       (- (angle P1 P2) (/ pi 2.0))
+      )
+      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+      (setq ENT (entnext ENT))
+      (setq ENTLIST (entget ENT))
+      (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+       (if (= (cdr (assoc 2 ENTLIST)) "LEFT")
+        (progn
+         (setq ENTLIST (subst (cons 1 (rtos (nth 1 NODE) 2 8)) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT)
+        )
+       )
+       (if (= (cdr (assoc 2 ENTLIST)) "RIGHT")
+        (progn
+         (setq ENTLIST (subst (cons 1 (rtos (nth 2 NODE) 2 8)) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT)
+        )
+       )
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+      )
+     )
+    )
+   )
+  )
+  (princ "\n*** SUPERELEVATION NOT SET ***\n")
+ )
+
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "DIMZIN" DIMZIN)
+ (setvar "ANGDIR" ATTREQ)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RFL:WSUPER writes the superelevation to file
+;
+;
+(defun RFL:WSUPER (OUTFILENAME / C OUTFILE)
+ (if (/= OUTFILENAME nil)
+  (progn
+   (if (/= ".E" (strcase (substr OUTFILENAME (- (strlen OUTFILENAME) 1))))
+    (setq OUTFILENAME (strcat OUTFILENAME ".e"))
+   )
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory OUTFILENAME) "\\"))
+   (setq OUTFILE (open OUTFILENAME "w"))
+   (princ "#RFL SUPERELEVATION FILE\n" OUTFILE)
+   (setq C 0)
+   (while (< C (length SUPERLIST))
+    (princ (rtos (nth 0 (nth C SUPERLIST)) 2 16) OUTFILE)
+    (princ "\n" OUTFILE)
+    (princ (rtos (nth 1 (nth C SUPERLIST)) 2 16) OUTFILE)
+    (princ "\n" OUTFILE)
+    (princ (rtos (nth 2 (nth C SUPERLIST)) 2 16) OUTFILE)
+    (princ "\n" OUTFILE)
+    (setq C (+ C 1))
+   )
+   (princ "#END DEFINITION\n" OUTFILE)
+   (close OUTFILE)
+   T
+  )
+  nil
+ )
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RFL:RSUPER reads the Superelevation from file
+;
+;
+(defun RFL:RSUPER (INFILENAME / INFILE INLINE STA SUPERLEFT SUPERRIGHT)
+ (if (/= INFILENAME nil) (setq INFILENAME (findfile INFILENAME)))
+ (if (/= INFILENAME nil)
+  (progn
+   (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" (strcat (vl-filename-directory INFILENAME) "\\"))
+   (setq INFILE (open INFILENAME "r"))
+   (setq RFL:SUPERLIST nil)
+   (setq INLINE (read-line INFILE))
+   (if (/= INLINE "#RFL SUPERELEVATION FILE")
+    (progn
+     (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
+    )
+    (progn
+     (setq INLINE (read-line INFILE))
+     (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
+      (setq STA (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq SUPERLEFT (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq SUPERRIGHT (atof INLINE))
+      (setq INLINE (read-line INFILE))
+      (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SUPERLEFT SUPERRIGHT))))
+     )
+    )
+   )
+   (close INFILE)
+   T
+  )
+  nil
+ )
+)
+;
+;
 ;     Program written by Robert Livingston, 2016/07/06
 ;
 ;     RFL:xxxENT is a collection of routines for adding extended data for linking entities
@@ -5843,5 +6090,203 @@
   )
   nil
  )
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   DSUPER inserts SUPER blocks along the current alignment
+;
+;
+(defun C:DSUPER (/ AL DIMZIN CMDECHO REP SFLAG STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (RFL:DSUPER)
+
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   WSUPER writes the superelevation to file
+;
+;
+(defun C:WSUPER (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= SUPERLIST nil)
+  (princ "\n*** NO SUPERELEVATION EXISTS - USE RSUPER OR GSUPER ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 1))
+   (RFL:WSUPER OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RSUPER reads the Superelevation from file
+;
+;
+(defun C:RSUPER (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 2))
+ (RFL:RSUPER INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   C:GSUPER extracts superelevation from the current drawing for the current alignment
+;
+;
+(defun C:GSUPER (/ ENTSET)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (if (/= RFL:ALIGNLIST nil)
+  (progn
+   (if (/= RFL:SUPERDEF nil)
+    (progn
+     (princ "\nSelect SUPER blocks :")
+     (setq ENTSET (ssget))
+     (if (/= ENTSET nil)
+      (progn
+       (RFL:SUPERDEF ENTSET)
+      )
+     )
+    )
+    (progn
+     (princ "\n!!!!! Superelevation tools not loaded !!!!!\n")
+    )
+   )
+  )
+  (progn
+   (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;    Program written by Robert Livingston, 95/04/25
+;                                 Revised, 98/05/12
+;
+;    RNE labels the Northing and Easting
+;
+;
+(setq RFL:NELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                       (cons "SO" 1)   ;  Label Station and Offset
+                       (cons "Z" 1)    ;  Label Control Elevations
+                       (cons "G" 1)    ;  Label Control Grades
+                       (cons "SE" 1)   ;  Label Superelevations
+                 )
+)
+(defun C:RNE (/ P1 P2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq P1 (getpoint "\nEnter point :"))
+ (setq P2 (getpoint P1 "Second point for leader :"))
+ (RFL:RNE P1 P2)
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun RFL:RNE (P1 P2 / *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G OFFSET P3
+                        S STA STR STRLIST TMP Z)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (alert msg)
+  (setq *error* nil)
+ )
+
+ (setq STRLIST nil
+       STA nil
+       OFFSET nil
+       G nil
+       Z nil
+ )
+ (if (setq STA (RFL:STAOFF P1))
+  (setq OFFSET (cadr STA)
+        STA (car STA)
+        Z (RFL:ELEVATION STA)
+        G (RFL:SLOPE STA)
+        S (RFL:SUPER STA)
+  )
+ )
+ (if (and (= (cdr (assoc "NE" RFL:NELIST)) 1)
+          P1
+     )
+  (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
+ )
+ (if (and (= (cdr (assoc "SO" RFL:NELIST)) 1)
+          STA
+          OFFSET
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
+ )
+ (if (and (= (cdr (assoc "Z" RFL:NELIST)) 1)
+          Z
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
+ )
+ (if (and (= (cdr (assoc "G" RFL:NELIST)) 1)
+          G
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
+ )
+ (if (and (= (cdr (assoc "SE" RFL:NELIST)) 1)
+          S
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
+                                              (rtos (abs (nth 0 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 0 S)) 1) " up" " down")
+                                              ", R:"
+                                              (rtos (abs (nth 1 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 1 S)) 1) " up" " down")
+                                      )
+                                )
+                )
+  )
+ )
+ (if STRLIST
+  (progn
+   (command "LEADER" "_NON" P1 "_NON" P2 "")
+   (foreach STR STRLIST
+    (command STR)
+   )
+   (command "")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
 )
 
