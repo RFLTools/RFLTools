@@ -4,7 +4,9 @@
 ;    RFL:SPIRALK returns the spiral 'K' value for a given radius and length
 ;
 ;
+(if RFL:SPIRALK (princ "\nRFL:SPIRALK already loaded...")
 (defun RFL:SPIRALK (R LS / THETA)
  (setq THETA (/ LS R 2.0))
  (* R (- (SPIRALFXR THETA) (sin THETA)))
+)
 )

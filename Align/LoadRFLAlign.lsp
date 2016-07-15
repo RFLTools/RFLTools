@@ -857,6 +857,7 @@
 ;   RFL:STAOFF returns a list of (STA OFFSET) for a provided (X Y)
 ;
 ;
+(if RFL:STAOFF (princ "\nRFL:STAOFF already loaded...")
 (defun RFL:STAOFF (P / ANG ANG1 ANG2 AL C D D1 D11 D2 D22 OFFSET
                        P1 P2 PLT PLTST PST LO
                        OFFSETBEST PC R STA STABEST TMP)
@@ -996,6 +997,7 @@
   (list STABEST OFFSETBEST)
  )
 )
+)
 ;
 ;
 ;   Program written by Robert Livingston, 98/06/12
@@ -1003,6 +1005,7 @@
 ;   RFL:XY returns a list of (X Y) for a provided (STA OFFSET)
 ;
 ;
+(if RFL:XY (princ "\nRFL:XY already loaded...")
 (defun RFL:XY (P / ANG AL ALTMP C D DIST OFFSET P1 P2 PC POINT STA X Y TOL)
  (setq TOL 0.00000001)
  (defun POINT (P1 P2 BULGE L / A ATOTAL C CHORD LTOTAL P PC R SB X Y)
@@ -1135,6 +1138,7 @@
   )
  )
 )
+)
 ;
 ;
 ;     Program written by Robert Livingston, 2016/07/07
@@ -1142,6 +1146,7 @@
 ;     RFL:GETALIGNLENGTH returns the length the alignment defined by RFL:ALIGNLIST
 ;
 ;
+(if RFL:GETALIGNLENGTH (princ "\nRFL:GETALIGNLENGTH already loaded...")
 (defun RFL:GETALIGNLENGTH (/ DIST)
  (defun DIST (P1 P2 BULGE / ATOTAL CHORD R)
   (if (listp BULGE)
@@ -1174,6 +1179,7 @@
   )
  )
 )
+)
 ;
 ;
 ;     Program written by Robert Livingston, 2016/07/05
@@ -1195,6 +1201,7 @@
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
 ;
+(if RFL:SPIRALFYR (princ "\nRFL:SPIRALFYR already loaded...")
 (defun RFL:SPIRALFYR (THETA / AR2 DENOMINATOR N NUMERATOR SUM SUM2)
  (setq SUM -1.0)
  (setq SUM2 0.0)
@@ -1210,12 +1217,14 @@
  (setq SUM (* SUM AR2))
  SUM
 )
+)
 ;
 ;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALFXR returns (R *  Spiral 'X') for a given deflection
 ;
 ;
+(if RFL:SPIRALFXR (princ "\nRFL:SPIRALFXR already loaded...")
 (defun RFL:SPIRALFXR (THETA / AR2 DENOMINATOR N NUMERATOR SUM SUM2)
  (setq SUM -1.0)
  (setq SUM2 0.0)
@@ -1234,15 +1243,19 @@
  (setq SUM (* SUM AR2))
  SUM
 )
+)
+
 ;
 ;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALP returns the spiral 'P' offset for a given length and radius
 ;
 ;
+(if RFL:SPIRALP (princ "\nRFL:SPIRALP already loaded...")
 (defun RFL:SPIRALP (R LS / THETA)
  (setq THETA (/ LS R 2.0))
  (* R (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA))))
+)
 )
 ;
 ;
@@ -1250,8 +1263,10 @@
 ;    RFL:SPIRALPR returns (R * spiral 'P') for a given deflection
 ;
 ;
+(if RFL:SPIRALPR (princ "\nRFL:SPIRALPR already loaded...")
 (defun RFL:SPIRALPR (THETA)
  (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA)))
+)
 )
 ;
 ;
@@ -1259,9 +1274,11 @@
 ;    RFL:SPIRALK returns the spiral 'K' value for a given radius and length
 ;
 ;
+(if RFL:SPIRALK (princ "\nRFL:SPIRALK already loaded...")
 (defun RFL:SPIRALK (R LS / THETA)
  (setq THETA (/ LS R 2.0))
  (* R (- (SPIRALFXR THETA) (sin THETA)))
+)
 )
 ;
 ;
@@ -1269,8 +1286,10 @@
 ;    RFL:SPIRALKR returns the spiral 'K' value for a given deflection
 ;
 ;
+(if RFL:SPIRALKR (princ "\nRFL:SPIRALKR already loaded...")
 (defun RFL:SPIRALKR (THETA)
  (- (RFL:SPIRALFXR THETA) (sin THETA))
+)
 )
 ;
 ;
@@ -2638,6 +2657,7 @@
 ;   RFL:ELEVATION returns the elevation at a specified station for the curretnly defined profile (RFL:PVILIST)
 ;
 ;
+(if RFL:ELEVATION (princ "\nRFL:ELEVATION already loaded...")
 (defun RFL:ELEVATION (STA / C CMDECHO ELEV ELEV1 ELEV2 ELEV3 G1 G2 L NODE P STA1 STA2 STA3)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -2696,6 +2716,7 @@
  (setvar "CMDECHO" CMDECHO)
  (eval ELEV)
 )
+)
 ;
 ;
 ;   Program written by Robert Livingston, 98/05/14
@@ -2703,6 +2724,7 @@
 ;   RFL:SLOPE returns the slope at a specified station for the curretnly defined profile (RFL:PVILIST)
 ;
 ;
+(if RFL:SLOPE (princ "\nRFL:SLOPE already loaded...")
 (defun RFL:SLOPE (STA / C CMDECHO ELEV1 ELEV2 ELEV3 G G1 G2 L NODE P)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -2763,6 +2785,7 @@
 
  (setvar "CMDECHO" CMDECHO)
  G
+)
 )
 ;
 ;
@@ -3338,6 +3361,7 @@
 ;   RFL:SUPER returns a list (left super , right super) for the given station
 ;
 ;
+(if RFL:SUPER (princ "\nRFL:SUPER already loaded...")
 (defun RFL:SUPER (STA / C NODE1 NODE2 S1 S2 STA1 STA2 VAL)
  (setq VAL nil)
  (if (/= RFL:SUPERLIST nil)
@@ -3363,7 +3387,9 @@
   )
  )
  VAL
-);
+)
+)
+;
 ;
 ;   Program written by Robert Livingston, 99/10/08
 ;

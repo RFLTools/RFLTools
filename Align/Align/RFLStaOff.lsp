@@ -5,6 +5,7 @@
 ;   RFL:STAOFF returns a list of (STA OFFSET) for a provided (X Y)
 ;
 ;
+(if RFL:STAOFF (princ "\nRFL:STAOFF already loaded...")
 (defun RFL:STAOFF (P / ANG ANG1 ANG2 AL C D D1 D11 D2 D22 OFFSET
                        P1 P2 PLT PLTST PST LO
                        OFFSETBEST PC R STA STABEST TMP)
@@ -143,4 +144,5 @@
   (eval nil)
   (list STABEST OFFSETBEST)
  )
+)
 )

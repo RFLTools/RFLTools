@@ -4,6 +4,7 @@
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
 ;
+(if RFL:SPIRALFYR (princ "\nRFL:SPIRALFYR already loaded...")
 (defun RFL:SPIRALFYR (THETA / AR2 DENOMINATOR N NUMERATOR SUM SUM2)
  (setq SUM -1.0)
  (setq SUM2 0.0)
@@ -18,4 +19,5 @@
  )
  (setq SUM (* SUM AR2))
  SUM
+)
 )

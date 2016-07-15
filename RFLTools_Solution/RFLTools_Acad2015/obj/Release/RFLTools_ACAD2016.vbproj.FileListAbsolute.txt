@@ -1,0 +1,9 @@
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\RFLTools.RFLToolsApplication.MyCommands.resources
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\RFLTools.Resources.resources
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\RFLTools_Acad2016.vbproj.GenerateResource.Cache
+Z:\Develop\Projects\RFLTools_Solution\bin\Release\RFLTools_ACAD2016x64.xml
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\RFLTools_ACAD2016x64.xml
+Z:\Develop\Projects\RFLTools_Solution\bin\Release\AnyCPU.dll
+Z:\Develop\Projects\RFLTools_Solution\bin\Release\AnyCPU.pdb
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\AnyCPU.dll
+Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2016\obj\Release\AnyCPU.pdb

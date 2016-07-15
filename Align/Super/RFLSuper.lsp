@@ -5,6 +5,7 @@
 ;   RFL:SUPER returns a list (left super , right super) for the given station
 ;
 ;
+(if RFL:SUPER (princ "\nRFL:SUPER already loaded...")
 (defun RFL:SUPER (STA / C NODE1 NODE2 S1 S2 STA1 STA2 VAL)
  (setq VAL nil)
  (if (/= RFL:SUPERLIST nil)
@@ -30,4 +31,5 @@
   )
  )
  VAL
+)
 )

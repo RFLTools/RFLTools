@@ -5,6 +5,7 @@
 ;   RFL:SLOPE returns the slope at a specified station for the curretnly defined profile (RFL:PVILIST)
 ;
 ;
+(if RFL:SLOPE (princ "\nRFL:SLOPE already loaded...")
 (defun RFL:SLOPE (STA / C CMDECHO ELEV1 ELEV2 ELEV3 G G1 G2 L NODE P)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -65,4 +66,5 @@
 
  (setvar "CMDECHO" CMDECHO)
  G
+)
 )

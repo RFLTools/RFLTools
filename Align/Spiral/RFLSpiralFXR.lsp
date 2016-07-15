@@ -4,6 +4,7 @@
 ;    RFL:SPIRALFXR returns (R *  Spiral 'X') for a given deflection
 ;
 ;
+(if RFL:SPIRALFXR (princ "\nRFL:SPIRALFXR already loaded...")
 (defun RFL:SPIRALFXR (THETA / AR2 DENOMINATOR N NUMERATOR SUM SUM2)
  (setq SUM -1.0)
  (setq SUM2 0.0)
@@ -22,3 +23,5 @@
  (setq SUM (* SUM AR2))
  SUM
 )
+)
+

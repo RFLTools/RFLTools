@@ -5,6 +5,7 @@
 ;   RFL:XY returns a list of (X Y) for a provided (STA OFFSET)
 ;
 ;
+(if RFL:XY (princ "\nRFL:XY already loaded...")
 (defun RFL:XY (P / ANG AL ALTMP C D DIST OFFSET P1 P2 PC POINT STA X Y TOL)
  (setq TOL 0.00000001)
  (defun POINT (P1 P2 BULGE L / A ATOTAL C CHORD LTOTAL P PC R SB X Y)
@@ -136,4 +137,5 @@
    nil
   )
  )
+)
 )

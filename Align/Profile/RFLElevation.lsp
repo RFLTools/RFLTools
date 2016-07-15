@@ -5,6 +5,7 @@
 ;   RFL:ELEVATION returns the elevation at a specified station for the curretnly defined profile (RFL:PVILIST)
 ;
 ;
+(if RFL:ELEVATION (princ "\nRFL:ELEVATION already loaded...")
 (defun RFL:ELEVATION (STA / C CMDECHO ELEV ELEV1 ELEV2 ELEV3 G1 G2 L NODE P STA1 STA2 STA3)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -62,4 +63,5 @@
 
  (setvar "CMDECHO" CMDECHO)
  (eval ELEV)
+)
 )

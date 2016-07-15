@@ -5,6 +5,7 @@
 ;     RFL:GETALIGNLENGTH returns the length the alignment defined by RFL:ALIGNLIST
 ;
 ;
+(if RFL:GETALIGNLENGTH (princ "\nRFL:GETALIGNLENGTH already loaded...")
 (defun RFL:GETALIGNLENGTH (/ DIST)
  (defun DIST (P1 P2 BULGE / ATOTAL CHORD R)
   (if (listp BULGE)
@@ -36,4 +37,5 @@
    )
   )
  )
+)
 )

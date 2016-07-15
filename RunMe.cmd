@@ -32,7 +32,8 @@ rem Build RFLTools
 rem
 if exist LoadRFLTools.lsp del LoadRFLTools.lsp
 rem
-COPY ".\Common\Common.lsp" + ^
+COPY ".\Common\RFLLoadRFLDLL.lsp" + ^
+     ".\Common\Common.lsp" + ^
      ".\Math\Trig.lsp" + ^
      ".\Align\LoadRFLALign.lsp" + ^
      ".\MakeEnt\LoadMakeEnt.lsp" + ^
@@ -41,7 +42,8 @@ COPY ".\Common\Common.lsp" + ^
      ".\Align\Align.lsp" + ^
      ".\Best\BestLine.lsp" + ^
      ".\Best\BestCircle.lsp" + ^
-     ".\Best\BestVCurve.lsp" ^
+     ".\Best\BestVCurve.lsp" + ^
+     ".\Common\Loaded.lsp" ^
      ".\LoadRFLTools.lsp"
 rem
 rem ---------------------------------------------
