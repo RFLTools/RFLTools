@@ -11,7 +11,6 @@ Z:\Develop\Projects\RFLTools_Solution\RFLTools_Acad2015\obj\x86\Release\RFLTools
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\bin\x86\Release\RFLTools_ACAD2015x86.dll
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\bin\x86\Release\RFLTools_ACAD2015x86.pdb
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\bin\x86\Release\RFLTools_ACAD2015.xml
-Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2015\obj\x86\Release\RFLTools_ACAD2015.vbprojResolveAssemblyReference.cache
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2015\obj\x86\Release\RFLTools.RFLToolsApplication.MyCommands.resources
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2015\obj\x86\Release\RFLTools.Resources.resources
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2015\obj\x86\Release\RFLTools_ACAD2015.vbproj.GenerateResource.Cache

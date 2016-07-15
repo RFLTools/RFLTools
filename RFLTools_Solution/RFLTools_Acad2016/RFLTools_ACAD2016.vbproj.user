@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ReferencePath>..\..\Libraries\Autodesk_ObjectARX_2016_Win_64_and_32_Bit\inc-x64\;..\..\Libraries\Autodesk_ObjectARX_2016_Win_64_and_32_Bit\inc\</ReferencePath>
+    <ReferencePath>Z:\Lisp\GitHub\Autodesk_Libraries\Autodesk_ObjectARX_2016_Win_64_and_32_Bit\inc-x64\;Z:\Lisp\GitHub\Autodesk_Libraries\Autodesk_ObjectARX_2016_Win_64_and_32_Bit\inc\</ReferencePath>
     <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
