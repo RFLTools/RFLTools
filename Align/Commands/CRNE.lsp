@@ -6,11 +6,11 @@
 ;    RNE labels the Northing and Easting
 ;
 ;
-(setq RFL:NELIST (list (cons "NE" 1)   ;  Label Northing and Easting
-                       (cons "SO" 1)   ;  Label Station and Offset
-                       (cons "Z" 1)    ;  Label Control Elevations
-                       (cons "G" 1)    ;  Label Control Grades
-                       (cons "SE" 1)   ;  Label Superelevations
+(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                        (cons "SO" 1)   ;  Label Station and Offset
+                        (cons "Z" 1)    ;  Label Control Elevations
+                        (cons "G" 1)    ;  Label Control Grades
+                        (cons "SE" 1)   ;  Label Superelevations
                  )
 )
 (defun C:RNE (/ P1 P2)
@@ -54,28 +54,28 @@
         S (RFL:SUPER STA)
   )
  )
- (if (and (= (cdr (assoc "NE" RFL:NELIST)) 1)
+ (if (and (= (cdr (assoc "NE" RFL:RNELIST)) 1)
           P1
      )
   (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
  )
- (if (and (= (cdr (assoc "SO" RFL:NELIST)) 1)
+ (if (and (= (cdr (assoc "SO" RFL:RNELIST)) 1)
           STA
           OFFSET
      )
   (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
  )
- (if (and (= (cdr (assoc "Z" RFL:NELIST)) 1)
+ (if (and (= (cdr (assoc "Z" RFL:RNELIST)) 1)
           Z
      )
   (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
  )
- (if (and (= (cdr (assoc "G" RFL:NELIST)) 1)
+ (if (and (= (cdr (assoc "G" RFL:RNELIST)) 1)
           G
      )
   (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
  )
- (if (and (= (cdr (assoc "SE" RFL:NELIST)) 1)
+ (if (and (= (cdr (assoc "SE" RFL:RNELIST)) 1)
           S
      )
   (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
