@@ -34,6 +34,7 @@ if exist LoadRFLTools.lsp del LoadRFLTools.lsp
 rem
 COPY ".\Common\RFLLoadRFLDLL.lsp" + ^
      ".\Common\Common.lsp" + ^
+     ".\Common\C3DCommon.lsp" + ^
      ".\Math\Trig.lsp" + ^
      ".\Align\LoadRFLALign.lsp" + ^
      ".\MakeEnt\LoadMakeEnt.lsp" + ^
