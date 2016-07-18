@@ -1,0 +1,51 @@
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   RFL:WPROFB writes a vertical alinment to a RFLALIGN Block
+;
+;
+(defun RFL:WPROFB (BLKENT / BLKENTNEW BLKENTLIST C ENT ENTLIST ENTN)
+ (entmake)
+ (setq BLKENTLIST (entget BLKENT))
+ (setq BLKENTNEW (entmake BLKENTLIST))
+ (setq ENT (entnext BLKENT))
+ (setq ENTLIST (entget ENT))
+ (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+  (if (= "VRT" (cdr (assoc 2 ENTLIST)))
+   (progn
+    (setq ENTLIST (subst (cons 1 "#RFL VERTICAL ALIGNMENT FILE") (assoc 1 ENTLIST) ENTLIST))
+    (entmake ENTLIST)
+    (setq C 0)
+    (while (< C (length RFL:PVILIST))
+     (setq ENTLIST (subst (cons 70 1) (assoc 70 ENTLIST) ENTLIST))
+     (setq ENTLIST (subst (cons 1 (rtos (nth 0 (nth C RFL:PVILIST)) 2 16)) (assoc 1 ENTLIST) ENTLIST))
+     (entmake ENTLIST)
+     (setq ENTLIST (subst (cons 1 (rtos (nth 1 (nth C RFL:PVILIST)) 2 16)) (assoc 1 ENTLIST) ENTLIST))
+     (entmake ENTLIST)
+     (setq ENTLIST (subst (cons 1 (nth 2 (nth C RFL:PVILIST))) (assoc 1 ENTLIST) ENTLIST))
+     (entmake ENTLIST)
+     (setq ENTLIST (subst (cons 1 (rtos (nth 3 (nth C RFL:PVILIST)) 2 16)) (assoc 1 ENTLIST) ENTLIST))
+     (entmake ENTLIST)
+     (setq C (+ C 1))
+    )
+    (setq ENTLIST (subst (cons 1 "#END DEFINITION") (assoc 1 ENTLIST) ENTLIST))
+    (entmake ENTLIST)
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (while (= "VRT" (cdr (assoc 2 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+    )
+   )
+   (progn
+    (entmake ENTLIST)
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+   )
+  )
+ )
+ (entmake ENTLIST)
+ (entdel BLKENT)
+ (setq BLKENTNEW (entlast))
+)
