@@ -63,7 +63,7 @@
         )
        )
        ;;2016 ^^^
-       ((vl-string-search "\\R20.1\\" ACADPROD)
+       ((vl-string-search "\\R21.0\\" ACADPROD)
         (if IS64
          (if (setq INFILE (findfile "RFLTools_ACAD2017x64.dll"))
           (command "NETLOAD" INFILE)
