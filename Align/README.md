@@ -47,6 +47,8 @@ C:RAB2C3D                    Reads the horizontal/vertical and creates a Civil 3
 
 C:RABKill                    Clears the alignment data from a selected alignment block
 
+C:RABN                       Reads the horizontal, vertical, super, OG from a selected nested alignment block
+
 C:RAlign                     Reads an alignment from file
 
 C:RAlignB                    Reads an alignment from a selected alignment block
