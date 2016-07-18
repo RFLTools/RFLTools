@@ -3908,6 +3908,50 @@
 )
 ;
 ;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RFL:RSUPERB reads the Superelevation from a RFLAlign Block
+;
+;
+(defun RFL:RSUPERB (BLKENT / ENT ENTLIST INLINE STA SUPERLEFT SUPERRIGHT)
+ (setq RFL:SUPERLIST nil)
+ (setq ENT (entnext BLKENT))
+ (setq ENTLIST (entget ENT))
+ (while (/= "E" (cdr (assoc 2 ENTLIST)))
+  (setq ENT (entnext ENT))
+  (setq ENTLIST (entget ENT))
+ )
+ (setq INLINE (cdr (assoc 1 ENTLIST)))
+ (setq ENT (entnext ENT))
+ (setq ENTLIST (entget ENT))
+ (if (/= INLINE "#RFL SUPERELEVATION FILE")
+  (progn
+   (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
+  )
+  (progn
+   (setq INLINE (cdr (assoc 1 ENTLIST)))
+   (setq ENT (entnext ENT))
+   (setq ENTLIST (entget ENT))
+   (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
+    (setq STA (atof INLINE))
+    (setq INLINE (cdr (assoc 1 ENTLIST)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (setq SUPERLEFT (atof INLINE))
+    (setq INLINE (cdr (assoc 1 ENTLIST)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (setq SUPERRIGHT (atof INLINE))
+    (setq INLINE (cdr (assoc 1 ENTLIST)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SUPERLEFT SUPERRIGHT))))
+   )
+  )
+ )
+)
+;
+;
 ;   Program written by Robert Livingston, 2008/11/04
 ;
 ;   RFL:WSUPERB writes the superelevation to a RFLALIGN Block
@@ -3954,50 +3998,6 @@
  (entmake ENTLIST)
  (entdel BLKENT)
  (setq BLKENTNEW (entlast))
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RFL:RSUPERB reads the Superelevation from a RFLAlign Block
-;
-;
-(defun RFL:RSUPERB (BLKENT / ENT ENTLIST INLINE STA SUPERLEFT SUPERRIGHT)
- (setq RFL:SUPERLIST nil)
- (setq ENT (entnext BLKENT))
- (setq ENTLIST (entget ENT))
- (while (/= "E" (cdr (assoc 2 ENTLIST)))
-  (setq ENT (entnext ENT))
-  (setq ENTLIST (entget ENT))
- )
- (setq INLINE (cdr (assoc 1 ENTLIST)))
- (setq ENT (entnext ENT))
- (setq ENTLIST (entget ENT))
- (if (/= INLINE "#RFL SUPERELEVATION FILE")
-  (progn
-   (princ "\n*** FILE NOT FORMATTED CORRECTLY ***\n")
-  )
-  (progn
-   (setq INLINE (cdr (assoc 1 ENTLIST)))
-   (setq ENT (entnext ENT))
-   (setq ENTLIST (entget ENT))
-   (while (and (/= nil INLINE) (/= INLINE "#END DEFINITION"))
-    (setq STA (atof INLINE))
-    (setq INLINE (cdr (assoc 1 ENTLIST)))
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (setq SUPERLEFT (atof INLINE))
-    (setq INLINE (cdr (assoc 1 ENTLIST)))
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (setq SUPERRIGHT (atof INLINE))
-    (setq INLINE (cdr (assoc 1 ENTLIST)))
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SUPERLEFT SUPERRIGHT))))
-   )
-  )
- )
 )
 ;
 ;
@@ -6806,917 +6806,6 @@
 )
 ;
 ;
-;     Program written by Robert Livingston, 10-04-30
-;
-;     RALIGNC3D reads the alignment from a selected C3D alignment
-;     NOTE - Must be using C3D, will not work in straight AutoCAD
-;     NOTE - Works for type 1, type 2, type 3 and type 4 alignment entities
-;
-;
-(defun C:RALIGNC3D (/ *error* ALSAVE C CMAX CMDECHO E1 E2 ENT ENTITY ENTLIST NODE
-                      OBALIGNMENT OBENTITIES SETARC SETSPIRAL SETTANGENT SPIRALENTITY STA STALIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= nil vlax-create-object) (vl-load-com))
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
-  (princ msg)
- )
-
- (defun SETTANGENT (ENTITY / P1 P2)
-  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                 (vlax-get-property ENTITY "StartNorthing")
-           )
-  )
-  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                 (vlax-get-property ENTITY "EndNorthing")
-           )
-  )
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 0.0))))
- )
-
- (defun SETARC (ENTITY / P1 P2 PC CCW R ANG BULGE)
-  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                 (vlax-get-property ENTITY "StartNorthing")
-           )
-  )
-  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                 (vlax-get-property ENTITY "EndNorthing")
-           )
-  )
-  (setq PC (list (vlax-get-property ENTITY "CenterEasting")
-                 (vlax-get-property ENTITY "CenterNorthing")
-           )
-  )
-  (setq CCW (vlax-get-property ENTITY "Clockwise"))
-  (setq R (vlax-get-property ENTITY "Radius"))
-  (setq ANG (vlax-get-property ENTITY "Delta"))
-  (setq BULGE (TAN (/ ANG 4.0)))
-  (if (= :vlax-true CCW) (setq BULGE (* -1.0 BULGE)))
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
- )
-
- (defun SETSPIRAL (ENTITY / A ANG BULGE L0 LT P1 P2 PLTST PINT PST RIN ROUT ST THETA TMP X Y)
-  (setq RIN (vlax-get-property ENTITY "RadiusIn"))
-  (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
-  (setq TMP (/ 1.0 (max RIN ROUT)))
-  ;(setq TMP (vlax-get-property ENTITY "Compound"))
-  ;(if (= TMP :vlax-false)
-  (if (< TMP RFL:TOL)
-   (progn
-    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                   (vlax-get-property ENTITY "StartNorthing")
-             )
-    )
-    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                   (vlax-get-property ENTITY "EndNorthing")
-             )
-    )
-    (setq PLTST (list (vlax-get-property ENTITY "SPIEasting")
-                      (vlax-get-property ENTITY "SPINorthing")
-                )
-    )
-    (setq LO 0.0)
-    (if (< (distance P2 PLTST) (distance P1 PLTST))
-     (setq PLT P1 PST P2)
-     (setq PLT P2 PST P1)
-    )
-    (setq BULGE (list PLT PLTST PST LO))
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
-   )
-   (progn
-    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                   (vlax-get-property ENTITY "StartNorthing")
-             )
-    )
-    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                   (vlax-get-property ENTITY "EndNorthing")
-             )
-    )
-    (setq PINT (list (vlax-get-property ENTITY "SPIEasting")
-                     (vlax-get-property ENTITY "SPINorthing")
-               )
-    )
-    (setq RIN (vlax-get-property ENTITY "RadiusIn"))
-    (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
-    (setq A (vlax-get-property ENTITY "A"))
-    (if (< RIN ROUT)
-     (progn
-      (setq THETA (/ (* A A) (* 2.0 RIN RIN)))
-      (setq PST P1)
-      ;(setq LO (- (/ (* A A) RIN) (vlax-get-property ENTITY "Length")))
-      (setq LO (/ (* A A) ROUT))
-      (setq ANG (angle PST PINT))
-      (setq X (* RIN (SPIRALFXR THETA)))
-      (setq Y (* RIN (SPIRALFYR THETA)))
-      (setq ST (/ Y (sin THETA)))
-      (setq LT (- X (/ Y (TAN THETA))))
-      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
-                        (+ (cadr PST) (* ST (sin ANG)))))
-      (if (> (sin (- (angle PINT P2) (angle P1 PINT))) 0.0)
-       (setq ANG (+ ANG THETA))
-       (setq ANG (- ANG THETA))
-      )
-      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
-                      (+ (cadr PLTST) (* LT (sin ANG)))))
-     )
-     (progn
-      (setq THETA (/ (* A A) (* 2.0 ROUT ROUT)))
-      (setq PST P2)
-      ;(setq LO (- (/ (* A A) ROUT) (vlax-get-property ENTITY "Length")))
-      (setq LO (/ (* A A) RIN))
-      (setq ANG (angle PST PINT))
-      (setq X (* ROUT (SPIRALFXR THETA)))
-      (setq Y (* ROUT (SPIRALFYR THETA)))
-      (setq ST (/ Y (sin THETA)))
-      (setq LT (- X (/ Y (TAN THETA))))
-      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
-                        (+ (cadr PST) (* ST (sin ANG)))))
-      (if (> (sin (- (angle PINT P1) (angle P2 PINT))) 0.0)
-       (setq ANG (+ ANG THETA))
-       (setq ANG (- ANG THETA))
-      )
-      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
-                      (+ (cadr PLTST) (* LT (sin ANG)))))
-     )
-    )
-    (setq BULGE (list PLT PLTST PST LO))
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
-   )
-  )
- )
-
- (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
- (if (/= OBALIGNMENT nil) 
-  (progn
-   (setq RFL:ALIGNLIST nil)
-   (setq OBENTITIES (vlax-get-property OBALIGNMENT "Entities"))
-   (setq CMAX (vlax-get-property OBENTITIES "Count"))
-   (setq C 0)
-   (while (< C CMAX)
-    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
-    (cond
-     ((= 1 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETTANGENT ENTITY)
-      )
-     )
-     ((= 2 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETARC ENTITY)
-      )
-     )
-     ((= 3 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL ENTITY)
-      )
-     )
-     ((= 4 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
-       (SETARC (vlax-get-property ENTITY "Arc"))
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
-      )
-     )
-    )
-    (setq C (1+ C))
-   )
-  )
- )
-
- (setq ALSAVE RFL:ALIGNLIST RFL:ALIGNLIST nil)
- (if (/= nil ALSAVE)
-  (progn
-   (setq STALIST nil)
-   (foreach NODE ALSAVE
-    (setq STALIST (append STALIST (list (car NODE))))
-   )
-   (setq STALIST (vl-sort STALIST '<))
-   (foreach STA STALIST
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (assoc STA ALSAVE))))
-   )
-  )
- )
- 
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;     Program written by Robert Livingston, 11-03-09
-;
-;     RPROF3D reads the profile from a selected C3D profile
-;     NOTE - Must be using C3D, will not work in straight AutoCAD
-;     NOTE - Works for type 1 and type 3 vertical curves
-;
-;
-(defun C:RPROFC3D (/ *error* C CMAX CMDECHO ENDELEVATION ENDSTATION ENT ENTITY ENTITYNEXT ENTLIST OBPROFILE OBENTITIES
-                     PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= nil vlax-create-object) (vl-load-com))
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
-  (princ msg)
- )
-
- (defun GETPVISTATION ()
-  (setq PVISTATION (vlax-get-property ENTITY "PVIStation"))
- )
-
- (setq ENT (car (entsel "\nSelect C3D profile : ")))
- (setq ENTLIST (entget ENT))
- (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
-  (princ "\n*** Not a C3D Profile ***")
-  (progn
-   (setq OBPROFILE (vlax-ename->vla-object ENT))
-   (setq STARTSTATION (vlax-get-property OBPROFILE "StartingStation"))
-   (setq STARTELEVATION (vlax-invoke-method OBPROFILE "ElevationAt" STARTSTATION))
-   (setq RFL:PVILIST (list (list STARTSTATION STARTELEVATION "L" 0.0)))
-   (setq ENDSTATION (vlax-get-property OBPROFILE "EndingStation"))
-   (setq ENDELEVATION (vlax-invoke-method OBPROFILE "ElevationAt" ENDSTATION))
-   (setq OBENTITIES (vlax-get-property OBPROFILE "Entities"))
-   (setq CMAX (vlax-get-property OBENTITIES "Count"))
-   (setq C 0)
-   (while (< C CMAX)
-    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
-    (if (= (+ C 1) CMAX) (setq ENTITYNEXT nil) (setq ENTITYNEXT (vlax-invoke-method OBENTITIES "Item" (+ C 1))))
-    (cond
-     ((= 1 (vlax-get-property ENTITY "Type"))
-      (progn
-       (if (/= ENTITYNEXT nil)
-        (if (= (vlax-get-property ENTITYNEXT "Type") 1)
-         (progn
-          (setq PVISTATION (vlax-get-property ENTITY "EndStation"))
-          (setq PVIELEVATION (vlax-get-property ENTITY "EndElevation"))
-          (setq PVILENGTH 0.0)
-          (setq RFL:PVILIST (append RFL:PVILIST (list (list PVISTATION PVIELEVATION "L" PVILENGTH))))
-         )
-        )
-       )
-      )
-     )
-     ((= 3 (vlax-get-property ENTITY "Type"))
-      (progn
-       (setq PVISTATION (vlax-get-property ENTITY "PVIStation"))
-       (setq PVIELEVATION (vlax-get-property ENTITY "PVIElevation"))
-       (setq PVILENGTH (vlax-get-property ENTITY "Length"))
-       (setq RFL:PVILIST (append RFL:PVILIST (list (list PVISTATION PVIELEVATION "L" PVILENGTH))))
-      )
-     )
-    )
-    (setq C (1+ C))
-   )
-   (setq RFL:PVILIST (append RFL:PVILIST (list (list ENDSTATION ENDELEVATION "L" 0.0))))
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;     Program written by Robert Livingston, 2008-11-04
-;
-;     RAB loads hor/vrt/E/OG from a selected RFLALign block
-;
-;
-(defun C:RAB (/ BLKENT BLKENTLIST CMDECHO)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (progn
-   (RFL:RALIGNB BLKENT)
-   (RFL:RPROFB BLKENT)
-   (RFL:RSUPERB BLKENT)
-   (RFL:RPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-(defun C:RABN (/ BLKENT BLKENTLIST CMDECHO)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (progn
-   (RFL:RALIGNB BLKENT)
-   (RFL:RPROFB BLKENT)
-   (RFL:RSUPERB BLKENT)
-   (RFL:RPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 2008-11-04
-;
-;     RABKILL removes alignment definition lists from RFLALIGN blocks
-;
-;
-(defun C:RABKILL (/ ENT)
- (command "._UNDO" "M")
- (setq ENT (car (entsel "\nSelect Alignment Block : ")))
- (RFL:RABKILL ENT "HOR")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "VRT")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "OG")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "E")
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   RALIGNBN reads a horizontal alignment from a nested RFLAlign Block
-;
-;
-(defun C:RALIGNBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RALIGNB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   RALIGNB reads a horizontal alignment from a RFLAlign Block
-;
-;
-(defun C:RALIGNB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RALIGNB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFB reads a vertical profile from a RFLAlign Block
-;
-;
-(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFBN reads a vertical profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
-;
-;
-(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WALIGNB writes a horizontal alignment to a RFLALIGN Block
-;
-;
-(defun C:WALIGNB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:ALIGNLIST)
-   (RFL:RABKILL BLKENT "HOR")
-   (RFL:WALIGNB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WPROFB writes a vertical alinment to a RFLALIGN Block
-;
-;
-(defun C:WPROFB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:PVILIST)
-   (RFL:RABKILL BLKENT "VRT")
-   (RFL:WPROFB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WPROFOGB writes a OG vertical alinment to a RFLALIGN Block
-;
-;
-(defun C:WPROFOGB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:OGLIST)
-   (RFL:RABKILL BLKENT "OG")
-   (RFL:WPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WSUPERB writes the superelevation to a RFLALIGN Block
-;
-;
-(defun C:WSUPERB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:SUPERLIST)
-   (RFL:RABKILL BLKENT "E")
-   (RFL:WSUPERB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 2011/11/22
-;
-;     RAB2C3D writes the current RFL alignment to a C3D Drawing.
-;
-;
-(defun C:RAB2C3D (/ *error* ALIGNLISTSAVE ALIGNMENTNAME ALIGNMENTSTYLENAME ALIGNMENTLABELSTYLESETNAME BLKENT BLKENTLIST BULGE
-                    C CCW CMAX GETOBAECC ID LANDPROFILESTYLENAME LO LS NAME NODE
-                    OALIGNMENT OALIGNMENTENTITIES OALIGNMENTSTYLES OALIGNMENTLABELSTYLESETS OALIGNMENTSSITELESS OCIVILAPP ODOCUMENT OLANDPROFILESTYLES OPVIS
-                    P1 P2 PLT PLTST PST PREVENT PVILISTSAVE RADIUS SUPERLISTSAVE)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
-  (setq RFL:ALIGNLIST ALIGNLISTSAVE)
-  (setq RFL:PVILIST PVILISTSAVE)
-  (setq RFL:SUPERLIST SUPERLISTSAVE)
-  (princ msg)
- )
-
- (defun GETOBAECC (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DSURFS C CMAX c3DSURF)
-  (princ "\n")
-  (setq ACADPROD (vlax-product-key))
-  (setq ACADVER (RFL:ACADVER))
-  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." ACADVER))
-  (setq *acad* (vlax-get-acad-object))
-  (vla-getinterfaceobject *acad* ACADPROD)
- )
-
- (defun RADIUS (P1 P2 BULGE / ATOTAL CHORD R)
-  (if (listp BULGE)
-   (setq R (RFL:GETSPIRALR2 (nth 0 BULGE) (nth 1 BULGE) (nth 2 BULGE)))
-   (progn
-    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
-    (setq CHORD (distance P1 P2))
-    (if (< (abs BULGE) TOL)
-     (setq R nil)
-     (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
-    )
-   )
-  )
-  R
- )
-
- (command "._UNDO" "M")
- (setq ALIGNLISTSAVE RFL:ALIGNLIST)
- (setq PVILISTSAVE RFL:PVILIST)
- (setq SUPERLISTSAVE RFL:SUPERLIST)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block <return to use current alignment> : ")))
- (if (= nil BLKENT)
-  (progn
-   (setq ALIGNMENTNAME "RFL Alignment")
-  )
-  (progn
-   (setq BLKENTLIST (entget BLKENT))
-   (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-    (progn
-     (RFL:RALIGNB BLKENT)
-     (RFL:RPROFB BLKENT)
-     (RFL:RSUPERB BLKENT)
-     (setq BLKENT (entnext BLKENT))
-     (setq BLKENTLIST (entget BLKENT))
-     (setq ALIGNMENTNAME "")
-     (while (and (= "ATTRIB" (cdr (assoc 0 BLKENTLIST))) (/= "TITLE" (cdr (assoc 2 BLKENTLIST))))
-      (setq BLKENT (entnext BLKENT))
-      (setq BLKENTLIST (entget BLKENT))
-     )
-     (if (= "TITLE" (cdr (assoc 2 BLKENTLIST)))
-      (setq ALIGNMENTNAME (cdr (assoc 1 BLKENTLIST)))
-     )
-    )
-    (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
-   )
-  )
- )
-
- (if (= nil RFL:ALIGNLIST)
-  (princ "\n*****  NO RFL ALIGNMENT DEFINED  *****")
-  (progn
-   (textscr)
-   (setq NAME (getstring T (strcat "\nEnter new alignment name <" ALIGNMENTNAME "> : ")))
-   (if (= NAME "") (setq NAME ALIGNMENTNAME))
-   (if (/= "" NAME)
-    (progn
-     (setq OCIVILAPP (GETOBAECC))
-     (if (= nil OCIVILAPP)
-      (alert "C3D not loaded!")
-      (progn
-       (setq ODOCUMENT (vlax-get-property OCIVILAPP "ActiveDocument"))
-       (if (= nil ODOCUMENT)
-        (alert "Error getting Document!")
-        (progn
-         (setq OALIGNMENTSTYLES (vlax-get-property ODOCUMENT "AlignmentStyles"))
-         (if (= nil OALIGNMENTSTYLES)
-          (alert "Error getting Alignment Styles!")
-          (progn
-           (setq CMAX (vlax-get-property OALIGNMENTSTYLES "Count"))
-           (setq C 0)
-           (while (< C CMAX)
-            (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OALIGNMENTSTYLES "Item" C) "Name") "\n"))
-            (setq C (+ C 1))
-           )
-           (setq C 0)
-           (while (or (< C 1) (> C CMAX))
-            (setq C (getint (strcat "Select Alignment Style < 1 to " (itoa CMAX) " > : ")))
-           )
-           (setq C (- C 1))
-           (setq ALIGNMENTSTYLENAME (vlax-get-property (vlax-get-property OALIGNMENTSTYLES "Item" C) "Name"))
-           (princ "\n")
-           (setq OALIGNMENTLABELSTYLESETS (vlax-get-property ODOCUMENT "AlignmentLabelStyleSets"))
-           (if (= nil OALIGNMENTLABELSTYLESETS)
-            (alert "Error getting Alignment Label Style Sets!")
-            (progn
-             (setq CMAX (vlax-get-property OALIGNMENTLABELSTYLESETS "Count"))
-             (setq C 0)
-             (while (< C CMAX)
-              (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OALIGNMENTLABELSTYLESETS "Item" C) "Name") "\n"))
-              (setq C (+ C 1))
-             )
-             (setq C 0)
-             (while (or (< C 1) (> C CMAX))
-              (setq C (getint (strcat "Select Alignment Label Style Set < 1 to " (itoa CMAX) " > : ")))
-             )
-             (setq C (- C 1))
-             (setq ALIGNMENTLABELSTYLESETNAME (vlax-get-property (vlax-get-property OALIGNMENTLABELSTYLESETS "Item" C) "Name"))
-             (setq OALIGNMENTSSITELESS (vlax-get-property ODOCUMENT "AlignmentsSiteless"))
-             (if (= nil OALIGNMENTSSITELESS)
-              (alert "Error getting Alignments!")
-              (progn
-               (setq OALIGNMENT (vlax-invoke-method OALIGNMENTSSITELESS "Add" NAME (getvar "CLAYER") ALIGNMENTSTYLENAME ALIGNMENTLABELSTYLESETNAME))
-               (if (= nil OALIGNMENT)
-                (alert "Error creating new alignment!")
-                (progn
-                 (vlax-put-property OALIGNMENT "ReferencePointStation" (caar RFL:ALIGNLIST))
-                 (setq OALIGNMENTENTITIES (vlax-get-property OALIGNMENT "Entities"))
-                 (if (= nil OALIGNMENTENTITIES)
-                  (alert "Error accessing entities!")
-                  (progn
-                   (setq PREVENT nil)
-                   (setq C 0)
-                   (while (< C (length RFL:ALIGNLIST))
-(princ "<1>")
-                    (setq NODE (nth C RFL:ALIGNLIST))
-(princ "<2>")
-                    (setq BULGE (nth 3 NODE))
-(princ "<3>")
-                    (if (listp BULGE)
-                     (progn  ;  Spiral
-(princ "<4>")
-                      (setq P1 (nth 1 NODE))
-(princ "<5>")
-                      (setq P2 (nth 2 NODE))
-(princ "<6>")
-                      (setq PLT (nth 0 BULGE))
-(princ "<7>")
-                      (setq PLTST (nth 1 BULGE))
-(princ "<8>")
-                      (setq PST (nth 2 BULGE))
-(princ "<9>")
-                      (setq LO (nth 3 BULGE))
-(princ "<10>")
-                      (setq LS (- (RFL:GETSPIRALLS2 PLT PLTST PST) LO))
-(princ "<11>")
-                      (if (> (distance P2 PLT) (distance P1 PLT))
-                       (progn
-(princ "<12>")(setq XP1 P1 XP2 P2 XBULGE BULGE)
-                        (setq R2 (RADIUS P1 P2 BULGE))
-(princ "<13>")
-                        (if (< LO RFL:TOLFINE)
-                         (setq R1 0.0)
-                         (setq R1 (/ (* R2 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
-                        )
-                       )
-                       (progn
-(princ "<14>")
-                        (setq R1 (RADIUS P1 P2 BULGE))
-(princ "<15>")
-                        (if (< LO RFL:TOLFINE)
-                         (setq R2 0.0)
-                         (setq R2 (/ (* R1 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
-                        )
-(princ "<16>")
-                       )
-                      )
-(princ "<17>")
-                      (if (< (abs LO) RFL:TOLFINE) (setq LO 0.0))
-(princ "<18>")
-                      (setq PLTST (RFL:GETSPIRALPI2 LO PLT PLTST PST))
-(princ "<19>")
-                      (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<20>")
-                      (vlax-safearray-put-element PT1 0 (car P1))
-(princ "<21>")
-                      (vlax-safearray-put-element PT1 1 (cadr P1))
-(princ "<22>")
-                      (vlax-safearray-put-element PT1 2 0.0)
-(princ "<23>")
-                      (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<24>")
-                      (vlax-safearray-put-element PT2 0 (car PLTST))
-(princ "<25>")
-                      (vlax-safearray-put-element PT2 1 (cadr PLTST))
-(princ "<26>")
-                      (vlax-safearray-put-element PT2 2 0.0)
-(princ "<27>")
-                      (if (> (sin (- (angle PLTST P2) (angle P1 PLTST))) 0.0)
-                       (setq CCW 0)
-                       (setq CCW T)
-                      )
-(princ "<28>")
-                      (if (= nil PREVENT)
-                       (setq ID 0)
-                       (setq ID (vlax-get-property PREVENT "Id"))
-                      )
-(princ "<29>")
-                      (if (= 0.0 R1)
-                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral1" ID PT1 PT2 R2 LS 1 CCW 1))
-                       (if (= 0.0 R2)
-                        (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral1" ID PT1 PT2 R1 LS 2 CCW 1))
-                        (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral2" ID PT1 PT2 R1 R2 LS CCW 1))
-                       )
-                      )
-(princ "<30>")
-                     )
-                     (if (< (abs BULGE) RFL:TOLFINE)
-                      (progn  ;  Tangent
-(princ "<31>")
-                       (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<32>")
-                       (vlax-safearray-put-element PT1 0 (car (nth 1 NODE)))
-(princ "<33>")
-                       (vlax-safearray-put-element PT1 1 (cadr (nth 1 NODE)))
-(princ "<34>")
-                       (vlax-safearray-put-element PT1 2 0.0)
-(princ "<35>")
-                       (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<36>")
-                       (vlax-safearray-put-element PT2 0 (car (nth 2 NODE)))
-(princ "<37>")
-                       (vlax-safearray-put-element PT2 1 (cadr (nth 2 NODE)))
-(princ "<38>")
-                       (vlax-safearray-put-element PT2 2 0.0)
-(princ "<39>")
-                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedLine1" PT1 PT2))
-(princ "<40>")
-                      )
-                      (progn  ;  Arc
-(princ "<41>")
-                       (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<42>")
-                       (vlax-safearray-put-element PT1 0 (car (nth 1 NODE)))
-(princ "<43>")
-                       (vlax-safearray-put-element PT1 1 (cadr (nth 1 NODE)))
-(princ "<44>")
-                       (vlax-safearray-put-element PT1 2 0.0)
-(princ "<45>")
-                       (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<46>")
-                       (vlax-safearray-put-element PT2 0 (car (nth 2 NODE)))
-(princ "<47>")
-                       (vlax-safearray-put-element PT2 1 (cadr (nth 2 NODE)))
-(princ "<48>")
-                       (vlax-safearray-put-element PT2 2 0.0)
-(princ "<49>")
-                       (setq PC (RFL:CENTER (nth 1 NODE) (nth 2 NODE) BULGE))
-(princ "<50>")
-                       (setq PT3  (vlax-make-safearray vlax-vbDouble '(0 . 2)))
-(princ "<51>")
-                       (vlax-safearray-put-element PT3 0 (car PC))
-(princ "<52>")
-                       (vlax-safearray-put-element PT3 1 (cadr PC))
-(princ "<53>")
-                       (vlax-safearray-put-element PT3 2 0.0)
-(princ "<54>")
-                       (if (> BULGE 0.0) (setq CCW 0) (setq CCW T))
-(princ "<55>")
-                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedCurve6" PT1 PT2 (RADIUS (nth 1 NODE) (nth 2 NODE) BULGE) CCW))
-(princ "<56>")
-                      )
-                     )
-                    )
-                    (setq C (+ C 1))
-                   )
-                   (if (/= nil RFL:PVILIST)
-                    (progn
-                     (setq OPROFILES (vlax-get-property OALIGNMENT "Profiles"))
-                     (setq OLANDPROFILESTYLES (vlax-get-property ODOCUMENT "LandProfileStyles"))
-                     (if (= nil OLANDPROFILESTYLES)
-                      (alert "Error getting Profile Styles!")
-                      (progn
-                       (setq CMAX (vlax-get-property OLANDPROFILESTYLES "Count"))
-                       (setq C 0)
-                       (while (< C CMAX)
-                        (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OLANDPROFILESTYLES "Item" C) "Name") "\n"))
-                        (setq C (+ C 1))
-                       )
-                       (setq C 0)
-                       (while (or (< C 1) (> C CMAX))
-                        (setq C (getint (strcat "Select Profile Style < 1 to " (itoa CMAX) " > : ")))
-                       )
-                       (setq C (- C 1))
-                       (setq LANDPROFILESTYLENAME (vlax-get-property (vlax-get-property OLANDPROFILESTYLES "Item" C) "Name"))
-                       (princ "\n")
-                       (setq OPROFILE (vlax-invoke-method OPROFILES "Add" NAME 2 LANDPROFILESTYLENAME))
-                       (setq OPVIS (vlax-get-property OPROFILE "PVIs"))
-                       (setq NODE (car RFL:PVILIST))
-                       (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
-                       (setq NODE (last RFL:PVILIST))
-                       (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
-                       (setq C 1)
-                       (while (< C (- (length RFL:PVILIST) 1))
-                        (setq NODE (nth C RFL:PVILIST))
-                        (if (< (nth 3 NODE) RFL:TOLFINE)
-                         (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
-                         (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 3 (nth 3 NODE))
-                        )
-                        (setq C (+ C 1))
-                       )
-                      )
-                     )
-                    )
-                   )
-;                   (if (/= nil RFL:SUPERLIST)
-;                    (progn
-;                     (setq OSUPERELEVATIONDATA (vlax-get-property OALIGNMENT "SuperelevationData"))
-;                     (setq C 0)
-;                     (while (< C (length RFL:SUPERLIST))
-;                      (setq NODE (nth C RFL:SUPERLIST))
-;                      (setq SUPERDATA (vlax-make-variant vlax-vbArray))
-;                      (vlax-invoke-method OSUPERELEVATIONDATA "Add" (car NODE) SUPERDATA)
-;                      (setq C (+ C 1))
-;                     )
-;                    )
-;                   )
-                  )
-                 )
-                )
-               )
-              )
-             )
-            )
-           )
-          )
-         )
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (graphscr)
- (setq RFL:ALIGNLIST ALIGNLISTSAVE)
- (setq RFL:PVILIST PVILISTSAVE)
- (setq RFL:SUPERLIST SUPERLISTSAVE)
- (eval T)
-);
-;
 ;    Program Written by Robert Livingston 00/03/07
 ;    AARC is a utility for attaching an arc to the end of a line or arc
 ;
@@ -8331,5 +7420,860 @@
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
  (setvar "OSMODE" OSMODE)
+)
+;
+;
+;     Program written by Robert Livingston, 2008-11-04
+;
+;     RAB loads hor/vrt/E/OG from a selected RFLALign block
+;
+;
+(defun C:RAB (/ BLKENT BLKENTLIST CMDECHO)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (progn
+   (RFL:RALIGNB BLKENT)
+   (RFL:RPROFB BLKENT)
+   (RFL:RSUPERB BLKENT)
+   (RFL:RPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun C:RABN (/ BLKENT BLKENTLIST CMDECHO)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (progn
+   (RFL:RALIGNB BLKENT)
+   (RFL:RPROFB BLKENT)
+   (RFL:RSUPERB BLKENT)
+   (RFL:RPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2011/11/22
+;
+;     RAB2C3D writes the current RFL alignment to a C3D Drawing.
+;
+;
+(defun C:RAB2C3D (/ *error* ALIGNLISTSAVE ALIGNMENTNAME ALIGNMENTSTYLENAME ALIGNMENTLABELSTYLESETNAME BLKENT BLKENTLIST BULGE
+                    C CCW CMAX GETOBAECC ID LANDPROFILESTYLENAME LO LS NAME NODE
+                    OALIGNMENT OALIGNMENTENTITIES OALIGNMENTSTYLES OALIGNMENTLABELSTYLESETS OALIGNMENTSSITELESS OCIVILAPP ODOCUMENT OLANDPROFILESTYLES OPVIS
+                    P1 P2 PLT PLTST PST PREVENT PVILISTSAVE RADIUS SUPERLISTSAVE)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setq *error* nil)
+  (setq RFL:ALIGNLIST ALIGNLISTSAVE)
+  (setq RFL:PVILIST PVILISTSAVE)
+  (setq RFL:SUPERLIST SUPERLISTSAVE)
+  (princ msg)
+ )
+
+ (defun GETOBAECC (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DSURFS C CMAX c3DSURF)
+  (princ "\n")
+  (setq ACADPROD (vlax-product-key))
+  (setq ACADVER (RFL:ACADVER))
+  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." ACADVER))
+  (setq *acad* (vlax-get-acad-object))
+  (vla-getinterfaceobject *acad* ACADPROD)
+ )
+
+ (defun RADIUS (P1 P2 BULGE / ATOTAL CHORD R)
+  (if (listp BULGE)
+   (setq R (RFL:GETSPIRALR2 (nth 0 BULGE) (nth 1 BULGE) (nth 2 BULGE)))
+   (progn
+    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+    (setq CHORD (distance P1 P2))
+    (if (< (abs BULGE) TOL)
+     (setq R nil)
+     (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
+    )
+   )
+  )
+  R
+ )
+
+ (command "._UNDO" "M")
+ (setq ALIGNLISTSAVE RFL:ALIGNLIST)
+ (setq PVILISTSAVE RFL:PVILIST)
+ (setq SUPERLISTSAVE RFL:SUPERLIST)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block <return to use current alignment> : ")))
+ (if (= nil BLKENT)
+  (progn
+   (setq ALIGNMENTNAME "RFL Alignment")
+  )
+  (progn
+   (setq BLKENTLIST (entget BLKENT))
+   (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+    (progn
+     (RFL:RALIGNB BLKENT)
+     (RFL:RPROFB BLKENT)
+     (RFL:RSUPERB BLKENT)
+     (setq BLKENT (entnext BLKENT))
+     (setq BLKENTLIST (entget BLKENT))
+     (setq ALIGNMENTNAME "")
+     (while (and (= "ATTRIB" (cdr (assoc 0 BLKENTLIST))) (/= "TITLE" (cdr (assoc 2 BLKENTLIST))))
+      (setq BLKENT (entnext BLKENT))
+      (setq BLKENTLIST (entget BLKENT))
+     )
+     (if (= "TITLE" (cdr (assoc 2 BLKENTLIST)))
+      (setq ALIGNMENTNAME (cdr (assoc 1 BLKENTLIST)))
+     )
+    )
+    (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+   )
+  )
+ )
+
+ (if (= nil RFL:ALIGNLIST)
+  (princ "\n*****  NO RFL ALIGNMENT DEFINED  *****")
+  (progn
+   (textscr)
+   (setq NAME (getstring T (strcat "\nEnter new alignment name <" ALIGNMENTNAME "> : ")))
+   (if (= NAME "") (setq NAME ALIGNMENTNAME))
+   (if (/= "" NAME)
+    (progn
+     (setq OCIVILAPP (GETOBAECC))
+     (if (= nil OCIVILAPP)
+      (alert "C3D not loaded!")
+      (progn
+       (setq ODOCUMENT (vlax-get-property OCIVILAPP "ActiveDocument"))
+       (if (= nil ODOCUMENT)
+        (alert "Error getting Document!")
+        (progn
+         (setq OALIGNMENTSTYLES (vlax-get-property ODOCUMENT "AlignmentStyles"))
+         (if (= nil OALIGNMENTSTYLES)
+          (alert "Error getting Alignment Styles!")
+          (progn
+           (setq CMAX (vlax-get-property OALIGNMENTSTYLES "Count"))
+           (setq C 0)
+           (while (< C CMAX)
+            (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OALIGNMENTSTYLES "Item" C) "Name") "\n"))
+            (setq C (+ C 1))
+           )
+           (setq C 0)
+           (while (or (< C 1) (> C CMAX))
+            (setq C (getint (strcat "Select Alignment Style < 1 to " (itoa CMAX) " > : ")))
+           )
+           (setq C (- C 1))
+           (setq ALIGNMENTSTYLENAME (vlax-get-property (vlax-get-property OALIGNMENTSTYLES "Item" C) "Name"))
+           (princ "\n")
+           (setq OALIGNMENTLABELSTYLESETS (vlax-get-property ODOCUMENT "AlignmentLabelStyleSets"))
+           (if (= nil OALIGNMENTLABELSTYLESETS)
+            (alert "Error getting Alignment Label Style Sets!")
+            (progn
+             (setq CMAX (vlax-get-property OALIGNMENTLABELSTYLESETS "Count"))
+             (setq C 0)
+             (while (< C CMAX)
+              (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OALIGNMENTLABELSTYLESETS "Item" C) "Name") "\n"))
+              (setq C (+ C 1))
+             )
+             (setq C 0)
+             (while (or (< C 1) (> C CMAX))
+              (setq C (getint (strcat "Select Alignment Label Style Set < 1 to " (itoa CMAX) " > : ")))
+             )
+             (setq C (- C 1))
+             (setq ALIGNMENTLABELSTYLESETNAME (vlax-get-property (vlax-get-property OALIGNMENTLABELSTYLESETS "Item" C) "Name"))
+             (setq OALIGNMENTSSITELESS (vlax-get-property ODOCUMENT "AlignmentsSiteless"))
+             (if (= nil OALIGNMENTSSITELESS)
+              (alert "Error getting Alignments!")
+              (progn
+               (setq OALIGNMENT (vlax-invoke-method OALIGNMENTSSITELESS "Add" NAME (getvar "CLAYER") ALIGNMENTSTYLENAME ALIGNMENTLABELSTYLESETNAME))
+               (if (= nil OALIGNMENT)
+                (alert "Error creating new alignment!")
+                (progn
+                 (vlax-put-property OALIGNMENT "ReferencePointStation" (caar RFL:ALIGNLIST))
+                 (setq OALIGNMENTENTITIES (vlax-get-property OALIGNMENT "Entities"))
+                 (if (= nil OALIGNMENTENTITIES)
+                  (alert "Error accessing entities!")
+                  (progn
+                   (setq PREVENT nil)
+                   (setq C 0)
+                   (while (< C (length RFL:ALIGNLIST))
+                    (setq NODE (nth C RFL:ALIGNLIST))
+                    (setq BULGE (nth 3 NODE))
+                    (if (listp BULGE)
+                     (progn  ;  Spiral
+                      (setq P1 (nth 1 NODE))
+                      (setq P2 (nth 2 NODE))
+                      (setq PLT (nth 0 BULGE))
+                      (setq PLTST (nth 1 BULGE))
+                      (setq PST (nth 2 BULGE))
+                      (setq LO (nth 3 BULGE))
+                      (setq LS (- (RFL:GETSPIRALLS2 PLT PLTST PST) LO))
+                      (if (> (distance P2 PLT) (distance P1 PLT))
+                       (progn
+                        (setq R2 (RADIUS P1 P2 BULGE))
+                        (if (< LO RFL:TOLFINE)
+                         (setq R1 0.0)
+                         (setq R1 (/ (* R2 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
+                        )
+                       )
+                       (progn
+                        (setq R1 (RADIUS P1 P2 BULGE))
+                        (if (< LO RFL:TOLFINE)
+                         (setq R2 0.0)
+                         (setq R2 (/ (* R1 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
+                        )
+                       )
+                      )
+                      (if (< (abs LO) RFL:TOLFINE) (setq LO 0.0))
+                      (setq PLTST (RFL:GETSPIRALPI2 LO PLT PLTST PST))
+                      (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                      (vlax-safearray-put-element PT1 0 (car P1))
+                      (vlax-safearray-put-element PT1 1 (cadr P1))
+                      (vlax-safearray-put-element PT1 2 0.0)
+                      (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                      (vlax-safearray-put-element PT2 0 (car PLTST))
+                      (vlax-safearray-put-element PT2 1 (cadr PLTST))
+                      (vlax-safearray-put-element PT2 2 0.0)
+                      (if (> (sin (- (angle PLTST P2) (angle P1 PLTST))) 0.0)
+                       (setq CCW 0)
+                       (setq CCW T)
+                      )
+                      (if (= nil PREVENT)
+                       (setq ID 0)
+                       (setq ID (vlax-get-property PREVENT "Id"))
+                      )
+                      (if (= 0.0 R1)
+                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral1" ID PT1 PT2 R2 LS 1 CCW 1))
+                       (if (= 0.0 R2)
+                        (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral1" ID PT1 PT2 R1 LS 2 CCW 1))
+                        (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedSpiral2" ID PT1 PT2 R1 R2 LS CCW 1))
+                       )
+                      )
+                     )
+                     (if (< (abs BULGE) RFL:TOLFINE)
+                      (progn  ;  Tangent
+                       (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                       (vlax-safearray-put-element PT1 0 (car (nth 1 NODE)))
+                       (vlax-safearray-put-element PT1 1 (cadr (nth 1 NODE)))
+                       (vlax-safearray-put-element PT1 2 0.0)
+                       (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                       (vlax-safearray-put-element PT2 0 (car (nth 2 NODE)))
+                       (vlax-safearray-put-element PT2 1 (cadr (nth 2 NODE)))
+                       (vlax-safearray-put-element PT2 2 0.0)
+                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedLine1" PT1 PT2))
+                      )
+                      (progn  ;  Arc
+                       (setq PT1 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                       (vlax-safearray-put-element PT1 0 (car (nth 1 NODE)))
+                       (vlax-safearray-put-element PT1 1 (cadr (nth 1 NODE)))
+                       (vlax-safearray-put-element PT1 2 0.0)
+                       (setq PT2 (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                       (vlax-safearray-put-element PT2 0 (car (nth 2 NODE)))
+                       (vlax-safearray-put-element PT2 1 (cadr (nth 2 NODE)))
+                       (vlax-safearray-put-element PT2 2 0.0)
+                       (setq PC (RFL:CENTER (nth 1 NODE) (nth 2 NODE) BULGE))
+                       (setq PT3  (vlax-make-safearray vlax-vbDouble '(0 . 2)))
+                       (vlax-safearray-put-element PT3 0 (car PC))
+                       (vlax-safearray-put-element PT3 1 (cadr PC))
+                       (vlax-safearray-put-element PT3 2 0.0)
+                       (if (> BULGE 0.0) (setq CCW 0) (setq CCW T))
+                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedCurve6" PT1 PT2 (RADIUS (nth 1 NODE) (nth 2 NODE) BULGE) CCW))
+                      )
+                     )
+                    )
+                    (setq C (+ C 1))
+                   )
+                   (if (/= nil RFL:PVILIST)
+                    (progn
+                     (setq OPROFILES (vlax-get-property OALIGNMENT "Profiles"))
+                     (setq OLANDPROFILESTYLES (vlax-get-property ODOCUMENT "LandProfileStyles"))
+                     (if (= nil OLANDPROFILESTYLES)
+                      (alert "Error getting Profile Styles!")
+                      (progn
+                       (setq CMAX (vlax-get-property OLANDPROFILESTYLES "Count"))
+                       (setq C 0)
+                       (while (< C CMAX)
+                        (princ (strcat (itoa (+ C 1)) " : " (vlax-get-property (vlax-get-property OLANDPROFILESTYLES "Item" C) "Name") "\n"))
+                        (setq C (+ C 1))
+                       )
+                       (setq C 0)
+                       (while (or (< C 1) (> C CMAX))
+                        (setq C (getint (strcat "Select Profile Style < 1 to " (itoa CMAX) " > : ")))
+                       )
+                       (setq C (- C 1))
+                       (setq LANDPROFILESTYLENAME (vlax-get-property (vlax-get-property OLANDPROFILESTYLES "Item" C) "Name"))
+                       (princ "\n")
+                       (setq OPROFILE (vlax-invoke-method OPROFILES "Add" NAME 2 LANDPROFILESTYLENAME))
+                       (setq OPVIS (vlax-get-property OPROFILE "PVIs"))
+                       (setq NODE (car RFL:PVILIST))
+                       (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
+                       (setq NODE (last RFL:PVILIST))
+                       (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
+                       (setq C 1)
+                       (while (< C (- (length RFL:PVILIST) 1))
+                        (setq NODE (nth C RFL:PVILIST))
+                        (if (< (nth 3 NODE) RFL:TOLFINE)
+                         (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 1)
+                         (vlax-invoke-method OPVIS "Add" (nth 0 NODE) (nth 1 NODE) 3 (nth 3 NODE))
+                        )
+                        (setq C (+ C 1))
+                       )
+                      )
+                     )
+                    )
+                   )
+;                   (if (/= nil RFL:SUPERLIST)
+;                    (progn
+;                     (setq OSUPERELEVATIONDATA (vlax-get-property OALIGNMENT "SuperelevationData"))
+;                     (setq C 0)
+;                     (while (< C (length RFL:SUPERLIST))
+;                      (setq NODE (nth C RFL:SUPERLIST))
+;                      (setq SUPERDATA (vlax-make-variant vlax-vbArray))
+;                      (vlax-invoke-method OSUPERELEVATIONDATA "Add" (car NODE) SUPERDATA)
+;                      (setq C (+ C 1))
+;                     )
+;                    )
+;                   )
+                  )
+                 )
+                )
+               )
+              )
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (graphscr)
+ (setq RFL:ALIGNLIST ALIGNLISTSAVE)
+ (setq RFL:PVILIST PVILISTSAVE)
+ (setq RFL:SUPERLIST SUPERLISTSAVE)
+ (eval T)
+);
+;
+;     Program written by Robert Livingston, 2008-11-04
+;
+;     RABKILL removes alignment definition lists from RFLALIGN blocks
+;
+;
+(defun C:RABKILL (/ ENT)
+ (command "._UNDO" "M")
+ (setq ENT (car (entsel "\nSelect Alignment Block : ")))
+ (RFL:RABKILL ENT "HOR")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "VRT")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "OG")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "E")
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   RALIGNB reads a horizontal alignment from a RFLAlign Block
+;
+;
+(defun C:RALIGNB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RALIGNB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   RALIGNBN reads a horizontal alignment from a nested RFLAlign Block
+;
+;
+(defun C:RALIGNBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RALIGNB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 10-04-30
+;
+;     RALIGNC3D reads the alignment from a selected C3D alignment
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;     NOTE - Works for type 1, type 2, type 3 and type 4 alignment entities
+;
+;
+(defun C:RALIGNC3D (/ *error* ALSAVE C CMAX CMDECHO E1 E2 ENT ENTITY ENTLIST NODE
+                      OBALIGNMENT OBENTITIES SETARC SETSPIRAL SETTANGENT SPIRALENTITY STA STALIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= nil vlax-create-object) (vl-load-com))
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setq *error* nil)
+  (princ msg)
+ )
+
+ (defun SETTANGENT (ENTITY / P1 P2)
+  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                 (vlax-get-property ENTITY "StartNorthing")
+           )
+  )
+  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                 (vlax-get-property ENTITY "EndNorthing")
+           )
+  )
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 0.0))))
+ )
+
+ (defun SETARC (ENTITY / P1 P2 PC CCW R ANG BULGE)
+  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                 (vlax-get-property ENTITY "StartNorthing")
+           )
+  )
+  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                 (vlax-get-property ENTITY "EndNorthing")
+           )
+  )
+  (setq PC (list (vlax-get-property ENTITY "CenterEasting")
+                 (vlax-get-property ENTITY "CenterNorthing")
+           )
+  )
+  (setq CCW (vlax-get-property ENTITY "Clockwise"))
+  (setq R (vlax-get-property ENTITY "Radius"))
+  (setq ANG (vlax-get-property ENTITY "Delta"))
+  (setq BULGE (TAN (/ ANG 4.0)))
+  (if (= :vlax-true CCW) (setq BULGE (* -1.0 BULGE)))
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+ )
+
+ (defun SETSPIRAL (ENTITY / A ANG BULGE L0 LT P1 P2 PLTST PINT PST RIN ROUT ST THETA TMP X Y)
+  (setq RIN (vlax-get-property ENTITY "RadiusIn"))
+  (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
+  (setq TMP (/ 1.0 (max RIN ROUT)))
+  ;(setq TMP (vlax-get-property ENTITY "Compound"))
+  ;(if (= TMP :vlax-false)
+  (if (< TMP RFL:TOL)
+   (progn
+    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                   (vlax-get-property ENTITY "StartNorthing")
+             )
+    )
+    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                   (vlax-get-property ENTITY "EndNorthing")
+             )
+    )
+    (setq PLTST (list (vlax-get-property ENTITY "SPIEasting")
+                      (vlax-get-property ENTITY "SPINorthing")
+                )
+    )
+    (setq LO 0.0)
+    (if (< (distance P2 PLTST) (distance P1 PLTST))
+     (setq PLT P1 PST P2)
+     (setq PLT P2 PST P1)
+    )
+    (setq BULGE (list PLT PLTST PST LO))
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+   )
+   (progn
+    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                   (vlax-get-property ENTITY "StartNorthing")
+             )
+    )
+    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                   (vlax-get-property ENTITY "EndNorthing")
+             )
+    )
+    (setq PINT (list (vlax-get-property ENTITY "SPIEasting")
+                     (vlax-get-property ENTITY "SPINorthing")
+               )
+    )
+    (setq RIN (vlax-get-property ENTITY "RadiusIn"))
+    (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
+    (setq A (vlax-get-property ENTITY "A"))
+    (if (< RIN ROUT)
+     (progn
+      (setq THETA (/ (* A A) (* 2.0 RIN RIN)))
+      (setq PST P1)
+      ;(setq LO (- (/ (* A A) RIN) (vlax-get-property ENTITY "Length")))
+      (setq LO (/ (* A A) ROUT))
+      (setq ANG (angle PST PINT))
+      (setq X (* RIN (SPIRALFXR THETA)))
+      (setq Y (* RIN (SPIRALFYR THETA)))
+      (setq ST (/ Y (sin THETA)))
+      (setq LT (- X (/ Y (TAN THETA))))
+      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
+                        (+ (cadr PST) (* ST (sin ANG)))))
+      (if (> (sin (- (angle PINT P2) (angle P1 PINT))) 0.0)
+       (setq ANG (+ ANG THETA))
+       (setq ANG (- ANG THETA))
+      )
+      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
+                      (+ (cadr PLTST) (* LT (sin ANG)))))
+     )
+     (progn
+      (setq THETA (/ (* A A) (* 2.0 ROUT ROUT)))
+      (setq PST P2)
+      ;(setq LO (- (/ (* A A) ROUT) (vlax-get-property ENTITY "Length")))
+      (setq LO (/ (* A A) RIN))
+      (setq ANG (angle PST PINT))
+      (setq X (* ROUT (SPIRALFXR THETA)))
+      (setq Y (* ROUT (SPIRALFYR THETA)))
+      (setq ST (/ Y (sin THETA)))
+      (setq LT (- X (/ Y (TAN THETA))))
+      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
+                        (+ (cadr PST) (* ST (sin ANG)))))
+      (if (> (sin (- (angle PINT P1) (angle P2 PINT))) 0.0)
+       (setq ANG (+ ANG THETA))
+       (setq ANG (- ANG THETA))
+      )
+      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
+                      (+ (cadr PLTST) (* LT (sin ANG)))))
+     )
+    )
+    (setq BULGE (list PLT PLTST PST LO))
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+   )
+  )
+ )
+
+ (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
+ (if (/= OBALIGNMENT nil) 
+  (progn
+   (setq RFL:ALIGNLIST nil)
+   (setq OBENTITIES (vlax-get-property OBALIGNMENT "Entities"))
+   (setq CMAX (vlax-get-property OBENTITIES "Count"))
+   (setq C 0)
+   (while (< C CMAX)
+    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
+    (cond
+     ((= 1 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETTANGENT ENTITY)
+      )
+     )
+     ((= 2 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETARC ENTITY)
+      )
+     )
+     ((= 3 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL ENTITY)
+      )
+     )
+     ((= 4 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
+       (SETARC (vlax-get-property ENTITY "Arc"))
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
+      )
+     )
+    )
+    (setq C (1+ C))
+   )
+  )
+ )
+
+ (setq ALSAVE RFL:ALIGNLIST RFL:ALIGNLIST nil)
+ (if (/= nil ALSAVE)
+  (progn
+   (setq STALIST nil)
+   (foreach NODE ALSAVE
+    (setq STALIST (append STALIST (list (car NODE))))
+   )
+   (setq STALIST (vl-sort STALIST '<))
+   (foreach STA STALIST
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (assoc STA ALSAVE))))
+   )
+  )
+ )
+ 
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFB reads a vertical profile from a RFLAlign Block
+;
+;
+(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFBN reads a vertical profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 11-03-09
+;
+;     RPROF3D reads the profile from a selected C3D profile
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;     NOTE - Works for type 1 and type 3 vertical curves
+;
+;
+(defun C:RPROFC3D (/ *error* C CMAX CMDECHO ENDELEVATION ENDSTATION ENT ENTITY ENTITYNEXT ENTLIST OBPROFILE OBENTITIES
+                     PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= nil vlax-create-object) (vl-load-com))
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setq *error* nil)
+  (princ msg)
+ )
+
+ (defun GETPVISTATION ()
+  (setq PVISTATION (vlax-get-property ENTITY "PVIStation"))
+ )
+
+ (setq ENT (car (entsel "\nSelect C3D profile : ")))
+ (setq ENTLIST (entget ENT))
+ (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
+  (princ "\n*** Not a C3D Profile ***")
+  (progn
+   (setq OBPROFILE (vlax-ename->vla-object ENT))
+   (setq STARTSTATION (vlax-get-property OBPROFILE "StartingStation"))
+   (setq STARTELEVATION (vlax-invoke-method OBPROFILE "ElevationAt" STARTSTATION))
+   (setq RFL:PVILIST (list (list STARTSTATION STARTELEVATION "L" 0.0)))
+   (setq ENDSTATION (vlax-get-property OBPROFILE "EndingStation"))
+   (setq ENDELEVATION (vlax-invoke-method OBPROFILE "ElevationAt" ENDSTATION))
+   (setq OBENTITIES (vlax-get-property OBPROFILE "Entities"))
+   (setq CMAX (vlax-get-property OBENTITIES "Count"))
+   (setq C 0)
+   (while (< C CMAX)
+    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
+    (if (= (+ C 1) CMAX) (setq ENTITYNEXT nil) (setq ENTITYNEXT (vlax-invoke-method OBENTITIES "Item" (+ C 1))))
+    (cond
+     ((= 1 (vlax-get-property ENTITY "Type"))
+      (progn
+       (if (/= ENTITYNEXT nil)
+        (if (= (vlax-get-property ENTITYNEXT "Type") 1)
+         (progn
+          (setq PVISTATION (vlax-get-property ENTITY "EndStation"))
+          (setq PVIELEVATION (vlax-get-property ENTITY "EndElevation"))
+          (setq PVILENGTH 0.0)
+          (setq RFL:PVILIST (append RFL:PVILIST (list (list PVISTATION PVIELEVATION "L" PVILENGTH))))
+         )
+        )
+       )
+      )
+     )
+     ((= 3 (vlax-get-property ENTITY "Type"))
+      (progn
+       (setq PVISTATION (vlax-get-property ENTITY "PVIStation"))
+       (setq PVIELEVATION (vlax-get-property ENTITY "PVIElevation"))
+       (setq PVILENGTH (vlax-get-property ENTITY "Length"))
+       (setq RFL:PVILIST (append RFL:PVILIST (list (list PVISTATION PVIELEVATION "L" PVILENGTH))))
+      )
+     )
+    )
+    (setq C (1+ C))
+   )
+   (setq RFL:PVILIST (append RFL:PVILIST (list (list ENDSTATION ENDELEVATION "L" 0.0))))
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
+;
+;
+(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WALIGNB writes a horizontal alignment to a RFLALIGN Block
+;
+;
+(defun C:WALIGNB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:ALIGNLIST)
+   (RFL:RABKILL BLKENT "HOR")
+   (RFL:WALIGNB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WPROFB writes a vertical alinment to a RFLALIGN Block
+;
+;
+(defun C:WPROFB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:PVILIST)
+   (RFL:RABKILL BLKENT "VRT")
+   (RFL:WPROFB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WPROFOGB writes a OG vertical alinment to a RFLALIGN Block
+;
+;
+(defun C:WPROFOGB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:OGLIST)
+   (RFL:RABKILL BLKENT "OG")
+   (RFL:WPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WSUPERB writes the superelevation to a RFLALIGN Block
+;
+;
+(defun C:WSUPERB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:SUPERLIST)
+   (RFL:RABKILL BLKENT "E")
+   (RFL:WSUPERB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
 )
 
