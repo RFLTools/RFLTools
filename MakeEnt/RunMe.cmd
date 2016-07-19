@@ -5,9 +5,9 @@ rem
 if exist LoadMakeEnt.lsp del LoadMakeEnt.lsp
 rem
 CALL .\BuildBlockList.cmd
-COPY ".\RFLBlockList.lsp" + ^
-     ".\MakeEntCmd.lsp" + ^
-     ".\MakeEntWrapperStart.lsp" + ^
-     ".\Blocks\*.lsp" + ^
-     ".\MakeEntWrapperEnd.lsp" ^
-     ".\LoadMakeEnt.lsp"
+COPY /B ".\RFLBlockList.lsp" + ^
+        ".\MakeEntCmd.lsp" + ^
+        ".\MakeEntWrapperStart.lsp" + ^
+        ".\Blocks\*.lsp" + ^
+        ".\MakeEntWrapperEnd.lsp" ^
+        ".\LoadMakeEnt.lsp"

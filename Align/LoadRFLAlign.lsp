@@ -4235,6 +4235,362 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2014-11-20
+;
+;     RFL:STATXT converts a real to a station string
+;
+;
+(setq RFL:STAPOS nil)
+(defun RFL:STATXT (STA / C DIMZIN S STAH STAL)
+ (if (= nil RFL:STAPOS) (if (= nil (setq RFL:STAPOS (getint "\nStation label '+' location <3> : "))) (setq RFL:STAPOS 3)))
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 8)
+ (if (< RFL:STAPOS 1)
+  (rtos STA)
+  (progn
+   (if (< STA 0.0)
+    (setq S "-")
+    (setq S "")
+   )
+   (setq STAH (fix (/ (abs STA) (expt 10 RFL:STAPOS))))
+   (setq STAL (- (abs STA) (* STAH (expt 10 RFL:STAPOS))))
+   (if (= (substr (rtos STAL) 1 (+ RFL:STAPOS 1)) (itoa (expt 10 RFL:STAPOS)))
+    (progn
+     (setq STAL 0.0)
+     (setq STAH (+ STAH (RFL:SIGN STAH)))
+    )
+   )
+   (setq STAH (itoa STAH))
+   (setq C (- RFL:STAPOS (strlen (itoa (fix STAL)))))
+   (setq STAL (rtos STAL 2 (getvar "LUPREC")))
+   (while (> C 0)
+    (setq STAL (strcat "0" STAL))
+    (setq C (- C 1))
+   )
+   (setvar "DIMZIN" DIMZIN)
+   (setq RFLSTAHTXT (strcat S STAH) RFLSTALTXT STAL)
+   (strcat S STAH "+" STAL)
+  )
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
+;
+;
+(defun RFL:FIX+ (ENT / CODE ENTLIST P P0 STR TB TB1 TB2 W WL WR)
+ (setq ENTLIST (entget ENT))
+ (if (= "TEXT" (cdr (assoc 0 ENTLIST)))
+  (if (/= nil (vl-string-search "+" (setq STR (cdr (assoc 1 ENTLIST)))))
+   (progn
+    (if (or (/= 0 (cdr (assoc 72 ENTLIST))) (/= 0 (cdr (assoc 73 ENTLIST))))
+     (setq CODE 11)
+     (setq CODE 10)
+    )
+    (setq P (cdr (assoc CODE ENTLIST)))
+    (setq P0 (cdr (assoc 10 ENTLIST)))
+    (setq TB (textbox ENTLIST))
+    (setq W (- (caadr TB) (caar TB)))
+    (setq TBL (textbox (subst (cons 1 (substr STR 1 (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
+    (setq WL (- (caadr TBL) (caar TBL)))
+    (setq TBR (textbox (subst (cons 1 (substr STR (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
+    (setq WR (- (caadr TBR) (caar TBR)))
+    (setq W+ (- (+ WR WL) W))
+    (setq ENTLIST (subst (list CODE
+                               (- (+ (car P) (- (car P) (car P0))) (- WL (/ W+ 2.0)) (caar TBL))
+                               (cadr P)
+                               (caddr P)
+                         )
+                         (assoc CODE ENTLIST)
+                         ENTLIST
+                  )
+    )
+    (entmod ENTLIST)
+    (entupd ENT)
+   )
+  )
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:GETPLIST returns a list of points along a polyline
+;
+;
+(defun RFL:GETPLIST (ENT / ENTLIST P PLIST ZFLAG)
+ (setq PLIST nil)
+ (setq ENTLIST (entget ENT))
+ (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+  (progn
+   (if (/ (cdr (assoc 70 ENTLIST)) 8) (setq ZFLAG T))
+   (setq ENT (entnext ENT))
+   (setq ENTLIST (entget ENT))
+   (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
+    (setq P (cdr (assoc 10 ENTLIST)))
+    (if ZFLAG
+     (setq P (list (car P) (cadr P) (caddr P)))
+     (setq P (list (car P) (cadr P)))
+    )
+    (setq PLIST (append PLIST (list P)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+   )
+  )
+ )
+ (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+  (progn
+   (while (/= nil ENTLIST)
+    (setq P (car ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (if (= 10 (car P))
+     (progn
+      (setq P (list (cadr P) (caddr P)))
+      (setq PLIST (append PLIST (list P)))
+     )
+    )
+   )
+  )
+ )
+ PLIST
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:POINTINSIDE checks if a point is inside a polyline formed by PLIST
+;
+;
+(defun RFL:POINTINSIDE (P PLIST / CROSSINGCOUNT P0 P1 PBASE PTMP)
+ (setq P0 (last PLIST))
+ ;  Subtracted/added pi from to the 'X' and 'Y' coordinate to have a point that is outside PLIST and 'hopefully' prevent on edge case
+ (setq PBASE (list (- (apply 'min (mapcar '(lambda (PTMP) (car PTMP)) PLIST)) pi)
+                   (+ (apply 'min (mapcar '(lambda (PTMP) (cadr PTMP)) PLIST)) pi)
+             )
+ )
+ (setq CROSSINGCOUNT 0)
+ (foreach P1 PLIST
+  (progn
+   (if (inters PBASE P P0 P1)
+    (setq CROSSINGCOUNT (1+ CROSSINGCOUNT))
+   )
+   (setq P0 P1)
+  )
+ )
+ (if (= 0 (rem CROSSINGCOUNT 2))
+  nil
+  T
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:ACADVER (/ ACADPROD)
+ (if (= nil vlax-machine-product-key)
+  (setq ACADPROD (vlax-product-key))
+  (setq ACADPROD (vlax-machine-product-key))
+ )
+ (cond ((vl-string-search "\\R17.1\\" ACADPROD)
+        "5.0"
+       )
+       ;;2008
+       ((vl-string-search "\\R17.2\\" ACADPROD)
+        "6.0"
+       )
+       ;;2009
+       ((vl-string-search "\\R18.0\\" ACADPROD)
+        "7.0"
+       )
+       ;;2010
+       ((vl-string-search "\\R18.1\\" ACADPROD)
+        "8.0"
+       )
+       ;;2011
+       ((vl-string-search "\\R18.2\\" ACADPROD)
+        "9.0"
+       )
+       ;;2012
+       ((vl-string-search "\\R19.0\\" ACADPROD)
+        "10.0"
+       )
+       ;;2013
+       ((vl-string-search "\\R19.1\\" ACADPROD)
+        "10.3"
+       )
+       ;;2014
+       ((vl-string-search "\\R20.0\\" ACADPROD)
+        "10.4"
+       )
+       ;;2015
+       ((vl-string-search "\\R20.1\\" ACADPROD)
+        "10.5"
+       )
+       ;;2016
+       ((vl-string-search "\\R21.0\\" ACADPROD)
+        "11.0"
+       )
+       ;;2017
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETC3DALIGNMENT (/ ENT ENTLIST GETFROMLIST OBALIGNMENT)
+ (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DALIGNS C CMAX C3DALIGN)
+  (textscr)
+  (princ "\n")
+  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
+  (setq *acad* (vlax-get-acad-object))
+  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
+  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
+  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
+  (setq CMAX (vlax-get-property C3DALIGNS "Count"))
+  (setq C 0)
+  (while (< C CMAX)
+   (setq C3DALIGN (vlax-invoke-method C3DALIGNS "Item" C))
+   (setq C (+ C 1))
+   (princ (strcat (itoa C) " - " (vlax-get-property C3DALIGN "DisplayName") "\n"))
+  )
+  (setq C (getint "Enter alignment number : "))
+  (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
+  (graphscr)
+ )
+ (setq OBALIGNMENT nil)
+ (setq ENT (car (entsel "\nSelect C3D alignment (<return> to choose from list) : ")))
+ (if (= nil ENT)
+  (GETFROMLIST)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "AECC_ALIGNMENT" (cdr (assoc 0 ENTLIST)))
+    (princ "\n*** Not a C3D Alignment ***")
+    (setq OBALIGNMENT (vlax-ename->vla-object ENT))
+   )
+  )
+ )
+ OBALIGNMENT
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETC3DSURFACE (/ ENT ENTLIST GETFROMLIST OBSURFACE)
+ (defun GETFROMLIST (/ *acad* ACADPROD C3DOBJECT C3DDOC C3DSURFS C CMAX C3DSURF)
+  (textscr)
+  (princ "\n")
+  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
+  (setq *acad* (vlax-get-acad-object))
+  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
+  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
+  (setq C3DSURFS (vlax-get C3DDOC 'surfaces))
+  (setq CMAX (vlax-get-property C3DSURFS "Count"))
+  (setq C 0)
+  (while (< C CMAX)
+   (setq C3DSURF (vlax-get-property C3DSURFS "Item" C))
+   (setq C (+ C 1))
+   (princ (strcat (itoa C) " - " (vlax-get-property C3DSURF "DisplayName") "\n"))
+  )
+  (setq C (getint "Enter surface number : "))
+  (setq OBSURFACE (vlax-get-property C3DSURFS "Item" (- C 1)))
+  (graphscr)
+ )
+
+ (setq OBSURFACE nil)
+
+ (setq ENT (car (entsel "\nSelect C3D surface or <return> to select from list : ")))
+ (if (= nil ENT)
+  (GETFROMLIST)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "AECC_TIN_SURFACE" (cdr (assoc 0 ENTLIST)))
+    (if (/= "AECC_GRID_SURFACE" (cdr (assoc 0 ENTLIST)))
+     (princ "\n*** Not a C3D Surface ***")
+     (setq OBSURFACE (vlax-ename->vla-object ENT))
+    )
+    (setq OBSURFACE (vlax-ename->vla-object ENT))
+   )
+  )
+ )
+ OBSURFACE
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSURFACELINE (P1 P2 OBSURFACE / C CATCHERROR OGLINE OGLINELIST VARLIST)
+ (setq OGLINE nil)
+ (setq VARLIST (list OBSURFACE "SampleElevations" (car P1) (cadr p1) (car P2) (cadr p2)))
+ (setq OGLINE (vl-catch-all-apply 'vlax-invoke-method VARLIST))
+ (if (not (vl-catch-all-error-p OGLINE))
+  (if (/= nil OGLINE)
+   (if (/= 0 (vlax-variant-type OGLINE))
+    (progn
+     (setq OGLINELIST nil)
+     (setq OGLINE (vlax-variant-value OGLINE))
+     (setq C (vlax-safearray-get-l-bound OGLINE 1))
+     (while (<= C (vlax-safearray-get-u-bound OGLINE 1))
+      (setq OGLINELIST (append OGLINELIST (list (list (vlax-safearray-get-element OGLINE C)
+                                                      (vlax-safearray-get-element OGLINE (+ C 1))
+                                                      (vlax-safearray-get-element OGLINE (+ C 2))))))
+      (setq C (+ C 3))
+     )
+    )
+   )
+  )
+ )
+ OGLINELIST
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSURFACEPOINT (P OBSURFACE / VARLIST)
+ (setq VARLIST (list OBSURFACE "FindElevationAtXY" (car P) (cadr P)))
+ (setq Z (vl-catch-all-apply 'vlax-invoke-method VARLIST))
+ (if (vl-catch-all-error-p Z)
+  nil
+  Z
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSECTIONSET (STASTART STAEND SWATH STEP OBSURFACE RFL:ALIGNLIST / P1 P2 PLIST SECTIONSET STA SLIST)
+ (princ "\nGetting sections : ")
+ (setq STA STASTART)
+ (while (<= STA STAEND)
+  (princ (strcat "\n" (RFL:STATXT STA) "..."))
+  (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+  (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
+  (if (and (/= nil P1) (/= nil P2))
+   (progn
+    (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))
+    (setq SLIST nil)
+    (foreach NODE PLIST
+     (progn
+      (setq P (list (car NODE) (cadr NODE)))
+      (setq SLIST (append SLIST (list (list (- (distance P1 P) (/ SWATH 2.0)) (last NODE)))))
+     )
+    )
+    (setq SECTIONSET (append SECTIONSET (list (list STA SLIST))))
+   )
+  )
+  (setq STA (+ STA STEP))
+ )
+ SECTIONSET
+)
+;
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
 ;
@@ -8283,4 +8639,45 @@
 
  (setvar "CMDECHO" CMDECHO)
 )
-
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
+;
+;
+(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE P P1 TB TBL TBR W WL WR W+)
+ (setq ATTREQ (getvar "ATTREQ"))
+ (setvar "ATTREQ" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+
+ (defun *error* (msg)
+  (setvar "ATTREQ" ATTREQ)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (print msg)
+ )
+
+ (while (/= nil (setq ENT (car (entsel))))
+  (RFL:FIX+ ENT)
+ )
+ 
+ (setvar "ATTREQ" ATTREQ)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+)

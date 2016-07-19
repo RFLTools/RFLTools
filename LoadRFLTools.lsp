@@ -81,426 +81,44 @@
 (RFL:LOADRFLDLL)
 ;
 ;
-;     Program written by Robert Livingston, 2014-11-20
-;
-;     COMMON.LSP is a collection of common commands
-;
-;
-(setq RFL:STAPOS nil)
-(defun RFL:STATXT (STA / C DIMZIN S STAH STAL)
- (if (= nil RFL:STAPOS) (if (= nil (setq RFL:STAPOS (getint "\nStation label '+' location <3> : "))) (setq RFL:STAPOS 3)))
- (setq DIMZIN (getvar "DIMZIN"))
- (setvar "DIMZIN" 8)
- (if (< RFL:STAPOS 1)
-  (rtos STA)
-  (progn
-   (if (< STA 0.0)
-    (setq S "-")
-    (setq S "")
-   )
-   (setq STAH (fix (/ (abs STA) (expt 10 RFL:STAPOS))))
-   (setq STAL (- (abs STA) (* STAH (expt 10 RFL:STAPOS))))
-   (if (= (substr (rtos STAL) 1 (+ RFL:STAPOS 1)) (itoa (expt 10 RFL:STAPOS)))
-    (progn
-     (setq STAL 0.0)
-     (setq STAH (+ STAH (RFL:SIGN STAH)))
-    )
-   )
-   (setq STAH (itoa STAH))
-   (setq C (- RFL:STAPOS (strlen (itoa (fix STAL)))))
-   (setq STAL (rtos STAL 2 (getvar "LUPREC")))
-   (while (> C 0)
-    (setq STAL (strcat "0" STAL))
-    (setq C (- C 1))
-   )
-   (setvar "DIMZIN" DIMZIN)
-   (setq RFLSTAHTXT (strcat S STAH) RFLSTALTXT STAL)
-   (strcat S STAH "+" STAL)
-  )
- )
-)
-;
-;
-;     Program written by Robert Livingston, 2015-03-13
-;
-;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
-;
-;
-(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE P P1 TB TBL TBR W WL WR W+)
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
-
- (defun *error* (msg)
-  (setvar "ATTREQ" ATTREQ)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (print msg)
- )
-
- (while (/= nil (setq ENT (car (entsel))))
-  (RFL:FIX+ ENT)
- )
- 
- (setvar "ATTREQ" ATTREQ)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
-)
-(defun RFL:FIX+ (ENT / CODE ENTLIST P P0 STR TB TB1 TB2 W WL WR)
- (setq ENTLIST (entget ENT))
- (if (= "TEXT" (cdr (assoc 0 ENTLIST)))
-  (if (/= nil (vl-string-search "+" (setq STR (cdr (assoc 1 ENTLIST)))))
-   (progn
-    (if (or (/= 0 (cdr (assoc 72 ENTLIST))) (/= 0 (cdr (assoc 73 ENTLIST))))
-     (setq CODE 11)
-     (setq CODE 10)
-    )
-    (setq P (cdr (assoc CODE ENTLIST)))
-    (setq P0 (cdr (assoc 10 ENTLIST)))
-    (setq TB (textbox ENTLIST))
-    (setq W (- (caadr TB) (caar TB)))
-    (setq TBL (textbox (subst (cons 1 (substr STR 1 (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
-    (setq WL (- (caadr TBL) (caar TBL)))
-    (setq TBR (textbox (subst (cons 1 (substr STR (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
-    (setq WR (- (caadr TBR) (caar TBR)))
-    (setq W+ (- (+ WR WL) W))
-    (setq ENTLIST (subst (list CODE
-                               (- (+ (car P) (- (car P) (car P0))) (- WL (/ W+ 2.0)) (caar TBL))
-                               (cadr P)
-                               (caddr P)
-                         )
-                         (assoc CODE ENTLIST)
-                         ENTLIST
-                  )
-    )
-    (entmod ENTLIST)
-    (entupd ENT)
-   )
-  )
- )
-)
-(defun RFL:GETPLIST (ENT / ENTLIST P PLIST ZFLAG)
- (setq PLIST nil)
- (setq ENTLIST (entget ENT))
- (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-  (progn
-   (if (/ (cdr (assoc 70 ENTLIST)) 8) (setq ZFLAG T))
-   (setq ENT (entnext ENT))
-   (setq ENTLIST (entget ENT))
-   (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-    (setq P (cdr (assoc 10 ENTLIST)))
-    (if ZFLAG
-     (setq P (list (car P) (cadr P) (caddr P)))
-     (setq P (list (car P) (cadr P)))
-    )
-    (setq PLIST (append PLIST (list P)))
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-   )
-  )
- )
- (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-  (progn
-   (while (/= nil ENTLIST)
-    (setq P (car ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (if (= 10 (car P))
-     (progn
-      (setq P (list (cadr P) (caddr P)))
-      (setq PLIST (append PLIST (list P)))
-     )
-    )
-   )
-  )
- )
- PLIST
-)
-(defun RFL:POINTINSIDE (P PLIST / CROSSINGCOUNT P0 P1 PBASE PTMP)
- (setq P0 (last PLIST))
- ;  Subtracted/added pi from to the 'X' and 'Y' coordinate to have a point that is outside PLIST and 'hopefully' prevent on edge case
- (setq PBASE (list (- (apply 'min (mapcar '(lambda (PTMP) (car PTMP)) PLIST)) pi)
-                   (+ (apply 'min (mapcar '(lambda (PTMP) (cadr PTMP)) PLIST)) pi)
-             )
- )
- (setq CROSSINGCOUNT 0)
- (foreach P1 PLIST
-  (progn
-   (if (inters PBASE P P0 P1)
-    (setq CROSSINGCOUNT (1+ CROSSINGCOUNT))
-   )
-   (setq P0 P1)
-  )
- )
- (if (= 0 (rem CROSSINGCOUNT 2))
-  nil
-  T
- )
-)
-(defun RFL:MOD (A B)
- (rem (+ (rem A B) B) B)
-)
-(defun RFL:ROUND (X N / )
- (/ (float (fix (+ (* (float X) (expt 10.0 N)) (if (minusp X) -0.5 0.5)))) (expt 10.0 N))
-)
-;
-;
-;     Program written by Robert Livingston
-;
-;     C3DCOMMON.LSP is a collection of common C3D utilities
-;
-;
-(defun RFL:ACADVER (/ ACADPROD)
- (if (= nil vlax-machine-product-key)
-  (setq ACADPROD (vlax-product-key))
-  (setq ACADPROD (vlax-machine-product-key))
- )
- (cond ((vl-string-search "\\R17.1\\" ACADPROD)
-        "5.0"
-       )
-       ;;2008
-       ((vl-string-search "\\R17.2\\" ACADPROD)
-        "6.0"
-       )
-       ;;2009
-       ((vl-string-search "\\R18.0\\" ACADPROD)
-        "7.0"
-       )
-       ;;2010
-       ((vl-string-search "\\R18.1\\" ACADPROD)
-        "8.0"
-       )
-       ;;2011
-       ((vl-string-search "\\R18.2\\" ACADPROD)
-        "9.0"
-       )
-       ;;2012
-       ((vl-string-search "\\R19.0\\" ACADPROD)
-        "10.0"
-       )
-       ;;2013
-       ((vl-string-search "\\R19.1\\" ACADPROD)
-        "10.3"
-       )
-       ;;2014
-       ((vl-string-search "\\R20.0\\" ACADPROD)
-        "10.4"
-       )
-       ;;2015
-       ((vl-string-search "\\R20.1\\" ACADPROD)
-        "10.5"
-       )
-       ;;2016
-       ((vl-string-search "\\R21.0\\" ACADPROD)
-        "11.0"
-       )
-       ;;2017
- )
-)
-(defun RFL:GETC3DALIGNMENT (/ ENT ENTLIST GETFROMLIST OBALIGNMENT)
- (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DALIGNS C CMAX C3DALIGN)
-  (textscr)
-  (princ "\n")
-  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
-  (setq *acad* (vlax-get-acad-object))
-  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
-  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
-  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
-  (setq CMAX (vlax-get-property C3DALIGNS "Count"))
-  (setq C 0)
-  (while (< C CMAX)
-   (setq C3DALIGN (vlax-invoke-method C3DALIGNS "Item" C))
-   (setq C (+ C 1))
-   (princ (strcat (itoa C) " - " (vlax-get-property C3DALIGN "DisplayName") "\n"))
-  )
-  (setq C (getint "Enter alignment number : "))
-  (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
-  (graphscr)
- )
- (setq OBALIGNMENT nil)
- (setq ENT (car (entsel "\nSelect C3D alignment (<return> to choose from list) : ")))
- (if (= nil ENT)
-  (GETFROMLIST)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "AECC_ALIGNMENT" (cdr (assoc 0 ENTLIST)))
-    (princ "\n*** Not a C3D Alignment ***")
-    (setq OBALIGNMENT (vlax-ename->vla-object ENT))
-   )
-  )
- )
- OBALIGNMENT
-)
-(defun RFL:GETC3DSURFACE (/ ENT ENTLIST GETFROMLIST OBSURFACE)
- (defun GETFROMLIST (/ *acad* ACADPROD C3DOBJECT C3DDOC C3DSURFS C CMAX C3DSURF)
-  (textscr)
-  (princ "\n")
-  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
-  (setq *acad* (vlax-get-acad-object))
-  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
-  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
-  (setq C3DSURFS (vlax-get C3DDOC 'surfaces))
-  (setq CMAX (vlax-get-property C3DSURFS "Count"))
-  (setq C 0)
-  (while (< C CMAX)
-   (setq C3DSURF (vlax-get-property C3DSURFS "Item" C))
-   (setq C (+ C 1))
-   (princ (strcat (itoa C) " - " (vlax-get-property C3DSURF "DisplayName") "\n"))
-  )
-  (setq C (getint "Enter surface number : "))
-  (setq OBSURFACE (vlax-get-property C3DSURFS "Item" (- C 1)))
-  (graphscr)
- )
-
- (setq OBSURFACE nil)
-
- (setq ENT (car (entsel "\nSelect C3D surface or <return> to select from list : ")))
- (if (= nil ENT)
-  (GETFROMLIST)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "AECC_TIN_SURFACE" (cdr (assoc 0 ENTLIST)))
-    (if (/= "AECC_GRID_SURFACE" (cdr (assoc 0 ENTLIST)))
-     (princ "\n*** Not a C3D Surface ***")
-     (setq OBSURFACE (vlax-ename->vla-object ENT))
-    )
-    (setq OBSURFACE (vlax-ename->vla-object ENT))
-   )
-  )
- )
- OBSURFACE
-)
-(defun RFL:GETSURFACELINE (P1 P2 OBSURFACE / C CATCHERROR OGLINE OGLINELIST VARLIST)
- (setq OGLINE nil)
- (setq VARLIST (list OBSURFACE "SampleElevations" (car P1) (cadr p1) (car P2) (cadr p2)))
- (setq OGLINE (vl-catch-all-apply 'vlax-invoke-method VARLIST))
- (if (not (vl-catch-all-error-p OGLINE))
-  (if (/= nil OGLINE)
-   (if (/= 0 (vlax-variant-type OGLINE))
-    (progn
-     (setq OGLINELIST nil)
-     (setq OGLINE (vlax-variant-value OGLINE))
-     (setq C (vlax-safearray-get-l-bound OGLINE 1))
-     (while (<= C (vlax-safearray-get-u-bound OGLINE 1))
-      (setq OGLINELIST (append OGLINELIST (list (list (vlax-safearray-get-element OGLINE C)
-                                                      (vlax-safearray-get-element OGLINE (+ C 1))
-                                                      (vlax-safearray-get-element OGLINE (+ C 2))))))
-      (setq C (+ C 3))
-     )
-    )
-   )
-  )
- )
- OGLINELIST
-)
-(defun RFL:GETSURFACEPOINT (P OBSURFACE / VARLIST)
- (setq VARLIST (list OBSURFACE "FindElevationAtXY" (car P) (cadr P)))
- (setq Z (vl-catch-all-apply 'vlax-invoke-method VARLIST))
- (if (vl-catch-all-error-p Z)
-  nil
-  Z
- )
-)
-(defun RFL:GETC3DALIGNMENT (/ ENT ENTLIST GETFROMLIST OBALIGNMENT)
- (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DALIGNS C CMAX C3DALIGN)
-  (textscr)
-  (princ "\n")
-  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
-  (setq *acad* (vlax-get-acad-object))
-  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
-  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
-  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
-  (setq CMAX (vlax-get-property C3DALIGNS "Count"))
-  (setq C 0)
-  (while (< C CMAX)
-   (setq C3DALIGN (vlax-invoke-method C3DALIGNS "Item" C))
-   (setq C (+ C 1))
-   (princ (strcat (itoa C) " - " (vlax-get-property C3DALIGN "DisplayName") "\n"))
-  )
-  (setq C (getint "Enter alignment number : "))
-  (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
-  (graphscr)
- )
- (setq OBALIGNMENT nil)
- (setq ENT (car (entsel "\nSelect C3D alignment (<return> to choose from list) : ")))
- (if (= nil ENT)
-  (GETFROMLIST)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "AECC_ALIGNMENT" (cdr (assoc 0 ENTLIST)))
-    (princ "\n*** Not a C3D Alignment ***")
-    (setq OBALIGNMENT (vlax-ename->vla-object ENT))
-   )
-  )
- )
- OBALIGNMENT
-)
-(defun RFL:GETSECTIONSET (STASTART STAEND SWATH STEP OBSURFACE RFL:ALIGNLIST / P1 P2 PLIST SECTIONSET STA SLIST)
- (princ "\nGetting sections : ")
- (setq STA STASTART)
- (while (<= STA STAEND)
-  (princ (strcat "\n" (RFL:STATXT STA) "..."))
-  (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
-  (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
-  (if (and (/= nil P1) (/= nil P2))
-   (progn
-    (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))
-    (setq SLIST nil)
-    (foreach NODE PLIST
-     (progn
-      (setq P (list (car NODE) (cadr NODE)))
-      (setq SLIST (append SLIST (list (list (- (distance P1 P) (/ SWATH 2.0)) (last NODE)))))
-     )
-    )
-    (setq SECTIONSET (append SECTIONSET (list (list STA SLIST))))
-   )
-  )
-  (setq STA (+ STA STEP))
- )
- SECTIONSET
-)
-;
-;
 ;     Program written by Robert Livingston, 2014-04-30
-;
-;     TRIG is a collection of basic functions
 ;
 ;
 (defun RFL:TAN (ANG)
  (eval (/ (sin ANG) (cos ANG)))
 )
-(defun RFL:SIGN (X)
- (if (< X 0)
-  (eval -1.0)
-  (eval 1.0)
- )
-)
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:ANGLE3P (P1 P2 P3 / ANG)
  (if (> (setq ANG (abs (- (angle P2 P1) (angle P2 P3)))) pi)
   (- (* 2.0 pi) ANG)
   ANG
  )
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:ACOS (X)
  (/ 1.0 (sqrt (+ 1.0 (expt (atan X) 2.0))))
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:ASIN (X)
  (- (/ pi 2.0) (/ 1.0 (sqrt (+ 1.0 (expt (atan X) 2.0)))))
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:RADIUS3P (P1 P2 P3 / DEN NUM TOL X1 X2 X3 Y1 Y2 Y3)
  (setq TOL 1e-10)
  (setq X1 (car P1))
@@ -536,6 +154,11 @@
   (setq R (/ NUM DEN))
  )
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:CIRCLE3P (P1 P2 P3 / CALCC3P TOL X1 X2 X3 Y1 Y2 Y3)
  
  (defun CALCC3P (X1 Y1 X2 Y2 X3 Y3 / DEN M12 M23 NUM R RES XC YC)
@@ -575,6 +198,11 @@
   (setq RES RES)
  )
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:RADIUS (P1 P2 BULGE / ATOTAL CHORD)
  (setq ATOTAL (* 4.0 (atan (abs BULGE))))
  (setq CHORD (distance P1 P2))
@@ -588,6 +216,11 @@
   )
  )
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:CENTER (P1 P2 BULGE / ANG ATOTAL CHORD D R X Y)
  (setq ATOTAL (* 4.0 (atan (abs BULGE))))
  (setq CHORD (distance P1 P2))
@@ -607,6 +240,11 @@
   )
  )
 )
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
 (defun RFL:COMB3 (N / A B C RES TMP)
  (setq RES nil)
  (if (>= N 3)
@@ -628,6 +266,22 @@
   )
  )
  (setq RES RES)
+)
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
+(defun RFL:MOD (A B)
+ (rem (+ (rem A B) B) B)
+)
+;
+;
+;     Program written by Robert Livingston, 2014-04-30
+;
+;
+(defun RFL:ROUND (X N / )
+ (/ (float (fix (+ (* (float X) (expt 10.0 N)) (if (minusp X) -0.5 0.5)))) (expt 10.0 N))
 )
 (defun RFL:INTERSA (P1 P2 P3 P4 BULGE / ANG1 ANG2 D D1 D2 D3 D4 OFFSET PA PB PCEN R)
  (setq P1 (list (car P1) (cadr P1)))
@@ -4866,6 +4520,362 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2014-11-20
+;
+;     RFL:STATXT converts a real to a station string
+;
+;
+(setq RFL:STAPOS nil)
+(defun RFL:STATXT (STA / C DIMZIN S STAH STAL)
+ (if (= nil RFL:STAPOS) (if (= nil (setq RFL:STAPOS (getint "\nStation label '+' location <3> : "))) (setq RFL:STAPOS 3)))
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 8)
+ (if (< RFL:STAPOS 1)
+  (rtos STA)
+  (progn
+   (if (< STA 0.0)
+    (setq S "-")
+    (setq S "")
+   )
+   (setq STAH (fix (/ (abs STA) (expt 10 RFL:STAPOS))))
+   (setq STAL (- (abs STA) (* STAH (expt 10 RFL:STAPOS))))
+   (if (= (substr (rtos STAL) 1 (+ RFL:STAPOS 1)) (itoa (expt 10 RFL:STAPOS)))
+    (progn
+     (setq STAL 0.0)
+     (setq STAH (+ STAH (RFL:SIGN STAH)))
+    )
+   )
+   (setq STAH (itoa STAH))
+   (setq C (- RFL:STAPOS (strlen (itoa (fix STAL)))))
+   (setq STAL (rtos STAL 2 (getvar "LUPREC")))
+   (while (> C 0)
+    (setq STAL (strcat "0" STAL))
+    (setq C (- C 1))
+   )
+   (setvar "DIMZIN" DIMZIN)
+   (setq RFLSTAHTXT (strcat S STAH) RFLSTALTXT STAL)
+   (strcat S STAH "+" STAL)
+  )
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
+;
+;
+(defun RFL:FIX+ (ENT / CODE ENTLIST P P0 STR TB TB1 TB2 W WL WR)
+ (setq ENTLIST (entget ENT))
+ (if (= "TEXT" (cdr (assoc 0 ENTLIST)))
+  (if (/= nil (vl-string-search "+" (setq STR (cdr (assoc 1 ENTLIST)))))
+   (progn
+    (if (or (/= 0 (cdr (assoc 72 ENTLIST))) (/= 0 (cdr (assoc 73 ENTLIST))))
+     (setq CODE 11)
+     (setq CODE 10)
+    )
+    (setq P (cdr (assoc CODE ENTLIST)))
+    (setq P0 (cdr (assoc 10 ENTLIST)))
+    (setq TB (textbox ENTLIST))
+    (setq W (- (caadr TB) (caar TB)))
+    (setq TBL (textbox (subst (cons 1 (substr STR 1 (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
+    (setq WL (- (caadr TBL) (caar TBL)))
+    (setq TBR (textbox (subst (cons 1 (substr STR (+ (vl-string-search "+" STR) 1))) (assoc 1 ENTLIST) ENTLIST)))
+    (setq WR (- (caadr TBR) (caar TBR)))
+    (setq W+ (- (+ WR WL) W))
+    (setq ENTLIST (subst (list CODE
+                               (- (+ (car P) (- (car P) (car P0))) (- WL (/ W+ 2.0)) (caar TBL))
+                               (cadr P)
+                               (caddr P)
+                         )
+                         (assoc CODE ENTLIST)
+                         ENTLIST
+                  )
+    )
+    (entmod ENTLIST)
+    (entupd ENT)
+   )
+  )
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:GETPLIST returns a list of points along a polyline
+;
+;
+(defun RFL:GETPLIST (ENT / ENTLIST P PLIST ZFLAG)
+ (setq PLIST nil)
+ (setq ENTLIST (entget ENT))
+ (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+  (progn
+   (if (/ (cdr (assoc 70 ENTLIST)) 8) (setq ZFLAG T))
+   (setq ENT (entnext ENT))
+   (setq ENTLIST (entget ENT))
+   (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
+    (setq P (cdr (assoc 10 ENTLIST)))
+    (if ZFLAG
+     (setq P (list (car P) (cadr P) (caddr P)))
+     (setq P (list (car P) (cadr P)))
+    )
+    (setq PLIST (append PLIST (list P)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+   )
+  )
+ )
+ (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+  (progn
+   (while (/= nil ENTLIST)
+    (setq P (car ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (if (= 10 (car P))
+     (progn
+      (setq P (list (cadr P) (caddr P)))
+      (setq PLIST (append PLIST (list P)))
+     )
+    )
+   )
+  )
+ )
+ PLIST
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     RFL:POINTINSIDE checks if a point is inside a polyline formed by PLIST
+;
+;
+(defun RFL:POINTINSIDE (P PLIST / CROSSINGCOUNT P0 P1 PBASE PTMP)
+ (setq P0 (last PLIST))
+ ;  Subtracted/added pi from to the 'X' and 'Y' coordinate to have a point that is outside PLIST and 'hopefully' prevent on edge case
+ (setq PBASE (list (- (apply 'min (mapcar '(lambda (PTMP) (car PTMP)) PLIST)) pi)
+                   (+ (apply 'min (mapcar '(lambda (PTMP) (cadr PTMP)) PLIST)) pi)
+             )
+ )
+ (setq CROSSINGCOUNT 0)
+ (foreach P1 PLIST
+  (progn
+   (if (inters PBASE P P0 P1)
+    (setq CROSSINGCOUNT (1+ CROSSINGCOUNT))
+   )
+   (setq P0 P1)
+  )
+ )
+ (if (= 0 (rem CROSSINGCOUNT 2))
+  nil
+  T
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:ACADVER (/ ACADPROD)
+ (if (= nil vlax-machine-product-key)
+  (setq ACADPROD (vlax-product-key))
+  (setq ACADPROD (vlax-machine-product-key))
+ )
+ (cond ((vl-string-search "\\R17.1\\" ACADPROD)
+        "5.0"
+       )
+       ;;2008
+       ((vl-string-search "\\R17.2\\" ACADPROD)
+        "6.0"
+       )
+       ;;2009
+       ((vl-string-search "\\R18.0\\" ACADPROD)
+        "7.0"
+       )
+       ;;2010
+       ((vl-string-search "\\R18.1\\" ACADPROD)
+        "8.0"
+       )
+       ;;2011
+       ((vl-string-search "\\R18.2\\" ACADPROD)
+        "9.0"
+       )
+       ;;2012
+       ((vl-string-search "\\R19.0\\" ACADPROD)
+        "10.0"
+       )
+       ;;2013
+       ((vl-string-search "\\R19.1\\" ACADPROD)
+        "10.3"
+       )
+       ;;2014
+       ((vl-string-search "\\R20.0\\" ACADPROD)
+        "10.4"
+       )
+       ;;2015
+       ((vl-string-search "\\R20.1\\" ACADPROD)
+        "10.5"
+       )
+       ;;2016
+       ((vl-string-search "\\R21.0\\" ACADPROD)
+        "11.0"
+       )
+       ;;2017
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETC3DALIGNMENT (/ ENT ENTLIST GETFROMLIST OBALIGNMENT)
+ (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DALIGNS C CMAX C3DALIGN)
+  (textscr)
+  (princ "\n")
+  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
+  (setq *acad* (vlax-get-acad-object))
+  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
+  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
+  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
+  (setq CMAX (vlax-get-property C3DALIGNS "Count"))
+  (setq C 0)
+  (while (< C CMAX)
+   (setq C3DALIGN (vlax-invoke-method C3DALIGNS "Item" C))
+   (setq C (+ C 1))
+   (princ (strcat (itoa C) " - " (vlax-get-property C3DALIGN "DisplayName") "\n"))
+  )
+  (setq C (getint "Enter alignment number : "))
+  (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
+  (graphscr)
+ )
+ (setq OBALIGNMENT nil)
+ (setq ENT (car (entsel "\nSelect C3D alignment (<return> to choose from list) : ")))
+ (if (= nil ENT)
+  (GETFROMLIST)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "AECC_ALIGNMENT" (cdr (assoc 0 ENTLIST)))
+    (princ "\n*** Not a C3D Alignment ***")
+    (setq OBALIGNMENT (vlax-ename->vla-object ENT))
+   )
+  )
+ )
+ OBALIGNMENT
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETC3DSURFACE (/ ENT ENTLIST GETFROMLIST OBSURFACE)
+ (defun GETFROMLIST (/ *acad* ACADPROD C3DOBJECT C3DDOC C3DSURFS C CMAX C3DSURF)
+  (textscr)
+  (princ "\n")
+  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
+  (setq *acad* (vlax-get-acad-object))
+  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
+  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
+  (setq C3DSURFS (vlax-get C3DDOC 'surfaces))
+  (setq CMAX (vlax-get-property C3DSURFS "Count"))
+  (setq C 0)
+  (while (< C CMAX)
+   (setq C3DSURF (vlax-get-property C3DSURFS "Item" C))
+   (setq C (+ C 1))
+   (princ (strcat (itoa C) " - " (vlax-get-property C3DSURF "DisplayName") "\n"))
+  )
+  (setq C (getint "Enter surface number : "))
+  (setq OBSURFACE (vlax-get-property C3DSURFS "Item" (- C 1)))
+  (graphscr)
+ )
+
+ (setq OBSURFACE nil)
+
+ (setq ENT (car (entsel "\nSelect C3D surface or <return> to select from list : ")))
+ (if (= nil ENT)
+  (GETFROMLIST)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "AECC_TIN_SURFACE" (cdr (assoc 0 ENTLIST)))
+    (if (/= "AECC_GRID_SURFACE" (cdr (assoc 0 ENTLIST)))
+     (princ "\n*** Not a C3D Surface ***")
+     (setq OBSURFACE (vlax-ename->vla-object ENT))
+    )
+    (setq OBSURFACE (vlax-ename->vla-object ENT))
+   )
+  )
+ )
+ OBSURFACE
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSURFACELINE (P1 P2 OBSURFACE / C CATCHERROR OGLINE OGLINELIST VARLIST)
+ (setq OGLINE nil)
+ (setq VARLIST (list OBSURFACE "SampleElevations" (car P1) (cadr p1) (car P2) (cadr p2)))
+ (setq OGLINE (vl-catch-all-apply 'vlax-invoke-method VARLIST))
+ (if (not (vl-catch-all-error-p OGLINE))
+  (if (/= nil OGLINE)
+   (if (/= 0 (vlax-variant-type OGLINE))
+    (progn
+     (setq OGLINELIST nil)
+     (setq OGLINE (vlax-variant-value OGLINE))
+     (setq C (vlax-safearray-get-l-bound OGLINE 1))
+     (while (<= C (vlax-safearray-get-u-bound OGLINE 1))
+      (setq OGLINELIST (append OGLINELIST (list (list (vlax-safearray-get-element OGLINE C)
+                                                      (vlax-safearray-get-element OGLINE (+ C 1))
+                                                      (vlax-safearray-get-element OGLINE (+ C 2))))))
+      (setq C (+ C 3))
+     )
+    )
+   )
+  )
+ )
+ OGLINELIST
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSURFACEPOINT (P OBSURFACE / VARLIST)
+ (setq VARLIST (list OBSURFACE "FindElevationAtXY" (car P) (cadr P)))
+ (setq Z (vl-catch-all-apply 'vlax-invoke-method VARLIST))
+ (if (vl-catch-all-error-p Z)
+  nil
+  Z
+ )
+)
+;
+;
+;     Program written by Robert Livingston
+;
+;
+(defun RFL:GETSECTIONSET (STASTART STAEND SWATH STEP OBSURFACE RFL:ALIGNLIST / P1 P2 PLIST SECTIONSET STA SLIST)
+ (princ "\nGetting sections : ")
+ (setq STA STASTART)
+ (while (<= STA STAEND)
+  (princ (strcat "\n" (RFL:STATXT STA) "..."))
+  (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+  (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
+  (if (and (/= nil P1) (/= nil P2))
+   (progn
+    (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))
+    (setq SLIST nil)
+    (foreach NODE PLIST
+     (progn
+      (setq P (list (car NODE) (cadr NODE)))
+      (setq SLIST (append SLIST (list (list (- (distance P1 P) (/ SWATH 2.0)) (last NODE)))))
+     )
+    )
+    (setq SECTIONSET (append SECTIONSET (list (list STA SLIST))))
+   )
+  )
+  (setq STA (+ STA STEP))
+ )
+ SECTIONSET
+)
+;
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
 ;
@@ -8913,6 +8923,48 @@
  )
 
  (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
+;
+;
+(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE P P1 TB TBL TBR W WL WR W+)
+ (setq ATTREQ (getvar "ATTREQ"))
+ (setvar "ATTREQ" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+
+ (defun *error* (msg)
+  (setvar "ATTREQ" ATTREQ)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (print msg)
+ )
+
+ (while (/= nil (setq ENT (car (entsel))))
+  (RFL:FIX+ ENT)
+ )
+ 
+ (setvar "ATTREQ" ATTREQ)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
 )
 (setq RFL:MAKEENTBLOCKLIST (list 
                                  "ALTABLE01" 
@@ -18081,402 +18133,5 @@
  )
  (entmod ENTLIST)
  (entlast)
-)(defun C:BESTLINE (/ D1 D2 ENT ENTLIST FLAG ORTHOMODE OSMODE P P1 P2 P3 PLIST PLISTTMP)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (setq PLIST nil)
- (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
- (setq ENTLIST (entget ENT))
- (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-  (while (/= nil ENTLIST)
-   (if (= 10 (caar ENTLIST))
-    (setq PLIST (append PLIST (list (cdar ENTLIST))))
-   )
-   (setq ENTLIST (cdr ENTLIST))
-  )
-  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-   (progn
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-     (setq P (cdr (assoc 10 ENTLIST)))
-     (setq PLIST (append PLIST (list (list (car P) (cadr P)))))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-    )
-   )
-   (princ "\n*** Not a polyline!")
-  )
- )
- (if (/= nil (setq P1 (getpoint "\nPick a point near to start point (<return> for entire polyline) : ")))
-  (if (/= nil (setq P2 (getpoint "\nPick a point near to end point : ")))
-   (progn
-    (setq PLISTTMP nil)
-    (setq FLAG nil)
-    (setq D1 (apply 'min (mapcar '(lambda (P3) (distance P1 P3)) PLIST)))
-    (setq D2 (apply 'min (mapcar '(lambda (P3) (distance P2 P3)) PLIST)))
-    (foreach P3 PLIST
-     (progn
-      (if (or (= D1 (distance P1 P3)) (= D2 (distance P2 P3)))
-       (setq FLAG (not FLAG))
-      )
-      (if FLAG (setq PLISTTMP (append PLISTTMP (list P3))))
-     )
-    )
-    (setq PLIST PLISTTMP)
-   )
-  )
- )
- (if (/= nil (setq P (BESTLINE PLIST)))
-  (progn
-   (setq P1 (car P))
-   (setq P2 (cadr P))
-   (command "._LINE" P1 P2 "")
-  )
- )
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- (last P)
-)
-(defun BESTLINE (PLIST / CALCE CALCSUME2 CALCXY COUNT OS P0 P1 P2 STEP SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 THETA TOL)
- (setq TOL 0.00001)
- (defun CALCXY (P P1 THETA / X Y)
-  (setq X (+ (* (- (cadr P) (cadr P1)) (sin THETA)) (* (- (car P) (car P1)) (cos THETA))))
-  (setq Y (- (* (- (cadr P) (cadr P1)) (cos THETA)) (* (- (car P) (car P1)) (sin THETA))))
-  (list X Y)
- )
- (defun CALCE (OS THETA PLIST / NODE P YMAX)
-  (setq YMAX nil)
-  (setq P0 (car PLIST))
-  (setq P1 (list (- (car P0) (* OS (sin THETA))) (+ (cadr P0) (* OS (cos THETA)))))
-  (foreach NODE PLIST
-   (setq P (CALCXY NODE P1 THETA))
-   (if (= nil YMAX)
-    (setq YMAX (abs (cadr P)))
-    (if (> (abs (cadr P)) YMAX)
-     (setq YMAX (abs (cadr P)))
-    )
-   )
-  )
-  (eval YMAX)
- )
- (defun CALCSUME2 (OS THETA PLIST / NODE P P0 P1 SUME2)
-  (setq SUME2 0.0)
-  (setq P0 (car PLIST))
-  (setq P1 (list (- (car P0) (* OS (sin THETA))) (+ (cadr P0) (* OS (cos THETA)))))
-  (foreach NODE PLIST
-   (setq P (CALCXY NODE P1 THETA))
-   (setq SUME2 (+ SUME2 (expt (abs (cadr P)) 2)))
-  )
-  (eval SUME2)
- )
- 
- (setq COUNT 0)
- (setq OS 0.0)
- (setq THETA (angle (car PLIST) (last PLIST)))
- (setq STEP (CALCE OS THETA PLIST))
- (setq SUME2 (CALCSUME2 OS THETA PLIST))
- (while (> STEP TOL)
-  (setq SUME2T1 (CALCSUME2 (+ OS STEP) THETA PLIST))
-  (setq SUME2T2 (CALCSUME2 (- OS STEP) THETA PLIST))
-  (setq SUME2T3 (CALCSUME2 OS (+ THETA (/ STEP 10.0)) PLIST))
-  (setq SUME2T4 (CALCSUME2 OS (- THETA (/ STEP 10.0)) PLIST))
-  (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4))
-  (cond ((= SUME2 SUME2T1) (setq OS (+ OS STEP)))
-        ((= SUME2 SUME2T2) (setq OS (- OS STEP)))
-        ((= SUME2 SUME2T3) (setq THETA (+ THETA (/ STEP 10.0))))
-        ((= SUME2 SUME2T4) (setq THETA (- THETA (/ STEP 10.0))))
-        (T (setq STEP (/ STEP 2.0)))
-  )
-  (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
- )
- (setq P0 (car PLIST))
- (setq P1 (list (- (car P0) (* OS (sin THETA))) (+ (cadr P0) (* OS (cos THETA)))))
- (setq P0 (CALCXY (last PLIST) P1 THETA))
- (setq P2 (list (+ (car P1) (* (car P0) (cos THETA)))
-                (+ (cadr P1) (* (car P0) (sin THETA)))
-          )
- )
- (list P1 P2 (CALCE OS THETA PLIST))
-)
-(defun C:BESTCIRCLE (/ C ENT ENT2 ENTLIST ENTSET P PLIST)
- (setq PLIST nil)
- (setq ENTSET (ssget))
- (setq C 0)
- (while (< C (sslength ENTSET))
-  (setq ENT (ssname ENTSET C))
-  (setq ENTLIST (entget ENT))
-  (if (= (cdr (assoc 0 ENTLIST)) "POINT")
-   (setq PLIST (append PLIST (list (cdr (assoc 10 ENTLIST)))))
-   (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-    (while (/= nil ENTLIST)
-     (if (= 10 (caar ENTLIST))
-       (setq PLIST (append PLIST (list (cdar ENTLIST))))
-     )
-     (setq ENTLIST (cdr ENTLIST))
-    )
-    (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-     (progn
-      (setq ENT (entnext ENT))
-      (setq ENTLIST (entget ENT))
-      (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-       (setq P (cdr (assoc 10 ENTLIST)))
-       (setq PLIST (append PLIST (list (list (car P) (cadr P)))))
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-      )
-     )
-    )
-   )
-  )
-  (setq C (+ C 1))
- )
- (if (/= nil (setq P (BESTCIRCLE PLIST)))
-  (command "._CIRCLE" "NON" (car P) (cadr P))
- )
-)
-(defun BESTCIRCLE (PLIST / C CALCE COMBLIST COUNT E P PC PCT NODE R RT STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6 TOL)
-;(defun BESTCIRCLE (PLIST)
- (setq TOL 0.00001)
- (defun CALCSUME2 (PC R PLIST / SUME2 NODE)
-  (setq SUME2 0.0)
-  (foreach NODE PLIST
-   (setq SUME2 (+ SUME2 (expt (abs (- (distance PC NODE) R)) 2)))
-  )
-  (eval SUME2)
- )
- (defun CALCE (PC R PLIST / E NODE TMP)
-  (setq E nil)
-  (foreach NODE PLIST
-   (progn
-    (setq TMP (abs (- (distance PC NODE) R)))
-    (if (= E nil)
-     (setq E TMP)
-     (if (> TMP E) (setq E TMP))
-    )
-   )
-  )
-  (eval E)
- )
- (if (= nil (listp PLIST))
-  (eval nil)
-  (if (< (length PLIST) 3)
-   (eval nil)
-   (if (= (length PLIST) 3)
-    (if (= nil (setq PC (RFL:CIRCLE3P (car PLIST) (cadr PLIST) (caddr PLIST))))
-     (eval nil)
-     (append PC (list 0.0))
-    )
-    (progn
-     (setq C 0)
-     (setq PC nil)
-     (setq R 0.0)
-     (if (> (length PLIST) 8)
-      (setq COMBLIST (list (list 1 (/ (length PLIST) 2) (length PLIST))))
-      (setq COMBLIST (COMB3 (length PLIST)))
-     )
-     (foreach NODE COMBLIST
-      (progn
-       (if (/= nil (setq P (RFL:CIRCLE3P (nth (- (car NODE) 1) PLIST) (nth (- (cadr NODE) 1) PLIST) (nth (- (caddr NODE) 1) PLIST))))
-        (progn
-         (setq C (+ C 1))
-         (if (= nil PC)
-          (setq PC (car P))
-          (setq PC (list (+ (car PC) (caar P)) (+ (cadr PC) (cadar P))))
-         )
-         (setq R (+ R (cadr P)))
-        )
-       )
-      )
-     )
-     (if (= C 0)
-      (eval nil)
-      (progn
-       (setq PC (list (/ (car PC) C) (/ (cadr PC) C)))
-       (setq R  (/ R C))
-       ; REGRESSION
-       (setq COUNT 0)
-       (setq STEP R)
-       (setq SUME2 (CALCSUME2 PC R PLIST))
-       (while (> STEP TOL)
-        (setq RT (+ R STEP))
-        (setq PCT PC)
-        (setq SUME2T1 (CALCSUME2 PCT RT PLIST))
-        (setq RT (- R STEP))
-        (setq PCT PC)
-        (setq SUME2T2 (CALCSUME2 PCT RT PLIST))
-        (setq RT R)
-        (setq PCT (list (+ (car PC) STEP) (cadr PC)))
-        (setq SUME2T3 (CALCSUME2 PCT RT PLIST))
-        (setq RT R)
-        (setq PCT (list (- (car PC) STEP) (cadr PC)))
-        (setq SUME2T4 (CALCSUME2 PCT RT PLIST))
-        (setq RT R)
-        (setq PCT (list (car PC) (+ (cadr PC) STEP)))
-        (setq SUME2T5 (CALCSUME2 PCT RT PLIST))
-        (setq RT R)
-        (setq PCT (list (car PC) (- (cadr PC) STEP)))
-        (setq SUME2T6 (CALCSUME2 PCT RT PLIST))
-        (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6))
-        (cond ((= SUME2 SUME2T1) (setq R (+ R STEP)))
-              ((= SUME2 SUME2T2) (setq R (- R STEP)))
-              ((= SUME2 SUME2T3) (setq PC (list (+ (car PC) STEP) (cadr PC))))
-              ((= SUME2 SUME2T4) (setq PC (list (- (car PC) STEP) (cadr PC))))
-              ((= SUME2 SUME2T5) (setq PC (list (car PC) (+ (cadr PC) STEP))))
-              ((= SUME2 SUME2T6) (setq PC (list (car PC) (- (cadr PC) STEP))))
-              (T (setq STEP (/ STEP 2.0)))
-        )
-        (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
-       )
-       ; END REGRESSION
-       (list PC R (CALCE PC R PLIST))
-      )
-     )
-    )
-   )
-  )
- )
-)
-(defun C:BESTVCURVE (/ C D1 D2 ENT ENTLIST FLAG NODE P P1 P2 P3 OSMODE PLIST PLISTTMP PLINETYPE SPLINESEGS SPLINETYPE)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 0)
- (setq PLIST nil)
- (setq ENT (car (entsel "\nSelect polyline to fit parabolic vertical curve : ")))
- (setq ENTLIST (entget ENT))
- (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-  (while (/= nil ENTLIST)
-   (if (= 10 (caar ENTLIST))
-    (setq PLIST (append PLIST (list (cdar ENTLIST))))
-   )
-   (setq ENTLIST (cdr ENTLIST))
-  )
-  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-   (progn
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-     (setq P (cdr (assoc 10 ENTLIST)))
-     (setq PLIST (append PLIST (list (list (car P) (cadr P)))))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-    )
-   )
-   (princ "\n*** Not a polyline!")
-  )
- )
- (if (/= nil (setq P1 (getpoint "\nPick a point near to start point (<return> for entire polyline) : ")))
-  (if (/= nil (setq P2 (getpoint "\nPick a point near to end point : ")))
-   (progn
-    (setq PLISTTMP nil)
-    (setq FLAG nil)
-    (setq D1 (apply 'min (mapcar '(lambda (P3) (distance P1 P3)) PLIST)))
-    (setq D2 (apply 'min (mapcar '(lambda (P3) (distance P2 P3)) PLIST)))
-    (foreach P3 PLIST
-     (progn
-      (if (or (= D1 (distance P1 P3)) (= D2 (distance P2 P3)))
-       (setq FLAG (not FLAG))
-      )
-      (if FLAG (setq PLISTTMP (append PLISTTMP (list P3))))
-     )
-    )
-    (setq PLIST PLISTTMP)
-   )
-  )
- )
- (if (/= nil (setq P (BESTVCURVE PLIST)))
-  (progn
-   (setq P1 (car P))
-   (setq P2 (cadr P))
-   (setq P3 (caddr P))
-   (command "._PLINE" P1 P2 P3 "")
-   (command "._PEDIT" (entlast) "S" "")
-  )
- )
- (setvar "OSMODE" OSMODE)
- (setvar "SPLINETYPE" SPLINETYPE)
- (setvar "SPLINESEGS" SPLINESEGS)
- (setvar "PLINETYPE" PLINETYPE)
- (last P)
-)
-(defun BESTVCURVE (PLIST / CALCE CALCSUME2 COUNT P1 P2 P3 TOL)
- (setq TOL 0.00001)
- (defun CALCE (P1 P2 P3 PLIST / A B C G1 G2 NODE Y YMAX)
-  (setq YMAX nil)
-  (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
-  (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
-  (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
-  (setq B (- G1 (* 2.0 A (car P1))))
-  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
-  (foreach NODE PLIST
-   (setq Y (+ (* A (car NODE) (car NODE)) (* B (car NODE)) C))
-   (if (= nil YMAX)
-    (setq YMAX (abs (- (cadr NODE) Y)))
-    (if (> (abs (- (cadr NODE) Y)) YMAX)
-     (setq YMAX (abs (- (cadr NODE) Y)))
-    )
-   )
-  )
-  (eval YMAX)
- )
- (defun CALCSUME2 (P1 P2 P3 PLIST / A B C G1 G2 NODE PT STEP SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6 Y)
-  (setq SUME2 0.0)
-  (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
-  (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
-  (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
-  (setq B (- G1 (* 2.0 A (car P1))))
-  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
-  (foreach NODE PLIST
-   (setq Y (+ (* A (car NODE) (car NODE)) (* B (car NODE)) C))
-   (setq SUME2 (+ SUME2 (expt (abs (- (cadr NODE) Y)) 2)))
-  )
-  (eval SUME2)
- )
- (if (< (length PLIST) 3)
-  (eval nil)
-  (progn
-   (if (> (caar PLIST) (car (last PLIST))) (setq PLIST (reverse PLIST)))
-   (setq COUNT 0)
-   (setq P1 (car PLIST))
-   (setq P3 (last PLIST))
-   (setq P2 (list (/ (+ (car P1) (car P3)) 2.0) (/ (+ (cadr P1) (cadr P3)) 2.0)))
-   (setq STEP (- (car P3) (car P1)))
-   (setq SUME2 (CALCSUME2 P1 P2 P3 PLIST))
-   (while (> STEP TOL)
-    (setq PT (list (car P1) (+ (cadr P1) STEP)))
-    (setq SUME2T1 (CALCSUME2 PT P2 P3 PLIST))
-    (setq PT (list (car P1) (- (cadr P1) STEP)))
-    (setq SUME2T2 (CALCSUME2 PT P2 P3 PLIST))
-    (setq PT (list (car P2) (+ (cadr P2) STEP)))
-    (setq SUME2T3 (CALCSUME2 P1 PT P3 PLIST))
-    (setq PT (list (car P2) (- (cadr P2) STEP)))
-    (setq SUME2T4 (CALCSUME2 P1 PT P3 PLIST))
-    (setq PT (list (car P3) (+ (cadr P3) STEP)))
-    (setq SUME2T5 (CALCSUME2 P1 P2 PT PLIST))
-    (setq PT (list (car P3) (- (cadr P3) STEP)))
-    (setq SUME2T6 (CALCSUME2 P1 P2 PT PLIST))
-    (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6))
-    (cond ((= SUME2 SUME2T1) (setq P1 (list (car P1) (+ (cadr P1) STEP))))
-          ((= SUME2 SUME2T2) (setq P1 (list (car P1) (- (cadr P1) STEP))))
-          ((= SUME2 SUME2T3) (setq P2 (list (car P2) (+ (cadr P2) STEP))))
-          ((= SUME2 SUME2T4) (setq P2 (list (car P2) (- (cadr P2) STEP))))
-          ((= SUME2 SUME2T5) (setq P3 (list (car P3) (+ (cadr P3) STEP))))
-          ((= SUME2 SUME2T6) (setq P3 (list (car P3) (- (cadr P3) STEP))))
-          (T (setq STEP (/ STEP 2.0)))
-    )
-    (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
-   )
-   (list P1 P2 P3 (CALCE P1 P2 P3 PLIST))
-  )
- )
-)
-(princ "\nRFLTools loaded ...")
+)(princ "\nRFLTools loaded ...")
 T
-

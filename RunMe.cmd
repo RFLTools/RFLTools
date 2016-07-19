@@ -32,19 +32,14 @@ rem Build RFLTools
 rem
 if exist LoadRFLTools.lsp del LoadRFLTools.lsp
 rem
-COPY ".\Common\RFLLoadRFLDLL.lsp" + ^
-     ".\Common\Common.lsp" + ^
-     ".\Common\C3DCommon.lsp" + ^
-     ".\Math\Trig.lsp" + ^
-     ".\Align\LoadRFLALign.lsp" + ^
-     ".\MakeEnt\LoadMakeEnt.lsp" + ^
-     ".\MakeDCL\LoadMakeDCL.lsp" + ^
-     ".\DrawGrid\DrawGrid.lsp" + ^
-     ".\Align\Align.lsp" + ^
-     ".\Best\BestLine.lsp" + ^
-     ".\Best\BestCircle.lsp" + ^
-     ".\Best\BestVCurve.lsp" + ^
-     ".\Common\Loaded.lsp" ^
-     ".\LoadRFLTools.lsp"
+COPY /B ".\Common\RFLLoadRFLDLL.lsp" + ^
+        ".\Math\RFL*.lsp" + ^
+        ".\Align\LoadRFLALign.lsp" + ^
+        ".\MakeEnt\LoadMakeEnt.lsp" + ^
+        ".\MakeDCL\LoadMakeDCL.lsp" + ^
+        ".\DrawGrid\DrawGrid.lsp" + ^
+        ".\Best\C*.lsp" + ^
+        ".\Common\Loaded.lsp" ^
+        ".\LoadRFLTools.lsp"
 rem
 rem ---------------------------------------------
