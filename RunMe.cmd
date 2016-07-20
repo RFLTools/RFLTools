@@ -38,7 +38,8 @@ COPY /B ".\Common\RFLLoadRFLDLL.lsp" + ^
         ".\MakeEnt\LoadMakeEnt.lsp" + ^
         ".\MakeDCL\LoadMakeDCL.lsp" + ^
         ".\DrawGrid\DrawGrid.lsp" + ^
-        ".\Best\C*.lsp" + ^
+        ".\Commands\C*.lsp" + ^
+        ".\Commands\RFL*.lsp" + ^
         ".\Common\Loaded.lsp" ^
         ".\LoadRFLTools.lsp"
 rem

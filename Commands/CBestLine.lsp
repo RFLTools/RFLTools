@@ -1,0 +1,66 @@
+;
+;
+;     Program written by Robert Livingston, 2015/03/16
+;
+;     BESTLINE is a utility for finding best fit line along a selected polyline
+;
+;
+(defun C:BESTLINE (/ D1 D2 ENT ENTLIST FLAG ORTHOMODE OSMODE P P1 P2 P3 PLIST PLISTTMP)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq PLIST nil)
+ (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
+ (setq ENTLIST (entget ENT))
+ (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+  (while (/= nil ENTLIST)
+   (if (= 10 (caar ENTLIST))
+    (setq PLIST (append PLIST (list (cdar ENTLIST))))
+   )
+   (setq ENTLIST (cdr ENTLIST))
+  )
+  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+   (progn
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
+     (setq P (cdr (assoc 10 ENTLIST)))
+     (setq PLIST (append PLIST (list (list (car P) (cadr P)))))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+    )
+   )
+   (princ "\n*** Not a polyline!")
+  )
+ )
+ (if (/= nil (setq P1 (getpoint "\nPick a point near to start point (<return> for entire polyline) : ")))
+  (if (/= nil (setq P2 (getpoint "\nPick a point near to end point : ")))
+   (progn
+    (setq PLISTTMP nil)
+    (setq FLAG nil)
+    (setq D1 (apply 'min (mapcar '(lambda (P3) (distance P1 P3)) PLIST)))
+    (setq D2 (apply 'min (mapcar '(lambda (P3) (distance P2 P3)) PLIST)))
+    (foreach P3 PLIST
+     (progn
+      (if (or (= D1 (distance P1 P3)) (= D2 (distance P2 P3)))
+       (setq FLAG (not FLAG))
+      )
+      (if FLAG (setq PLISTTMP (append PLISTTMP (list P3))))
+     )
+    )
+    (setq PLIST PLISTTMP)
+   )
+  )
+ )
+ (if (/= nil (setq P (RFL:BESTLINE PLIST)))
+  (progn
+   (setq P1 (car P))
+   (setq P2 (cadr P))
+   (command "._LINE" P1 P2 "")
+  )
+ )
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (last P)
+)
