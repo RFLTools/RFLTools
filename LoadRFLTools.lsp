@@ -119,39 +119,13 @@
 ;     Program written by Robert Livingston, 2014-04-30
 ;
 ;
-(defun RFL:RADIUS3P (P1 P2 P3 / DEN NUM TOL X1 X2 X3 Y1 Y2 Y3)
- (setq TOL 1e-10)
- (setq X1 (car P1))
- (setq Y1 (cadr P1))
- (setq X2 (car P2))
- (setq Y2 (cadr P2))
- (setq X3 (car P3))
- (setq Y3 (cadr P3))
- (setq NUM (sqrt (* (+ (expt (- X2 X1) 2)
-                       (expt (- Y2 Y1) 2)
-                    )
-                    (+ (expt (- X2 X3) 2)
-                       (expt (- Y2 Y3) 2)
-                    )
-                    (+ (expt (- X3 X1) 2)
-                       (expt (- Y3 Y1) 2)
-                    )
-                 )
-           )
+(defun RFL:RADIUS3P (P1 P2 P3 / FCTN RES)
+ (defun FCTN (P1 P2 P3)
+  (/ (distance P2 P3) (sin (- (angle P1 P3) (angle P1 P2))) 2.0)
  )
- (setq DEN (* 2.0 (abs (+ (* X1 Y2)
-                          (* X2 Y3)
-                          (* X3 Y1)
-                          (* -1.0 X1 Y3)
-                          (* -1.0 X2 Y1)
-                          (* -1.0 X3 Y2)
-                       )
-                  )
-           )
- )
- (if (< DEN TOL)
-  (setq R nil)
-  (setq R (/ NUM DEN))
+ (if (vl-catch-all-error-p (setq RES (vl-catch-all-apply 'FCTN (list P1 P2 P3))))
+  nil
+  (abs RES)
  )
 )
 ;
@@ -188,14 +162,14 @@
     (progn
      (setq RES (vl-catch-all-apply 'CALCC3P (list X3 Y3 X1 Y1 X2 Y2)))
      (if (vl-catch-all-error-p RES)
-      (eval nil)
-      (setq RES RES)
+      nil
+      RES
      )
     )
-    (setq RES RES)
+    RES
    )
   )
-  (setq RES RES)
+  RES
  )
 )
 ;
@@ -221,23 +195,22 @@
 ;     Program written by Robert Livingston, 2014-04-30
 ;
 ;
-(defun RFL:CENTER (P1 P2 BULGE / ANG ATOTAL CHORD D R X Y)
- (setq ATOTAL (* 4.0 (atan (abs BULGE))))
- (setq CHORD (distance P1 P2))
- (if (< (abs BULGE) TOL)
-  (progn
-   (eval nil)
+(defun RFL:CENTER (P1 P2 BULGE / FCTN RES)
+ (defun FCTN (P1 P2 BULGE / ANG ATOTAL CHORD D R X Y)
+  (setq ATOTAL (* 4.0 (atan (abs BULGE))))
+  (setq CHORD (distance P1 P2))
+  (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
+  (setq ANG (angle P1 P2))
+  (setq D (distance P1 P2))
+  (setq X (/ D 2.0))
+  (setq Y (* (sqrt (- (* R R) (* X X))) (RFL:SIGN BULGE) (RFL:SIGN (- (abs BULGE) 1.0))))
+  (list (+ (+ (car P1) (* X (cos ANG))) (* Y (sin ANG)))
+        (- (+ (cadr P1) (* X (sin ANG))) (* Y (cos ANG)))
   )
-  (progn
-   (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
-   (setq ANG (angle P1 P2))
-   (setq D (distance P1 P2))
-   (setq X (/ D 2.0))
-   (setq Y (* (sqrt (- (* R R) (* X X))) (SIGN BULGE) (SIGN (- (abs BULGE) 1.0))))
-   (list (+ (+ (car P1) (* X (cos ANG))) (* Y (sin ANG)))
-         (- (+ (cadr P1) (* X (sin ANG))) (* Y (cos ANG)))
-   )
-  )
+ )
+ (if (vl-catch-all-error-p (setq RES (vl-catch-all-apply 'FCTN (list P1 P2 BULGE))))
+  nil
+  RES
  )
 )
 ;
@@ -19538,21 +19511,17 @@
  (setvar "CMDECHO" 0)
 
  (defun ISOLATEON (/ TMP)
-  (setq TMP ISOLATEOFFLIST)
   (command "._LAYER")
-  (while (/= TMP nil)
+  (foreach TMP ISOLATEOFFLIST
    (command "ON" (car TMP))
-   (setq TMP (cdr TMP))
   )
   (command "")
  )
 
  (defun ISOLATEOFF (/ TMP)
-  (setq TMP ISOLATEOFFLIST)
   (command "._LAYER")
-  (while (/= TMP nil)
+  (foreach TMP ISOLATEOFFLIST
    (command "OFF" (car TMP))
-   (setq TMP (cdr TMP))
   )
   (command "")
  )
@@ -19594,6 +19563,7 @@
  )
 
  (GETDICTIONARY)
+ 
  (if (= ISOLATEONOFF nil) (setq ISOLATEONOFF 0))
  (if (/= ISOLATEOFFLIST nil) (setq ISOLATEONOFF 1))
  (if (= ISOLATEONOFF 0)
@@ -19708,6 +19678,49 @@
  (setvar "CMDECHO" 1)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
+);
+;
+;     Program written by Robert Livingston, 02/09/05
+;
+;     UNDRAW makes the selected entity invisible
+;
+;
+(defun C:UNUNDRAW (/ C)
+ (if (/= RFL:UNDRAWSET nil)
+  (progn
+   (setq C 0)
+   (while (< C (sslength RFL:UNDRAWSET))
+    (redraw (ssname RFL:UNDRAWSET C) 1)
+    (setq C (1+ C))
+   )
+   (setq RFL:UNDRAWSET nil)
+  )
+ )
+)
+(defun C:UNDRAW (/ C ENT ENTSET FLAG)
+ (setq FLAG 0)
+ (while (= FLAG 0)
+  (if (/= (setq ENT (car (entsel))) nil)
+   (progn
+    (if (= RFL:UNDRAWSET nil) (setq RFL:UNDRAWSET (ssadd)))
+    (ssadd ENT RFL:UNDRAWSET)
+    (redraw ENT 2)
+   )
+   (if (= 0 (sslength (setq ENTSET (ssget))))
+    (setq FLAG 1)
+    (progn
+     (setq C 0)
+     (while (< C (sslength ENTSET))
+      (setq ENT (ssname ENTSET C))
+      (if (= RFL:UNDRAWSET nil) (setq RFL:UNDRAWSET (ssadd)))
+      (ssadd ENT RFL:UNDRAWSET)
+      (redraw ENT 2)
+      (setq C (1+ C))
+     )
+    )
+   )
+  )
+ )
 );
 ;
 ;     Program written by Robert Livingston, 2015/03/16

@@ -32,13 +32,13 @@
     (progn
      (setq RES (vl-catch-all-apply 'CALCC3P (list X3 Y3 X1 Y1 X2 Y2)))
      (if (vl-catch-all-error-p RES)
-      (eval nil)
-      (setq RES RES)
+      nil
+      RES
      )
     )
-    (setq RES RES)
+    RES
    )
   )
-  (setq RES RES)
+  RES
  )
 )
