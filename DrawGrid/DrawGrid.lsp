@@ -663,7 +663,7 @@
                   )
  )
  ; Horizontal Lines - Fine
- (if (/= nil VINCFINE)
+ (if (and (/= nil VINCFINE) (/= 0.0 VINCFINE))
   (progn
    (setq X1 0.0 X2 W)
    (setq Y (* (- VINCFINE (MOD BY VINCFINE)) VEXAG))
@@ -681,7 +681,7 @@
   )
  )
  ; Horizontal Lines
- (if (/= nil VINC)
+ (if (and (/= nil VINC) (/= 0.0 VINC))
   (progn
    (setq X1 0.0 X2 W)
    (setq Y (* (- VINC (MOD BY VINC)) VEXAG))
@@ -699,7 +699,7 @@
   )
  )
  ; Vertical Lines - Fine
- (if (/= nil HINCFINE)
+ (if (and (/= nil HINCFINE) (/= 0.0 HINCFINE))
   (progn
    (setq Y1 0.0 Y2 H)
    (setq X (- HINCFINE (* DIRECTION (MOD BX HINCFINE))))
@@ -718,7 +718,7 @@
   )
  )
  ; Vertical Lines
- (if (/= nil HINC)
+ (if (and (/= nil HINC) (/= 0.0 HINC))
   (progn
    (setq Y1 0.0 Y2 H)
    (setq X (- HINC (* DIRECTION (MOD BX HINC))))
@@ -737,7 +737,7 @@
   )
  )
  ; Horizontal Text
- (if (/= nil HINCTEXT)
+ (if (and (/= nil HINCTEXT) (/= 0.0 HINCTEXT))
   (progn
    (setq Y 0.0)
    (setq X (- HINCTEXT (* DIRECTION (MOD BX HINCTEXT))))
@@ -783,7 +783,7 @@
   )
  )
  ; Vertical Text
- (if (/= nil VINCTEXT)
+ (if (and (/= nil VINCTEXT) (/= 0.0 VINCTEXT))
   (progn
    (setq X1 0.0 X2 W)
    (setq Y (* (- VINCTEXT (MOD BY VINCTEXT)) VEXAG))
