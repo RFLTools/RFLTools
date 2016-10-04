@@ -32,7 +32,7 @@ rem Build RFLTools
 rem
 if exist LoadRFLTools.lsp del LoadRFLTools.lsp
 rem
-COPY /B ".\Common\RFLLoadRFLDLL.lsp" + ^
+COPY /B ".\LoadDLL\RFLLoadRFLDLL.lsp" + ^
         ".\Math\RFL*.lsp" + ^
         ".\Align\LoadRFLALign.lsp" + ^
         ".\MakeEnt\LoadMakeEnt.lsp" + ^
@@ -40,7 +40,8 @@ COPY /B ".\Common\RFLLoadRFLDLL.lsp" + ^
         ".\DrawGrid\DrawGrid.lsp" + ^
         ".\Commands\C*.lsp" + ^
         ".\Commands\RFL*.lsp" + ^
-        ".\Common\Loaded.lsp" ^
+        ".\Common\RFL*.lsp" + ^
+        ".\LoadDLL\Loaded.lsp" ^
         ".\LoadRFLTools.lsp"
 rem
 rem ---------------------------------------------
