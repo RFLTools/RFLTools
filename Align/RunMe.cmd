@@ -10,5 +10,6 @@ COPY /B ".\Align\RFL*.lsp" + ^
         ".\Super\RFL*.lsp" + ^
         ".\Common\RFL*.lsp" + ^
         ".\AcadCommands\RFL*.lsp" + ^
-        ".\Commands\C*.lsp" ^
+        ".\Commands\C*.lsp" + ^
+        ".\QSection\C*.lsp" ^
         ".\LoadRFLAlign.lsp"
