@@ -27,13 +27,16 @@ echo %1
 set BRO=(
 set BRC=)
 set QUOTE="
-set REPSTR=\"
+set QUOTEREPSTR=\"
+set BACKQUOTE=\"
+set BACKQUOTEREPSTR=\\"
 echo.       ((= (strcase DCLNAME) (strcase "%~n1")) >> LoadMakeDCL.lsp
 echo.        (progn >> LoadMakeDCL.lsp
 echo.         (setq OUTFILE (open OUTFILENAME "w")) >> LoadMakeDCL.lsp
 for /f "delims=" %%a in (./DCL/%1) do (
 set MYSTR=%%a
-set MYSTR=!MYSTR:%QUOTE%=%REPSTR%!
+set MYSTR=!MYSTR:%BACKQUOTE%=%BACKQUOTEREPSTR%!
+set MYSTR=!MYSTR:%QUOTE%=%QUOTEREPSTR%!
 echo.         !BRO!princ !QUOTE!!MYSTR!\n!QUOTE! OUTFILE!BRC! >> LoadMakeDCL.lsp
 )
 echo.         (close OUTFILE) >> LoadMakeDCL.lsp
