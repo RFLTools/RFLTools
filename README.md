@@ -10,7 +10,7 @@ LoadRFLTools.lsp : Collection of all Available Tools.
 
 Note:  Description of each command is found in the README.md of each subfolder.
 
-Now included is the Visual Studio solution.  If you would like to use you will need to copy the necessary .DLL file(s) from the ...RFLTools_Solution\bin to a searchable and trused folder.
+Now included is the Visual Studio solution.  If you would like to use you will need to copy the necessary .DLL file(s) from the ...RFLTools_Solution\bin to a searchable and trused folder.  The DLL's are not necessary but will speed up some of the calculations. 
 
 For the solution to compile you will need to create a library folder and gather the following from AutoDesk:
 
