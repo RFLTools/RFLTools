@@ -9982,6 +9982,7 @@
  (defun GETQSECTIONLIST (/ DCIRCLE OBSURFACE REP SWATH THEIGHT VEXAG)
   (setq DCIRCLE nil)
   (setq RFL:QSECTIONALIGNLIST nil)
+  (setq RFL:QSECTIONPROFILELIST nil)
   (setq VEXAG 10.0)
   (setq REP (getdist (strcat "\nVertical exaggeration <" (rtos VEXAG) "> : ")))
   (if (/= nil REP) (setq VEXAG REP))
@@ -10088,8 +10089,8 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (eval nil)
 )
-;(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
-(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
+(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
+;(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
  (setq TOL 0.0001)
  (defun ISABOVE (P OSLIST / C RES)
   (if P
@@ -10122,7 +10123,7 @@
   )
   RES
  )
- (if RFL:QSECTIONALIGNLIST
+ (if (or RFL:QSECTIONALIGNLIST RFL:QSECTIONPROFILELIST)
   (setq AFLAG nil)
   (setq AFLAG T)
  )
@@ -10274,13 +10275,9 @@
          (cond ((= "S" (strcase (RFL:COLUMN NODE 1 ","))) ; S = Default Superelevation
                 (setq SLISTDEFAULT (list (atof (RFL:COLUMN NODE 2 ",")) (atof (RFL:COLUMN NODE 3 ","))))
                )
-               ((= "P" (strcase (RFL:COLUMN NODE 1 ","))) ; P = Polyline alignment controls
-                (progn)
-               )
-               ((and (= "A" (strcase (RFL:COLUMN NODE 1 ","))) ; A = Polyline Alignments
+               ((and (= "AP" (strcase (RFL:COLUMN NODE 1 ","))) ; AP = Polyline Alignments
                      AFLAG ; only redo if QSection reset
                 )
-;               ((= "A" (strcase (RFL:COLUMN NODE 1 ","))) ; A = Polyline Alignments
                 (progn
                  (princ "\nLoading control alignments .")
                  (setq ALSAVE RFL:ALIGNLIST)
@@ -16068,1607 +16065,1671 @@
        )
  )
 )
-(defun RFL:MAKEDCL (OUTFILENAME DCLNAME / OUTFILE) 
+(defun RFL:MAKEDCL (OUTFILENAME DCLNAME / DCLLIST NODE OUTFILE) 
  (cond 
-       ((= (strcase DCLNAME) (strcase "3DOFFSET")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "OFFSET : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL 3D Polyline Offset\";\n" OUTFILE) 
-         (princ "                  : radio_row {\n" OUTFILE) 
-         (princ "                                : radio_button {\n" OUTFILE) 
-         (princ "                                                 key = \"RADIO_FIXED\";\n" OUTFILE) 
-         (princ "                                                 label = \"Fixed offset\";\n" OUTFILE) 
-         (princ "                                                 value = \"1\";\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                                : radio_button {\n" OUTFILE) 
-         (princ "                                                  key = \"RADIO_SLOPED\";\n" OUTFILE) 
-         (princ "                                                  label = \"Sloped offset\";\n" OUTFILE) 
-         (princ "                                                  value = \"0\";\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                                : radio_button {\n" OUTFILE) 
-         (princ "                                                  key = \"RADIO_ELEV\";\n" OUTFILE) 
-         (princ "                                                  label = \"Elev offset\";\n" OUTFILE) 
-         (princ "                                                  value = \"0\";\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                              }\n" OUTFILE) 
-         (princ "                  : boxed_row {\n" OUTFILE) 
-         (princ "                                label = \"Fixed\";\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           width = 25;\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"D1FIXED\";\n" OUTFILE) 
-         (princ "                                                        label = \"D1 : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = true;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"D2FIXED\";\n" OUTFILE) 
-         (princ "                                                        label = \"D2 : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = true;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           : image {\n" OUTFILE) 
-         (princ "                                                     key = \"IMAGE1\";\n" OUTFILE) 
-         (princ "                                                     width = 30;\n" OUTFILE) 
-         (princ "                                                     height = 10;\n" OUTFILE) 
-         (princ "                                                     color = 0;\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                              }\n" OUTFILE) 
-         (princ "                  : boxed_row {\n" OUTFILE) 
-         (princ "                                label = \"Sloped\";\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           width = 25;\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"D1ASLOPED\";\n" OUTFILE) 
-         (princ "                                                        label = \"D1a : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"D1BSLOPED\";\n" OUTFILE) 
-         (princ "                                                        label = \"D1b : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : row {\n" OUTFILE) 
-         (princ "                                                   : radio_column {\n" OUTFILE) 
-         (princ "                                                                    : radio_button {\n" OUTFILE) 
-         (princ "                                                                                     key = \"USES1SLOPED\";\n" OUTFILE) 
-         (princ "                                                                                     value = \"1\";\n" OUTFILE) 
-         (princ "                                                                                   }\n" OUTFILE) 
-         (princ "                                                                    : radio_button {\n" OUTFILE) 
-         (princ "                                                                                     key = \"USESUPER\";\n" OUTFILE) 
-         (princ "                                                                                     value = \"0\";\n" OUTFILE) 
-         (princ "                                                                                   }\n" OUTFILE) 
-         (princ "                                                                  }\n" OUTFILE) 
-         (princ "                                                   : column {\n" OUTFILE) 
-         (princ "                                                              : edit_box {\n" OUTFILE) 
-         (princ "                                                                           key = \"S1SLOPED\";\n" OUTFILE) 
-         (princ "                                                                           label = \"S1 (%) : \";\n" OUTFILE) 
-         (princ "                                                                           edit_width = 6;\n" OUTFILE) 
-         (princ "                                                                           is_enabled = false;\n" OUTFILE) 
-         (princ "                                                                         }\n" OUTFILE) 
-         (princ "                                                              : edit_box {\n" OUTFILE) 
-         (princ "                                                                           key = \"RFLSLOPED\";\n" OUTFILE) 
-         (princ "                                                                           label = \"Use super, CL OS : \";\n" OUTFILE) 
-         (princ "                                                                           edit_width = 6;\n" OUTFILE) 
-         (princ "                                                                           is_enabled = false;\n" OUTFILE) 
-         (princ "                                                                         }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"D2SLOPED\";\n" OUTFILE) 
-         (princ "                                                               label = \"D2 : \";\n" OUTFILE) 
-         (princ "                                                               edit_width = 6;\n" OUTFILE) 
-         (princ "                                                               is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"S2SLOPED\";\n" OUTFILE) 
-         (princ "                                                        label = \"S2 (X:1) : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           : image {\n" OUTFILE) 
-         (princ "                                                     key = \"IMAGE2\";\n" OUTFILE) 
-         (princ "                                                     width = 30;\n" OUTFILE) 
-         (princ "                                                     height = 10;\n" OUTFILE) 
-         (princ "                                                     color = 0;\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                              }\n" OUTFILE) 
-         (princ "                  : boxed_row {\n" OUTFILE) 
-         (princ "                                label = \"Elev\";\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           width = 25;\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"S1ELEV\";\n" OUTFILE) 
-         (princ "                                                        label = \"S1 (X:1) : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                        key = \"S1ELEVF\";\n" OUTFILE) 
-         (princ "                                                        label = \"Fixed : \";\n" OUTFILE) 
-         (princ "                                                        edit_width = 6;\n" OUTFILE) 
-         (princ "                                                        is_enabled = false;\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           : text {\n" OUTFILE) 
-         (princ "                                                    key = \"S1ELEVT\";\n" OUTFILE) 
-         (princ "                                                    value = \"Enter 'VRT' for prof elev\";\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                           spacer;\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                : column {\n" OUTFILE) 
-         (princ "                                           : image {\n" OUTFILE) 
-         (princ "                                                     key = \"IMAGE3\";\n" OUTFILE) 
-         (princ "                                                     width = 30;\n" OUTFILE) 
-         (princ "                                                     height = 10;\n" OUTFILE) 
-         (princ "                                                     color = 0;\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                              }\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : ok_button {\n" OUTFILE) 
-         (princ "                                        label = \"OK\";\n" OUTFILE) 
-         (princ "                                        key = \"OK\";\n" OUTFILE) 
-         (princ "                                        is_default = true;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : text {\n" OUTFILE) 
-         (princ "                                   value = \"Note: +ve = arrow direction.\";\n" OUTFILE) 
-         (princ "                                   alignment = centered;\n" OUTFILE) 
-         (princ "                                   width = 20;\n" OUTFILE) 
-         (princ "                                 }\n" OUTFILE) 
-         (princ "                          : cancel_button {\n" OUTFILE) 
-         (princ "                                            label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                            key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "AIPROF")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "AIPROF : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL AI Vertical Profile Creator\";\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : column {\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Draw Profile\";\n" OUTFILE) 
-         (princ "                                                key = \"DPROF\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label Slope\";\n" OUTFILE) 
-         (princ "                                                key = \"LSLOPE\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label Curve Length\";\n" OUTFILE) 
-         (princ "                                                key = \"LL\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label K Value\";\n" OUTFILE) 
-         (princ "                                                key = \"LK\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Circle Nodes\";\n" OUTFILE) 
-         (princ "                                                key = \"CNODES\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Draw PVI\";\n" OUTFILE) 
-         (princ "                                                key = \"DPVI\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label PVI\";\n" OUTFILE) 
-         (princ "                                                key = \"LPVI\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label BVC/EVC\";\n" OUTFILE) 
-         (princ "                                                key = \"LBVC\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label High Chainage\";\n" OUTFILE) 
-         (princ "                                                key = \"LHIGH\";\n" OUTFILE) 
-         (princ "                                                value = \"0\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Label Curve Elevations\";\n" OUTFILE) 
-         (princ "                                                key = \"LELEVATIONS\";\n" OUTFILE) 
-         (princ "                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : toggle {\n" OUTFILE) 
-         (princ "                                                label = \"Reverse Above/Below\";\n" OUTFILE) 
-         (princ "                                                key = \"RAB\";\n" OUTFILE) 
-         (princ "                                                value = \"0\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                          : column {\n" OUTFILE) 
-         (princ "                                     : image {\n" OUTFILE) 
-         (princ "                                               key = \"IMAGE\";\n" OUTFILE) 
-         (princ "                                               width = 80;\n" OUTFILE) 
-         (princ "                                               height = 20;\n" OUTFILE) 
-         (princ "                                               color = 0;\n" OUTFILE) 
-         (princ "                                             }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                          : column {\n" OUTFILE) 
-         (princ "                                     spacer;\n" OUTFILE) 
-         (princ "                                     spacer;\n" OUTFILE) 
-         (princ "                                     : boxed_column {\n" OUTFILE) 
-         (princ "                                                      label = \"Precisions\";\n" OUTFILE) 
-         (princ "                                                      : edit_box {\n" OUTFILE) 
-         (princ "                                                                   label = \"K : \";\n" OUTFILE) 
-         (princ "                                                                   key = \"KPREC\";\n" OUTFILE) 
-         (princ "                                                                   value = \"3\";\n" OUTFILE) 
-         (princ "                                                                   edit_width = 1;\n" OUTFILE) 
-         (princ "                                                                 }\n" OUTFILE) 
-         (princ "                                                      : edit_box {\n" OUTFILE) 
-         (princ "                                                                   label = \"L : \";\n" OUTFILE) 
-         (princ "                                                                   key = \"LPREC\";\n" OUTFILE) 
-         (princ "                                                                   value = \"3\";\n" OUTFILE) 
-         (princ "                                                                   edit_width = 1;\n" OUTFILE) 
-         (princ "                                                                 }\n" OUTFILE) 
-         (princ "                                                      : edit_box {\n" OUTFILE) 
-         (princ "                                                                   label = \"Slope : \";\n" OUTFILE) 
-         (princ "                                                                   key = \"SLOPEPREC\";\n" OUTFILE) 
-         (princ "                                                                   value = \"2\";\n" OUTFILE) 
-         (princ "                                                                   edit_width = 1;\n" OUTFILE) 
-         (princ "                                                                 }\n" OUTFILE) 
-         (princ "                                                      : edit_box {\n" OUTFILE) 
-         (princ "                                                                   label = \"Sta : \";\n" OUTFILE) 
-         (princ "                                                                   key = \"STAPREC\";\n" OUTFILE) 
-         (princ "                                                                   value = \"3\";\n" OUTFILE) 
-         (princ "                                                                   edit_width = 1;\n" OUTFILE) 
-         (princ "                                                                 }\n" OUTFILE) 
-         (princ "                                                      : edit_box {\n" OUTFILE) 
-         (princ "                                                                   label = \"Elev : \";\n" OUTFILE) 
-         (princ "                                                                   key = \"ELEVPREC\";\n" OUTFILE) 
-         (princ "                                                                   value = \"3\";\n" OUTFILE) 
-         (princ "                                                                   edit_width = 1;\n" OUTFILE) 
-         (princ "                                                                 }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                     spacer;\n" OUTFILE) 
-         (princ "                                     spacer;\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : ok_button {\n" OUTFILE) 
-         (princ "                                        label = \"OK\";\n" OUTFILE) 
-         (princ "                                        key = \"OK\";\n" OUTFILE) 
-         (princ "                                        is_default = true;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : row {\n" OUTFILE) 
-         (princ "                                  : radio_button {\n" OUTFILE) 
-         (princ "                                                   label = \"Left\";\n" OUTFILE) 
-         (princ "                                                   key = \"DIRLEFT\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                  : radio_button {\n" OUTFILE) 
-         (princ "                                                   label = \"Right\";\n" OUTFILE) 
-         (princ "                                                   key = \"DIRRIGHT\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                  : radio_button {\n" OUTFILE) 
-         (princ "                                                   label = \"Up Chainage\";\n" OUTFILE) 
-         (princ "                                                   key = \"DIRUP\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                  : radio_button {\n" OUTFILE) 
-         (princ "                                                   label = \"Down Chainage\";\n" OUTFILE) 
-         (princ "                                                   key = \"DIRDOWN\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                }\n" OUTFILE) 
-         (princ "                          : cancel_button {\n" OUTFILE) 
-         (princ "                                            label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                            key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "CORNER")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "CORNER : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL Corner Creator\";\n" OUTFILE) 
-         (princ "                  initial_focus = \"STATION\";\n" OUTFILE) 
-         (princ "                  : column {\n" OUTFILE) 
-         (princ "                             alignment = centered;\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                     : boxed_column {\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : radio_column {\n" OUTFILE) 
-         (princ "                                                                               : radio_button {\n" OUTFILE) 
-         (princ "                                                                                                label = \"Spiral\";\n" OUTFILE) 
-         (princ "                                                                                                key = \"S\";\n" OUTFILE) 
-         (princ "                                                                                                value = \"0\";\n" OUTFILE) 
-         (princ "                                                                                                is_enabled = \"0\";\n" OUTFILE) 
-         (princ "                                                                                              }\n" OUTFILE) 
-         (princ "                                                                               : radio_button {\n" OUTFILE) 
-         (princ "                                                                                                label = \"Arc\";\n" OUTFILE) 
-         (princ "                                                                                                key = \"A\";\n" OUTFILE) 
-         (princ "                                                                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                                                                              }\n" OUTFILE) 
-         (princ "                                                                             }\n" OUTFILE) 
-         (princ "                                                              : column {\n" OUTFILE) 
-         (princ "                                                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                                                      label = \"Radius in:\";\n" OUTFILE) 
-         (princ "                                                                                      key = \"RIN\";\n" OUTFILE) 
-         (princ "                                                                                      value = \"0.0\";\n" OUTFILE) 
-         (princ "                                                                                      edit_width = 10;\n" OUTFILE) 
-         (princ "                                                                                      width = 15;\n" OUTFILE) 
-         (princ "                                                                                    }\n" OUTFILE) 
-         (princ "                                                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                                                      label = \"Radius out:\";\n" OUTFILE) 
-         (princ "                                                                                      key = \"ROUT\";\n" OUTFILE) 
-         (princ "                                                                                      value = \"0.0\";\n" OUTFILE) 
-         (princ "                                                                                      edit_width = 10;\n" OUTFILE) 
-         (princ "                                                                                      width = 15;\n" OUTFILE) 
-         (princ "                                                                                      is_enabled = \"0\";\n" OUTFILE) 
-         (princ "                                                                                    }\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                     : boxed_column {\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : radio_column {\n" OUTFILE) 
-         (princ "                                                                               : radio_button {\n" OUTFILE) 
-         (princ "                                                                                                label = \"Length\";\n" OUTFILE) 
-         (princ "                                                                                                key = \"L\";\n" OUTFILE) 
-         (princ "                                                                                                value = \"0\";\n" OUTFILE) 
-         (princ "                                                                                              }\n" OUTFILE) 
-         (princ "                                                                               : radio_button {\n" OUTFILE) 
-         (princ "                                                                                                label = \"Delta\";\n" OUTFILE) 
-         (princ "                                                                                                key = \"D\";\n" OUTFILE) 
-         (princ "                                                                                                value = \"1\";\n" OUTFILE) 
-         (princ "                                                                                              }\n" OUTFILE) 
-         (princ "                                                                             }\n" OUTFILE) 
-         (princ "                                                              : edit_box {\n" OUTFILE) 
-         (princ "                                                                           label = \"\";\n" OUTFILE) 
-         (princ "                                                                           key = \"V\";\n" OUTFILE) 
-         (princ "                                                                           value = \"0.0\";\n" OUTFILE) 
-         (princ "                                                                           edit_width = 10;\n" OUTFILE) 
-         (princ "                                                                         }\n" OUTFILE) 
-         (princ "                                                              : toggle {\n" OUTFILE) 
-         (princ "                                                                         label = \"Calc\";\n" OUTFILE) 
-         (princ "                                                                         key = \"CALC\";\n" OUTFILE) 
-         (princ "                                                                         value = \"1\";\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                     : button {\n" OUTFILE) 
-         (princ "                                                key = \"SET\";\n" OUTFILE) 
-         (princ "                                                label = \"Set\";\n" OUTFILE) 
-         (princ "                                                width = 5;\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : popup_list {\n" OUTFILE) 
-         (princ "                                                    key = \"STANDARD\";\n" OUTFILE) 
-         (princ "                                                    label = \"\";\n" OUTFILE) 
-         (princ "                                                    list = \"Last\n440 - 50 - 15 (calc) - 50\n50 - 15 (calc) - 50 - 440\n36 - 12 (calc) - 36\n50 - 15 (calc) - 50\n55 - 18 (calc) - 55\";\n" OUTFILE) 
-         (princ "                                                    value = \"0\";\n" OUTFILE) 
-         (princ "                                                    width = 50;\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                     : cancel_button {\n" OUTFILE) 
-         (princ "                                                       key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                       label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                       alignment = left;\n" OUTFILE) 
-         (princ "                                                       width = 12;\n" OUTFILE) 
-         (princ "                                                     }\n" OUTFILE) 
-         (princ "                                     : button {\n" OUTFILE) 
-         (princ "                                                key = \"DOWN\";\n" OUTFILE) 
-         (princ "                                                label = \"<\";\n" OUTFILE) 
-         (princ "                                                is_enabled = \"0\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : text {\n" OUTFILE) 
-         (princ "                                              label = \"\";\n" OUTFILE) 
-         (princ "                                              key = \"NODE\";\n" OUTFILE) 
-         (princ "                                              value = \"1\";\n" OUTFILE) 
-         (princ "                                              width = 3;\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                                     : button {\n" OUTFILE) 
-         (princ "                                                key = \"UP\";\n" OUTFILE) 
-         (princ "                                                label = \">\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : text {\n" OUTFILE) 
-         (princ "                                              key = \"DELTA\";\n" OUTFILE) 
-         (princ "                                              value = \"Delta : 123d12'12.45\\\"\";\n" OUTFILE) 
-         (princ "                                              width = 18;\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                                     : button {\n" OUTFILE) 
-         (princ "                                                key = \"DELETE\";\n" OUTFILE) 
-         (princ "                                                label = \"Delete\";\n" OUTFILE) 
-         (princ "                                                alignment = right;\n" OUTFILE) 
-         (princ "                                                width = 12;\n" OUTFILE) 
-         (princ "                                                is_enabled = \"0\";\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                     : ok_button {\n" OUTFILE) 
-         (princ "                                                   key = \"OK\";\n" OUTFILE) 
-         (princ "                                                   label = \"OK\";\n" OUTFILE) 
-         (princ "                                                   alignment = right;\n" OUTFILE) 
-         (princ "                                                   width = 12;\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                           }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "DAYLIGHT")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "DAYLIGHT : dialog {\n" OUTFILE) 
-         (princ "                    label = \"RFL Daylight\";\n" OUTFILE) 
-         (princ "                    : boxed_row {\n" OUTFILE) 
-         (princ "                                  label = \"Sample Swath\";\n" OUTFILE) 
-         (princ "                                  : edit_box {\n" OUTFILE) 
-         (princ "                                               key = \"SWATH\";\n" OUTFILE) 
-         (princ "                                               label = \"Swath width\";\n" OUTFILE) 
-         (princ "                                               edit_width = 10;\n" OUTFILE) 
-         (princ "                                             }\n" OUTFILE) 
-         (princ "                                }\n" OUTFILE) 
-         (princ "                    : boxed_row {\n" OUTFILE) 
-         (princ "                                  label = \"Ditch\";\n" OUTFILE) 
-         (princ "                                  :column {\n" OUTFILE) 
-         (princ "                                             : toggle {\n" OUTFILE) 
-         (princ "                                                        key = \"USEDITCH\";\n" OUTFILE) 
-         (princ "                                                        value = 1;\n" OUTFILE) 
-         (princ "                                                        label = \"Use ditch\";\n" OUTFILE) 
-         (princ "                                                      }\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                                  : column {\n" OUTFILE) 
-         (princ "                                             : edit_box {\n" OUTFILE) 
-         (princ "                                                          key = \"DITCHBACK\";\n" OUTFILE) 
-         (princ "                                                          label = \"Backslope\";\n" OUTFILE) 
-         (princ "                                                          edit_width = 5;\n" OUTFILE) 
-         (princ "                                                        }\n" OUTFILE) 
-         (princ "                                             : edit_box {\n" OUTFILE) 
-         (princ "                                                          key = \"DITCHWIDTH\";\n" OUTFILE) 
-         (princ "                                                          label = \"Base width\";\n" OUTFILE) 
-         (princ "                                                          edit_width = 5;\n" OUTFILE) 
-         (princ "                                                        }\n" OUTFILE) 
-         (princ "                                             : edit_box {\n" OUTFILE) 
-         (princ "                                                          key = \"DITCHDEPTH\";\n" OUTFILE) 
-         (princ "                                                          label = \"Depth\";\n" OUTFILE) 
-         (princ "                                                          edit_width = 5;\n" OUTFILE) 
-         (princ "                                                        }\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                                }\n" OUTFILE) 
-         (princ "                    : boxed_row {\n" OUTFILE) 
-         (princ "                                  label = \"Slopes\";\n" OUTFILE) 
-         (princ "                                  :column {\n" OUTFILE) 
-         (princ "                                            : row {\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                         value = \"FILL\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                        value = \"Depth:\";\n" OUTFILE) 
-         (princ "                                                                        alignment = right;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FD6\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FD4\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FD2\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                        value = \"Slope (X:1):\";\n" OUTFILE) 
-         (princ "                                                                        alignment = right;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FS7\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FS5\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FS3\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"FS1\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                            : row {\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                        value = \"---------------\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                        value = \"0.000\";\n" OUTFILE) 
-         (princ "                                                                        alignment = right;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                            : row {\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               : text {\n" OUTFILE) 
-         (princ "                                                                         value = \"CUT\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"CD2\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               spacer;\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                    : column {\n" OUTFILE) 
-         (princ "                                                               width = 10;\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"CS1\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                               : edit_box {\n" OUTFILE) 
-         (princ "                                                                            key = \"CS3\";\n" OUTFILE) 
-         (princ "                                                                            edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                          }\n" OUTFILE) 
-         (princ "                                                             }\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                                }\n" OUTFILE) 
-         (princ "                    : row {\n" OUTFILE) 
-         (princ "                            : ok_button {\n" OUTFILE) 
-         (princ "                                          label = \"OK\";\n" OUTFILE) 
-         (princ "                                          key = \"OK\";\n" OUTFILE) 
-         (princ "                                          is_default = true;\n" OUTFILE) 
-         (princ "                                        }\n" OUTFILE) 
-         (princ "                            : cancel_button {\n" OUTFILE) 
-         (princ "                                              label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                              key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                          }\n" OUTFILE) 
-         (princ "                  }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "EXIT")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "EXIT : dialog {\n" OUTFILE) 
-         (princ "                label = \"RFL Exit Ramp Creator\";\n" OUTFILE) 
-         (princ "                : column {\n" OUTFILE) 
-         (princ "                           alignment = centered;\n" OUTFILE) 
-         (princ "                           : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Start settings:\";\n" OUTFILE) 
-         (princ "                                         : column {\n" OUTFILE) 
-         (princ "                                                    : row {\n" OUTFILE) 
-         (princ "                                                            : radio_button {\n" OUTFILE) 
-         (princ "                                                                             label = \"Left\";\n" OUTFILE) 
-         (princ "                                                                             key = \"LEFT\";\n" OUTFILE) 
-         (princ "                                                                             value = \"1\";\n" OUTFILE) 
-         (princ "                                                                           }\n" OUTFILE) 
-         (princ "                                                            : radio_button {\n" OUTFILE) 
-         (princ "                                                                             label = \"Right\";\n" OUTFILE) 
-         (princ "                                                                             key = \"RIGHT\";\n" OUTFILE) 
-         (princ "                                                                             value = \"0\";\n" OUTFILE) 
-         (princ "                                                                           }\n" OUTFILE) 
-         (princ "                                                          }\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"Radius:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"RADIUS\";\n" OUTFILE) 
-         (princ "                                                                 value = \"2000.000\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"Def. angle:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"DEFLECTION\";\n" OUTFILE) 
-         (princ "                                                                 value = \"0.000\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"O/S:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"OFFSET\";\n" OUTFILE) 
-         (princ "                                                                 value = \"0.000\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                           : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Stepping:\";\n" OUTFILE) 
-         (princ "                                         : column {\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"Start sta.:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"START\";\n" OUTFILE) 
-         (princ "                                                                 value = \"0.000\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"End sta.:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"END\";\n" OUTFILE) 
-         (princ "                                                                 value = \"0.000\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                    : edit_box {\n" OUTFILE) 
-         (princ "                                                                 label = \"Steps:\";\n" OUTFILE) 
-         (princ "                                                                 key = \"STEPS\";\n" OUTFILE) 
-         (princ "                                                                 value = \"1\";\n" OUTFILE) 
-         (princ "                                                                 edit_width = 12;\n" OUTFILE) 
-         (princ "                                                               }\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                           : row {\n" OUTFILE) 
-         (princ "                                   : ok_button {\n" OUTFILE) 
-         (princ "                                                 label = \"OK\";\n" OUTFILE) 
-         (princ "                                                 key = \"OK\";\n" OUTFILE) 
-         (princ "                                                 is_default = true;\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                                   : cancel_button {\n" OUTFILE) 
-         (princ "                                                     label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                     key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                 }\n" OUTFILE) 
-         (princ "                         }\n" OUTFILE) 
-         (princ "              }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "HALIGN")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "HALIGN : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL Horizontal Alignment Routines\";\n" OUTFILE) 
-         (princ "                  initial_focus = \"OK\";\n" OUTFILE) 
-         (princ "                  : column {\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Define\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From Screen\";\n" OUTFILE) 
-         (princ "                                                      key = \"GALIGN\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From File\";\n" OUTFILE) 
-         (princ "                                                      key = \"RALIGN\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From EMXS\";\n" OUTFILE) 
-         (princ "                                                      key = \"HOR2ALIGN\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Save\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To File\";\n" OUTFILE) 
-         (princ "                                                      key = \"WALIGN\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To EMXS\";\n" OUTFILE) 
-         (princ "                                                      key = \"ALIGN2HOR\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Draw\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To Screen\";\n" OUTFILE) 
-         (princ "                                                      key = \"DALIGN\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Label\";\n" OUTFILE) 
-         (princ "                                           : column {\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"To Screen\";\n" OUTFILE) 
-         (princ "                                                                         key = \"LALIGN\";\n" OUTFILE) 
-         (princ "                                                                         width = 24;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : spacer {\n" OUTFILE) 
-         (princ "                                                                         width = 7;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"Setup\";\n" OUTFILE) 
-         (princ "                                                                         key = \"LALIGNSETUP\";\n" OUTFILE) 
-         (princ "                                                                         width = 10;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : spacer {\n" OUTFILE) 
-         (princ "                                                                         width = 7;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : column {\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"EMXS To Table\";\n" OUTFILE) 
-         (princ "                                                                         key = \"HOR2TABLE\";\n" OUTFILE) 
-         (princ "                                                                         width = 24;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"Big\";\n" OUTFILE) 
-         (princ "                                                                         key = \"MAKEBIG\";\n" OUTFILE) 
-         (princ "                                                                         width = 8;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"Med\";\n" OUTFILE) 
-         (princ "                                                                         key = \"MAKEMEDIUM\";\n" OUTFILE) 
-         (princ "                                                                         width = 8;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"Sml\";\n" OUTFILE) 
-         (princ "                                                                         key = \"MAKESMALL\";\n" OUTFILE) 
-         (princ "                                                                         width = 8;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : column {\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"N/E/Sta/Elev\";\n" OUTFILE) 
-         (princ "                                                                         key = \"NE\";\n" OUTFILE) 
-         (princ "                                                                         width = 24;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                      : row {\n" OUTFILE) 
-         (princ "                                                              : spacer {\n" OUTFILE) 
-         (princ "                                                                         width = 7;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : button {\n" OUTFILE) 
-         (princ "                                                                         label = \"Angle\";\n" OUTFILE) 
-         (princ "                                                                         key = \"NEWANG\";\n" OUTFILE) 
-         (princ "                                                                         width = 10;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                              : spacer {\n" OUTFILE) 
-         (princ "                                                                         width = 7;\n" OUTFILE) 
-         (princ "                                                                       }\n" OUTFILE) 
-         (princ "                                                            }\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                     : cancel_button {\n" OUTFILE) 
-         (princ "                                                       key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                       label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                     }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                           }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "LALIGN")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "LALIGN : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL Horizontal Label Setup\";\n" OUTFILE) 
-         (princ "                  initial_focus = \"CANCEL\";\n" OUTFILE) 
-         (princ "                  : column {\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Node\";\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"NODEBLK\";\n" OUTFILE) 
-         (princ "                                                      label = \"Block:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"NODEBLKSUFFIX\";\n" OUTFILE) 
-         (princ "                                                      label = \"Suffix:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"NODEBLKCOLOR\";\n" OUTFILE) 
-         (princ "                                                      label = \"Color:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"NODEBLKSCALE\";\n" OUTFILE) 
-         (princ "                                                      label = \"Scale:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : spacer {\n" OUTFILE) 
-         (princ "                                                    width = 40;\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Leader\";\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LEADERX\";\n" OUTFILE) 
-         (princ "                                                      label = \"'X':\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LEADERY\";\n" OUTFILE) 
-         (princ "                                                      label = \"'Y':\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LEADERSUFFIX\";\n" OUTFILE) 
-         (princ "                                                      label = \"Suffix:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LEADERCOLOR\";\n" OUTFILE) 
-         (princ "                                                      label = \"Color:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : spacer {\n" OUTFILE) 
-         (princ "                                                    width = 40;\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Text\";\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TEXTX\";\n" OUTFILE) 
-         (princ "                                                      label = \"'X':\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TEXTH\";\n" OUTFILE) 
-         (princ "                                                      label = \"Height:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TEXTSUFFIX\";\n" OUTFILE) 
-         (princ "                                                      label = \"Suffix:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TEXTCOLOR\";\n" OUTFILE) 
-         (princ "                                                      label = \"Color:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TEXTANG\";\n" OUTFILE) 
-         (princ "                                                      label = \"Ang:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : toggle {\n" OUTFILE) 
-         (princ "                                                    key = \"TEXTALIGN\";\n" OUTFILE) 
-         (princ "                                                    label = \"Aligned\";\n" OUTFILE) 
-         (princ "                                                    width = 18;\n" OUTFILE) 
-         (princ "                                                    value = \"1\";\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Label\";\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLBLK\";\n" OUTFILE) 
-         (princ "                                                      label = \"Block:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLSUFFIX\";\n" OUTFILE) 
-         (princ "                                                      label = \"Suffix:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLCOLOR\";\n" OUTFILE) 
-         (princ "                                                      label = \"Color:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLSCALE\";\n" OUTFILE) 
-         (princ "                                                      label = \"Scale:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLINC\";\n" OUTFILE) 
-         (princ "                                                      label = \"Inc:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"LBLOS\";\n" OUTFILE) 
-         (princ "                                                      label = \"Offset:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                         label = \"Tick\";\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TICKBLK\";\n" OUTFILE) 
-         (princ "                                                      label = \"Block:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TICKSUFFIX\";\n" OUTFILE) 
-         (princ "                                                      label = \"Suffix:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TICKCOLOR\";\n" OUTFILE) 
-         (princ "                                                      label = \"Color:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TICKSCALE\";\n" OUTFILE) 
-         (princ "                                                      label = \"Scale:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : edit_box {\n" OUTFILE) 
-         (princ "                                                      key = \"TICKINC\";\n" OUTFILE) 
-         (princ "                                                      label = \"Inc:\";\n" OUTFILE) 
-         (princ "                                                      width = 18;\n" OUTFILE) 
-         (princ "                                                      edit_width = 8;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         : spacer {\n" OUTFILE) 
-         (princ "                                                    width = 18;\n" OUTFILE) 
-         (princ "                                                  }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                   : cancel_button {\n" OUTFILE) 
-         (princ "                                                     key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                     label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                   : text {\n" OUTFILE) 
-         (princ "                                            label = \"Note:  Error checking not done for character values or colors\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                                   : ok_button {\n" OUTFILE) 
-         (princ "                                                 key = \"ACCEPT\";\n" OUTFILE) 
-         (princ "                                                 label = \"OK\";\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                                 }\n" OUTFILE) 
-         (princ "                           }\n" OUTFILE) 
-         (princ "                    }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "MakeEnt")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "MAKEENT : dialog {\n" OUTFILE) 
-         (princ "                   label = \"RFL Block Creator\";\n" OUTFILE) 
-         (princ "                   : row {\n" OUTFILE) 
-         (princ "                           : column {\n" OUTFILE) 
-         (princ "                                      width = 20;\n" OUTFILE) 
-         (princ "                                      : list_box {\n" OUTFILE) 
-         (princ "                                                   key = \"BLOCKNAME\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                    }\n" OUTFILE) 
-         (princ "                           : column {\n" OUTFILE) 
-         (princ "                                      : image {\n" OUTFILE) 
-         (princ "                                                key = \"IMAGE\";\n" OUTFILE) 
-         (princ "                                                width = 40;\n" OUTFILE) 
-         (princ "                                                height = 18;\n" OUTFILE) 
-         (princ "                                                color = 0;\n" OUTFILE) 
-         (princ "                                              }\n" OUTFILE) 
-         (princ "                                    }\n" OUTFILE) 
-         (princ "                         }\n" OUTFILE) 
-         (princ "                   : row {\n" OUTFILE) 
-         (princ "                           : ok_button {\n" OUTFILE) 
-         (princ "                                         label = \"OK\";\n" OUTFILE) 
-         (princ "                                         key = \"OK\";\n" OUTFILE) 
-         (princ "                                         is_default = true;\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                           : cancel_button {\n" OUTFILE) 
-         (princ "                                             label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                             key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                         }\n" OUTFILE) 
-         (princ "                 }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "MDITCH")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "MDITCH : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL 3D Polyline Offset\";\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : image {\n" OUTFILE) 
-         (princ "                                    key = \"IMAGE\";\n" OUTFILE) 
-         (princ "                                    width = 30;\n" OUTFILE) 
-         (princ "                                    height = 20;\n" OUTFILE) 
-         (princ "                                    color = 0;\n" OUTFILE) 
-         (princ "                                  }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                  : boxed_row {\n" OUTFILE) 
-         (princ "                                : edit_box {\n" OUTFILE) 
-         (princ "                                             key = \"D1\";\n" OUTFILE) 
-         (princ "                                             label = \"D1 : \";\n" OUTFILE) 
-         (princ "                                             edit_width = 6;\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                                : edit_box {\n" OUTFILE) 
-         (princ "                                             key = \"S1\";\n" OUTFILE) 
-         (princ "                                             label = \"S1 : \";\n" OUTFILE) 
-         (princ "                                             edit_width = 6;\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                                : edit_box {\n" OUTFILE) 
-         (princ "                                             key = \"D2\";\n" OUTFILE) 
-         (princ "                                             label = \"D2 : \";\n" OUTFILE) 
-         (princ "                                             edit_width = 6;\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                                : edit_box {\n" OUTFILE) 
-         (princ "                                             key = \"S2\";\n" OUTFILE) 
-         (princ "                                             label = \"S2 : \";\n" OUTFILE) 
-         (princ "                                             edit_width = 6;\n" OUTFILE) 
-         (princ "                                           }\n" OUTFILE) 
-         (princ "                              }\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : ok_button {\n" OUTFILE) 
-         (princ "                                        label = \"OK\";\n" OUTFILE) 
-         (princ "                                        key = \"OK\";\n" OUTFILE) 
-         (princ "                                        is_default = true;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : cancel_button {\n" OUTFILE) 
-         (princ "                                            label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                            key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "QTMAKE")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "QTMAKE : dialog {\n" OUTFILE) 
-         (princ "                  label = \"QuickTurn Vehicle Block Creator\";\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : column {\n" OUTFILE) 
-         (princ "                                     width = 40;\n" OUTFILE) 
-         (princ "                                     : list_box {\n" OUTFILE) 
-         (princ "                                                  key = \"BLOCKNAME\";\n" OUTFILE) 
-         (princ "                                                }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                          : column {\n" OUTFILE) 
-         (princ "                                     : image {\n" OUTFILE) 
-         (princ "                                               key = \"IMAGE\";\n" OUTFILE) 
-         (princ "                                               width = 40;\n" OUTFILE) 
-         (princ "                                               height = 18;\n" OUTFILE) 
-         (princ "                                               color = 0;\n" OUTFILE) 
-         (princ "                                             }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                  : row {\n" OUTFILE) 
-         (princ "                          : ok_button {\n" OUTFILE) 
-         (princ "                                        label = \"OK\";\n" OUTFILE) 
-         (princ "                                        key = \"OK\";\n" OUTFILE) 
-         (princ "                                        is_default = true;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : cancel_button {\n" OUTFILE) 
-         (princ "                                            label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                            key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "RFL")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "RFL : dialog {\n" OUTFILE) 
-         (princ "               label = \"RFL - Commands\";\n" OUTFILE) 
-         (princ "               : row {\n" OUTFILE) 
-         (princ "                       : list_box {\n" OUTFILE) 
-         (princ "                                    label = \"Command list:\";\n" OUTFILE) 
-         (princ "                                    key = \"COMMANDLIST\";\n" OUTFILE) 
-         (princ "                                    width = 20;\n" OUTFILE) 
-         (princ "                                  }\n" OUTFILE) 
-         (princ "                       spacer;\n" OUTFILE) 
-         (princ "                       spacer;\n" OUTFILE) 
-         (princ "                       spacer;\n" OUTFILE) 
-         (princ "                       : column {\n" OUTFILE) 
-         (princ "                                  alignment = right;\n" OUTFILE) 
-         (princ "                                  width = 40;\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLCOMMAND\";\n" OUTFILE) 
-         (princ "                                           value = \"This is a test\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  spacer;\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLUSAGE1\";\n" OUTFILE) 
-         (princ "                                           value = \"Usage1\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLUSAGE2\";\n" OUTFILE) 
-         (princ "                                           value = \"Usage2\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLUSAGE3\";\n" OUTFILE) 
-         (princ "                                           value = \"Usage3\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLUSAGE4\";\n" OUTFILE) 
-         (princ "                                           value = \"Usage4\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  : text {\n" OUTFILE) 
-         (princ "                                           key = \"RFLUSAGE5\";\n" OUTFILE) 
-         (princ "                                           value = \"Usage5\";\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                                  spacer;\n" OUTFILE) 
-         (princ "                                }\n" OUTFILE) 
-         (princ "                     }\n" OUTFILE) 
-         (princ "               : row {\n" OUTFILE) 
-         (princ "                       : ok_button {\n" OUTFILE) 
-         (princ "                                     key = \"OK\";\n" OUTFILE) 
-         (princ "                                     label = \"GO\";\n" OUTFILE) 
-         (princ "                                     is_default = true;\n" OUTFILE) 
-         (princ "                                     fixed_width = true;\n" OUTFILE) 
-         (princ "                                     alignment = left;\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                       : cancel_button {\n" OUTFILE) 
-         (princ "                                         key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                         label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                         fixed_width = true;\n" OUTFILE) 
-         (princ "                                         alignment = right;\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                     }\n" OUTFILE) 
-         (princ "             }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "SetAlign")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "SETALIGN : dialog {\n" OUTFILE) 
-         (princ "                    label = \"RFL alignment picker\";\n" OUTFILE) 
-         (princ "                    : column {\n" OUTFILE) 
-         (princ "                               : row {\n" OUTFILE) 
-         (princ "                                       : popup_list {\n" OUTFILE) 
-         (princ "                                                      key = \"ALIGNMENT\";\n" OUTFILE) 
-         (princ "                                                      popup_height = 5;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                     }\n" OUTFILE) 
-         (princ "                               : row {\n" OUTFILE) 
-         (princ "                                       : ok_button {\n" OUTFILE) 
-         (princ "                                                     label = \"OK\";\n" OUTFILE) 
-         (princ "                                                     key = \"OK\";\n" OUTFILE) 
-         (princ "                                                     is_default = true;\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                       : cancel_button {\n" OUTFILE) 
-         (princ "                                                         label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                         key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                       }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                             }\n" OUTFILE) 
-         (princ "                  }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "TBAY")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "TBAY : dialog {\n" OUTFILE) 
-         (princ "                label = \"RFL Turn Bay Creator\";\n" OUTFILE) 
-         (princ "                : column {\n" OUTFILE) 
-         (princ "                           : edit_box {\n" OUTFILE) 
-         (princ "                                        label = \"Radius\";\n" OUTFILE) 
-         (princ "                                        key = \"RADIUS\";\n" OUTFILE) 
-         (princ "                                        value = \"150.0\";\n" OUTFILE) 
-         (princ "                                        edit_width = 10;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                           : edit_box {\n" OUTFILE) 
-         (princ "                                        label = \"Delta\";\n" OUTFILE) 
-         (princ "                                        key = \"DELTA\";\n" OUTFILE) 
-         (princ "                                        value = \"5d0'0.000\\\"\";\n" OUTFILE) 
-         (princ "                                        edit_width = 10;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                           : edit_box {\n" OUTFILE) 
-         (princ "                                        label = \"Offset\";\n" OUTFILE) 
-         (princ "                                        key = \"OFFSET\";\n" OUTFILE) 
-         (princ "                                        value = \"3.5\";\n" OUTFILE) 
-         (princ "                                        edit_width = 10;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                           : edit_box {\n" OUTFILE) 
-         (princ "                                        label = \"Storage Length\";\n" OUTFILE) 
-         (princ "                                        key = \"LS\";\n" OUTFILE) 
-         (princ "                                        value = \"60.0\";\n" OUTFILE) 
-         (princ "                                        edit_width = 10;\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                           : radio_row {\n" OUTFILE) 
-         (princ "                                         : radio_button {\n" OUTFILE) 
-         (princ "                                                          label = \"Left\";\n" OUTFILE) 
-         (princ "                                                          key = \"LEFT\";\n" OUTFILE) 
-         (princ "                                                          value = \"1\";\n" OUTFILE) 
-         (princ "                                                        }\n" OUTFILE) 
-         (princ "                                         : radio_button {\n" OUTFILE) 
-         (princ "                                                          label = \"Right\";\n" OUTFILE) 
-         (princ "                                                          key = \"RIGHT\";\n" OUTFILE) 
-         (princ "                                                          value = \"0\";\n" OUTFILE) 
-         (princ "                                                        }\n" OUTFILE) 
-         (princ "                                       }\n" OUTFILE) 
-         (princ "                           : row {\n" OUTFILE) 
-         (princ "                                   : cancel_button {\n" OUTFILE) 
-         (princ "                                                     label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                     key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                   }\n" OUTFILE) 
-         (princ "                                   : ok_button {\n" OUTFILE) 
-         (princ "                                                 label = \"OK\";\n" OUTFILE) 
-         (princ "                                                 key = \"OK\";\n" OUTFILE) 
-         (princ "                                               }\n" OUTFILE) 
-         (princ "                                 }\n" OUTFILE) 
-         (princ "                         }\n" OUTFILE) 
-         (princ "              }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "VALIGN")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "VALIGN : dialog {\n" OUTFILE) 
-         (princ "                  label = \"RFL Vertical Alignment Routines\";\n" OUTFILE) 
-         (princ "                  initial_focus = \"OK\";\n" OUTFILE) 
-         (princ "                  : column {\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Define\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From Screen\";\n" OUTFILE) 
-         (princ "                                                      key = \"GPROF\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From File\";\n" OUTFILE) 
-         (princ "                                                      key = \"RPROF\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"From EMXS\";\n" OUTFILE) 
-         (princ "                                                      key = \"PRO2PROF\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Save\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To File\";\n" OUTFILE) 
-         (princ "                                                      key = \"WPROF\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To EMXS\";\n" OUTFILE) 
-         (princ "                                                      key = \"PROF2PRO\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : boxed_row {\n" OUTFILE) 
-         (princ "                                           label = \"Draw\";\n" OUTFILE) 
-         (princ "                                           : button {\n" OUTFILE) 
-         (princ "                                                      label = \"To Screen\";\n" OUTFILE) 
-         (princ "                                                      key = \"DPROF\";\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                           : spacer {\n" OUTFILE) 
-         (princ "                                                      width = 24;\n" OUTFILE) 
-         (princ "                                                    }\n" OUTFILE) 
-         (princ "                                         }\n" OUTFILE) 
-         (princ "                             : row {\n" OUTFILE) 
-         (princ "                                     : cancel_button {\n" OUTFILE) 
-         (princ "                                                       key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                       label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                     }\n" OUTFILE) 
-         (princ "                                   }\n" OUTFILE) 
-         (princ "                           }\n" OUTFILE) 
-         (princ "                }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "VP")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "VP : dialog {\n" OUTFILE) 
-         (princ "              label = \"RFL Profile Point Locator\";\n" OUTFILE) 
-         (princ "              initial_focus = \"STATION\";\n" OUTFILE) 
-         (princ "              : column {\n" OUTFILE) 
-         (princ "                         : row {\n" OUTFILE) 
-         (princ "                                 : edit_box {\n" OUTFILE) 
-         (princ "                                              label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                              key = \"STATION\";\n" OUTFILE) 
-         (princ "                                              value = \"\";\n" OUTFILE) 
-         (princ "                                              edit_width = 10;\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                                 : edit_box {\n" OUTFILE) 
-         (princ "                                              label = \"Elev:\";\n" OUTFILE) 
-         (princ "                                              key = \"ELEV\";\n" OUTFILE) 
-         (princ "                                              value = \"\";\n" OUTFILE) 
-         (princ "                                              edit_width = 10;\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                               }\n" OUTFILE) 
-         (princ "                         : row {\n" OUTFILE) 
-         (princ "                                 : button {\n" OUTFILE) 
-         (princ "                                            label = \"Pick\";\n" OUTFILE) 
-         (princ "                                            key = \"PICK\";\n" OUTFILE) 
-         (princ "                                          }\n" OUTFILE) 
-         (princ "                               }\n" OUTFILE) 
-         (princ "                         : row {\n" OUTFILE) 
-         (princ "                                 : cancel_button {\n" OUTFILE) 
-         (princ "                                                   key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                   label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                 : ok_button {\n" OUTFILE) 
-         (princ "                                               key = \"OK\";\n" OUTFILE) 
-         (princ "                                               label = \"OK\";\n" OUTFILE) 
-         (princ "                                             }\n" OUTFILE) 
-         (princ "                               }\n" OUTFILE) 
-         (princ "                       }\n" OUTFILE) 
-         (princ "            }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
-       ((= (strcase DCLNAME) (strcase "XYP")) 
-        (progn 
-         (setq OUTFILE (open OUTFILENAME "w")) 
-         (princ "XYP : dialog {\n" OUTFILE) 
-         (princ "               label = \"RFL X-Y Locator\";\n" OUTFILE) 
-         (princ "               initial_focus = \"STATION\";\n" OUTFILE) 
-         (princ "               : column {\n" OUTFILE) 
-         (princ "                          alignment = centered;\n" OUTFILE) 
-         (princ "                          : boxed_row {\n" OUTFILE) 
-         (princ "                                        label = \"Draw single-point:\";\n" OUTFILE) 
-         (princ "                                        : column {\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"STATION\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"O/S:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"OFFSET\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"  N:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"NORTHING\";\n" OUTFILE) 
-         (princ "                                                                        value = \"Northing\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"  E:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"EASTING\";\n" OUTFILE) 
-         (princ "                                                                        value = \"Easting\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      label = \"Pick\";\n" OUTFILE) 
-         (princ "                                                                      key = \"PICK\";\n" OUTFILE) 
-         (princ "                                                                      width = 5;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      key = \"OK\";\n" OUTFILE) 
-         (princ "                                                                      label = \"Draw\";\n" OUTFILE) 
-         (princ "                                                                      width = 35;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : boxed_row {\n" OUTFILE) 
-         (princ "                                        label = \"Draw multi-point:\";\n" OUTFILE) 
-         (princ "                                        : column {\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Steps:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"STEP\";\n" OUTFILE) 
-         (princ "                                                                        edit_width = 3;\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                        width = 10;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : spacer {\n" OUTFILE) 
-         (princ "                                                                      width = 30;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"FROMSTATION\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"O/S:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"FROMOFFSET\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"TOSTATION\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"O/S:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"TOOFFSET\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      label = \"Pick\";\n" OUTFILE) 
-         (princ "                                                                      key = \"MPICK\";\n" OUTFILE) 
-         (princ "                                                                      width = 5;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      key = \"DRAW\";\n" OUTFILE) 
-         (princ "                                                                      width = 30;\n" OUTFILE) 
-         (princ "                                                                      label = \"Draw\";\n" OUTFILE) 
-         (princ "                                                                      width = 35;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : boxed_row {\n" OUTFILE) 
-         (princ "                                        label = \"Draw points from file:\";\n" OUTFILE) 
-         (princ "                                        : column {\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      key = \"FROMFILE\";\n" OUTFILE) 
-         (princ "                                                                      label = \"From File (Sta,O/S : Comma delim.)\";\n" OUTFILE) 
-         (princ "                                                                      width = 20;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                          : boxed_row {\n" OUTFILE) 
-         (princ "                                        label = \"Draw section lines:\";\n" OUTFILE) 
-         (princ "                                        : column {\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"XFROMSTATION\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                        edit_width = 15;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \" W:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"XSWATH\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                        edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : toggle {\n" OUTFILE) 
-         (princ "                                                                      label = \"Round\";\n" OUTFILE) 
-         (princ "                                                                      key = \"XROUND\";\n" OUTFILE) 
-         (princ "                                                                      value = \"1\";\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                           }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Sta:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"XTOSTATION\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                        edit_width = 15;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : edit_box {\n" OUTFILE) 
-         (princ "                                                                        label = \"Inc:\";\n" OUTFILE) 
-         (princ "                                                                        key = \"XINC\";\n" OUTFILE) 
-         (princ "                                                                        value = \"\";\n" OUTFILE) 
-         (princ "                                                                        edit_width = 5;\n" OUTFILE) 
-         (princ "                                                                      }\n" OUTFILE) 
-         (princ "                                                           : toggle {\n" OUTFILE) 
-         (princ "                                                                      label = \"TS/SC\";\n" OUTFILE) 
-         (princ "                                                                      key = \"XSPECIAL\";\n" OUTFILE) 
-         (princ "                                                                      value = \"0\";\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                   : row {\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      label = \"Pick\";\n" OUTFILE) 
-         (princ "                                                                      key = \"XPICK\";\n" OUTFILE) 
-         (princ "                                                                      width = 5;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                           : button {\n" OUTFILE) 
-         (princ "                                                                      label = \"Draw\";\n" OUTFILE) 
-         (princ "                                                                      key = \"XDRAW\";\n" OUTFILE) 
-         (princ "                                                                      width = 35;\n" OUTFILE) 
-         (princ "                                                                    }\n" OUTFILE) 
-         (princ "                                                         }\n" OUTFILE) 
-         (princ "                                                 }\n" OUTFILE) 
-         (princ "                                      }\n" OUTFILE) 
-         (princ "                                      : row {\n" OUTFILE) 
-         (princ "                                              : cancel_button {\n" OUTFILE) 
-         (princ "                                                                key = \"CANCEL\";\n" OUTFILE) 
-         (princ "                                                                label = \"Cancel\";\n" OUTFILE) 
-         (princ "                                                              }\n" OUTFILE) 
-         (princ "                                              : text {\n" OUTFILE) 
-         (princ "                                                       key = \"STAMINMAX\";\n" OUTFILE) 
-         (princ "                                                       value = \"Minimum < STA < Maximum\";\n" OUTFILE) 
-         (princ "                                                       width = 30;\n" OUTFILE) 
-         (princ "                                                     }\n" OUTFILE) 
-         (princ "                                            }\n" OUTFILE) 
-         (princ "                        }\n" OUTFILE) 
-         (princ "             }\n" OUTFILE) 
-         (close OUTFILE) 
-        ) 
-       ) 
+  ((= (strcase DCLNAME) (strcase "3DOFFSET")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "OFFSET : dialog {\n" 
+                        "                  label = \"RFL 3D Polyline Offset\";\n" 
+                        "                  : radio_row {\n" 
+                        "                                : radio_button {\n" 
+                        "                                                 key = \"RADIO_FIXED\";\n" 
+                        "                                                 label = \"Fixed offset\";\n" 
+                        "                                                 value = \"1\";\n" 
+                        "                                               }\n" 
+                        "                                : radio_button {\n" 
+                        "                                                  key = \"RADIO_SLOPED\";\n" 
+                        "                                                  label = \"Sloped offset\";\n" 
+                        "                                                  value = \"0\";\n" 
+                        "                                               }\n" 
+                        "                                : radio_button {\n" 
+                        "                                                  key = \"RADIO_ELEV\";\n" 
+                        "                                                  label = \"Elev offset\";\n" 
+                        "                                                  value = \"0\";\n" 
+                        "                                               }\n" 
+                        "                              }\n" 
+                        "                  : boxed_row {\n" 
+                        "                                label = \"Fixed\";\n" 
+                        "                                : column {\n" 
+                        "                                           width = 25;\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"D1FIXED\";\n" 
+                        "                                                        label = \"D1 : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = true;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"D2FIXED\";\n" 
+                        "                                                        label = \"D2 : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = true;\n" 
+                        "                                                      }\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                         }\n" 
+                        "                                : column {\n" 
+                        "                                           : image {\n" 
+                        "                                                     key = \"IMAGE1\";\n" 
+                        "                                                     width = 30;\n" 
+                        "                                                     height = 10;\n" 
+                        "                                                     color = 0;\n" 
+                        "                                                   }\n" 
+                        "                                         }\n" 
+                        "                              }\n" 
+                        "                  : boxed_row {\n" 
+                        "                                label = \"Sloped\";\n" 
+                        "                                : column {\n" 
+                        "                                           width = 25;\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"D1ASLOPED\";\n" 
+                        "                                                        label = \"D1a : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"D1BSLOPED\";\n" 
+                        "                                                        label = \"D1b : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                           : row {\n" 
+                        "                                                   : radio_column {\n" 
+                        "                                                                    : radio_button {\n" 
+                        "                                                                                     key = \"USES1SLOPED\";\n" 
+                        "                                                                                     value = \"1\";\n" 
+                        "                                                                                   }\n" 
+                        "                                                                    : radio_button {\n" 
+                        "                                                                                     key = \"USESUPER\";\n" 
+                        "                                                                                     value = \"0\";\n" 
+                        "                                                                                   }\n" 
+                        "                                                                  }\n" 
+                        "                                                   : column {\n" 
+                        "                                                              : edit_box {\n" 
+                        "                                                                           key = \"S1SLOPED\";\n" 
+                        "                                                                           label = \"S1 (%) : \";\n" 
+                        "                                                                           edit_width = 6;\n" 
+                        "                                                                           is_enabled = false;\n" 
+                        "                                                                         }\n" 
+                        "                                                              : edit_box {\n" 
+                        "                                                                           key = \"RFLSLOPED\";\n" 
+                        "                                                                           label = \"Use super, CL OS : \";\n" 
+                        "                                                                           edit_width = 6;\n" 
+                        "                                                                           is_enabled = false;\n" 
+                        "                                                                         }\n" 
+                        "                                                            }\n" 
+                        "                                                 }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"D2SLOPED\";\n" 
+                        "                                                               label = \"D2 : \";\n" 
+                        "                                                               edit_width = 6;\n" 
+                        "                                                               is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"S2SLOPED\";\n" 
+                        "                                                        label = \"S2 (X:1) : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                         }\n" 
+                        "                                : column {\n" 
+                        "                                           : image {\n" 
+                        "                                                     key = \"IMAGE2\";\n" 
+                        "                                                     width = 30;\n" 
+                        "                                                     height = 10;\n" 
+                        "                                                     color = 0;\n" 
+                        "                                                   }\n" 
+                        "                                         }\n" 
+                        "                              }\n" 
+                        "                  : boxed_row {\n" 
+                        "                                label = \"Elev\";\n" 
+                        "                                : column {\n" 
+                        "                                           width = 25;\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"S1ELEV\";\n" 
+                        "                                                        label = \"S1 (X:1) : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        key = \"S1ELEVF\";\n" 
+                        "                                                        label = \"Fixed : \";\n" 
+                        "                                                        edit_width = 6;\n" 
+                        "                                                        is_enabled = false;\n" 
+                        "                                                      }\n" 
+                        "                                           : text {\n" 
+                        "                                                    key = \"S1ELEVT\";\n" 
+                        "                                                    value = \"Enter 'VRT' for prof elev\";\n" 
+                        "                                                  }\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                           spacer;\n" 
+                        "                                         }\n" 
+                        "                                : column {\n" 
+                        "                                           : image {\n" 
+                        "                                                     key = \"IMAGE3\";\n" 
+                        "                                                     width = 30;\n" 
+                        "                                                     height = 10;\n" 
+                        "                                                     color = 0;\n" 
+                        "                                                   }\n" 
+                        "                                         }\n" 
+                        "                              }\n" 
+                        "                  : row {\n" 
+                        "                          : ok_button {\n" 
+                        "                                        label = \"OK\";\n" 
+                        "                                        key = \"OK\";\n" 
+                        "                                        is_default = true;\n" 
+                        "                                      }\n" 
+                        "                          : text {\n" 
+                        "                                   value = \"Note: +ve = arrow direction.\";\n" 
+                        "                                   alignment = centered;\n" 
+                        "                                   width = 20;\n" 
+                        "                                 }\n" 
+                        "                          : cancel_button {\n" 
+                        "                                            label = \"Cancel\";\n" 
+                        "                                            key = \"CANCEL\";\n" 
+                        "                                          }\n" 
+                        "                        }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "AIPROF")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "AIPROF : dialog {\n" 
+                        "                  label = \"RFL AI Vertical Profile Creator\";\n" 
+                        "                  : row {\n" 
+                        "                          : column {\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Draw Profile\";\n" 
+                        "                                                key = \"DPROF\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label Slope\";\n" 
+                        "                                                key = \"LSLOPE\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label Curve Length\";\n" 
+                        "                                                key = \"LL\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label K Value\";\n" 
+                        "                                                key = \"LK\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Circle Nodes\";\n" 
+                        "                                                key = \"CNODES\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Draw PVI\";\n" 
+                        "                                                key = \"DPVI\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label PVI\";\n" 
+                        "                                                key = \"LPVI\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label BVC/EVC\";\n" 
+                        "                                                key = \"LBVC\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label High Chainage\";\n" 
+                        "                                                key = \"LHIGH\";\n" 
+                        "                                                value = \"0\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Label Curve Elevations\";\n" 
+                        "                                                key = \"LELEVATIONS\";\n" 
+                        "                                                value = \"1\";\n" 
+                        "                                              }\n" 
+                        "                                     : toggle {\n" 
+                        "                                                label = \"Reverse Above/Below\";\n" 
+                        "                                                key = \"RAB\";\n" 
+                        "                                                value = \"0\";\n" 
+                        "                                              }\n" 
+                        "                                   }\n" 
+                        "                          : column {\n" 
+                        "                                     : image {\n" 
+                        "                                               key = \"IMAGE\";\n" 
+                        "                                               width = 80;\n" 
+                        "                                               height = 20;\n" 
+                        "                                               color = 0;\n" 
+                        "                                             }\n" 
+                        "                                   }\n" 
+                        "                          : column {\n" 
+                        "                                     spacer;\n" 
+                        "                                     spacer;\n" 
+                        "                                     : boxed_column {\n" 
+                        "                                                      label = \"Precisions\";\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   label = \"K : \";\n" 
+                        "                                                                   key = \"KPREC\";\n" 
+                        "                                                                   value = \"3\";\n" 
+                        "                                                                   edit_width = 1;\n" 
+                        "                                                                 }\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   label = \"L : \";\n" 
+                        "                                                                   key = \"LPREC\";\n" 
+                        "                                                                   value = \"3\";\n" 
+                        "                                                                   edit_width = 1;\n" 
+                        "                                                                 }\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   label = \"Slope : \";\n" 
+                        "                                                                   key = \"SLOPEPREC\";\n" 
+                        "                                                                   value = \"2\";\n" 
+                        "                                                                   edit_width = 1;\n" 
+                        "                                                                 }\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   label = \"Sta : \";\n" 
+                        "                                                                   key = \"STAPREC\";\n" 
+                        "                                                                   value = \"3\";\n" 
+                        "                                                                   edit_width = 1;\n" 
+                        "                                                                 }\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   label = \"Elev : \";\n" 
+                        "                                                                   key = \"ELEVPREC\";\n" 
+                        "                                                                   value = \"3\";\n" 
+                        "                                                                   edit_width = 1;\n" 
+                        "                                                                 }\n" 
+                        "                                                    }\n" 
+                        "                                     spacer;\n" 
+                        "                                     spacer;\n" 
+                        "                                   }\n" 
+                        "                        }\n" 
+                        "                  : row {\n" 
+                        "                          : ok_button {\n" 
+                        "                                        label = \"OK\";\n" 
+                        "                                        key = \"OK\";\n" 
+                        "                                        is_default = true;\n" 
+                        "                                      }\n" 
+                        "                          : row {\n" 
+                        "                                  : radio_button {\n" 
+                        "                                                   label = \"Left\";\n" 
+                        "                                                   key = \"DIRLEFT\";\n" 
+                        "                                                 }\n" 
+                        "                                  : radio_button {\n" 
+                        "                                                   label = \"Right\";\n" 
+                        "                                                   key = \"DIRRIGHT\";\n" 
+                        "                                                 }\n" 
+                        "                                  : radio_button {\n" 
+                        "                                                   label = \"Up Chainage\";\n" 
+                        "                                                   key = \"DIRUP\";\n" 
+                        "                                                 }\n" 
+                        "                                  : radio_button {\n" 
+                        "                                                   label = \"Down Chainage\";\n" 
+                        "                                                   key = \"DIRDOWN\";\n" 
+                        "                                                 }\n" 
+                        "                                }\n" 
+                        "                          : cancel_button {\n" 
+                        "                                            label = \"Cancel\";\n" 
+                        "                                            key = \"CANCEL\";\n" 
+                        "                                          }\n" 
+                        "                        }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "CORNER")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "CORNER : dialog {\n" 
+                        "                  label = \"RFL Corner Creator\";\n" 
+                        "                  initial_focus = \"STATION\";\n" 
+                        "                  : column {\n" 
+                        "                             alignment = centered;\n" 
+                        "                             : row {\n" 
+                        "                                     : boxed_column {\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : radio_column {\n" 
+                        "                                                                               : radio_button {\n" 
+                        "                                                                                                label = \"Spiral\";\n" 
+                        "                                                                                                key = \"S\";\n" 
+                        "                                                                                                value = \"0\";\n" 
+                        "                                                                                                is_enabled = \"0\";\n" 
+                        "                                                                                              }\n" 
+                        "                                                                               : radio_button {\n" 
+                        "                                                                                                label = \"Arc\";\n" 
+                        "                                                                                                key = \"A\";\n" 
+                        "                                                                                                value = \"1\";\n" 
+                        "                                                                                              }\n" 
+                        "                                                                             }\n" 
+                        "                                                              : column {\n" 
+                        "                                                                         : edit_box {\n" 
+                        "                                                                                      label = \"Radius in:\";\n" 
+                        "                                                                                      key = \"RIN\";\n" 
+                        "                                                                                      value = \"0.0\";\n" 
+                        "                                                                                      edit_width = 10;\n" 
+                        "                                                                                      width = 15;\n" 
+                        "                                                                                    }\n" 
+                        "                                                                         : edit_box {\n" 
+                        "                                                                                      label = \"Radius out:\";\n" 
+                        "                                                                                      key = \"ROUT\";\n" 
+                        "                                                                                      value = \"0.0\";\n" 
+                        "                                                                                      edit_width = 10;\n" 
+                        "                                                                                      width = 15;\n" 
+                        "                                                                                      is_enabled = \"0\";\n" 
+                        "                                                                                    }\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                    }\n" 
+                        "                                     : boxed_column {\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : radio_column {\n" 
+                        "                                                                               : radio_button {\n" 
+                        "                                                                                                label = \"Length\";\n" 
+                        "                                                                                                key = \"L\";\n" 
+                        "                                                                                                value = \"0\";\n" 
+                        "                                                                                              }\n" 
+                        "                                                                               : radio_button {\n" 
+                        "                                                                                                label = \"Delta\";\n" 
+                        "                                                                                                key = \"D\";\n" 
+                        "                                                                                                value = \"1\";\n" 
+                        "                                                                                              }\n" 
+                        "                                                                             }\n" 
+                        "                                                              : edit_box {\n" 
+                        "                                                                           label = \"\";\n" 
+                        "                                                                           key = \"V\";\n" 
+                        "                                                                           value = \"0.0\";\n" 
+                        "                                                                           edit_width = 10;\n" 
+                        "                                                                         }\n" 
+                        "                                                              : toggle {\n" 
+                        "                                                                         label = \"Calc\";\n" 
+                        "                                                                         key = \"CALC\";\n" 
+                        "                                                                         value = \"1\";\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                    }\n" 
+                        "                                   }\n" 
+                        "                             : row {\n" 
+                        "                                     : button {\n" 
+                        "                                                key = \"SET\";\n" 
+                        "                                                label = \"Set\";\n" 
+                        "                                                width = 5;\n" 
+                        "                                              }\n" 
+                        "                                     : popup_list {\n" 
+                        "                                                    key = \"STANDARD\";\n" 
+                        "                                                    label = \"\";\n" 
+                        "                                                    list = \"Last\n440 - 50 - 15 (calc) - 50\n50 - 15 (calc) - 50 - 440\n36 - 12 (calc) - 36\n50 - 15 (calc) - 50\n55 - 18 (calc) - 55\";\n" 
+                        "                                                    value = \"0\";\n" 
+                        "                                                    width = 50;\n" 
+                        "                                                  }\n" 
+                        "                                   }\n" 
+                        "                             : row {\n" 
+                        "                                     : cancel_button {\n" 
+                        "                                                       key = \"CANCEL\";\n" 
+                        "                                                       label = \"Cancel\";\n" 
+                        "                                                       alignment = left;\n" 
+                        "                                                       width = 12;\n" 
+                        "                                                     }\n" 
+                        "                                     : button {\n" 
+                        "                                                key = \"DOWN\";\n" 
+                        "                                                label = \"<\";\n" 
+                        "                                                is_enabled = \"0\";\n" 
+                        "                                              }\n" 
+                        "                                     : text {\n" 
+                        "                                              label = \"\";\n" 
+                        "                                              key = \"NODE\";\n" 
+                        "                                              value = \"1\";\n" 
+                        "                                              width = 3;\n" 
+                        "                                            }\n" 
+                        "                                     : button {\n" 
+                        "                                                key = \"UP\";\n" 
+                        "                                                label = \">\";\n" 
+                        "                                              }\n" 
+                        "                                     : text {\n" 
+                        "                                              key = \"DELTA\";\n" 
+                        "                                              value = \"Delta : 123d12'12.45\\\"\";\n" 
+                        "                                              width = 18;\n" 
+                        "                                            }\n" 
+                        "                                     : button {\n" 
+                        "                                                key = \"DELETE\";\n" 
+                        "                                                label = \"Delete\";\n" 
+                        "                                                alignment = right;\n" 
+                        "                                                width = 12;\n" 
+                        "                                                is_enabled = \"0\";\n" 
+                        "                                              }\n" 
+                        "                                     : ok_button {\n" 
+                        "                                                   key = \"OK\";\n" 
+                        "                                                   label = \"OK\";\n" 
+                        "                                                   alignment = right;\n" 
+                        "                                                   width = 12;\n" 
+                        "                                                 }\n" 
+                        "                                   }\n" 
+                        "                           }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "DAYLIGHT")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "DAYLIGHT : dialog {\n" 
+                        "                    label = \"RFL Daylight\";\n" 
+                        "                    : boxed_row {\n" 
+                        "                                  label = \"Sample Swath\";\n" 
+                        "                                  : edit_box {\n" 
+                        "                                               key = \"SWATH\";\n" 
+                        "                                               label = \"Swath width\";\n" 
+                        "                                               edit_width = 10;\n" 
+                        "                                             }\n" 
+                        "                                }\n" 
+                        "                    : boxed_row {\n" 
+                        "                                  label = \"Ditch\";\n" 
+                        "                                  :column {\n" 
+                        "                                             : toggle {\n" 
+                        "                                                        key = \"USEDITCH\";\n" 
+                        "                                                        value = 1;\n" 
+                        "                                                        label = \"Use ditch\";\n" 
+                        "                                                      }\n" 
+                        "                                           }\n" 
+                        "                                  : column {\n" 
+                        "                                             : edit_box {\n" 
+                        "                                                          key = \"DITCHBACK\";\n" 
+                        "                                                          label = \"Backslope\";\n" 
+                        "                                                          edit_width = 5;\n" 
+                        "                                                        }\n" 
+                        "                                             : edit_box {\n" 
+                        "                                                          key = \"DITCHWIDTH\";\n" 
+                        "                                                          label = \"Base width\";\n" 
+                        "                                                          edit_width = 5;\n" 
+                        "                                                        }\n" 
+                        "                                             : edit_box {\n" 
+                        "                                                          key = \"DITCHDEPTH\";\n" 
+                        "                                                          label = \"Depth\";\n" 
+                        "                                                          edit_width = 5;\n" 
+                        "                                                        }\n" 
+                        "                                           }\n" 
+                        "                                }\n" 
+                        "                    : boxed_row {\n" 
+                        "                                  label = \"Slopes\";\n" 
+                        "                                  :column {\n" 
+                        "                                            : row {\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                         value = \"FILL\";\n" 
+                        "                                                                      }\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                        value = \"Depth:\";\n" 
+                        "                                                                        alignment = right;\n" 
+                        "                                                                      }\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FD6\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FD4\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FD2\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               spacer;\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                        value = \"Slope (X:1):\";\n" 
+                        "                                                                        alignment = right;\n" 
+                        "                                                                      }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FS7\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FS5\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FS3\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"FS1\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                             }\n" 
+                        "                                                  }\n" 
+                        "                                            : row {\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                        value = \"---------------\";\n" 
+                        "                                                                      }\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                        value = \"0.000\";\n" 
+                        "                                                                        alignment = right;\n" 
+                        "                                                                      }\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                             }\n" 
+                        "                                                  }\n" 
+                        "                                            : row {\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               : text {\n" 
+                        "                                                                         value = \"CUT\";\n" 
+                        "                                                                      }\n" 
+                        "                                                               spacer;\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               spacer;\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"CD2\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               spacer;\n" 
+                        "                                                             }\n" 
+                        "                                                    : column {\n" 
+                        "                                                               width = 10;\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"CS1\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                               : edit_box {\n" 
+                        "                                                                            key = \"CS3\";\n" 
+                        "                                                                            edit_width = 5;\n" 
+                        "                                                                          }\n" 
+                        "                                                             }\n" 
+                        "                                                  }\n" 
+                        "                                          }\n" 
+                        "                                }\n" 
+                        "                    : row {\n" 
+                        "                            : ok_button {\n" 
+                        "                                          label = \"OK\";\n" 
+                        "                                          key = \"OK\";\n" 
+                        "                                          is_default = true;\n" 
+                        "                                        }\n" 
+                        "                            : cancel_button {\n" 
+                        "                                              label = \"Cancel\";\n" 
+                        "                                              key = \"CANCEL\";\n" 
+                        "                                            }\n" 
+                        "                          }\n" 
+                        "                  }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "EXIT")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "EXIT : dialog {\n" 
+                        "                label = \"RFL Exit Ramp Creator\";\n" 
+                        "                : column {\n" 
+                        "                           alignment = centered;\n" 
+                        "                           : boxed_row {\n" 
+                        "                                         label = \"Start settings:\";\n" 
+                        "                                         : column {\n" 
+                        "                                                    : row {\n" 
+                        "                                                            : radio_button {\n" 
+                        "                                                                             label = \"Left\";\n" 
+                        "                                                                             key = \"LEFT\";\n" 
+                        "                                                                             value = \"1\";\n" 
+                        "                                                                           }\n" 
+                        "                                                            : radio_button {\n" 
+                        "                                                                             label = \"Right\";\n" 
+                        "                                                                             key = \"RIGHT\";\n" 
+                        "                                                                             value = \"0\";\n" 
+                        "                                                                           }\n" 
+                        "                                                          }\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"Radius:\";\n" 
+                        "                                                                 key = \"RADIUS\";\n" 
+                        "                                                                 value = \"2000.000\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"Def. angle:\";\n" 
+                        "                                                                 key = \"DEFLECTION\";\n" 
+                        "                                                                 value = \"0.000\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"O/S:\";\n" 
+                        "                                                                 key = \"OFFSET\";\n" 
+                        "                                                                 value = \"0.000\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                           : boxed_row {\n" 
+                        "                                         label = \"Stepping:\";\n" 
+                        "                                         : column {\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"Start sta.:\";\n" 
+                        "                                                                 key = \"START\";\n" 
+                        "                                                                 value = \"0.000\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"End sta.:\";\n" 
+                        "                                                                 key = \"END\";\n" 
+                        "                                                                 value = \"0.000\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                    : edit_box {\n" 
+                        "                                                                 label = \"Steps:\";\n" 
+                        "                                                                 key = \"STEPS\";\n" 
+                        "                                                                 value = \"1\";\n" 
+                        "                                                                 edit_width = 12;\n" 
+                        "                                                               }\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                           : row {\n" 
+                        "                                   : ok_button {\n" 
+                        "                                                 label = \"OK\";\n" 
+                        "                                                 key = \"OK\";\n" 
+                        "                                                 is_default = true;\n" 
+                        "                                               }\n" 
+                        "                                   : cancel_button {\n" 
+                        "                                                     label = \"Cancel\";\n" 
+                        "                                                     key = \"CANCEL\";\n" 
+                        "                                                   }\n" 
+                        "                                 }\n" 
+                        "                         }\n" 
+                        "              }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "HALIGN")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "HALIGN : dialog {\n" 
+                        "                  label = \"RFL Horizontal Alignment Routines\";\n" 
+                        "                  initial_focus = \"OK\";\n" 
+                        "                  : column {\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Define\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From Screen\";\n" 
+                        "                                                      key = \"GALIGN\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From File\";\n" 
+                        "                                                      key = \"RALIGN\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From EMXS\";\n" 
+                        "                                                      key = \"HOR2ALIGN\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Save\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To File\";\n" 
+                        "                                                      key = \"WALIGN\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To EMXS\";\n" 
+                        "                                                      key = \"ALIGN2HOR\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Draw\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To Screen\";\n" 
+                        "                                                      key = \"DALIGN\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Label\";\n" 
+                        "                                           : column {\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"To Screen\";\n" 
+                        "                                                                         key = \"LALIGN\";\n" 
+                        "                                                                         width = 24;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : spacer {\n" 
+                        "                                                                         width = 7;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"Setup\";\n" 
+                        "                                                                         key = \"LALIGNSETUP\";\n" 
+                        "                                                                         width = 10;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : spacer {\n" 
+                        "                                                                         width = 7;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                    }\n" 
+                        "                                           : column {\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"EMXS To Table\";\n" 
+                        "                                                                         key = \"HOR2TABLE\";\n" 
+                        "                                                                         width = 24;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"Big\";\n" 
+                        "                                                                         key = \"MAKEBIG\";\n" 
+                        "                                                                         width = 8;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"Med\";\n" 
+                        "                                                                         key = \"MAKEMEDIUM\";\n" 
+                        "                                                                         width = 8;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"Sml\";\n" 
+                        "                                                                         key = \"MAKESMALL\";\n" 
+                        "                                                                         width = 8;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                    }\n" 
+                        "                                           : column {\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"N/E/Sta/Elev\";\n" 
+                        "                                                                         key = \"NE\";\n" 
+                        "                                                                         width = 24;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                      : row {\n" 
+                        "                                                              : spacer {\n" 
+                        "                                                                         width = 7;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : button {\n" 
+                        "                                                                         label = \"Angle\";\n" 
+                        "                                                                         key = \"NEWANG\";\n" 
+                        "                                                                         width = 10;\n" 
+                        "                                                                       }\n" 
+                        "                                                              : spacer {\n" 
+                        "                                                                         width = 7;\n" 
+                        "                                                                       }\n" 
+                        "                                                            }\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : row {\n" 
+                        "                                     : cancel_button {\n" 
+                        "                                                       key = \"CANCEL\";\n" 
+                        "                                                       label = \"Cancel\";\n" 
+                        "                                                     }\n" 
+                        "                                   }\n" 
+                        "                           }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "LALIGN")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "LALIGN : dialog {\n" 
+                        "                  label = \"RFL Horizontal Label Setup\";\n" 
+                        "                  initial_focus = \"CANCEL\";\n" 
+                        "                  : column {\n" 
+                        "                             : boxed_row {\n" 
+                        "                                         label = \"Node\";\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"NODEBLK\";\n" 
+                        "                                                      label = \"Block:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"NODEBLKSUFFIX\";\n" 
+                        "                                                      label = \"Suffix:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"NODEBLKCOLOR\";\n" 
+                        "                                                      label = \"Color:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"NODEBLKSCALE\";\n" 
+                        "                                                      label = \"Scale:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : spacer {\n" 
+                        "                                                    width = 40;\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                         label = \"Leader\";\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LEADERX\";\n" 
+                        "                                                      label = \"'X':\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LEADERY\";\n" 
+                        "                                                      label = \"'Y':\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LEADERSUFFIX\";\n" 
+                        "                                                      label = \"Suffix:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LEADERCOLOR\";\n" 
+                        "                                                      label = \"Color:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : spacer {\n" 
+                        "                                                    width = 40;\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                         label = \"Text\";\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TEXTX\";\n" 
+                        "                                                      label = \"'X':\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TEXTH\";\n" 
+                        "                                                      label = \"Height:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TEXTSUFFIX\";\n" 
+                        "                                                      label = \"Suffix:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TEXTCOLOR\";\n" 
+                        "                                                      label = \"Color:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TEXTANG\";\n" 
+                        "                                                      label = \"Ang:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : toggle {\n" 
+                        "                                                    key = \"TEXTALIGN\";\n" 
+                        "                                                    label = \"Aligned\";\n" 
+                        "                                                    width = 18;\n" 
+                        "                                                    value = \"1\";\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                         label = \"Label\";\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLBLK\";\n" 
+                        "                                                      label = \"Block:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLSUFFIX\";\n" 
+                        "                                                      label = \"Suffix:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLCOLOR\";\n" 
+                        "                                                      label = \"Color:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLSCALE\";\n" 
+                        "                                                      label = \"Scale:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLINC\";\n" 
+                        "                                                      label = \"Inc:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"LBLOS\";\n" 
+                        "                                                      label = \"Offset:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                       }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                         label = \"Tick\";\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TICKBLK\";\n" 
+                        "                                                      label = \"Block:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TICKSUFFIX\";\n" 
+                        "                                                      label = \"Suffix:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TICKCOLOR\";\n" 
+                        "                                                      label = \"Color:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TICKSCALE\";\n" 
+                        "                                                      label = \"Scale:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : edit_box {\n" 
+                        "                                                      key = \"TICKINC\";\n" 
+                        "                                                      label = \"Inc:\";\n" 
+                        "                                                      width = 18;\n" 
+                        "                                                      edit_width = 8;\n" 
+                        "                                                    }\n" 
+                        "                                         : spacer {\n" 
+                        "                                                    width = 18;\n" 
+                        "                                                  }\n" 
+                        "                                       }\n" 
+                        "                             : row {\n" 
+                        "                                   : cancel_button {\n" 
+                        "                                                     key = \"CANCEL\";\n" 
+                        "                                                     label = \"Cancel\";\n" 
+                        "                                                   }\n" 
+                        "                                   : text {\n" 
+                        "                                            label = \"Note:  Error checking not done for character values or colors\";\n" 
+                        "                                          }\n" 
+                        "                                   : ok_button {\n" 
+                        "                                                 key = \"ACCEPT\";\n" 
+                        "                                                 label = \"OK\";\n" 
+                        "                                               }\n" 
+                        "                                 }\n" 
+                        "                           }\n" 
+                        "                    }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "MakeEnt")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "MAKEENT : dialog {\n" 
+                        "                   label = \"RFL Block Creator\";\n" 
+                        "                   : row {\n" 
+                        "                           : column {\n" 
+                        "                                      width = 20;\n" 
+                        "                                      : list_box {\n" 
+                        "                                                   key = \"BLOCKNAME\";\n" 
+                        "                                                 }\n" 
+                        "                                    }\n" 
+                        "                           : column {\n" 
+                        "                                      : image {\n" 
+                        "                                                key = \"IMAGE\";\n" 
+                        "                                                width = 40;\n" 
+                        "                                                height = 18;\n" 
+                        "                                                color = 0;\n" 
+                        "                                              }\n" 
+                        "                                    }\n" 
+                        "                         }\n" 
+                        "                   : row {\n" 
+                        "                           : ok_button {\n" 
+                        "                                         label = \"OK\";\n" 
+                        "                                         key = \"OK\";\n" 
+                        "                                         is_default = true;\n" 
+                        "                                       }\n" 
+                        "                           : cancel_button {\n" 
+                        "                                             label = \"Cancel\";\n" 
+                        "                                             key = \"CANCEL\";\n" 
+                        "                                           }\n" 
+                        "                         }\n" 
+                        "                 }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "MDITCH")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "MDITCH : dialog {\n" 
+                        "                  label = \"RFL 3D Polyline Offset\";\n" 
+                        "                  : row {\n" 
+                        "                          : image {\n" 
+                        "                                    key = \"IMAGE\";\n" 
+                        "                                    width = 30;\n" 
+                        "                                    height = 20;\n" 
+                        "                                    color = 0;\n" 
+                        "                                  }\n" 
+                        "                        }\n" 
+                        "                  : boxed_row {\n" 
+                        "                                : edit_box {\n" 
+                        "                                             key = \"D1\";\n" 
+                        "                                             label = \"D1 : \";\n" 
+                        "                                             edit_width = 6;\n" 
+                        "                                           }\n" 
+                        "                                : edit_box {\n" 
+                        "                                             key = \"S1\";\n" 
+                        "                                             label = \"S1 : \";\n" 
+                        "                                             edit_width = 6;\n" 
+                        "                                           }\n" 
+                        "                                : edit_box {\n" 
+                        "                                             key = \"D2\";\n" 
+                        "                                             label = \"D2 : \";\n" 
+                        "                                             edit_width = 6;\n" 
+                        "                                           }\n" 
+                        "                                : edit_box {\n" 
+                        "                                             key = \"S2\";\n" 
+                        "                                             label = \"S2 : \";\n" 
+                        "                                             edit_width = 6;\n" 
+                        "                                           }\n" 
+                        "                              }\n" 
+                        "                  : row {\n" 
+                        "                          : ok_button {\n" 
+                        "                                        label = \"OK\";\n" 
+                        "                                        key = \"OK\";\n" 
+                        "                                        is_default = true;\n" 
+                        "                                      }\n" 
+                        "                          : cancel_button {\n" 
+                        "                                            label = \"Cancel\";\n" 
+                        "                                            key = \"CANCEL\";\n" 
+                        "                                          }\n" 
+                        "                        }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "QTMAKE")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "QTMAKE : dialog {\n" 
+                        "                  label = \"QuickTurn Vehicle Block Creator\";\n" 
+                        "                  : row {\n" 
+                        "                          : column {\n" 
+                        "                                     width = 40;\n" 
+                        "                                     : list_box {\n" 
+                        "                                                  key = \"BLOCKNAME\";\n" 
+                        "                                                }\n" 
+                        "                                   }\n" 
+                        "                          : column {\n" 
+                        "                                     : image {\n" 
+                        "                                               key = \"IMAGE\";\n" 
+                        "                                               width = 40;\n" 
+                        "                                               height = 18;\n" 
+                        "                                               color = 0;\n" 
+                        "                                             }\n" 
+                        "                                   }\n" 
+                        "                        }\n" 
+                        "                  : row {\n" 
+                        "                          : ok_button {\n" 
+                        "                                        label = \"OK\";\n" 
+                        "                                        key = \"OK\";\n" 
+                        "                                        is_default = true;\n" 
+                        "                                      }\n" 
+                        "                          : cancel_button {\n" 
+                        "                                            label = \"Cancel\";\n" 
+                        "                                            key = \"CANCEL\";\n" 
+                        "                                          }\n" 
+                        "                        }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "RFL")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "RFL : dialog {\n" 
+                        "               label = \"RFL - Commands\";\n" 
+                        "               : row {\n" 
+                        "                       : list_box {\n" 
+                        "                                    label = \"Command list:\";\n" 
+                        "                                    key = \"COMMANDLIST\";\n" 
+                        "                                    width = 20;\n" 
+                        "                                  }\n" 
+                        "                       spacer;\n" 
+                        "                       spacer;\n" 
+                        "                       spacer;\n" 
+                        "                       : column {\n" 
+                        "                                  alignment = right;\n" 
+                        "                                  width = 40;\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLCOMMAND\";\n" 
+                        "                                           value = \"This is a test\";\n" 
+                        "                                         }\n" 
+                        "                                  spacer;\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLUSAGE1\";\n" 
+                        "                                           value = \"Usage1\";\n" 
+                        "                                         }\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLUSAGE2\";\n" 
+                        "                                           value = \"Usage2\";\n" 
+                        "                                         }\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLUSAGE3\";\n" 
+                        "                                           value = \"Usage3\";\n" 
+                        "                                         }\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLUSAGE4\";\n" 
+                        "                                           value = \"Usage4\";\n" 
+                        "                                         }\n" 
+                        "                                  : text {\n" 
+                        "                                           key = \"RFLUSAGE5\";\n" 
+                        "                                           value = \"Usage5\";\n" 
+                        "                                         }\n" 
+                        "                                  spacer;\n" 
+                        "                                }\n" 
+                        "                     }\n" 
+                        "               : row {\n" 
+                        "                       : ok_button {\n" 
+                        "                                     key = \"OK\";\n" 
+                        "                                     label = \"GO\";\n" 
+                        "                                     is_default = true;\n" 
+                        "                                     fixed_width = true;\n" 
+                        "                                     alignment = left;\n" 
+                        "                                   }\n" 
+                        "                       : cancel_button {\n" 
+                        "                                         key = \"CANCEL\";\n" 
+                        "                                         label = \"Cancel\";\n" 
+                        "                                         fixed_width = true;\n" 
+                        "                                         alignment = right;\n" 
+                        "                                       }\n" 
+                        "                     }\n" 
+                        "             }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "SetAlign")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "SETALIGN : dialog {\n" 
+                        "                    label = \"RFL alignment picker\";\n" 
+                        "                    : column {\n" 
+                        "                               : row {\n" 
+                        "                                       : popup_list {\n" 
+                        "                                                      key = \"ALIGNMENT\";\n" 
+                        "                                                      popup_height = 5;\n" 
+                        "                                                    }\n" 
+                        "                                     }\n" 
+                        "                               : row {\n" 
+                        "                                       : ok_button {\n" 
+                        "                                                     label = \"OK\";\n" 
+                        "                                                     key = \"OK\";\n" 
+                        "                                                     is_default = true;\n" 
+                        "                                                   }\n" 
+                        "                                       : cancel_button {\n" 
+                        "                                                         label = \"Cancel\";\n" 
+                        "                                                         key = \"CANCEL\";\n" 
+                        "                                                       }\n" 
+                        "                                       }\n" 
+                        "                             }\n" 
+                        "                  }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "TBAY")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "TBAY : dialog {\n" 
+                        "                label = \"RFL Turn Bay Creator\";\n" 
+                        "                : column {\n" 
+                        "                           : edit_box {\n" 
+                        "                                        label = \"Radius\";\n" 
+                        "                                        key = \"RADIUS\";\n" 
+                        "                                        value = \"150.0\";\n" 
+                        "                                        edit_width = 10;\n" 
+                        "                                      }\n" 
+                        "                           : edit_box {\n" 
+                        "                                        label = \"Delta\";\n" 
+                        "                                        key = \"DELTA\";\n" 
+                        "                                        value = \"5d0'0.000\\\"\";\n" 
+                        "                                        edit_width = 10;\n" 
+                        "                                      }\n" 
+                        "                           : edit_box {\n" 
+                        "                                        label = \"Offset\";\n" 
+                        "                                        key = \"OFFSET\";\n" 
+                        "                                        value = \"3.5\";\n" 
+                        "                                        edit_width = 10;\n" 
+                        "                                      }\n" 
+                        "                           : edit_box {\n" 
+                        "                                        label = \"Storage Length\";\n" 
+                        "                                        key = \"LS\";\n" 
+                        "                                        value = \"60.0\";\n" 
+                        "                                        edit_width = 10;\n" 
+                        "                                      }\n" 
+                        "                           : radio_row {\n" 
+                        "                                         : radio_button {\n" 
+                        "                                                          label = \"Left\";\n" 
+                        "                                                          key = \"LEFT\";\n" 
+                        "                                                          value = \"1\";\n" 
+                        "                                                        }\n" 
+                        "                                         : radio_button {\n" 
+                        "                                                          label = \"Right\";\n" 
+                        "                                                          key = \"RIGHT\";\n" 
+                        "                                                          value = \"0\";\n" 
+                        "                                                        }\n" 
+                        "                                       }\n" 
+                        "                           : row {\n" 
+                        "                                   : cancel_button {\n" 
+                        "                                                     label = \"Cancel\";\n" 
+                        "                                                     key = \"CANCEL\";\n" 
+                        "                                                   }\n" 
+                        "                                   : ok_button {\n" 
+                        "                                                 label = \"OK\";\n" 
+                        "                                                 key = \"OK\";\n" 
+                        "                                               }\n" 
+                        "                                 }\n" 
+                        "                         }\n" 
+                        "              }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "VALIGN")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "VALIGN : dialog {\n" 
+                        "                  label = \"RFL Vertical Alignment Routines\";\n" 
+                        "                  initial_focus = \"OK\";\n" 
+                        "                  : column {\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Define\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From Screen\";\n" 
+                        "                                                      key = \"GPROF\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From File\";\n" 
+                        "                                                      key = \"RPROF\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"From EMXS\";\n" 
+                        "                                                      key = \"PRO2PROF\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Save\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To File\";\n" 
+                        "                                                      key = \"WPROF\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To EMXS\";\n" 
+                        "                                                      key = \"PROF2PRO\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Draw\";\n" 
+                        "                                           : button {\n" 
+                        "                                                      label = \"To Screen\";\n" 
+                        "                                                      key = \"DPROF\";\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                           : spacer {\n" 
+                        "                                                      width = 24;\n" 
+                        "                                                    }\n" 
+                        "                                         }\n" 
+                        "                             : row {\n" 
+                        "                                     : cancel_button {\n" 
+                        "                                                       key = \"CANCEL\";\n" 
+                        "                                                       label = \"Cancel\";\n" 
+                        "                                                     }\n" 
+                        "                                   }\n" 
+                        "                           }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "VP")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "VP : dialog {\n" 
+                        "              label = \"RFL Profile Point Locator\";\n" 
+                        "              initial_focus = \"STATION\";\n" 
+                        "              : column {\n" 
+                        "                         : row {\n" 
+                        "                                 : edit_box {\n" 
+                        "                                              label = \"Sta:\";\n" 
+                        "                                              key = \"STATION\";\n" 
+                        "                                              value = \"\";\n" 
+                        "                                              edit_width = 10;\n" 
+                        "                                            }\n" 
+                        "                                 : edit_box {\n" 
+                        "                                              label = \"Elev:\";\n" 
+                        "                                              key = \"ELEV\";\n" 
+                        "                                              value = \"\";\n" 
+                        "                                              edit_width = 10;\n" 
+                        "                                            }\n" 
+                        "                               }\n" 
+                        "                         : row {\n" 
+                        "                                 : button {\n" 
+                        "                                            label = \"Pick\";\n" 
+                        "                                            key = \"PICK\";\n" 
+                        "                                          }\n" 
+                        "                               }\n" 
+                        "                         : row {\n" 
+                        "                                 : cancel_button {\n" 
+                        "                                                   key = \"CANCEL\";\n" 
+                        "                                                   label = \"Cancel\";\n" 
+                        "                                                 }\n" 
+                        "                                 : ok_button {\n" 
+                        "                                               key = \"OK\";\n" 
+                        "                                               label = \"OK\";\n" 
+                        "                                             }\n" 
+                        "                               }\n" 
+                        "                       }\n" 
+                        "            }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
+  ((= (strcase DCLNAME) (strcase "XYP")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "XYP : dialog {\n" 
+                        "               label = \"RFL X-Y Locator\";\n" 
+                        "               initial_focus = \"STATION\";\n" 
+                        "               : column {\n" 
+                        "                          alignment = centered;\n" 
+                        "                          : boxed_row {\n" 
+                        "                                        label = \"Draw single-point:\";\n" 
+                        "                                        : column {\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Sta:\";\n" 
+                        "                                                                        key = \"STATION\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"O/S:\";\n" 
+                        "                                                                        key = \"OFFSET\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"  N:\";\n" 
+                        "                                                                        key = \"NORTHING\";\n" 
+                        "                                                                        value = \"Northing\";\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"  E:\";\n" 
+                        "                                                                        key = \"EASTING\";\n" 
+                        "                                                                        value = \"Easting\";\n" 
+                        "                                                                      }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      label = \"Pick\";\n" 
+                        "                                                                      key = \"PICK\";\n" 
+                        "                                                                      width = 5;\n" 
+                        "                                                                    }\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      key = \"OK\";\n" 
+                        "                                                                      label = \"Draw\";\n" 
+                        "                                                                      width = 35;\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                 }\n" 
+                        "                                      }\n" 
+                        "                          : boxed_row {\n" 
+                        "                                        label = \"Draw multi-point:\";\n" 
+                        "                                        : column {\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Steps:\";\n" 
+                        "                                                                        key = \"STEP\";\n" 
+                        "                                                                        edit_width = 3;\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                        width = 10;\n" 
+                        "                                                                      }\n" 
+                        "                                                           : spacer {\n" 
+                        "                                                                      width = 30;\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Sta:\";\n" 
+                        "                                                                        key = \"FROMSTATION\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"O/S:\";\n" 
+                        "                                                                        key = \"FROMOFFSET\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Sta:\";\n" 
+                        "                                                                        key = \"TOSTATION\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"O/S:\";\n" 
+                        "                                                                        key = \"TOOFFSET\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                      }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      label = \"Pick\";\n" 
+                        "                                                                      key = \"MPICK\";\n" 
+                        "                                                                      width = 5;\n" 
+                        "                                                                    }\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      key = \"DRAW\";\n" 
+                        "                                                                      width = 30;\n" 
+                        "                                                                      label = \"Draw\";\n" 
+                        "                                                                      width = 35;\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                         }\n" 
+                        "                                                 }\n" 
+                        "                                      }\n" 
+                        "                          : boxed_row {\n" 
+                        "                                        label = \"Draw points from file:\";\n" 
+                        "                                        : column {\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      key = \"FROMFILE\";\n" 
+                        "                                                                      label = \"From File (Sta,O/S : Comma delim.)\";\n" 
+                        "                                                                      width = 20;\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                 }\n" 
+                        "                                      }\n" 
+                        "                          : boxed_row {\n" 
+                        "                                        label = \"Draw section lines:\";\n" 
+                        "                                        : column {\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Sta:\";\n" 
+                        "                                                                        key = \"XFROMSTATION\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                        edit_width = 15;\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \" W:\";\n" 
+                        "                                                                        key = \"XSWATH\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                        edit_width = 5;\n" 
+                        "                                                                      }\n" 
+                        "                                                           : toggle {\n" 
+                        "                                                                      label = \"Round\";\n" 
+                        "                                                                      key = \"XROUND\";\n" 
+                        "                                                                      value = \"1\";\n" 
+                        "                                                                    }\n" 
+                        "                                                           }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Sta:\";\n" 
+                        "                                                                        key = \"XTOSTATION\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                        edit_width = 15;\n" 
+                        "                                                                      }\n" 
+                        "                                                           : edit_box {\n" 
+                        "                                                                        label = \"Inc:\";\n" 
+                        "                                                                        key = \"XINC\";\n" 
+                        "                                                                        value = \"\";\n" 
+                        "                                                                        edit_width = 5;\n" 
+                        "                                                                      }\n" 
+                        "                                                           : toggle {\n" 
+                        "                                                                      label = \"TS/SC\";\n" 
+                        "                                                                      key = \"XSPECIAL\";\n" 
+                        "                                                                      value = \"0\";\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                   : row {\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      label = \"Pick\";\n" 
+                        "                                                                      key = \"XPICK\";\n" 
+                        "                                                                      width = 5;\n" 
+                        "                                                                    }\n" 
+                        "                                                           : button {\n" 
+                        "                                                                      label = \"Draw\";\n" 
+                        "                                                                      key = \"XDRAW\";\n" 
+                        "                                                                      width = 35;\n" 
+                        "                                                                    }\n" 
+                        "                                                         }\n" 
+                        "                                                 }\n" 
+                        "                                      }\n" 
+                        "                                      : row {\n" 
+                        "                                              : cancel_button {\n" 
+                        "                                                                key = \"CANCEL\";\n" 
+                        "                                                                label = \"Cancel\";\n" 
+                        "                                                              }\n" 
+                        "                                              : text {\n" 
+                        "                                                       key = \"STAMINMAX\";\n" 
+                        "                                                       value = \"Minimum < STA < Maximum\";\n" 
+                        "                                                       width = 30;\n" 
+                        "                                                     }\n" 
+                        "                                            }\n" 
+                        "                        }\n" 
+                        "             }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
  ) 
 ) 
 ;

@@ -9724,6 +9724,7 @@
  (defun GETQSECTIONLIST (/ DCIRCLE OBSURFACE REP SWATH THEIGHT VEXAG)
   (setq DCIRCLE nil)
   (setq RFL:QSECTIONALIGNLIST nil)
+  (setq RFL:QSECTIONPROFILELIST nil)
   (setq VEXAG 10.0)
   (setq REP (getdist (strcat "\nVertical exaggeration <" (rtos VEXAG) "> : ")))
   (if (/= nil REP) (setq VEXAG REP))
@@ -9830,8 +9831,8 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (eval nil)
 )
-;(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
-(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
+(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
+;(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
  (setq TOL 0.0001)
  (defun ISABOVE (P OSLIST / C RES)
   (if P
@@ -9864,7 +9865,7 @@
   )
   RES
  )
- (if RFL:QSECTIONALIGNLIST
+ (if (or RFL:QSECTIONALIGNLIST RFL:QSECTIONPROFILELIST)
   (setq AFLAG nil)
   (setq AFLAG T)
  )
@@ -10016,13 +10017,9 @@
          (cond ((= "S" (strcase (RFL:COLUMN NODE 1 ","))) ; S = Default Superelevation
                 (setq SLISTDEFAULT (list (atof (RFL:COLUMN NODE 2 ",")) (atof (RFL:COLUMN NODE 3 ","))))
                )
-               ((= "P" (strcase (RFL:COLUMN NODE 1 ","))) ; P = Polyline alignment controls
-                (progn)
-               )
-               ((and (= "A" (strcase (RFL:COLUMN NODE 1 ","))) ; A = Polyline Alignments
+               ((and (= "AP" (strcase (RFL:COLUMN NODE 1 ","))) ; AP = Polyline Alignments
                      AFLAG ; only redo if QSection reset
                 )
-;               ((= "A" (strcase (RFL:COLUMN NODE 1 ","))) ; A = Polyline Alignments
                 (progn
                  (princ "\nLoading control alignments .")
                  (setq ALSAVE RFL:ALIGNLIST)

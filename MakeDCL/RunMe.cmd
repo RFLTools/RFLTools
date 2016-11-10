@@ -13,7 +13,7 @@ rem -------------------------------------------------
 rem
 rem Start building the file
 rem
-echo.(defun RFL:MAKEDCL (OUTFILENAME DCLNAME / OUTFILE) > LoadMakeDCL.lsp
+echo.(defun RFL:MAKEDCL (OUTFILENAME DCLNAME / DCLLIST NODE OUTFILE) > LoadMakeDCL.lsp
 echo. (cond >> LoadMakeDCL.lsp
 rem
 rem -------------------------------------------------
@@ -30,18 +30,22 @@ set QUOTE="
 set QUOTEREPSTR=\"
 set BACKQUOTE=\"
 set BACKQUOTEREPSTR=\\"
-echo.       ((= (strcase DCLNAME) (strcase "%~n1")) >> LoadMakeDCL.lsp
-echo.        (progn >> LoadMakeDCL.lsp
-echo.         (setq OUTFILE (open OUTFILENAME "w")) >> LoadMakeDCL.lsp
+echo.  ((= (strcase DCLNAME) (strcase "%~n1")) >> LoadMakeDCL.lsp
+echo.   (progn >> LoadMakeDCL.lsp
+echo.    (setq DCLLIST (list >> LoadMakeDCL.lsp
 for /f "delims=" %%a in (./DCL/%1) do (
 set MYSTR=%%a
 set MYSTR=!MYSTR:%BACKQUOTE%=%BACKQUOTEREPSTR%!
 set MYSTR=!MYSTR:%QUOTE%=%QUOTEREPSTR%!
-echo.         !BRO!princ !QUOTE!!MYSTR!\n!QUOTE! OUTFILE!BRC! >> LoadMakeDCL.lsp
+echo.                        !QUOTE!!MYSTR!\n!QUOTE! >> LoadMakeDCL.lsp
 )
-echo.         (close OUTFILE) >> LoadMakeDCL.lsp
-echo.        ) >> LoadMakeDCL.lsp
-echo.       ) >> LoadMakeDCL.lsp
+echo.                  ) >> LoadMakeDCL.lsp
+echo.    ) >> LoadMakeDCL.lsp
+echo.    (setq OUTFILE (open OUTFILENAME "w")) >> LoadMakeDCL.lsp
+echo.    (foreach NODE DCLLIST (princ NODE OUTFILE)) >> LoadMakeDCL.lsp
+echo.    (close OUTFILE) >> LoadMakeDCL.lsp
+echo.   ) >> LoadMakeDCL.lsp
+echo.  ) >> LoadMakeDCL.lsp
 GOTO:eof
 rem
 rem -------------------------------------------------
