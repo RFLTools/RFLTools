@@ -6,7 +6,7 @@
 ;
 ;
 (if RFL:XY (princ "\nRFL:XY already loaded...")
-(defun RFL:XY (P / ANG AL ALTMP C D DIST OFFSET P1 P2 PC POINT STA X Y TOL)
+(defun RFL:XY (P / ANG AL ALTMP C D OFFSET P1 P2 PC POINT STA X Y TOL)
  (setq TOL 0.00000001)
  (defun POINT (P1 P2 BULGE L / A ATOTAL C CHORD LTOTAL P PC R SB X Y)
   (setq CHORD (distance P1 P2))
@@ -25,36 +25,18 @@
    )
   )
  )
- (defun DIST (P1 P2 BULGE / ATOTAL CHORD R)
-  (if (listp BULGE)
-   (progn
-    (- (RFL:GETSPIRALLS2 (car BULGE) (cadr BULGE) (caddr BULGE)) (cadddr BULGE))
-   )
-   (progn
-    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
-    (setq CHORD (distance P1 P2))
-    (if (= 0.0 BULGE)
-     (eval CHORD)
-     (progn 
-      (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
-      (* R ATOTAL)
-     )
-    )
-   )
-  )
- )
  (if (/= nil RFL:ALIGNLIST)
   (progn
    (setq STA (car P))
    (setq OFFSET (cadr P))
    (setq AL (last RFL:ALIGNLIST))
-   (if (<= STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))
+   (if (<= STA (+ (car AL) (RFL:DIST (cadr AL) (caddr AL) (cadddr AL))))
     (progn
      (setq AL (car RFL:ALIGNLIST))
      (setq ALTMP (cdr RFL:ALIGNLIST))
      (if (>= STA (car AL))
       (progn
-       (while (> STA (+ (car AL) (DIST (cadr AL) (caddr AL) (cadddr AL))))
+       (while (> STA (+ (car AL) (RFL:DIST (cadr AL) (caddr AL) (cadddr AL))))
         (setq AL (car ALTMP))
         (setq ALTMP (cdr ALTMP))
        )
