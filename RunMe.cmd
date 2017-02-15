@@ -35,6 +35,8 @@ rem
 COPY /B ".\LoadDLL\RFLLoadRFLDLL.lsp" + ^
         ".\Math\RFL*.lsp" + ^
         ".\Align\LoadRFLALign.lsp" + ^
+        ".\File2Binary\CFile2Binary.lsp" + ^
+        ".\File2Binary\RFLMakeRFLSLB.lsp" + ^
         ".\MakeEnt\LoadMakeEnt.lsp" + ^
         ".\MakeDCL\LoadMakeDCL.lsp" + ^
         ".\DrawGrid\DrawGrid.lsp" + ^

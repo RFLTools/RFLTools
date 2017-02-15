@@ -52,7 +52,7 @@
   (if (= nil (findfile RFLALIGNSLBNAME))
    (progn
     (setq RFLALIGNSLBNAME (vl-filename-mktemp "rfl.slb"))
-    (MAKERFLSLB RFLALIGNSLBNAME)
+    (RFL:MAKERFLSLB RFLALIGNSLBNAME)
    )
   )
   (start_image "IMAGE")
