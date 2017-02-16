@@ -120,6 +120,8 @@ RFL:PVILIST                  Vertical Profile
 RFL:LALIGNLIST               List describing alignment labeling variables
 
 ```
+;     Store this code in .lsp files based on different standards, drag/drop desired .lsp onto your drawing session to set
+;
 ;     NODEMODE = 0  :  LEFT
 ;     NODEMODE = 1  :  RIGHT
 ;     NODEMODE = 2  :  INSIDE
@@ -156,6 +158,8 @@ RFL:LALIGNLIST               List describing alignment labeling variables
 RFL:LPROFLIST                List describing profile labeling variables
 
 ```
+;     Store this code in .lsp files based on different standards, drag/drop desired .lsp onto your drawing session to set
+;
 (setq RFL:LPROFLIST (list (cons "PROFDRAW" 0)           ;  Draw profile
                           (cons "PROFLAYER" "*")        ;  Profile Layer
                           (cons "TEXTLAYER" "*-LBL")    ;  Text Layer
@@ -194,6 +198,8 @@ RFL:PROFDEFLIST              List describing location of profile (or section) gr
 RFL:RNELIST                  List describing Northing/Easting labelling
 
 ```
+;     Store this code in .lsp files based on different standards, drag/drop desired .lsp onto your drawing session to set
+;
 (setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
                         (cons "SO" 1)   ;  Label Station and Offset
                         (cons "Z" 1)    ;  Label Control Elevations
