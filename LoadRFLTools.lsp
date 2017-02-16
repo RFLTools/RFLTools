@@ -257,6 +257,38 @@
 (defun RFL:ROUND (X N / )
  (/ (float (fix (+ (* (float X) (expt 10.0 N)) (if (minusp X) -0.5 0.5)))) (expt 10.0 N))
 )
+;
+;
+;     Program written by Robert Livingston, 2016-05-26
+;
+;
+(defun RFL:FACT (N / F)
+ (setq F 1)
+ (while (> N 0)
+  (setq F (* F N))
+  (setq N (- N 1))
+ )
+ F
+)
+;
+;
+;     Program written by Robert Livingston, 2016-05-26
+;
+;
+(setq RFL:TOL 0.000001
+      RFL:TOLFINE 1e-16
+)
+;
+;
+;     Program written by Robert Livingston, 2016-05-26
+;
+;
+(defun RFL:SIGN (X)
+ (if (< X 0)
+  (eval -1)
+  (eval 1)
+ )
+)
 (defun RFL:INTERSA (P1 P2 P3 P4 BULGE / ANG1 ANG2 D D1 D2 D3 D4 OFFSET PA PB PCEN R)
  (setq P1 (list (car P1) (cadr P1)))
  (setq P2 (list (car P2) (cadr P2)))
@@ -355,24 +387,6 @@
   )
  )
  (list PA PB)
-)
-;
-;
-;     Program written by Robert Livingston, 2016-05-26
-;
-;     Collection of common routines, functions and constants
-;
-;
-(setq RFL:TOL 0.000001
-      RFL:TOLFINE 1e-16
-)
-(defun RFL:FACT (N / F)
- (setq F 1)
- (while (> N 0)
-  (setq F (* F N))
-  (setq N (- N 1))
- )
- F
 )
 ;
 ;
