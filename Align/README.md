@@ -119,131 +119,75 @@ RFL:PVILIST                  Vertical Profile
 
 RFL:LALIGNLIST               List describing alignment labeling variables
 
+```
 ;     NODEMODE = 0  :  LEFT
-
 ;     NODEMODE = 1  :  RIGHT
-
 ;     NODEMODE = 2  :  INSIDE
-
 ;     NODEMODE = 3  :  OUTSIDE
-
 ;
-
 ;     xxxLAYER  :  '*' concatinates current layer
-
 ;
-
 (setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")            ;  Station label block name
-
                            (cons "LABEL" 1)                        ;  Insert station labels yes/no
-                           
                            (cons "LABELLAYER" "*-LBL")             ;  Station label insertion layer
-                           
                            (cons "LABELINC" 100.0)                 ;  Station label insertion increment
-                           
                            (cons "LABELSCALE" 1.0)                 ;  Station label insertion scale
-                           
                            (cons "LABELOFFSET" 4.0)                ;  Station label relative offset
-                           
                            (cons "LABELROTATE" 0.0)                ;  Station label relative rotation
-                           
                            (cons "TICKBLOCK" "STATICK")            ;  Station tick block name
-                           
                            (cons "TICK" 1)                         ;  Insert station ticks yes/no
-                           
                            (cons "TICKLAYER" "*-LBL")              ;  Station tick insertion layer
-                           
                            (cons "TICKINC" 20.0)                   ;  Station tick insertion increment
-                           
                            (cons "TICKSCALE" 1.0)                  ;  Station tick insertion scale
-                           
                            (cons "TICKOFFSET" 0.0)                 ;  Station tick relative offset
-                           
                            (cons "TICKROTATE" 0.0)                 ;  Station tick relative rotation
-                           
                            (cons "NODELEFTBLOCK" "STANODELEFT")    ;  Block name for left side labelling
-                           
                            (cons "NODERIGHTBLOCK" "STANODERIGHT")  ;  Block name for right side labelling
-                           
                            (cons "NODE" 1)                         ;  Alignment node insertion yes/no
-                           
                            (cons "NODELAYER" "*-LBL")              ;  Alignment node insertion layer
-                           
                            (cons "NODEMODE" 3)                     ;  Alignment node mode (see above)
-                           
                            (cons "NODESCALE" 1.0)                  ;  Alignment node insertion scale
-                           
                            (cons "NODEOFFSET" 0.0)                 ;  Alignment node relative offset
-                           
                            (cons "NODEROTATE" 0.0)                 ;  Alignment node relative rotation
-                           
                      )
-                     
 )
+```
 
 RFL:LPROFLIST                List describing profile labeling variables
 
+```
 (setq RFL:LPROFLIST (list (cons "PROFDRAW" 0)           ;  Draw profile
-
                           (cons "PROFLAYER" "*")        ;  Profile Layer
-                          
                           (cons "TEXTLAYER" "*-LBL")    ;  Text Layer
-                          
                           (cons "TEXTHEIGHT" 3.5)       ;  Text Height
-                          
                           (cons "UNITS" "m")            ;  Linear Units
-                          
                           (cons "LSLOPE" 1)             ;  Label Slope
-                          
                           (cons "LL" 1)                 ;  Label 'L'
-                          
                           (cons "LK" 1)                 ;  Label 'K'
-                          
                           (cons "CNODES" 1)             ;  Circle Nodes
-                          
                           (cons "CNODERAD" 1.0)         ;  Node Circle Radius
-                          
                           (cons "CNODELENGTH" 10.0)     ;  Node Line Length
-                          
                           (cons "CNODEVOFFSET" 1.0)     ;  Node Text Vertical Offset
-                          
                           (cons "CNODEHOFFSET" 0.875)   ;  Node Text Horisontal Offset
-                          
                           (cons "DPVI" 1)               ;  Draw PVI
-                          
                           (cons "LPVI" 1)               ;  Label PVI
-                          
                           (cons "LBVC" 1)               ;  Label BVC and EVC
-                          
                           (cons "LHIGH" 0)              ;  Label 'high' Chainage (if not stations are labelled as '+234.567'
-                          
                           (cons "LELEVATIONSC" 1)       ;  Label Elevations Curves
-                          
                           (cons "LELEVATIONST" 1)       ;  Label Elevations Tangents
-                          
                           (cons "ELEVTEXTHEIGHT" 2.5)   ;  Elevation Text Height
-                          
                           (cons "ELEVTEXTINC" 20.0)     ;  Elevation Text Increment
-                          
                           (cons "ELEVTEXTOS" -20.0)     ;  Elevation Text Offset (from grid basepoint)
-                          
                           (cons "RAB" 0)                ;  Reverse Above/Below flag (1 = labels above with K/L below)
-                          
                           (cons "DIRECTION" "DIRRIGHT") ;  Label Direction (DIRRIGHT / DIRLEFT / DIRUP / DIRDOWN)
-                          
                           (cons "KPREC" 1)              ;  'K' Precision
-                          
                           (cons "LPREC" 0)              ;  'L' Precision
-                          
                           (cons "SLOPEPREC" 3)          ;  Slope Precision
-                          
                           (cons "STAPREC" 3)            ;  Station Precision
-                          
                           (cons "ELEVPREC" 3)           ;  Elevation Precision
-                          
                     )
-                    
 )
+```
 
 RFL:PROFDEFLIST              List describing location of profile (or section) grid
 
