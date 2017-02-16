@@ -24517,7 +24517,7 @@
   (setq C 1)
   (setq OS 0.0)
   (while (< C (- (length PLIST) 1))
-   (setq SOS (STAOFF (nth C PLIST)))
+   (setq SOS (RFL:STAOFF (nth C PLIST)))
    (if (= SOS nil)
     (progn
      (setq OS nil)
@@ -24536,8 +24536,8 @@
  )
 
  (defun DRAWARC (NODE / ANG1 ANG2 ENTLIST PC R)
-  (setq PC (CENTER (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
-  (setq R (RADIUS (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
+  (setq PC (RFL:CENTER (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
+  (setq R (RFL:RADIUS (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
   (if (> (last NODE) 0.0)
    (progn
     (setq ANG1 (angle PC (nth 1 NODE)))
