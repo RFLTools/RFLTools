@@ -249,14 +249,15 @@ RFL:PROFDEFLIST              List describing location of profile (or section) gr
 
 RFL:RNELIST                  List describing Northing/Easting labelling
 
-(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting  
-                        (cons "SO" 1)   ;  Label Station and Offset  
-                        (cons "Z" 1)    ;  Label Control Elevations  
-                        (cons "G" 1)    ;  Label Control Grades  
-                        (cons "SE" 1)   ;  Label Superelevations  
-                 )  
+```
+(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                        (cons "SO" 1)   ;  Label Station and Offset
+                        (cons "Z" 1)    ;  Label Control Elevations
+                        (cons "G" 1)    ;  Label Control Grades
+                        (cons "SE" 1)   ;  Label Superelevations
+                 )
 )
- 
+```
 
 
 
