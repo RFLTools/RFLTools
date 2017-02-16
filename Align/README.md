@@ -120,10 +120,15 @@ RFL:PVILIST                  Vertical Profile
 RFL:LALIGNLIST               List describing alignment labeling variables
 
 ;     NODEMODE = 0  :  LEFT
+
 ;     NODEMODE = 1  :  RIGHT
+
 ;     NODEMODE = 2  :  INSIDE
+
 ;     NODEMODE = 3  :  OUTSIDE
+
 ;
+
 ;     xxxLAYER  :  '*' concatinates current layer
 ;
 (setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")
