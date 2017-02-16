@@ -3,7 +3,7 @@ AutoLisp Alignment Tools
 
 Purpose:  To provide tools for analyzing civil alignments
 
-Notes:  Use "RunMe.cmd" to combine all necessary files to single "LoadRFLAlign.lsp"
+Notes:  Use "RunMe.cmd" to combine all necessary files to single "LoadRFLAlign.lsp", "RunMe2.cmd" is used by the master and removes duplicate math functions.
 
 Status:
 

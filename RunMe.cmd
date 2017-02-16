@@ -7,7 +7,7 @@ rem
 rem Build Align
 rem
 CD .\Align
-CALL .\RunMe.cmd
+CALL .\RunMe2.cmd
 CD ..
 rem
 rem ---------------------------------------------

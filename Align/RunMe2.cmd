@@ -11,7 +11,6 @@ COPY /B ".\Align\RFL*.lsp" + ^
         ".\C3D\C*.lsp" + ^
         ".\C3D\RFL*.lsp" + ^
         ".\Common\RFL*.lsp" + ^
-        "..\Math\RFL*.lsp" + ^
         ".\AcadCommands\RFL*.lsp" + ^
         ".\Commands\C*.lsp" + ^
         ".\QSection\C*.lsp" ^

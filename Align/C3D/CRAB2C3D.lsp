@@ -8,7 +8,7 @@
 (defun C:RAB2C3D (/ *error* ALIGNLISTSAVE ALIGNMENTNAME ALIGNMENTSTYLENAME ALIGNMENTLABELSTYLESETNAME BLKENT BLKENTLIST BULGE
                     C CCW CMAX GETOBAECC ID LANDPROFILESTYLENAME LO LS NAME NODE
                     OALIGNMENT OALIGNMENTENTITIES OALIGNMENTSTYLES OALIGNMENTLABELSTYLESETS OALIGNMENTSSITELESS OCIVILAPP ODOCUMENT OLANDPROFILESTYLES OPVIS
-                    P1 P2 PLT PLTST PST PREVENT PVILISTSAVE RADIUS SUPERLISTSAVE)
+                    P1 P2 PLT PLTST PST PREVENT PVILISTSAVE SUPERLISTSAVE)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
 
@@ -28,21 +28,6 @@
   (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." ACADVER))
   (setq *acad* (vlax-get-acad-object))
   (vla-getinterfaceobject *acad* ACADPROD)
- )
-
- (defun RADIUS (P1 P2 BULGE / ATOTAL CHORD R)
-  (if (listp BULGE)
-   (setq R (RFL:GETSPIRALR2 (nth 0 BULGE) (nth 1 BULGE) (nth 2 BULGE)))
-   (progn
-    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
-    (setq CHORD (distance P1 P2))
-    (if (< (abs BULGE) TOL)
-     (setq R nil)
-     (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
-    )
-   )
-  )
-  R
  )
 
  (command "._UNDO" "M")
@@ -156,14 +141,14 @@
                       (setq LS (- (RFL:GETSPIRALLS2 PLT PLTST PST) LO))
                       (if (> (distance P2 PLT) (distance P1 PLT))
                        (progn
-                        (setq R2 (RADIUS P1 P2 BULGE))
+                        (setq R2 (RFL:RADIUS P1 P2 BULGE))
                         (if (< LO RFL:TOLFINE)
                          (setq R1 0.0)
                          (setq R1 (/ (* R2 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
                         )
                        )
                        (progn
-                        (setq R1 (RADIUS P1 P2 BULGE))
+                        (setq R1 (RFL:RADIUS P1 P2 BULGE))
                         (if (< LO RFL:TOLFINE)
                          (setq R2 0.0)
                          (setq R2 (/ (* R1 (RFL:GETSPIRALLS2 PLT PLTST PST)) LO))
@@ -223,7 +208,7 @@
                        (vlax-safearray-put-element PT3 1 (cadr PC))
                        (vlax-safearray-put-element PT3 2 0.0)
                        (if (> BULGE 0.0) (setq CCW 0) (setq CCW T))
-                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedCurve6" PT1 PT2 (RADIUS (nth 1 NODE) (nth 2 NODE) BULGE) CCW))
+                       (setq PREVENT (vlax-invoke-method OALIGNMENTENTITIES "AddFixedCurve6" PT1 PT2 (RFL:RADIUS (nth 1 NODE) (nth 2 NODE) BULGE) CCW))
                       )
                      )
                     )
