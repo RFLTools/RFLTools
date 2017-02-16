@@ -107,6 +107,8 @@ C:WSuperB                    Writes the superelevation to a selected alignment b
 
 (RFL:XY s)                   Returns a point list (X Y) for a provided list of (Station Offset)
 
+(RFL:XYP)                    A collection of routines for plotting XP points along an alignment
+
 Global Variables:
 
 RFL:ALIGNLIST                Horizontal Alignment
@@ -117,9 +119,84 @@ RFL:PVILIST                  Vertical Profile
 
 RFL:LALIGNLIST               List describing alignment labeling variables
 
+;     NODEMODE = 0  :  LEFT
+;     NODEMODE = 1  :  RIGHT
+;     NODEMODE = 2  :  INSIDE
+;     NODEMODE = 3  :  OUTSIDE
+;
+;     xxxLAYER  :  '*' concatinates current layer
+;
+(setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")
+                           (cons "LABEL" 1)
+                           (cons "LABELLAYER" "*-LBL")
+                           (cons "LABELINC" 100.0)
+                           (cons "LABELSCALE" 1.0)
+                           (cons "LABELOFFSET" 4.0)
+                           (cons "LABELROTATE" 0.0)
+                           (cons "TICKBLOCK" "STATICK")
+                           (cons "TICK" 1)
+                           (cons "TICKLAYER" "*-LBL")
+                           (cons "TICKINC" 20.0)
+                           (cons "TICKSCALE" 1.0)
+                           (cons "TICKOFFSET" 0.0)
+                           (cons "TICKROTATE" 0.0)
+                           (cons "NODELEFTBLOCK" "STANODELEFT")
+                           (cons "NODERIGHTBLOCK" "STANODERIGHT")
+                           (cons "NODE" 1)
+                           (cons "NODELAYER" "*-LBL")
+                           (cons "NODEMODE" 3)
+                           (cons "NODESCALE" 1.0)
+                           (cons "NODEOFFSET" 0.0)
+                           (cons "NODEROTATE" 0.0)
+                     )
+)
+
 RFL:LPROFLIST                List describing profile labeling variables
 
+(setq RFL:LPROFLIST (list (cons "PROFDRAW" 0)           ;  Draw profile
+                          (cons "PROFLAYER" "*")        ;  Profile Layer
+                          (cons "TEXTLAYER" "*-LBL")    ;  Text Layer
+                          (cons "TEXTHEIGHT" 3.5)       ;  Text Height
+                          (cons "UNITS" "m")            ;  Linear Units
+                          (cons "LSLOPE" 1)             ;  Label Slope
+                          (cons "LL" 1)                 ;  Label 'L'
+                          (cons "LK" 1)                 ;  Label 'K'
+                          (cons "CNODES" 1)             ;  Circle Nodes
+                          (cons "CNODERAD" 1.0)         ;  Node Circle Radius
+                          (cons "CNODELENGTH" 10.0)     ;  Node Line Length
+                          (cons "CNODEVOFFSET" 1.0)     ;  Node Text Vertical Offset
+                          (cons "CNODEHOFFSET" 0.875)   ;  Node Text Horisontal Offset
+                          (cons "DPVI" 1)               ;  Draw PVI
+                          (cons "LPVI" 1)               ;  Label PVI
+                          (cons "LBVC" 1)               ;  Label BVC and EVC
+                          (cons "LHIGH" 0)              ;  Label 'high' Chainage (if not stations are labelled as '+234.567'
+                          (cons "LELEVATIONSC" 1)       ;  Label Elevations Curves
+                          (cons "LELEVATIONST" 1)       ;  Label Elevations Tangents
+                          (cons "ELEVTEXTHEIGHT" 2.5)   ;  Elevation Text Height
+                          (cons "ELEVTEXTINC" 20.0)     ;  Elevation Text Increment
+                          (cons "ELEVTEXTOS" -20.0)     ;  Elevation Text Offset (from grid basepoint)
+                          (cons "RAB" 0)                ;  Reverse Above/Below flag (1 = labels above with K/L below)
+                          (cons "DIRECTION" "DIRRIGHT") ;  Label Direction (DIRRIGHT / DIRLEFT / DIRUP / DIRDOWN)
+                          (cons "KPREC" 1)              ;  'K' Precision
+                          (cons "LPREC" 0)              ;  'L' Precision
+                          (cons "SLOPEPREC" 3)          ;  Slope Precision
+                          (cons "STAPREC" 3)            ;  Station Precision
+                          (cons "ELEVPREC" 3)           ;  Elevation Precision
+                    )
+)
+
 RFL:PROFDEFLIST              List describing location of profile (or section) grid
+
+RFL:RNELIST                  List describing Northing/Easting labelling
+
+(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                        (cons "SO" 1)   ;  Label Station and Offset
+                        (cons "Z" 1)    ;  Label Control Elevations
+                        (cons "G" 1)    ;  Label Control Grades
+                        (cons "SE" 1)   ;  Label Superelevations
+                 )
+)
+ 
 
 
 
