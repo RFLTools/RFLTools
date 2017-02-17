@@ -9,7 +9,7 @@
   (progn
    (setq ATOTAL (* 4.0 (atan (abs BULGE))))
    (setq CHORD (distance P1 P2))
-   (if (< (abs BULGE) TOL)
+   (if (< (abs BULGE) RFL:TOLFINE)
     (setq R nil)
     (setq R (/ CHORD (* 2 (sin (/ ATOTAL 2)))))
    )
