@@ -10738,7 +10738,7 @@
 ;     C:MAKESUPER is a utility for generating Superelevations along an alignment.
 ;
 ;
-(defun C:MAKESUPER (/ C GETSUPER L NODE REP R R1 R2 S S1 S2 STA TABLE VDES)
+(defun C:MAKESUPER (/ C GETSUPER L NODE REP R R1 R2 RUNOUT S S1 S2 STA TABLE VDES)
  (defun GETSUPER (TABLE R VDES)
   (apply (read TABLE) (list R VDES))
  )
@@ -10755,6 +10755,10 @@
   (setq VDES REP)
   (setq VDES 60.0)
  )
+ (if (setq REP (getdist "\nEnter spiral runout distance <60.0> : "))
+  (setq RUNOUT REP)
+  (setq RUNOUT 60.0)
+ )
  (setq RFL:SUPERLIST nil)
  (foreach NODE RFL:ALIGNLIST
   (cond ((listp (last NODE))
@@ -10762,7 +10766,7 @@
           (print "SPIRAL")
           (setq S nil S1 nil S2 nil)
           (setq STA (car NODE))
-          (setq L (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
+          (setq L (- (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)) (last (nth 3 NODE))))
           (setq R1 (RFL:GETRADIUS STA))
           (if (> (abs R1) 10000.0) (setq R1 0.0))
           (setq R2 (RFL:GETRADIUS (+ STA L)))
@@ -10798,6 +10802,12 @@
         ((< (abs (last NODE)) RFL:TOL)
          (progn ; Line
           (print "LINE")
+          (if (> (distance (nth 1 NODE) (nth 2 NODE)) (* 2.0 RUNOUT))
+           (progn
+            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) RUNOUT) -2.0 -2.0))))
+            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (- (+ (nth 0 NODE) (distance (nth 1 NODE) (nth 2 NODE))) RUNOUT) -2.0 -2.0))))
+           )
+          )
          )
         )
         (T
@@ -10819,7 +10829,14 @@
  (while (< C (length S))
   (if (> (abs (- (car (nth C S)) (car (nth (1- C) S)))) RFL:TOL)
    (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (nth C S))))
-   
+   (if (and (or (= (cadr (nth C S)) 0.0) (= (cadr (nth C S)) -2.0))
+            (or (= (caddr (nth C S)) 0.0) (= (caddr (nth C S)) -2.0))
+       )
+    (progn
+     (setq RFL:SUPERLIST (reverse (cdr (reverse RFL:SUPERLIST))))
+     (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (car (nth C S)) 0.0 0.0))))
+    )
+   )
   )
   (setq C (1+ C))
  )
