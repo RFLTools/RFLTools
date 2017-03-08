@@ -5,10 +5,10 @@
 ;   (RFL:XYP) returns the X,Y point for a station and offset of the currently defined alignment
 ;
 ;
-(defun RFL:XYP (/ ACCEPTXYP AL ANG CANCEL CANCELXYP DCL_ID FIXE FIXN FIXSTA FIXOS
+(defun RFL:XYP (/ ACCEPTXYP AL ANG CANCEL CANCELXYP DCL_ID ENT FIXE FIXN FIXSTA FIXOS
                   FIXFROMSTA FIXFROMOS FIXTOSTA FIXTOOS
                   FIXSTEP FIXXFROMSTA FIXXTOSTA FIXXSWATH FIXXINC INC INFILE INLINE
-                  NODE P P1 P2 RERUN STA STA1 STA2 STAMIN STAMAX
+                  NODE NODEPOINT P P1 P2 PREVENT RERUN STA STA1 STA2 STAMIN STAMAX STANODE
                   TMP UPDATENE UPDATESTAOFF)
 
  (defun ACCEPTXYP (TMP)
@@ -135,10 +135,29 @@
    )
   )
  )
+ 
+ (defun NODEPOINT (ALIGNLIST STA INC STA2 / NODE STANODE)
+  (setq NODE (car ALIGNLIST))
+  (setq ALIGNLIST (cdr ALIGNLIST))
+  (while (and NODE
+              (> STA (setq STANODE (+ (car NODE) (RFL:DIST (cadr NODE) (caddr NODE) (cadddr NODE)))))
+              (< STANODE STA2)
+         )
+   (setq NODE (car ALIGNLIST))
+   (setq ALIGNLIST (cdr ALIGNLIST))
+  )
+  (if (and (< STANODE STA2)
+           (> (+ STA INC) STANODE)
+      )
+   STANODE
+   nil
+  )
+ )
 
  (if (or (= RFL:ALIGNLIST nil) (= RFL:XY nil))
   (princ "\n*** No alignment defined or utilities not loaded ***")
   (progn
+   (setq PREVENT nil)
    (setq NODE (car RFL:ALIGNLIST))
    (setq STAMIN (car NODE))
    (setq NODE (last RFL:ALIGNLIST))
@@ -260,6 +279,43 @@
         (setq STA STA1)
        )
        (while (<= STA STA2)
+        (if (and (= XYPXSPECIAL "1")
+                 (setq STANODE (NODEPOINT RFL:ALIGNLIST STA INC STA2))
+            )
+         (progn
+          (setq P1 (RFL:XY (list STANODE (* -0.5 XYPXSWATH))))
+          (setq P2 (RFL:XY (list STANODE (* 0.5 XYPXSWATH))))
+          (if (/= P1 nil)
+           (progn
+            (entmake)
+            (if (= XYPXSWATH 0.0)
+             (progn
+              (if (/= P1 nil)
+               (progn
+                (setq P2 (RFL:XY (list STANODE 1.0)))
+                (setq ANG (angle P1 P2))
+                (entmake (list (cons 0 "XLINE")
+                               (cons 100 "AcDbEntity")
+                               (cons 100 "AcDbXline")
+                               (append (list 10) P1 (list 0.0))
+                               (list 11 (cos ANG) (sin ANG) 0.0)
+                         )
+                )
+               )
+               (entmake (list (cons 0 "LINE")
+                              (append (list 10) P1 (list 0.0))
+                              (append (list 11) P2 (list 0.0))
+                        )
+               )
+              )
+              (setq ENT (entlast))
+              (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+             )
+            )
+           )
+          )
+         )
+        )
         (setq P1 (RFL:XY (list STA (* -0.5 XYPXSWATH))))
         (setq P2 (RFL:XY (list STA (* 0.5 XYPXSWATH))))
         (if (/= P1 nil)
@@ -284,6 +340,8 @@
                     )
            )
           )
+          (setq ENT (entlast))
+          (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
          )
         )
         (setq STA (+ STA INC))

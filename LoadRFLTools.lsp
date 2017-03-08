@@ -1496,10 +1496,10 @@
 ;   (RFL:XYP) returns the X,Y point for a station and offset of the currently defined alignment
 ;
 ;
-(defun RFL:XYP (/ ACCEPTXYP AL ANG CANCEL CANCELXYP DCL_ID FIXE FIXN FIXSTA FIXOS
+(defun RFL:XYP (/ ACCEPTXYP AL ANG CANCEL CANCELXYP DCL_ID ENT FIXE FIXN FIXSTA FIXOS
                   FIXFROMSTA FIXFROMOS FIXTOSTA FIXTOOS
                   FIXSTEP FIXXFROMSTA FIXXTOSTA FIXXSWATH FIXXINC INC INFILE INLINE
-                  NODE P P1 P2 RERUN STA STA1 STA2 STAMIN STAMAX
+                  NODE P P1 P2 PREVENT RERUN STA STA1 STA2 STAMIN STAMAX
                   TMP UPDATENE UPDATESTAOFF)
 
  (defun ACCEPTXYP (TMP)
@@ -1630,6 +1630,7 @@
  (if (or (= RFL:ALIGNLIST nil) (= RFL:XY nil))
   (princ "\n*** No alignment defined or utilities not loaded ***")
   (progn
+   (setq PREVENT nil)
    (setq NODE (car RFL:ALIGNLIST))
    (setq STAMIN (car NODE))
    (setq NODE (last RFL:ALIGNLIST))
@@ -1775,6 +1776,8 @@
                     )
            )
           )
+         (setq ENT (entlast))
+         (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
          )
         )
         (setq STA (+ STA INC))
