@@ -5,7 +5,7 @@
 ;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
 ;
 ;
-(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE P P1 TB TBL TBR W WL WR W+)
+(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE)
  (setq ATTREQ (getvar "ATTREQ"))
  (setvar "ATTREQ" 0)
  (setq ANGBASE (getvar "ANGBASE"))
