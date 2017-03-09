@@ -1,0 +1,21 @@
+(defun RFL:SELECTLINKED (/ C C2 ENT ENTSET LINKEDSET SOURCESET)
+ (if (setq SOURCESET (ssget "I"))
+  (progn
+   (setq LINKEDSET (ssadd))
+   (setq C 0)
+   (while (< C (sslength SOURCESET))
+    (setq ENT (ssname SOURCESET C))
+    (setq ENTSET (RFL:GETALLENT ENT))
+    (setq C2 0)
+    (while (< C2 (sslength ENTSET))
+     (ssadd (ssname ENTSET C2) LINKEDSET)
+     (setq C2 (1+ C2))
+    )
+    (setq C (1+ C))
+   )
+   (sssetfirst nil LINKEDSET)
+   LINKEDSET
+  )
+  nil
+ )
+)
