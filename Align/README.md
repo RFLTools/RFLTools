@@ -15,9 +15,15 @@ Commands currently working:
 
 C:AArc                       Draws an arc at the end of a selected entity
 
+C:AIProf                     Labels/Draws profile in (close to) Alberta Infrastructure format
+
 C:ALine                      Draws a line at the end of a selected entity
 
+C:ALign2Prof                 Draws a series of profile lines based on the elevation attributes of blocks along an alignment
+
 C:ASpiral                    Draws a spiral at the end of a selected entity
+
+C:BCProf                     Labels/Draws profile in (close to) BC Ministry of Transport format
 
 C:DAlign                     Draws the current alignment
 
@@ -40,6 +46,8 @@ C:GSuper                     Defines the superelevation by selecting super block
 C:LAlign                     Labels an alignment
 
 C:LProf                      Labels a profile
+
+C:MakeSuper                  Assists with the creation of superelevation points (work in progress) based on either BCMoTI or TAC 6% tables
 
 C:RAB                        Reads the horizontal, vertical, super, OG from a selected alignment block
 
@@ -77,7 +85,11 @@ C:RSuperB                    Reads the superelevation from a selected alignment 
 
 C:RSuperBN                   Reads the superelevation from a selected nested alignment block
 
+C:SElev                      Inserts point blocks at selected points with elevation arrtibute based on current alignment/profile/super
+
 C:VCurve                     Draws a vertical curve (and PVI block) between two selected lines
+
+C:VPL                        A tool for labelling points on a profile
 
 C:WAlign                     Writes an alignment to file
 
@@ -104,6 +116,10 @@ C:WSuperB                    Writes the superelevation to a selected alignment b
 (RFL:Slope Sta)              Returns the slope at station Sta
 
 (RFL:STAOFF p)               Returns a list of (Station Offset) for a provided (X Y) point
+
+(RFL:VP)                     A utility for plotting points on a profile
+
+(RFL:VPP p)                  Returns a profile point list (X Y) for a provided list of (Station Offset)
 
 (RFL:XY s)                   Returns a point list (X Y) for a provided list of (Station Offset)
 
