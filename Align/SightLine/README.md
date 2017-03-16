@@ -13,4 +13,6 @@ C:SightLineProf              Draws an series of 2D line of specified length and 
 
 C:SightLineProfMax           Traverses a profile calculating maximum sightdistance
 
+C:StopSight3D                Determines distance along an alignment to when sightline falls below Civil 3D surface from a specified point
+
 RFL:SIGHTDISTPROF            A utility for calculating the sight distance from a given Station along a profile
