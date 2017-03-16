@@ -14,5 +14,6 @@ COPY /B ".\Align\RFL*.lsp" + ^
         "..\Math\RFL*.lsp" + ^
         ".\AcadCommands\RFL*.lsp" + ^
         ".\Commands\C*.lsp" + ^
-        ".\QSection\C*.lsp" ^
+        ".\QSection\C*.lsp" + ^
+        ".\SightLine\*.lsp" ^
         ".\LoadRFLAlign.lsp"
