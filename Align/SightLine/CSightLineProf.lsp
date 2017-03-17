@@ -28,6 +28,7 @@
 
  (command "._UNDO" "M")
 
+ (RFL:PROFDEF)
  (if (= nil RFL:PVILIST)
   (princ "\n!!!  No profile defined  !!!")
   (progn
