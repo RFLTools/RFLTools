@@ -13,6 +13,8 @@
 ;     (RFL:GETALLPREVENT E1)  :  Returns all the previous entities of E1
 ;     (RFL:GETALLENT E1)      :  Returns all the entities linked to E1 (including E1)
 ;     (RFL:BREAKENT E1)       :  Removes all the links to E1 and relinks the previous and next to eachother
+;     (RFL:GETFIRSTENT E1)    :  Returns the first linked entity
+;     (RFL:GETLASTENT E1)     :  Returns the last linked entity
 ;
 (defun RFL:PUTENT (ENT NEXTENT PREVENT / ENTLIST)
  (vl-load-com)
@@ -196,4 +198,42 @@
   )
   nil
  )
+)
+(defun RFL:GETFIRSTENT (ENT / ENTLIST)
+ (setq ENTLIST T)
+ (if (= (type ENT) 'ENAME)
+  (while (/= nil ENTLIST)
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_PREVENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
+   (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (setq ENT (handent (cdar ENTLIST)))
+    nil
+   )
+  )
+  nil
+ )
+ ENT
+)
+(defun RFL:GETLASTENT (ENT / ENTLIST)
+ (setq ENTLIST T)
+ (if (= (type ENT) 'ENAME)
+  (while (/= nil ENTLIST)
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_NEXTENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
+   (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (setq ENT (handent (cdar ENTLIST)))
+    nil
+   )
+  )
+  nil
+ )
+ ENT
 )

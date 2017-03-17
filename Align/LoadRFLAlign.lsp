@@ -5094,6 +5094,8 @@
 ;     (RFL:GETALLPREVENT E1)  :  Returns all the previous entities of E1
 ;     (RFL:GETALLENT E1)      :  Returns all the entities linked to E1 (including E1)
 ;     (RFL:BREAKENT E1)       :  Removes all the links to E1 and relinks the previous and next to eachother
+;     (RFL:GETFIRSTENT E1)    :  Returns the first linked entity
+;     (RFL:GETLASTENT E1)     :  Returns the last linked entity
 ;
 (defun RFL:PUTENT (ENT NEXTENT PREVENT / ENTLIST)
  (vl-load-com)
@@ -5277,6 +5279,44 @@
   )
   nil
  )
+)
+(defun RFL:GETFIRSTENT (ENT / ENTLIST)
+ (setq ENTLIST T)
+ (if (= (type ENT) 'ENAME)
+  (while (/= nil ENTLIST)
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_PREVENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
+   (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (setq ENT (handent (cdar ENTLIST)))
+    nil
+   )
+  )
+  nil
+ )
+ ENT
+)
+(defun RFL:GETLASTENT (ENT / ENTLIST)
+ (setq ENTLIST T)
+ (if (= (type ENT) 'ENAME)
+  (while (/= nil ENTLIST)
+   (if (/= nil (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT"))))))
+    (while (and ENTLIST (/= (cdar ENTLIST) "RFLTOOLS_NEXTENT"))
+     (setq ENTLIST (cdr ENTLIST))
+    )
+   )
+   (setq ENTLIST (cdr ENTLIST))
+   (if ENTLIST
+    (setq ENT (handent (cdar ENTLIST)))
+    nil
+   )
+  )
+  nil
+ )
+ ENT
 );
 ;
 ;     Program written by Robert Livingston, 2008-11-04
@@ -5476,10 +5516,10 @@
 ;     RFL:INTERS returns the intersection of a line defined by P1/P2 and an RFL alignment
 ;
 ;
-(defun RFL:ALINTERS (P1 P2 ALIGNLIST / ALSAVE C OS P SWAP TOL)
+(defun RFL:ALINTERS (P1 P2 RFL:ALIGNLIST / ALSAVE C OS P SWAP TOL)
  (setq TOL 0.00001)
  (defun SWAP (/ TMP)
-  (setq TMP ALIGNLIST ALIGNLIST ALSAVE ALSAVE TMP)
+  (setq TMP RFL:ALIGNLIST RFL:ALIGNLIST ALSAVE ALSAVE TMP)
  )
  (setq C 0)
  (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
@@ -6090,7 +6130,133 @@
   nil
  )
 )
-;
+(defun RFL:INTERS2 (NODE1 NODE2 / ANG1 ANG2 A B C CHECKARC CHECKLINE M P1 P2 P11 P12 BULGE1 P21 P22 BULGE2 P1C P2C PM P1M P2M R1 R2 TMP X Y)
+ (defun CHECKLINE (P P1 P2)
+  (if (or (> (distance P P1) (distance P1 P2)) (> (distance P P2) (distance P1 P2)))
+   (eval nil)
+   (setq P P)
+  )
+ )
+ (defun CHECKARC (P PC A1 A2 BULGE / A)
+  (setq A (angle PC P))
+  (if (> BULGE 0.0)
+   (progn
+    (if (> A1 A2)
+     (progn
+      (setq A1 (- A1 pi pi))
+      (if (> A pi) (setq A (- A pi pi)))
+     )
+    )
+    (if (and (> A A1) (< A A2))
+     (setq P P)
+     (eval nil)
+    )
+   )
+   (progn
+    (if (> A2 A1)
+     (progn
+      (setq A2 (- A2 pi pi))
+      (if (> A pi) (setq A (- A pi pi)))
+     )
+    )
+    (if (and (> A A2) (< A A1))
+     (setq P P)
+     (eval nil)
+    )
+   )
+  )
+ )
+ (if (or (listp (last NODE1)) (listp (last NODE2)))
+  (progn
+   (princ "*** WILL NOT EVALUATE FOR SPIRAL! ***")
+   (eval nil)
+  )
+  (progn
+    (setq P11 (nth 1 NODE1))
+    (setq P12 (nth 2 NODE1))
+    (setq BULGE1 (nth 3 NODE1))
+    (setq P21 (nth 1 NODE2))
+    (setq P22 (nth 2 NODE2))
+    (setq BULGE2 (nth 3 NODE2))
+   (if (and (< (abs BULGE1) RFL:TOL) (< (abs BULGE2) RFL:TOL))
+    (progn
+;  LINE-LINE
+     (inters P11 P12 P21 P22 T)
+    )
+    (progn
+     (if (and (> (abs BULGE1) RFL:TOL) (> (abs BULGE2) RFL:TOL))
+      (progn
+;  ARC-ARC
+       (princ "*** WILL NOT EVALUATE FOR ARC-ARC! ***")
+       (eval nil)
+      )
+      (progn
+;  LINE-ARC
+       (if (> (abs BULGE1) RFL:TOL)
+        (progn
+         (setq TMP P11 P11 P21 P21 TMP)
+         (setq TMP P12 P12 P22 P22 TMP)
+         (setq TMP BULGE1 BULGE1 BULGE2 BULGE2 TMP)
+        )
+       )
+       (setq P2C (RFL:CENTER P21 P22 BULGE2))
+       (setq R2 (RFL:RADIUS P21 P22 BULGE2))
+       (setq ANG1 (angle P2C P21))
+       (setq ANG2 (angle P2C P22))
+       (setq A (distance P2C P11))
+       (setq B (distance P2C P12))
+       (setq C (distance P11 P12))
+       (setq M (/ (- (* B B) (* A A) (* C C)) (* -2.0 C)))
+       (setq P1M (list (+ (car P11) (* (/ M C) (- (car P12) (car P11))))
+                       (+ (cadr P11) (* (/ M C) (- (cadr P12) (cadr P11))))
+                 )
+       )
+       (if (> (distance P2C P1M) R2)
+        (progn
+         (eval nil)
+        )
+        (if (< (abs (- (distance P2C P1M) R2)) RFL:TOL)
+         (progn
+;          (CHECK P1M P2C ANG1 ANG2)
+;  TANGENT TO ARC (work in progress)
+          (princ "*** WILL NOT EVALUATE FOR Sightline tangent to arc! ***")
+          (eval nil)
+         )
+         (progn
+          (setq Y (distance P2C P1M))
+          (setq X (sqrt (- (* R2 R2) (* Y Y))))
+          (setq P1 (list (+ (car P11) (* (/ (- M X) C) (- (car P12) (car P11))))
+                         (+ (cadr P11) (* (/ (- M X) C) (- (cadr P12) (cadr P11))))
+                   )
+          )
+          (setq P2 (list (+ (car P11) (* (/ (+ M X) C) (- (car P12) (car P11))))
+                         (+ (cadr P11) (* (/ (+ M X) C) (- (cadr P12) (cadr P11))))
+                   )
+          )
+          (setq P1 (CHECKLINE P1 P11 P12))
+          (if (/= P1 nil) (setq P1 (CHECKARC P1 P2C ANG1 ANG2 BULGE2)))
+          (setq P2 (CHECKLINE P2 P11 P12))
+          (if (/= P2 nil) (setq P2 (CHECKARC P2 P2C ANG1 ANG2 BULGE2)))
+          (if (and (= nil P1) (= nil P2))
+           (eval nil)
+           (if (= P2 nil)
+            (setq P1 P1)
+            (if (= P1 nil)
+             (setq P2 P2)
+             (list P1 P2)
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+);
 ;
 ;     Program written by Robert Livingston
 ;
@@ -15516,17 +15682,28 @@
   (setq Z Z)
  )
 
- (defun DRAWLINES (CHECKBARRIER CHECKELEV OBSURFACE / FILEFIRST INFILE INLINE NODE NODEAL OUTFILE P P1 P2 PCHECK PM STA STA1 STA2 STAM STAEND Z1 Z2 ZC ZC1 ZC2)
+ (defun DRAWLINES (CHECKBARRIER CHECKELEV OBSURFACE / ENT FILEFIRST INFILE INLINE NODE NODEAL OUTFILE P P1 P2 PCHECK PM PREVENT STA STA1 STA2 STAM STAEND Z1 Z2 ZC ZC1 ZC2)
+  (setq PREVENT nil)
   (setq RFL:ALIGNLIST SIGHTAL)
   (setq STA (caar RFL:ALIGNLIST))
-  (setq STAEND (+ STA (GETALIGNLENGTH)))
+  (setq STAEND (+ STA (RFL:GETALIGNLENGTH)))
   (setq FILEFIRST T)
   (while (and (< STA STAEND)
               (>= DIST DISTMIN))
    (if LAYERFLAG
     (progn
      (if (= nil (tblsearch "LAYER" (strcat CLAYER "_" (itoa (fix DIST)))))
-      (command "._LAYER" "M" (strcat CLAYER "_" (itoa (fix DIST))) "Off" (strcat CLAYER "_" (itoa (fix DIST))) "Yes" "")
+      (progn
+;       (command "._LAYER" "M" (strcat CLAYER "_" (itoa (fix DIST))) "Off" (strcat CLAYER "_" (itoa (fix DIST))) "Yes" "")
+       (entmake (list (cons 0 "LAYER")
+                      (cons 100 "AcDbSymbolTableRecord")
+                      (cons 100 "AcDbLayerTableRecord")
+                      (cons 2 (strcat CLAYER "_" (itoa (fix DIST))))
+                      (cons 62 -7)
+                      (cons 70 0)
+                )
+       )
+      )
      )
      (princ "\r                                      ")
      (princ (strcat "\rSolving for : " (itoa (fix DIST))))
@@ -15563,7 +15740,7 @@
           (setq BARRIERAL (cadr NODE2))
           (foreach NODE BARRIERAL
            (progn
-            (setq PCHECK (INTERS2 (list 0.0 P PM 0.0) NODE))
+            (setq PCHECK (RFL:INTERS2 (list 0.0 P PM 0.0) NODE))
             (if (/= nil PCHECK)
              (progn
               (setq BARRIERFLAG T)
@@ -15582,7 +15759,13 @@
                   )
                  )
                 )
-                (command "._POINT" (list (car (car PCHECK)) (cadr (car PCHECK)) ZC2))
+;                (command "._POINT" (list (car (car PCHECK)) (cadr (car PCHECK)) ZC2))
+                (entmake (list (cons 0 "POINT")
+                               (append (list 10) (list (car (car PCHECK)) (cadr (car PCHECK)) ZC2))
+                         )
+                )
+                (setq ENT (entlast))
+                (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
                 (if (/= Z1 0.0)
                  (progn
                   (setq ZC (GETPTZ (cadr PCHECK)))
@@ -15594,7 +15777,13 @@
                   )
                  )
                 )
-                (command "._POINT" (list (car (cadr PCHECK)) (cadr (cadr PCHECK)) ZC2))
+;                (command "._POINT" (list (car (cadr PCHECK)) (cadr (cadr PCHECK)) ZC2))
+                (entmake (list (cons 0 "POINT")
+                               (append (list 10) (list (car (cadr PCHECK)) (cadr (cadr PCHECK)) ZC2))
+                         )
+                )
+                (setq ENT (entlast))
+                (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
                )
                (progn
                 (if (/= Z1 0.0)
@@ -15609,7 +15798,13 @@
                  )
                 )
                 (if (/= "RGB:0,255,0" (getvar "CECOLOR")) (setq BELOWFLAG T))
-                (command "._POINT" (list (car PCHECK) (cadr PCHECK) ZC2))
+;                (command "._POINT" (list (car PCHECK) (cadr PCHECK) ZC2))
+                (entmake (list (cons 0 "POINT")
+                               (append (list 10) (list (car PCHECK) (cadr PCHECK) ZC2))
+                         )
+                )
+                (setq ENT (entlast))
+                (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
                )
               )
               (setvar "CECOLOR" CECOLOR)
@@ -15621,13 +15816,24 @@
         )
        )
        (if BARRIERFLAG (setvar "CECOLOR" "RGB:255,255,0"))
-       (command "._LINE" (list (car P) (cadr P) Z1) (list (car PM) (cadr PM) Z2) "")
+;       (command "._LINE" (list (car P) (cadr P) Z1) (list (car PM) (cadr PM) Z2) "")
+       (entmake (list (cons 0 "LINE")
+                      (append (list 10) (list (car P) (cadr P) Z1))
+                      (append (list 11) (list (car PM) (cadr PM) Z2))
+                )
+       )
        (setvar "CECOLOR" CECOLOR)
-       (if (/= nil OBSURFACE)
+       (if (= nil OBSURFACE)
         (progn
          (setq ENT (entlast))
-         (if (= T (SURFACELINE OBSURFACE ENT)) (setq BELOWFLAG T))
+         (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+        (progn
+         (setq ENT (entlast))
+         (if (= T (RFL:SURFACELINE OBSURFACE ENT)) (setq BELOWFLAG T))
          (entdel ENT)
+         (setq ENT (entlast))
+         (RFL:PUTPREVENT (RFL:GETFIRSTENT ENT) PREVENT)(RFL:PUTNEXTENT PREVENT (RFL:GETFIRSTENT ENT))(setq PREVENT ENT)
         )
        )
       )

@@ -5,10 +5,10 @@
 ;     RFL:INTERS returns the intersection of a line defined by P1/P2 and an RFL alignment
 ;
 ;
-(defun RFL:ALINTERS (P1 P2 ALIGNLIST / ALSAVE C OS P SWAP TOL)
+(defun RFL:ALINTERS (P1 P2 RFL:ALIGNLIST / ALSAVE C OS P SWAP TOL)
  (setq TOL 0.00001)
  (defun SWAP (/ TMP)
-  (setq TMP ALIGNLIST ALIGNLIST ALSAVE ALSAVE TMP)
+  (setq TMP RFL:ALIGNLIST RFL:ALIGNLIST ALSAVE ALSAVE TMP)
  )
  (setq C 0)
  (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
