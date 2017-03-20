@@ -17,9 +17,9 @@
  (setvar "ANGDIR" 0)
  (setq OSMODE (getvar "OSMODE"))
  (setvar "OSMODE" 0)
- 
- (setq PREVENT nil)
 
+ (setq PREVENT nil)
+ 
  (defun *error* (msg)
   (princ msg)
   (close OUTFILE)
@@ -64,6 +64,7 @@
  (if (= nil RFL:PVILIST)
   (princ "\n!!!  No profile defined  !!!")
   (progn
+   (RFL:PROFDEF)
    (initget "Forward Reverse")
    (setq FR (getkword "\nForward or Reverse <Forward> : "))
    (if (= nil FR) (setq FR "Forward"))
@@ -86,8 +87,9 @@
    (setq STEPCHECK (/ STEP 10.0))
    (setq SIGHTDIST (getreal "\nEnter maximum sight distance for checking (<return> = 250.0) : "))
    (if (= nil SIGHTDIST) (setq SIGHTDIST 250.0))
-   (setq OUTFILE (open (getfiled "Select a summary file" "" "csv" 1) "w"))
-   (princ "Computing ground/design RFL:ELEVATIONs.")
+   (princ (strcat "\nSight distances stored in : " (getenv "UserProfile") "\\Documents\\" "SIGHTLINEPROFMAX.CSV\n"))
+   (setq OUTFILE (open (strcat (getenv "UserProfile") "\\Documents\\" "SIGHTLINEPROFMAX.CSV") "w"))
+   (princ "Computing ground/design elevations.")
    (setq STA STASTART)
    (while (<= STA STAEND)
     (PINWHEEL)
@@ -115,7 +117,11 @@
      (progn
       (setq P1 (RFL:PROFPOINT (car (nth C1 ELEVLIST)) (+ (cadr (nth C1 ELEVLIST)) EYE)))
       (setq P2 (RFL:PROFPOINT (car (nth C2 ELEVLIST)) (+ (cadr (nth C2 ELEVLIST)) TARGET)))
-      (command "._LINE" P1 P2 "")
+      (entmake (list (cons 0 "LINE")
+                     (append (list 10) (list (car P1) (cadr P1) 0.0))
+                     (append (list 11) (list (car P2) (cadr P2) 0.0))
+               )
+      )
       (setq ENT (entlast))
       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
       (princ (strcat (rtos (car (nth C1 ELEVLIST)) 2 8) "," (rtos (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) 2 8) "\n") OUTFILE)

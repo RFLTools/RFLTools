@@ -1729,6 +1729,67 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2001/01/11
+;
+;     RFL:3DP2ALIGN converts a 3d polyline to horizontal and vertical alignments
+;
+;
+(defun RFL:3DP2ALIGN (ENT STA / ENTLIST L P1 P2)
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
+    (princ "\n*****  Not a polyline!  *****")
+    (progn
+     (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
+            (/ (cdr (assoc 70 ENTLIST)) 16.0))
+      (princ "\n*****  Not a 3d polyline!  *****")
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P2 (cdr (assoc 10 ENTLIST)))
+       (setq RFL:PVILIST (list (list STA
+                                 (nth 2 P2)
+                                 "L"
+                                 0.0
+                           )
+                     )
+       )
+       (setq RFL:ALIGNLIST nil)
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+        (setq P1 P2)
+        (setq P2 (cdr (assoc 10 ENTLIST)))
+        (setq L (distance (list (nth 0 P1) (nth 1 P1)) (list (nth 0 P2) (nth 1 P2))))
+        (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list STA
+                                                              (list (nth 0 P1) (nth 1 P1))
+                                                              (list (nth 0 P2) (nth 1 P2))
+                                                              0.0
+                                                        )
+                                                  )
+                            )
+        )
+        (setq STA (+ STA L))
+        (setq RFL:PVILIST (append RFL:PVILIST (list (list STA
+                                                          (nth 2 P2)
+                                                          "L"
+                                                          0.0
+                                                    )
+                                              )
+                          )
+        )
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+);
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
@@ -5079,6 +5140,189 @@
  (setq RFL:PVILIST PVILISTSAVE)
  (setq RFL:SUPERLIST SUPERLISTSAVE)
  (eval T)
+);
+;
+;     Program written by Robert Livingston 2014-11-24
+;
+;     DRAPEPOLY is a utility for draping a LWPolyline onto a surface to create a 3DPolyline
+;
+;
+(defun C:DRAPEPOLY (/ ALSAVE CMDECHO ENT ENTLIST P)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ALSAVE RFL:ALIGNLIST)
+ (princ "\NSelect LWPolyline : ")
+ (setq ENT (entsel))
+ (setq P (cadr ENT))
+ (setq ENT (car ENT))
+ (setq ENTLIST (entget ENT))
+ (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+  (progn
+   (command "._CONVERT" "P" "S" ENT "")
+   (setq ENTLIST (entget ENT))
+  )
+ )
+ (if (/= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+  (princ "\n*** Not an usable POLYLINE! ***")
+  (progn
+   (if (< (distance P (cdr (assoc 10 ENTLIST)))
+          (distance P (cdr (assoc 10 (reverse ENTLIST))))
+       )
+    (setq RFL:ALIGNLIST (RFL:ALIGNDEF ENT (cdr (assoc 10 ENTLIST)) 0.0))
+    (setq RFL:ALIGNLIST (RFL:ALIGNDEF ENT (cdr (assoc 10 (reverse ENTLIST))) 0.0))
+   )
+   (C:DRAPEALIGN)
+  )
+ )
+ (setq RFL:ALIGNLIST ALSAVE)
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;     Program written by Robert Livingston 2014-11-24
+;
+;     DRAPEALIGN drapes a RFL Alignment
+;
+;
+(defun C:DRAPEALIGN (/ *error* ALSAVE ANG ANGBASE ANGDIR ATOTAL C CMAX CMDECHO L LSTEP NODE OBSURFACE OSMODE ORTHOMODE OSTOL P1 P2 R TMP TMPLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+
+ (setq ALSAVE RFL:ALIGNLIST)
+ 
+ (setq OSTOL 0.1)
+ 
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setq RFL:ALIGNLIST ALSAVE)
+  (setq *error* nil)
+  (print msg)
+ )
+
+ (command ".UNDO" "M")
+
+ (if (= nil RFL:ALIGNLIST)
+  (princ "\n*** Alignment not defined ***")
+  (progn
+   (setq OBSURFACE (RFL:GETC3DSURFACE))
+   (if (= nil OBSURFACE)
+    (princ "\n*** Error getting C3D Surface ***")
+    (progn
+     (setq OGLIST nil)
+     (foreach NODE ALSAVE
+      (progn
+       (if (listp (last NODE))
+        (progn ; SPIRAL
+         (setq R (RFL:GETSPIRALR2 (nth 0 (last NODE)) (nth 1 (last NODE)) (nth 2 (last NODE))))
+         (setq L (RFL:GETSPIRALLS2 (nth 0 (last NODE)) (nth 1 (last NODE)) (nth 2 (last NODE))))
+         (if (not (listp (last (last NODE))))
+          (setq L (- L (last (last NODE))))
+         )
+         (setq ANG (atan (/ (sqrt (- (* 2.0 R OSTOL) (* OSTOL OSTOL))) (- R OSTOL))))
+         (setq LSTEP (* 2.0 R ANG))
+         (setq CMAX (+ 1 (fix (/ L LSTEP))))
+         (setq LSTEP (/ L CMAX))
+         (setq RFL:ALIGNLIST (list (list 0.0 (nth 1 NODE) (nth 2 NODE) (nth 3 NODE))))
+         (setq P1 (nth 1 NODE))
+         (setq C 1)
+         (while (< C CMAX)
+          (setq P2 (RFL:XY (list (* C LSTEP) 0.0)))
+          (if (/= nil (setq TMPLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE)))
+           (if (= nil OGLIST)
+            (setq OGLIST (append OGLIST TMPLIST))
+            (setq OGLIST (append OGLIST (cdr TMPLIST)))
+           )
+          )
+          (setq C (+ C 1))
+          (setq P1 P2)
+         )
+         (setq P2 (nth 2 NODE))
+         (if (/= nil (setq TMPLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE)))
+          (if (= nil OGLIST)
+           (setq OGLIST (append OGLIST TMPLIST))
+           (setq OGLIST (append OGLIST (cdr TMPLIST)))
+          )
+         )
+        )
+        (if (< (abs (last NODE)) RFL:TOL)
+         (progn ; LINE
+          (setq P1 (nth 1 NODE))
+          (setq P2 (nth 2 NODE))
+          (if (/= nil (setq TMPLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE)))
+           (if (= nil OGLIST)
+            (setq OGLIST (append OGLIST TMPLIST))
+            (setq OGLIST (append OGLIST (cdr TMPLIST)))
+           )
+          )
+         )
+         (progn ; ARC
+          (setq R (RFL:RADIUS (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)))
+          (setq ATOTAL (* 4 (atan (abs (nth 3 NODE)))))
+          (setq L (* R ATOTAL))
+          (setq ANG (atan (/ (sqrt (- (* 2.0 R OSTOL) (* OSTOL OSTOL))) (- R OSTOL))))
+          (setq LSTEP (* 2.0 R ANG))
+          (setq CMAX (+ 1 (fix (/ L LSTEP))))
+          (setq LSTEP (/ L CMAX))
+          (setq RFL:ALIGNLIST (list (list 0.0 (nth 1 NODE) (nth 2 NODE) (nth 3 NODE))))
+          (setq P1 (nth 1 NODE))
+          (setq C 1)
+          (while (< C CMAX)
+           (setq P2 (RFL:XY (list (* C LSTEP) 0.0)))
+           (if (/= nil (setq TMPLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE)))
+            (if (= nil OGLIST)
+             (setq OGLIST (append OGLIST TMPLIST))
+             (setq OGLIST (append OGLIST (cdr TMPLIST)))
+            )
+           )
+           (setq C (+ C 1))
+           (setq P1 P2)
+          )
+          (setq P2 (nth 2 NODE))
+          (if (/= nil (setq TMPLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE)))
+           (if (= nil OGLIST)
+            (setq OGLIST (append OGLIST TMPLIST))
+            (setq OGLIST (append OGLIST (cdr TMPLIST)))
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+     (if (/= nil OGLIST)
+      (progn
+       (command "._3DPOLY")
+       (foreach NODE OGLIST
+        (command NODE)
+       )
+       (command "")
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ (eval nil)
 );
 ;
 ;     Program written by Robert Livingston, 2016/07/06
@@ -13447,6 +13691,23 @@
  (setvar "CMDECHO" CMDECHO)
 ) ;
 ;
+;     Program written by Robert Livingston, 2001/01/11
+;
+;     C:3DP2ALIGN converts a 3d polyline to horizontal and vertical alignments
+;
+;
+(defun C:3DP2ALIGN (/ CMDECHO ENT FILENAME STA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq ENT (car (entsel "\nSelect 3d polyline : ")))
+ (setq STA (getreal "\nEnter starting chainage : "))
+ (RFL:3DP2ALIGN ENT STA)
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
 ;     Program written by Robert Livingston, 2015-01-29
 ;
 ;     C:QSECTION is a utility for drawing a cross section at a specified station
@@ -14857,148 +15118,6 @@
  (setvar "OSMODE" OSMODE)
 );
 ;
-;     Program written by Robert Livingston, 13-03-26
-;
-;     C:SIGHTLINEPROFMAX is a routine for finding the longest point to point sightline along a profile
-;
-;
-(defun C:SIGHTLINEPROFMAX (/ *error* ANGBASE ANGDIR CHECKELEVATIONS C C1 C2 CMDECHO CONTINUEFLAG ELEVLIST ENT EYE FR OSMODE OUTFILE
-                             P P1 P2 PINWHEEL PM PREVENT SIGHTDIST SIGHTDISTMIN STA STA1 STA2 STAEND STASTART STEP STEPCHECK
-                             TARGET TMP Z Z1 Z2)
-;(defun C:SIGHTLINEPROFMAX ()
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- 
- (setq PREVENT nil)
-
- (defun *error* (msg)
-  (princ msg)
-  (close OUTFILE)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
- )
-
- (defun PINWHEEL ()
-  (if (= PINWHEELCH nil)
-   (setq PINWHEELCH "|")
-  )
-  (setq PINWHEELCH (cond ((= PINWHEELCH "|") "/")
-                         ((= PINWHEELCH "/") "-")
-                         ((= PINWHEELCH "-") "\\")
-                         ((= PINWHEELCH "\\") "|")))
-  (princ "\r")
-  (princ PINWHEELCH)
- )
-
- (defun CHECKELEVATIONS (/ C DELTA Z Z1 Z2)
-  (setq RES T)
-  (setq Z1 (+ (cadr (nth C1 ELEVLIST)) EYE))
-  (setq Z2 (+ (cadr (nth C2 ELEVLIST)) TARGET))
-  (setq DELTA (/ (- Z2 Z1) (- C2 C1)))
-  (setq C (+ C1 1))
-  (while (and RES (< C C2))
-   (setq Z (+ Z1 (* (- C C1) DELTA)))
-   (if (< Z (cadr (nth C ELEVLIST))) (setq RES nil))
-   (setq C (+ C 1))
-  )
-  (eval RES)
- )
- 
- (command "._UNDO" "M")
-
- (setq SIGHTDISTMIN nil)
- (setq ELEVLIST nil)
- 
- (if (= nil RFL:PVILIST)
-  (princ "\n!!!  No profile defined  !!!")
-  (progn
-   (initget "Forward Reverse")
-   (setq FR (getkword "\nForward or Reverse <Forward> : "))
-   (if (= nil FR) (setq FR "Forward"))
-   (setq STASTART (getreal "\nEnter start chainage (<return> for profile start) : "))
-   (if (= STASTART nil)
-    (setq STASTART (caar RFL:PVILIST))
-   )
-   (setq STAEND (getreal "\nEnter end chainage (<return> for profile end) : "))
-   (if (= STAEND nil)
-    (setq STAEND (car (last RFL:PVILIST)))
-   )
-   (setq EYE (getreal "\nEye height (<return> = 1.05) : "))
-   (if (= nil EYE) (setq EYE 1.05))
-   (setq TARGET (getreal "\nTarget height (<return> = 0.38) : "))
-   (if (= nil TARGET) (setq TARGET 0.38))
-   (setq STEP (getreal "\nEnter step size (<return> = 5.0) : "))
-   (if (= nil STEP) (setq STEP 5.0))
-;   (setq STEPCHECK (getreal "\nEnter check step size (<return> = 1.0) : "))
-;   (if (= nil STEPCHECK) (setq STEPCHECK 1.0))
-   (setq STEPCHECK (/ STEP 10.0))
-   (setq SIGHTDIST (getreal "\nEnter maximum sight distance for checking (<return> = 250.0) : "))
-   (if (= nil SIGHTDIST) (setq SIGHTDIST 250.0))
-   (setq OUTFILE (open (getfiled "Select a summary file" "" "csv" 1) "w"))
-   (princ "Computing ground/design RFL:ELEVATIONs.")
-   (setq STA STASTART)
-   (while (<= STA STAEND)
-    (PINWHEEL)
-    (setq Z (RFL:ELEVATION STA))
-    (if (/= nil Z)
-     (setq ELEVLIST (append ELEVLIST (list (list STA Z))))
-    )
-    (setq STA (+ STA STEPCHECK))
-   )
-   (princ "\n")
-   (if (= FR "Reverse") (setq ELEVLIST (reverse ELEVLIST)))
-   (setq C1 0)
-   (while (< (+ C1 1) (length ELEVLIST))
-    (setq C2 (+ C1 1))
-    (setq Z1 (cadr (nth C1 ELEVLIST)))
-    (setq Z2 (cadr (nth C2 ELEVLIST)))
-    (setq CONTINUEFLAG T)
-    (while (and (CHECKELEVATIONS) CONTINUEFLAG (<= (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) SIGHTDIST))
-     (PINWHEEL)
-     (setq C2 (+ C2 1))
-     (if (= C2 (length ELEVLIST)) (setq CONTINUEFLAG nil))
-    )
-    (setq C2 (- C2 1))
-    (if CONTINUEFLAG
-     (progn
-      (setq P1 (RFL:PROFPOINT (car (nth C1 ELEVLIST)) (+ (cadr (nth C1 ELEVLIST)) EYE)))
-      (setq P2 (RFL:PROFPOINT (car (nth C2 ELEVLIST)) (+ (cadr (nth C2 ELEVLIST)) TARGET)))
-      (command "._LINE" P1 P2 "")
-      (setq ENT (entlast))
-      (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-      (princ (strcat (rtos (car (nth C1 ELEVLIST)) 2 8) "," (rtos (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) 2 8) "\n") OUTFILE)
-      (if (= nil SIGHTDISTMIN)
-       (setq SIGHTDISTMIN (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))))
-       (if (< (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) SIGHTDISTMIN)
-        (setq SIGHTDISTMIN (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))))
-       )
-      )
-     )
-     (progn
-     )
-    )
-    (setq C1 (+ C1 10))
-   )
-  )
- )
-; (alert (strcat "Minimum sight distance = " (rtos SIGHTDISTMIN 2 1)))
- 
- (close OUTFILE)
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
-);
-;
 ;     Program written by Robert Livingston 2013-02-12
 ;
 ;     RFL:SURFACELINE returns a list of surface points (Civil 3D) sampled from endpoints of line entity
@@ -15834,7 +15953,7 @@
          (if (= T (RFL:SURFACELINE OBSURFACE ENT)) (setq BELOWFLAG T))
          (entdel ENT)
          (setq ENT (entlast))
-         (RFL:PUTPREVENT (RFL:GETFIRSTENT ENT) PREVENT)(RFL:PUTNEXTENT PREVENT (RFL:GETFIRSTENT ENT))(setq PREVENT ENT)
+         ;(RFL:PUTPREVENT (RFL:GETFIRSTENT ENT) PREVENT)(RFL:PUTNEXTENT PREVENT (RFL:GETFIRSTENT ENT))(setq PREVENT ENT)
         )
        )
       )
@@ -16066,7 +16185,7 @@
        (initget "Yes No")
        (if (= "Yes" (getkword "\nCompare lines to surface (Yes/<No>) : "))
         (progn
-         (setq OBSURFACE (RFLGETC3DSURFACE))
+         (setq OBSURFACE (RFL:GETC3DSURFACE))
         )
        )
        (GETBARRIERALLIST)
@@ -16171,4 +16290,152 @@
   )
  )
 )
+);
+;
+;     Program written by Robert Livingston, 13-03-26
+;
+;     C:SIGHTLINEPROFMAX is a routine for finding the longest point to point sightline along a profile
+;
+;
+(defun C:SIGHTLINEPROFMAX (/ *error* ANGBASE ANGDIR CHECKELEVATIONS C C1 C2 CMDECHO CONTINUEFLAG ELEVLIST ENT EYE FR OSMODE OUTFILE
+                             P P1 P2 PINWHEEL PM PREVENT SIGHTDIST SIGHTDISTMIN STA STA1 STA2 STAEND STASTART STEP STEPCHECK
+                             TARGET TMP Z Z1 Z2)
+;(defun C:SIGHTLINEPROFMAX ()
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+
+ (setq PREVENT nil)
+ 
+ (defun *error* (msg)
+  (princ msg)
+  (close OUTFILE)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  (setq *error* nil)
+ )
+
+ (defun PINWHEEL ()
+  (if (= PINWHEELCH nil)
+   (setq PINWHEELCH "|")
+  )
+  (setq PINWHEELCH (cond ((= PINWHEELCH "|") "/")
+                         ((= PINWHEELCH "/") "-")
+                         ((= PINWHEELCH "-") "\\")
+                         ((= PINWHEELCH "\\") "|")))
+  (princ "\r")
+  (princ PINWHEELCH)
+ )
+
+ (defun CHECKELEVATIONS (/ C DELTA Z Z1 Z2)
+  (setq RES T)
+  (setq Z1 (+ (cadr (nth C1 ELEVLIST)) EYE))
+  (setq Z2 (+ (cadr (nth C2 ELEVLIST)) TARGET))
+  (setq DELTA (/ (- Z2 Z1) (- C2 C1)))
+  (setq C (+ C1 1))
+  (while (and RES (< C C2))
+   (setq Z (+ Z1 (* (- C C1) DELTA)))
+   (if (< Z (cadr (nth C ELEVLIST))) (setq RES nil))
+   (setq C (+ C 1))
+  )
+  (eval RES)
+ )
+ 
+ (command "._UNDO" "M")
+
+ (setq SIGHTDISTMIN nil)
+ (setq ELEVLIST nil)
+ 
+ (if (= nil RFL:PVILIST)
+  (princ "\n!!!  No profile defined  !!!")
+  (progn
+   (RFL:PROFDEF)
+   (initget "Forward Reverse")
+   (setq FR (getkword "\nForward or Reverse <Forward> : "))
+   (if (= nil FR) (setq FR "Forward"))
+   (setq STASTART (getreal "\nEnter start chainage (<return> for profile start) : "))
+   (if (= STASTART nil)
+    (setq STASTART (caar RFL:PVILIST))
+   )
+   (setq STAEND (getreal "\nEnter end chainage (<return> for profile end) : "))
+   (if (= STAEND nil)
+    (setq STAEND (car (last RFL:PVILIST)))
+   )
+   (setq EYE (getreal "\nEye height (<return> = 1.05) : "))
+   (if (= nil EYE) (setq EYE 1.05))
+   (setq TARGET (getreal "\nTarget height (<return> = 0.38) : "))
+   (if (= nil TARGET) (setq TARGET 0.38))
+   (setq STEP (getreal "\nEnter step size (<return> = 5.0) : "))
+   (if (= nil STEP) (setq STEP 5.0))
+;   (setq STEPCHECK (getreal "\nEnter check step size (<return> = 1.0) : "))
+;   (if (= nil STEPCHECK) (setq STEPCHECK 1.0))
+   (setq STEPCHECK (/ STEP 10.0))
+   (setq SIGHTDIST (getreal "\nEnter maximum sight distance for checking (<return> = 250.0) : "))
+   (if (= nil SIGHTDIST) (setq SIGHTDIST 250.0))
+   (princ (strcat "\nSight distances stored in : " (getenv "UserProfile") "\\Documents\\" "SIGHTLINEPROFMAX.CSV\n"))
+   (setq OUTFILE (open (strcat (getenv "UserProfile") "\\Documents\\" "SIGHTLINEPROFMAX.CSV") "w"))
+   (princ "Computing ground/design elevations.")
+   (setq STA STASTART)
+   (while (<= STA STAEND)
+    (PINWHEEL)
+    (setq Z (RFL:ELEVATION STA))
+    (if (/= nil Z)
+     (setq ELEVLIST (append ELEVLIST (list (list STA Z))))
+    )
+    (setq STA (+ STA STEPCHECK))
+   )
+   (princ "\n")
+   (if (= FR "Reverse") (setq ELEVLIST (reverse ELEVLIST)))
+   (setq C1 0)
+   (while (< (+ C1 1) (length ELEVLIST))
+    (setq C2 (+ C1 1))
+    (setq Z1 (cadr (nth C1 ELEVLIST)))
+    (setq Z2 (cadr (nth C2 ELEVLIST)))
+    (setq CONTINUEFLAG T)
+    (while (and (CHECKELEVATIONS) CONTINUEFLAG (<= (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) SIGHTDIST))
+     (PINWHEEL)
+     (setq C2 (+ C2 1))
+     (if (= C2 (length ELEVLIST)) (setq CONTINUEFLAG nil))
+    )
+    (setq C2 (- C2 1))
+    (if CONTINUEFLAG
+     (progn
+      (setq P1 (RFL:PROFPOINT (car (nth C1 ELEVLIST)) (+ (cadr (nth C1 ELEVLIST)) EYE)))
+      (setq P2 (RFL:PROFPOINT (car (nth C2 ELEVLIST)) (+ (cadr (nth C2 ELEVLIST)) TARGET)))
+      (entmake (list (cons 0 "LINE")
+                     (append (list 10) (list (car P1) (cadr P1) 0.0))
+                     (append (list 11) (list (car P2) (cadr P2) 0.0))
+               )
+      )
+      (setq ENT (entlast))
+      (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+      (princ (strcat (rtos (car (nth C1 ELEVLIST)) 2 8) "," (rtos (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) 2 8) "\n") OUTFILE)
+      (if (= nil SIGHTDISTMIN)
+       (setq SIGHTDISTMIN (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))))
+       (if (< (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))) SIGHTDISTMIN)
+        (setq SIGHTDISTMIN (abs (- (car (nth C2 ELEVLIST)) (car (nth C1 ELEVLIST)))))
+       )
+      )
+     )
+     (progn
+     )
+    )
+    (setq C1 (+ C1 10))
+   )
+  )
+ )
+; (alert (strcat "Minimum sight distance = " (rtos SIGHTDISTMIN 2 1)))
+ 
+ (close OUTFILE)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
 )

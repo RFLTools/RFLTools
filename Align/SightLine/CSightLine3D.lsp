@@ -243,7 +243,7 @@
          (if (= T (RFL:SURFACELINE OBSURFACE ENT)) (setq BELOWFLAG T))
          (entdel ENT)
          (setq ENT (entlast))
-         (RFL:PUTPREVENT (RFL:GETFIRSTENT ENT) PREVENT)(RFL:PUTNEXTENT PREVENT (RFL:GETFIRSTENT ENT))(setq PREVENT ENT)
+         ;(RFL:PUTPREVENT (RFL:GETFIRSTENT ENT) PREVENT)(RFL:PUTNEXTENT PREVENT (RFL:GETFIRSTENT ENT))(setq PREVENT ENT)
         )
        )
       )
@@ -475,7 +475,7 @@
        (initget "Yes No")
        (if (= "Yes" (getkword "\nCompare lines to surface (Yes/<No>) : "))
         (progn
-         (setq OBSURFACE (RFLGETC3DSURFACE))
+         (setq OBSURFACE (RFL:GETC3DSURFACE))
         )
        )
        (GETBARRIERALLIST)
