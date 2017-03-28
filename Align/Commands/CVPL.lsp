@@ -23,7 +23,7 @@
   )
  )
 
- (if (= ELEVATION nil)
+ (if (= RFL:ELEVATION nil)
   (progn
    (princ "\n*****   Alignment utilities not loaded   *****")
   )
@@ -36,12 +36,12 @@
    (setq Z (cadr TMP))
    (setq STR (strcat "Sta.: " (RFL:STATXT STA)))
    (setq STR2 (strcat "Elev.: " (rtos Z)))
-   (setq TMP (ELEVATION STA))
+   (setq TMP (RFL:ELEVATION STA))
    (if (/= TMP nil)
     (setq STR3 (strcat "Ctrl.Elev.: " (rtos TMP)))
     (setq STR3 nil)
    )
-   (setq TMP (SLOPE STA))
+   (setq TMP (RFL:SLOPE STA))
    (if (/= TMP nil)
     (setq STR4 (strcat "Ctrl.Grade: " (rtos (* 100.0 TMP)) "%"))
     (setq STR4 nil)

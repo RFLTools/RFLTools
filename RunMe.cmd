@@ -28,6 +28,14 @@ CD ..
 rem
 rem ---------------------------------------------
 rem
+rem Check for QuickTurn
+rem
+CD .\QuickTurn
+CALL .\RunMe.cmd
+CD ..
+rem
+rem ---------------------------------------------
+rem
 rem Build RFLTools
 rem
 if exist LoadRFLTools.lsp del LoadRFLTools.lsp
@@ -39,6 +47,7 @@ COPY /B ".\LoadDLL\RFLLoadRFLDLL.lsp" + ^
         ".\File2Binary\RFLMakeRFLSLB.lsp" + ^
         ".\MakeEnt\LoadMakeEnt.lsp" + ^
         ".\MakeDCL\LoadMakeDCL.lsp" + ^
+        ".\QuickTurn\LoadQuickTurn.lsp" + ^
         ".\DrawGrid\DrawGrid.lsp" + ^
         ".\Commands\C*.lsp" + ^
         ".\Commands\RFL*.lsp" + ^

@@ -342,8 +342,8 @@
  (setq ENTLIST (entget ENT))
  (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
   (progn
-   (setq P1 (XY (list STA (/ SWATH -2.0))))
-   (setq P2 (XY (list STA (/ SWATH 2.0))))
+   (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+   (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
    (if (and (/= P1 nil) (/= P2 nil))
     (progn
      (setq ALSAVE RFL:ALIGNLIST)
@@ -354,10 +354,10 @@
        (eval nil)
       )
       (progn
-       (setq OFFSET1 (STAOFF P1))
-       (setq OFFSET2 (STAOFF P2))
+       (setq OFFSET1 (RFL:STAOFF P1))
+       (setq OFFSET2 (RFL:STAOFF P2))
        (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-       (setq OFFSET3 (STAOFF P3))
+       (setq OFFSET3 (RFL:STAOFF P3))
        (if (= OFFSET1 nil)
         (progn
          (setq P1 P3)
@@ -382,7 +382,7 @@
           (progn
            (while (> (distance P1 P2) RFL:TOL)
             (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-            (setq OFFSET3 (cadr (STAOFF P3)))
+            (setq OFFSET3 (cadr (RFL:STAOFF P3)))
             (if (> (* OFFSET1 OFFSET3) 0.0)
              (setq P1 P3)
              (setq P2 P3)
@@ -394,19 +394,19 @@
          )
         )
         (progn
-         (eval nil)
+         nil
         )
        )
       )
      )
     )
     (progn
-     (eval nil)
+     nil
     )
    )
   )
   (progn
-   (eval nil)
+   nil
   )
  )
 )
@@ -5768,20 +5768,20 @@
  (setq C 0)
  (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
  (setq ALSAVE (list (list 0.0 P1 P2 0.0)))
- (setq P (STAOFF P))
+ (setq P (RFL:STAOFF P))
  (while (and P
              (> (abs (cadr P)) TOL)
              (< C 100)
         )
-  (setq P (XY (list (car P) 0.0)))
+  (setq P (RFL:XY (list (car P) 0.0)))
   (SWAP)
-  (setq P (STAOFF P))
+  (setq P (RFL:STAOFF P))
   (setq C (+ C 1))
   (if (>= C 100)
    (princ (strcat "\n*** Warning - Maximum number of iterations reached at station " (rtos STA) "\n"))
   )
  )
- (if P (setq P (XY (list (car P) 0.0))))
+ (if P (setq P (RFL:XY (list (car P) 0.0))))
  P
 )
 ;
@@ -11492,7 +11492,7 @@
   )
  )
 
- (if (= ELEVATION nil)
+ (if (= RFL:ELEVATION nil)
   (progn
    (princ "\n*****   Alignment utilities not loaded   *****")
   )
@@ -11505,12 +11505,12 @@
    (setq Z (cadr TMP))
    (setq STR (strcat "Sta.: " (RFL:STATXT STA)))
    (setq STR2 (strcat "Elev.: " (rtos Z)))
-   (setq TMP (ELEVATION STA))
+   (setq TMP (RFL:ELEVATION STA))
    (if (/= TMP nil)
     (setq STR3 (strcat "Ctrl.Elev.: " (rtos TMP)))
     (setq STR3 nil)
    )
-   (setq TMP (SLOPE STA))
+   (setq TMP (RFL:SLOPE STA))
    (if (/= TMP nil)
     (setq STR4 (strcat "Ctrl.Grade: " (rtos (* 100.0 TMP)) "%"))
     (setq STR4 nil)
