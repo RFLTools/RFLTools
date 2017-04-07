@@ -8,11 +8,14 @@
                                  "CURVETABLEDATA" 
                                  "DRAWGRIDDEF" 
                                  "FORCE" 
+                                 "LTRAINSECTION" 
                                  "POINT" 
                                  "PR-CIRCLE" 
                                  "PVI2" 
                                  "RFLALIGN" 
                                  "RFLPROF" 
+                                 "RFLTRAIN" 
+                                 "RTRAINSECTION" 
                                  "SLOPE" 
                                  "SPOTELEVATION" 
                                  "SPOTELEVATION2" 
@@ -22,5 +25,6 @@
                                  "STATICK" 
                                  "SUPER" 
                                  "SURVEYSPOT" 
+                                 "TRAINSECTION" 
                            ) 
 ) 

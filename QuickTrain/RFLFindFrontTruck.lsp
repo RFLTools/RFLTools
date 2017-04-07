@@ -13,7 +13,7 @@
  (if (= nil (setq STA (car (RFL:STAOFF P))))
   nil
   (progn
-   (setq STAE (+ (caar ALIGNLIST) (RFL:GETALIGNLENGTH)))
+   (setq STAE (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
    (setq STA2 (+ STA (* 1.5 (max WB WBT))))
    (if (> STA2 STAE) (setq STA2 STAE))
    (setq P2 (RFL:GETTRUCKPOUT STA2 WBT GAUGE DX DY DZ))
