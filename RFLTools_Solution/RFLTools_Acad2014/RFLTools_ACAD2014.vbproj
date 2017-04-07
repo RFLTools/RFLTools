@@ -7,12 +7,12 @@
     </ProductVersion>
     <SchemaVersion>
     </SchemaVersion>
-    <ProjectGuid>{81E7A19F-81B3-4E59-9782-291696365433}</ProjectGuid>
+    <ProjectGuid>{AB4383FE-67EF-483C-8DF0-FF67CA55FF5C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>RFLTools</RootNamespace>
-    <AssemblyName Condition="'$(Platform)'=='AnyCPU'">RFLTools_ACAD2014x64</AssemblyName>
-    <AssemblyName Condition="'$(Platform)'=='x64'">RFLTools_ACAD2014x64</AssemblyName>
-    <AssemblyName Condition="'$(Platform)'=='x86'">RFLTools_ACAD2014x86</AssemblyName>
+    <AssemblyName Condition="'$(Platform)'=='AnyCPU'">RFLTools_ACAD2016x64</AssemblyName>
+    <AssemblyName Condition="'$(Platform)'=='x64'">RFLTools_ACAD2016x64</AssemblyName>
+    <AssemblyName Condition="'$(Platform)'=='x86'">RFLTools_ACAD2016x86</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -42,7 +42,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -52,7 +52,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -73,7 +73,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\bin\x64\Debug\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -82,7 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\bin\x64\Release\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -94,7 +94,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\bin\x86\Debug\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -103,7 +103,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\bin\x86\Release\</OutputPath>
-    <DocumentationFile>RFLTools_ACAD2014.xml</DocumentationFile>
+    <DocumentationFile>RFLTools_ACAD2016.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
     <DebugType>pdbonly</DebugType>
