@@ -8,7 +8,8 @@ Imports Autodesk.AutoCAD.Geometry
 Imports Autodesk.AutoCAD.EditorInput
 
 ' This line is not mandatory, but improves loading performances
-<Assembly: CommandClass(GetType(RFLToolsApplication.MyCommands))> 
+<Assembly: CommandClass(GetType(RFLToolsApplication.MyCommands))>
+
 Namespace RFLToolsApplication
 
     ' This class is instantiated by AutoCAD for each document when

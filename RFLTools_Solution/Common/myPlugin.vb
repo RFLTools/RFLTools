@@ -9,7 +9,7 @@ Imports Autodesk.AutoCAD.Geometry
 Imports Autodesk.AutoCAD.EditorInput
 
 ' This line is not mandatory, but improves loading performances
-<Assembly: ExtensionApplication(GetType(RFLToolsApplication.MyPlugin))> 
+<Assembly: ExtensionApplication(GetType(RFLToolsApplication.MyPlugin))>
 
 Namespace RFLToolsApplication
 
