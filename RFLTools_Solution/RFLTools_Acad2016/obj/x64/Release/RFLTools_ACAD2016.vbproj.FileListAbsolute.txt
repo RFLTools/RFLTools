@@ -20,3 +20,4 @@ Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2016\obj\x64\Release\RFLT
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2016\obj\x64\Release\RFLTools_ACAD2016x64.dll
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2016\obj\x64\Release\RFLTools_ACAD2016.xml
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2016\obj\x64\Release\RFLTools_ACAD2016x64.pdb
+Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2016\obj\x64\Release\RFLTools_ACAD2016.vbprojResolveAssemblyReference.cache
