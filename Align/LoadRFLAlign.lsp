@@ -1860,6 +1860,50 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2017-04-11
+;
+;     RFL:ESTRADIUS estimates the radius at a given station by finding points within a distance D
+;
+;
+(setq RFL:ESTRADIUSDIST 30.0)
+(setq RFL:ESTRADIUSNUMPOINTS 10)
+(defun RFL:ESTRADIUS (STA / DLIST N1 N2 OS P PC PLIST)
+ (setq DLIST nil)
+ (if (setq P (RFL:XY (list STA 0.0)))
+  (if (setq DLIST (mapcar '(lambda (N1) (append (list (distance P (cadr N1))) (cadr N1))) RFL:ALIGNLIST))
+   (if (setq DLIST (vl-sort DLIST (function (lambda (N1 N2) (< (car N1) (car N2))))))
+    (progn
+     (setq PLIST nil)
+     (foreach N1 DLIST
+      (if (and (or (= RFL:ESTRADIUSDIST nil) (<= (car N1) RFL:ESTRADIUSDIST))
+               (or (= RFL:ESTRADIUSNUMPOINTS nil) (< (length PLIST) RFL:ESTRADIUSNUMPOINTS))
+          )
+       (setq PLIST (append PLIST (list (list (cadr N1) (caddr N1)))))
+      )
+     )
+     (if (> (length PLIST) 2)
+      (if (setq PC (RFL:BESTCIRCLE PLIST))
+       (if (setq OS (cadr (RFL:STAOFF (car PC))))
+        (if (< OS 0.0)
+         (cadr PC)
+         (* -1.0 (cadr PC))
+        )
+        nil
+       )
+       nil
+      )
+      nil
+     )
+    )
+    nil
+   )
+   nil
+  )
+  nil
+ )
+)
+;
+;
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALFYR returns (R *  Spiral 'Y') for a given deflection
 ;
@@ -7601,6 +7645,40 @@
    )
   )
  )
+)
+;
+;
+;     Program written by Robert Livingston, 2017-04-11
+;
+;     C:ESTRADIUS estimates the segmented alignments radius at a given point
+;
+;
+(defun C:ESTRADIUS (/ CMDECHO R RFL:ESTRADIUSDIST RFL:ESTRADIUSNUMPOINTS STA TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ 
+ (setq R nil)
+ 
+ (if (setq TMP (getdist "\nMaximum distance from point for estimation <30.0> : "))
+  (setq RFL:ESTRADIUSDIST TMP)
+  (setq RFL:ESTRADIUSDIST 30.0)
+ )
+ (if (or (= nil (setq TMP (getint "\nMaximum number of points for estimation <10> : ")))
+         (> TMP 2)
+     )
+  (setq RFL:ESTRADIUSNUMPOINTS TMP)
+  (setq RFL:ESTRADIUSNUMPOINTS 10)
+ )
+ (while (setq STA (car (RFL:STAOFF (getpoint "\nSelect point : "))))
+  (if (setq R (RFL:ESTRADIUS STA))
+   (if (< R 0.0)
+    (princ (strcat "\nRadius = " (rtos (abs R)) " Right\n"))
+    (princ (strcat "\nRadius = " (rtos (abs R)) " Left\n"))
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ R
 )
 ;
 ;

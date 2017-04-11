@@ -5,14 +5,13 @@
 ;     RFL:BESTCIRCLE is a utility for finding best fit circle along a selected polyline or points
 ;
 ;
-(defun RFL:BESTCIRCLE (PLIST / C CALCE COMBLIST COUNT E P PC PCT NODE R RT STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6 TOL)
- (setq TOL 0.00001)
+(defun RFL:BESTCIRCLE (PLIST / C CALCE COMBLIST COUNT E P PC PCT NODE R RT STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6)
  (defun CALCSUME2 (PC R PLIST / SUME2 NODE)
   (setq SUME2 0.0)
   (foreach NODE PLIST
    (setq SUME2 (+ SUME2 (expt (abs (- (distance PC NODE) R)) 2)))
   )
-  (eval SUME2)
+  SUME2
  )
  (defun CALCE (PC R PLIST / E NODE TMP)
   (setq E nil)
@@ -25,15 +24,15 @@
     )
    )
   )
-  (eval E)
+  E
  )
  (if (= nil (listp PLIST))
-  (eval nil)
+  nil
   (if (< (length PLIST) 3)
-   (eval nil)
+   nil
    (if (= (length PLIST) 3)
     (if (= nil (setq PC (RFL:CIRCLE3P (car PLIST) (cadr PLIST) (caddr PLIST))))
-     (eval nil)
+     nil
      (append PC (list 0.0))
     )
     (progn
@@ -42,7 +41,7 @@
      (setq R 0.0)
      (if (> (length PLIST) 8)
       (setq COMBLIST (list (list 1 (/ (length PLIST) 2) (length PLIST))))
-      (setq COMBLIST (COMB3 (length PLIST)))
+      (setq COMBLIST (RFL:COMB3 (length PLIST)))
      )
      (foreach NODE COMBLIST
       (progn
@@ -59,7 +58,7 @@
       )
      )
      (if (= C 0)
-      (eval nil)
+      nil
       (progn
        (setq PC (list (/ (car PC) C) (/ (cadr PC) C)))
        (setq R  (/ R C))
@@ -67,7 +66,9 @@
        (setq COUNT 0)
        (setq STEP R)
        (setq SUME2 (CALCSUME2 PC R PLIST))
-       (while (> STEP TOL)
+       (while (and (> STEP RFL:TOL)
+                   (< COUNT 10000)
+              )
         (setq RT (+ R STEP))
         (setq PCT PC)
         (setq SUME2T1 (CALCSUME2 PCT RT PLIST))
@@ -95,7 +96,7 @@
               ((= SUME2 SUME2T6) (setq PC (list (car PC) (- (cadr PC) STEP))))
               (T (setq STEP (/ STEP 2.0)))
         )
-        (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
+        (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (princ "\nMaximum itterations reached!\n"))
        )
        ; END REGRESSION
        (list PC R (CALCE PC R PLIST))

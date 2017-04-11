@@ -120,7 +120,6 @@
   (princ "\nError solving for mid points!")
  )
 
-
  (setvar "CMDECHO" CMDECHO)
  (setvar "ORTHOMODE" ORTHOMODE)
  (setvar "OSMODE" OSMODE)
