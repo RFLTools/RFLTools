@@ -15,5 +15,6 @@ COPY /B ".\Align\RFL*.lsp" + ^
         ".\AcadCommands\RFL*.lsp" + ^
         ".\Commands\C*.lsp" + ^
         ".\QSection\C*.lsp" + ^
-        ".\SightLine\*.lsp" ^
+        ".\SightLine\*.lsp" + ^
+        ".\BarrierWarrant\*.lsp" ^
         ".\LoadRFLAlign.lsp"
