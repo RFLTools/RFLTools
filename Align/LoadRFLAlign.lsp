@@ -7996,6 +7996,7 @@
 )
 ;
 ;
+;
 ;     Program written by Robert Livingston, 2016-09-07
 ;
 ;     C:BESTCORNER builds an alignment (Spi-Curve-Spi) based on two tangents to fit a selected polyline
@@ -8007,9 +8008,11 @@
 (setq RFL:BESTCORNERSTEP 10.0)
 (setq RFL:BESTCORNERSTEPMIN 1.0)
 (defun C:BESTCORNER (/ AL1 AL2 AL3 AL4 AL5 AL6
-                       CALCE CALCSUME2 CONTINUEFLAG ENT ENTLIST MAKEALIGNLIST LS1 LS2
+                       CALCE CALCSUME2 CMDECHO CONTINUEFLAG ENT ENTLIST MAKEALIGNLIST LS1 LS2
                        P P0 P1 P11 P12 P2 P21 P22 PLIST STEP STEPMIN
                        SUME2 SUME2PREV SUME2MIN SUME21 SUME22 SUME23 SUME24 SUME25 SUME26 R TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
  (defun CALCSUME2 (RFL:ALIGNLIST PLIST / P S SUME2)
   (setq SUME2 nil)
   (if RFL:ALIGNLIST
@@ -8021,9 +8024,33 @@
      )
     )
    )
+   (setq SUME2 1E99)
   )
   SUME2
  )
+; Below is an attempt to weight spirals
+; (defun CALCSUME2 (ALSAVE PLIST / ALNODE ISSPIRAL P RFL:ALIGNLIST S SUME2)
+;  (setq SUME2 nil)
+;  (if ALSAVE
+;   (foreach ALNODE ALSAVE
+;    (setq RFL:ALIGNLIST (list ALNODE))
+;    (if (listp (last ALNODE))
+;     (setq ISSPIRAL T)
+;     (setq ISSPIRAL nil)
+;    )
+;    (foreach P PLIST
+;     (if (setq S (RFL:STAOFF P))
+;      (if SUME2
+;       (setq SUME2 (+ SUME2 (* (expt (cadr S) 2) (if ISSPIRAL 100.0 1.0))))
+;       (setq SUME2 (* (expt (cadr S) 2) (if ISSPIRAL 100.0 1.0)))
+;      )
+;     )
+;    )
+;   )
+;   (setq SUME2 1E99)
+;  )
+;  SUME2
+; )
  (defun CALCE (RFL:ALIGNLIST PLIST / P S E)
   (setq E 0.0)
   (if RFL:ALIGNLIST
@@ -8038,6 +8065,7 @@
  (defun MAKEALIGNLIST (P1 P0 P2 LS1 R LS2 / RFL:ALIGNLIST A1 A2 ANG ANG0 ANG1 ANG2 D1 D2 DIR 
                                             PA PB PC PD PLT PLTST1 PLTST2 PST
                                             S X X0 X1 X2 X3 Y Y0 Y1 Y2 Y3)
+  (setq RFL:ALIGNLIST nil)
   (setq P1 (list (car P1) (cadr P1)))
   (setq P0 (list (car P0) (cadr P0)))
   (setq P2 (list (car P2) (cadr P2)))
@@ -8201,14 +8229,16 @@
               (setq RFL:BESTCORNERSTEPMIN TMP)
              )
              (setq CONTINUEFLAG T
-                   LS1 (if (= RFL:BESTCORNERLSMAX 0.0)
-                        0.0
-                        (/ RFL:BESTCORNERR 10.0)
-                       )
-                   LS2 (if (= RFL:BESTCORNERLSMAX 0.0)
-                        0.0
-                        (/ RFL:BESTCORNERR 10.0)
-                       )
+;                   LS1 (if (= RFL:BESTCORNERLSMAX 0.0)
+;                        0.0
+;                        (/ RFL:BESTCORNERR 10.0)
+;                       )
+;                   LS2 (if (= RFL:BESTCORNERLSMAX 0.0)
+;                        0.0
+;                        (/ RFL:BESTCORNERR 10.0)
+;                       )
+                   LS1 RFL:BESTCORNERLSMAX
+                   LS2 RFL:BESTCORNERLSMAX
                    R RFL:BESTCORNERR
                    STEP RFL:BESTCORNERSTEP
                    STEPMIN RFL:BESTCORNERSTEPMIN
@@ -8255,7 +8285,7 @@
                (if (< STEP STEPMIN)
                 (setq CONTINUEFLAG nil)
                 (cond ((= SUME2MIN SUMEPREV)
-                       (setq STEP (/ STEP 10.0))
+                       (setq STEP (/ STEP 2))
                       )
                       ((= SUME2MIN SUME21)
                        (setq LS1 (- LS1 STEP)
@@ -8287,7 +8317,7 @@
                        )
                       )
                       (T
-                       (setq STEP (/ STEP 10.0))
+                       (setq STEP (/ STEP 2))
                       )
                 )
                )
@@ -8309,6 +8339,7 @@
    (princ "\n! Not a line entity ! ")
   )
  )
+ (setvar "CMDECHO" CMDECHO)
  (princ (strcat "\nMaximum offset = " (rtos (CALCE (reverse (cdr (reverse (cdr RFL:ALIGNLIST)))) PLIST)) "\n"))
  nil
 );
