@@ -8006,13 +8006,14 @@
 (setq RFL:BESTCORNERLSMAX 0.0)
 (setq RFL:BESTCORNERR 100.0)
 (setq RFL:BESTCORNERSTEP 10.0)
-(setq RFL:BESTCORNERSTEPMIN 1.0)
-(defun C:BESTCORNER (/ AL1 AL2 AL3 AL4 AL5 AL6
+(setq RFL:BESTCORNERSTEPMIN 0.001)
+(defun C:BESTCORNER (/ AL1 AL2 AL3 AL4 AL5 AL6 ANG
                        CALCE CALCSUME2 CMDECHO CONTINUEFLAG ENT ENTLIST MAKEALIGNLIST LS1 LS2
-                       P P0 P1 P11 P12 P2 P21 P22 PLIST STEP STEPMIN
+                       N1 N2 P P0 P1 P11 P12 P2 P21 P22 PLIST STEP STEPMIN
                        SUME2 SUME2PREV SUME2MIN SUME21 SUME22 SUME23 SUME24 SUME25 SUME26 R TMP)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
+ 
  (defun CALCSUME2 (RFL:ALIGNLIST PLIST / P S SUME2)
   (setq SUME2 nil)
   (if RFL:ALIGNLIST
@@ -8210,6 +8211,24 @@
            (setq PLIST (reverse PLIST))
            (if PLIST
             (progn
+             (setq ANG (- pi (RFL:ANGLE3P P1 P0 P2)))
+             (setq TMP (vl-sort PLIST (function (lambda (N1 N2) (< (distance P0 N1) (distance P0 N2))))))
+             (setq TMP (reverse TMP))
+             (while (> (length TMP) 10)
+              (setq TMP (cdr TMP))
+             )
+             (setq TMP (reverse TMP))
+             (if (>= (length TMP) 3)
+              (* 1.5 (setq RFL:BESTCORNERR (cadr (RFL:BESTCIRCLE TMP)))) ; Use 1.5 factor : solution seems better when starting high
+              100.0
+             )
+             (if RFL:BESTCORNERR
+              (setq RFL:BESTCORNERR (float (fix RFL:BESTCORNERR)))
+              (setq RFL:BESTCORNERR 100.0)
+             )
+             (setq RFL:BESTCORNERLSMAX (float (fix (* 2.0 RFL:BESTCORNERR (/ ANG 2.0)))))
+             
+             
              (if (setq TMP (getdist (strcat "\nMaximum spiral length (enter 0 for no spirals) <" (rtos RFL:BESTCORNERLSMAX) "> : ")))
               (setq RFL:BESTCORNERLSMAX TMP)
              )
