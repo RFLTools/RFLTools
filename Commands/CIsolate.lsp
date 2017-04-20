@@ -11,17 +11,21 @@
  (setvar "CMDECHO" 0)
 
  (defun ISOLATEON (/ TMP)
+  (setq TMP ISOLATEOFFLIST)
   (command "._LAYER")
-  (foreach TMP ISOLATEOFFLIST
+  (while (/= TMP nil)
    (command "ON" (car TMP))
+   (setq TMP (cdr TMP))
   )
   (command "")
  )
 
  (defun ISOLATEOFF (/ TMP)
+  (setq TMP ISOLATEOFFLIST)
   (command "._LAYER")
-  (foreach TMP ISOLATEOFFLIST
+  (while (/= TMP nil)
    (command "OFF" (car TMP))
+   (setq TMP (cdr TMP))
   )
   (command "")
  )
@@ -63,7 +67,6 @@
  )
 
  (GETDICTIONARY)
- 
  (if (= ISOLATEONOFF nil) (setq ISOLATEONOFF 0))
  (if (/= ISOLATEOFFLIST nil) (setq ISOLATEONOFF 1))
  (if (= ISOLATEONOFF 0)
