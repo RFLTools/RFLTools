@@ -9,6 +9,7 @@
   (setq DIR 1.0)
   (setq DIR -1.0)
  )
+ (setq R 0.0)
  (setq LS (RFL:GETSPIRALLS2 PLT PLTST PST))
  (setq RMAX (RFL:GETSPIRALR2 PLT PLTST PST))
  (if (< L RFL:TOLFINE)
