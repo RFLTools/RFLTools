@@ -866,6 +866,7 @@
       )
       (setq ENTLIST (subst (cons 50 ANG2) (assoc 50 ENTLIST) ENTLIST))
       (entmod ENTLIST)
+      (entupd ENT2)
       (entupd ENT)
      )
     )
