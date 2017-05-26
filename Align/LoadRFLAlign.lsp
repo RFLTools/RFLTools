@@ -17000,14 +17000,14 @@
    (setq PBASE (getpoint "\nBase point : "))
    (setvar "OSMODE" 0)
    (setvar "ORTHOMODE" 0)
-   (QSECTION STA
-             (cdr (assoc "SWATH" RFL:QSECTIONLIST))
-             PBASE
-             nil
-             (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
-             (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
-             (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
-             (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+   (RFL:QSECTION STA
+                 (cdr (assoc "SWATH" RFL:QSECTIONLIST))
+                 PBASE
+                 nil
+                 (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
+                 (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
+                 (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
+                 (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
    )
   )
  )
@@ -17019,8 +17019,8 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (eval nil)
 )
-(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
-;(defun QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
+(defun RFL:QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
+;(defun RFL:QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
  (setq TOL 0.0001)
  (defun ISABOVE (P OSLIST / C RES)
   (if P
@@ -17142,29 +17142,29 @@
    )
    (entmake ENTLIST)
    (ADDHANDLE)
-   (DRAWGRID (strcat "Sta: " (RFL:STATXT STA))                           ; Title Text
-             THEIGHT                                                     ; Title Height
-             THEIGHT                                                     ; Title OFFSET
-             (list (- (car PBASE) (/ SWATH 2.0)) (cadr PBASE))           ; Basepoint
-             (/ SWATH -2.0)                                              ; Base Station
-             ZBASE                                                       ; Base Elevation
-             SWATH                                                       ; Grid Width
-             (* (- ZHEIGHT ZBASE) VEXAG)                                 ; Grid Height
-             VEXAG                                                       ; Vertical Exageration
-             THEIGHT                                                     ; Text Height
-             THEIGHT                                                     ; Text OFFSET
-             (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0)       ; Horizontal Grid
-             nil                                                         ; Horizontal Fine Grid
-             (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0)       ; Horizontal Text
-             (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0 VEXAG) ; Vertical Grid
-             nil                                                         ; Vertical Fine Grid
-             (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0 VEXAG) ; Vertical Text
-             "PR-GRID"                                                   ; Grid Layer
-             (getvar "CLAYER")                                           ; Fine Grid Layer
-             (getvar "CLAYER")                                           ; Text Layer
-             nil                                                         ; Label as Station
-             1.0                                                         ; Master Scale
-             1                                                           ; Direction (1 = Left to Right, -1 = Right to Left)
+   (RFL:DRAWGRID (strcat "Sta: " (RFL:STATXT STA))                           ; Title Text
+                 THEIGHT                                                     ; Title Height
+                 THEIGHT                                                     ; Title OFFSET
+                 (list (- (car PBASE) (/ SWATH 2.0)) (cadr PBASE))           ; Basepoint
+                 (/ SWATH -2.0)                                              ; Base Station
+                 ZBASE                                                       ; Base Elevation
+                 SWATH                                                       ; Grid Width
+                 (* (- ZHEIGHT ZBASE) VEXAG)                                 ; Grid Height
+                 VEXAG                                                       ; Vertical Exageration
+                 THEIGHT                                                     ; Text Height
+                 THEIGHT                                                     ; Text OFFSET
+                 (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0)       ; Horizontal Grid
+                 nil                                                         ; Horizontal Fine Grid
+                 (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0)       ; Horizontal Text
+                 (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0 VEXAG) ; Vertical Grid
+                 nil                                                         ; Vertical Fine Grid
+                 (/ (expt 10.0 (fix (/ (log SWATH) (log 10.0)))) 10.0 VEXAG) ; Vertical Text
+                 "PR-GRID"                                                   ; Grid Layer
+                 (getvar "CLAYER")                                           ; Fine Grid Layer
+                 (getvar "CLAYER")                                           ; Text Layer
+                 nil                                                         ; Label as Station
+                 1.0                                                         ; Master Scale
+                 1                                                           ; Direction (1 = Left to Right, -1 = Right to Left)
    )
    (ADDHANDLE)
    (command "._PLINE")
@@ -17815,14 +17815,14 @@
     (foreach NODE (cadr (assoc "ENTITIES" RFL:QSECTIONLIST))
      (entdel (handent NODE))
     )
-    (QSECTION (+ (cdr (assoc "STA" RFL:QSECTIONLIST)) INC)
-              (cdr (assoc "SWATH" RFL:QSECTIONLIST))
-              (cadr (assoc "PBASE" RFL:QSECTIONLIST))
-              nil
-              (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
-              (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
-              (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
-              (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+    (RFL:QSECTION (+ (cdr (assoc "STA" RFL:QSECTIONLIST)) INC)
+                  (cdr (assoc "SWATH" RFL:QSECTIONLIST))
+                  (cadr (assoc "PBASE" RFL:QSECTIONLIST))
+                  nil
+                  (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
+                  (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
+                  (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
+                  (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
     )
    )
   )
@@ -17860,14 +17860,14 @@
     (foreach NODE (cadr (assoc "ENTITIES" RFL:QSECTIONLIST))
      (entdel (handent NODE))
     )
-    (QSECTION (- (cdr (assoc "STA" RFL:QSECTIONLIST)) INC)
-              (cdr (assoc "SWATH" RFL:QSECTIONLIST))
-              (cadr (assoc "PBASE" RFL:QSECTIONLIST))
-              nil
-              (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
-              (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
-              (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
-              (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+    (RFL:QSECTION (- (cdr (assoc "STA" RFL:QSECTIONLIST)) INC)
+                  (cdr (assoc "SWATH" RFL:QSECTIONLIST))
+                  (cadr (assoc "PBASE" RFL:QSECTIONLIST))
+                  nil
+                  (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
+                  (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
+                  (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
+                  (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
     )
    )
   )
