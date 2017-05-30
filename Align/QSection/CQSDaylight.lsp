@@ -1,0 +1,106 @@
+;
+;
+;     Program written by Robert Livingston, 2016-09-22
+;
+;     C:QSDAYLIGHT is a utility for extracting and drawing daylight polylines on the plan
+;
+;
+(defun C:QSDAYLIGHT (/ C C1 C2 DLIST1 DLIST2 ENT ENT1 ENT2 ENTLIST ENTSET NODE OSLIST ORTHOMODE OSMODE P PBASE PLIST1 PLIST2 REP STA TMP)
+;(defun C:QSDAYLIGHT ()
+ (setq OSMODE (getvar "OSMODE"))
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setq DLIST1 nil DLIST2 nil)
+ (princ (strcat "\nMin alignment = " (RFL:STATXT (caar RFL:ALIGNLIST)) ", min profile = " (RFL:STATXT (caar RFL:PVILIST))))
+ (C:QSECTION)
+ (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
+ (while STA
+  (setq OSLIST nil PLIST1 nil PLIST2 nil TMP T)
+  (setq PBASE (cadr (assoc "PBASE" RFL:QSECTIONLIST)))
+  (setq ENTSET (cadr (assoc "ENTITIES" RFL:QSECTIONLIST)))
+  (foreach NODE ENTSET
+   (if (or (= "LWPOLYLINE" (cdr (assoc 0 (setq ENTLIST (entget (setq ENT (handent NODE)))))))
+           (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+       )
+    (if (= nil PLIST1)
+     (setq PLIST1 (RFL:GETPLIST ENT))
+     (if (= nil PLIST2)
+      (setq PLIST2 (RFL:GETPLIST ENT))
+      (setq TMP nil)
+     )
+    )
+   )
+  )
+  (if (and TMP PLIST1 PLIST2)
+   (progn
+    (setq C1 1)
+    (while (< C1 (length PLIST1))
+     (setq C2 1)
+     (while (< C2 (length PLIST2))
+      (command "._DELAY" 0)
+      (if (setq P (inters (nth (1- C1) PLIST1) (nth C1 PLIST1)
+                          (nth (1- C2) PLIST2) (nth C2 PLIST2)
+                  )
+          )
+       (setq OSLIST (append OSLIST (list (- (car P) (car PBASE)))))
+      )
+      (setq C2 (1+ C2))
+     )
+     (setq C1 (1+ C1))
+    )
+    (if OSLIST
+     (progn
+      (setq OSLIST (vl-sort OSLIST '<))
+      (if (< (car OSLIST) 0.0)
+       (if (setq P (RFL:XY (list STA (car OSLIST))))
+        (progn
+         (princ (strcat "\n  Left Offset = " (rtos (car OSLIST))))
+         (setq DLIST1 (append DLIST1 (list P)))
+        )
+       )
+      )
+      (if (> (last OSLIST) 0.0)
+       (if (setq P (RFL:XY (list STA (last OSLIST))))
+        (progn
+         (princ (strcat "\n  Right Offset = " (rtos (last OSLIST))))
+         (setq DLIST2 (append DLIST2 (list P)))
+        )
+       )
+      )
+      (initget "Yes No")
+      (if (= "No" (getkword "\nAdd another (<Yes>/No) ? "))
+       (setq STA nil)
+       (progn
+        (C:QS+)
+        (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
+       )
+      )
+     )
+    )
+   )
+   (setq STA nil)
+  )
+ )
+ (setvar "ORTHOMODE" 0)
+ (setvar "OSMODE" 0)
+ (if (> (length DLIST1) 1)
+  (progn
+   (command "._PLINE")
+   (foreach P DLIST1
+    (command P)
+   )
+   (command "")
+  )
+ )
+ (if (> (length DLIST2) 1)
+  (progn
+   (command "._PLINE")
+   (foreach P DLIST2
+    (command P)
+   )
+   (command "")
+  )
+ )
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "OSMODE" OSMODE)
+ nil
+)
