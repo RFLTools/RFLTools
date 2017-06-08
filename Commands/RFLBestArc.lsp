@@ -5,7 +5,7 @@
 ;     RFL:BESTARC is a utility for finding best fit arc along a selected polyline
 ;
 ;
-(defun RFL:BESTARC (PLIST / ANG BULGE COUNT D P P1 P2 SO TOL)
+(defun RFL:BESTARC (PLIST / ANG BULGE BULGEFIXED COUNT D P P1 P2 R REP SO TOL)
  (setq TOL 0.000000001)
  (defun SO (P P1 P2 BULGE / ANG ANG1 ANG2 CALCSUME2 D D1 D2 D11 D22 OFFSET PC R STA SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6 TOL)
   (setq TOL 0.000000001)
@@ -48,34 +48,102 @@
   (foreach P PLIST
    (setq SUME2 (+ SUME2 (expt (cadr (SO P P1 P2 BULGE)) 2)))
   )
-  (eval SUME2)
+  SUME2
  )
  
- (setq P1 (car PLIST))
- (setq P2 (last PLIST))
- (setq ANG (angle P1 P2))
- (setq D (distance P1 P2))
- (setq BULGE 0.0)
- (setq SUME2 (CALCSUME2 P1 P2 BULGE PLIST))
- (setq COUNT 0)
- (while (> D TOL)
-  (setq SUME2T1 (CALCSUME2 (list (+ (car P1) (* D (sin ANG))) (- (cadr P1) (* D (cos ANG)))) P2 BULGE PLIST))
-  (setq SUME2T2 (CALCSUME2 (list (- (car P1) (* D (sin ANG))) (+ (cadr P1) (* D (cos ANG)))) P2 BULGE PLIST))
-  (setq SUME2T3 (CALCSUME2 P1 (list (+ (car P2) (* D (sin ANG))) (- (cadr P2) (* D (cos ANG)))) BULGE PLIST))
-  (setq SUME2T4 (CALCSUME2 P1 (list (- (car P2) (* D (sin ANG))) (+ (cadr P2) (* D (cos ANG)))) BULGE PLIST))
-  (setq SUME2T5 (CALCSUME2 P1 P2 (+ BULGE (/ D 1000.0)) PLIST))
-  (setq SUME2T6 (CALCSUME2 P1 P2 (- BULGE (/ D 1000.0)) PLIST))
-  (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6))
-  (cond ((= SUME2 SUME2T1) (setq P1 (list (+ (car P1) (* D (sin ANG))) (- (cadr P1) (* D (cos ANG))))))
-        ((= SUME2 SUME2T2) (setq P1 (list (- (car P1) (* D (sin ANG))) (+ (cadr P1) (* D (cos ANG))))))
-        ((= SUME2 SUME2T3) (setq P2 (list (+ (car P2) (* D (sin ANG))) (- (cadr P2) (* D (cos ANG))))))
-        ((= SUME2 SUME2T4) (setq P2 (list (- (car P2) (* D (sin ANG))) (+ (cadr P2) (* D (cos ANG))))))
-        ((= SUME2 SUME2T5) (setq BULGE (+ BULGE (/ D 1000.0))))
-        ((= SUME2 SUME2T6) (setq BULGE (- BULGE (/ D 1000.0))))
-        (T (setq D (/ D 2.0)))
+ (setq BULGEFIXED 0)
+ (setq R nil)
+ (while (< BULGEFIXED 2)
+  (setq P1 (car PLIST))
+  (setq P2 (last PLIST))
+  (setq ANG (angle P1 P2))
+  (setq D (distance P1 P2))
+  (setq BULGE 0.0)
+  (setq SUME2 (CALCSUME2 P1 P2 BULGE PLIST))
+  (setq COUNT 0)
+  (while (> D TOL)
+   (if (= BULGEFIXED 1)
+    (progn
+     (setq BULGE (RFL:BULGE P1 P2 R))
+     (setq SUME2T5 nil)
+     (setq SUME2T6 nil)
+    )
+    (progn
+     (setq SUME2T5 (CALCSUME2 P1 P2 (+ BULGE (/ D 1000.0)) PLIST))
+     (setq SUME2T6 (CALCSUME2 P1 P2 (- BULGE (/ D 1000.0)) PLIST))
+    )
+   )
+   (setq SUME2T1 (CALCSUME2 (list (+ (car P1) (* D (sin ANG))) (- (cadr P1) (* D (cos ANG))))
+                            P2
+                            (if (= R nil)
+                             BULGE
+                             (RFL:BULGE (list (+ (car P1) (* D (sin ANG))) (- (cadr P1) (* D (cos ANG))))
+                                        P2
+                                        R
+                             )
+                            )
+                            PLIST
+                 )
+   )
+   (setq SUME2T2 (CALCSUME2 (list (- (car P1) (* D (sin ANG))) (+ (cadr P1) (* D (cos ANG))))
+                            P2
+                            (if (= R nil)
+                             BULGE
+                             (RFL:BULGE (list (- (car P1) (* D (sin ANG))) (+ (cadr P1) (* D (cos ANG))))
+                                        P2
+                                        R
+                             )
+                            )
+                            PLIST
+                 )
+   )
+   (setq SUME2T3 (CALCSUME2 P1 (list (+ (car P2) (* D (sin ANG))) (- (cadr P2) (* D (cos ANG))))
+                            (if (= R nil)
+                             BULGE
+                             (RFL:BULGE P1
+                                        (list (+ (car P2) (* D (sin ANG))) (- (cadr P2) (* D (cos ANG))))
+                                        R
+                             )
+                            )
+                            PLIST
+                 )
+   )
+   (setq SUME2T4 (CALCSUME2 P1 (list (- (car P2) (* D (sin ANG))) (+ (cadr P2) (* D (cos ANG))))
+                            (if (= R nil)
+                             BULGE
+                             (RFL:BULGE P1
+                                        (list (- (car P2) (* D (sin ANG))) (+ (cadr P2) (* D (cos ANG))))
+                                        R
+                             )
+                            )
+                            PLIST
+                 )
+   )
+   (if (= BULGEFIXED 1)
+    (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4))
+    (setq SUME2 (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 SUME2T5 SUME2T6))
+   )
+   (cond ((= SUME2 SUME2T1) (setq P1 (list (+ (car P1) (* D (sin ANG))) (- (cadr P1) (* D (cos ANG))))))
+         ((= SUME2 SUME2T2) (setq P1 (list (- (car P1) (* D (sin ANG))) (+ (cadr P1) (* D (cos ANG))))))
+         ((= SUME2 SUME2T3) (setq P2 (list (+ (car P2) (* D (sin ANG))) (- (cadr P2) (* D (cos ANG))))))
+         ((= SUME2 SUME2T4) (setq P2 (list (- (car P2) (* D (sin ANG))) (+ (cadr P2) (* D (cos ANG))))))
+         ((= SUME2 SUME2T5) (setq BULGE (+ BULGE (/ D 1000.0))))
+         ((= SUME2 SUME2T6) (setq BULGE (- BULGE (/ D 1000.0))))
+         (T (setq D (/ D 2.0)))
+   )
+   (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
   )
-  (setq COUNT (+ COUNT 1))(if (= 10000 COUNT) (exit))
+  (setq BULGEFIXED (1+ BULGEFIXED))
+  (if (= BULGEFIXED 1)
+   (if (= nil (setq R (getreal (strcat "\nSolution found for R = " (rtos (* (RFL:SIGN BULGE) (RFL:RADIUS P1 P2 BULGE))) ", set new R (<return> for calc) = "))))
+    (setq BULGEFIXED (1+ BULGEFIXED))
+   )
+   (setq BULGEFIXED (1+ BULGEFIXED))
+  )
  )
  
- (list P1 P2 BULGE)
+ (if (= R nil)
+  (list P1 P2 BULGE)
+  (list P1 P2 (RFL:BULGE P1 P2 R))
+ )
 )
