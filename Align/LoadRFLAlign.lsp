@@ -510,7 +510,8 @@
 ;
 ;
 ;
-(defun RFL:DRAWALIGNOS2 (OS / ANG ANG1 ANG2 ALLIST ALENT ENTLIST OS2 P1X P1Y P2X P2Y PC R)
+(defun RFL:DRAWALIGNOS2 (OS / ANG ANG1 ANG2 ALLIST ALENT ENT ENTLIST OS2 P1X P1Y P2X P2Y PC PREVENT R)
+ (setq PREVENT nil)
  (setq ALLIST RFL:ALIGNLIST)
  (entmake)
  (while (/= ALLIST nil)
@@ -523,6 +524,8 @@
      (setq OS2 (* -1.0 OS))
     )
     (RFL:DRAWSPIRAL (nth 0 (last ALENT)) (nth 1 (last ALENT)) (nth 2 (last ALENT)) (nth 3 (last ALENT)) OS2)
+    (setq ENT (entlast))
+    (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
    )
    (progn
     (if (> (abs (last ALENT)) RFL:TOLFINE)
@@ -549,6 +552,8 @@
                     )
       )
       (entmake ENTLIST)
+      (setq ENT (entlast))
+      (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
      )
      (progn
       (setq ANG (angle (nth 1 ALENT) (nth 2 ALENT)))
@@ -562,6 +567,8 @@
                     )
       )
       (entmake ENTLIST)
+      (setq ENT (entlast))
+      (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
      )
     )
    )
