@@ -1,0 +1,65 @@
+;
+;
+;     Program written by Robert Livingston, 99/06/01
+;     Modified for AutoCAD2000i 01/04/09
+;
+;     DPOINT changes the ELEV attribute of a second selected point to be equal to the first ELEV plus a distance times slope
+;
+(defun C:DPOINT (/ ATTREQ CMDECHO DIMZIN DSLOPE ELEV1 ELEV2 ENT ENT2 ENTLIST PT1 PT2)
+;(defun C:DPOINT ()
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 0)
+
+ (setq DSLOPE (/ (getreal "\nEnter slope (%) :") 100.0))
+
+ (princ "\nSelect first spot elevation block :")
+ (setq ENT (car (entsel)))
+ (while (/= ENT nil)
+  (setq ENTLIST (entget ENT))
+  (if (and (= 1 (cdr (assoc 66 ENTLIST)))
+           (= "INSERT" (cdr (assoc 0 ENTLIST))))
+   (progn
+    (setq PT1 (cdr (assoc 10 ENTLIST)))
+    (setq PT1 (list (nth 0 PT1) (nth 1 PT1)))
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+     (if (or (= "ELEV" (strcase (cdr (assoc 2 ENTLIST)))) (= "ELEVATION" (strcase (cdr (assoc 2 ENTLIST)))))
+      (setq ELEV1 (atof (cdr (assoc 1 ENTLIST))))
+     )
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+    )
+    (princ "\nSelect second spot elevation block :")
+    (setq ENT (car (entsel)))
+    (setq ENTLIST (entget ENT))
+    (if (and (= 1 (cdr (assoc 66 ENTLIST)))
+             (= "INSERT" (cdr (assoc 0 ENTLIST))))
+     (progn
+      (setq PT2 (cdr (assoc 10 ENTLIST)))
+      (setq PT2 (list (nth 0 PT2) (nth 1 PT2)))
+      (setq ELEV2 (+ ELEV1 (* (distance PT1 PT2) DSLOPE)))
+      (setq ENT2 (entnext ENT))
+      (setq ENTLIST (entget ENT2))
+      (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+       (if (or (= "ELEV" (strcase (cdr (assoc 2 ENTLIST)))) (= "ELEVATION" (strcase (cdr (assoc 2 ENTLIST)))))
+        (setq ENTLIST (subst (cons 1 (rtos ELEV2)) (assoc 1 ENTLIST) ENTLIST))
+       )
+       (entmod ENTLIST)
+       (setq ENT2 (entnext ENT2))
+       (setq ENTLIST (entget ENT2))
+      )
+      (entupd ENT)
+     )
+    )
+   )
+  )
+  (princ "\nSelect first spot elevation block :")
+  (setq ENT (car (entsel)))
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "DIMZIN" DIMZIN)
+)
