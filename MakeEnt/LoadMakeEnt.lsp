@@ -10,13 +10,13 @@
                                  "FORCE" 
                                  "LTRAINSECTION" 
                                  "POINT" 
+                                 "PPSLOPE" 
                                  "PR-CIRCLE" 
                                  "PVI2" 
                                  "RFLALIGN" 
                                  "RFLPROF" 
                                  "RFLTRAIN" 
                                  "RTRAINSECTION" 
-                                 "SLOPE" 
                                  "SPOTELEVATION" 
                                  "SPOTELEVATION2" 
                                  "STALBL" 
@@ -5812,11 +5812,11 @@
          (list (cons 0 "ENDBLK"))
         )
        )
-       ((= (strcase BLKNAME) "SLOPE")
+       ((= (strcase BLKNAME) "PPSLOPE")
         (list
          (list
           (cons 0 "BLOCK")
-          (cons 2 "SLOPE")
+          (cons 2 "PPSLOPE")
           (cons 70  2)
           (cons 4 "Slope Indicator # (Attribute)")
           (list 10 0.00000000 0.00000000 0.00000000)

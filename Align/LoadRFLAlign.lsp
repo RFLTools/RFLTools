@@ -17908,6 +17908,77 @@
  (setvar "DIMZIN" DIMZIN)
 );
 ;
+;     Program written by Robert Livingston, 2016-03-30
+;
+;     DRAWBARRIER is a utility for drawing a polyline from one sta/os to another os at a specified length
+;
+;
+(setq RFL:DRAWBARRIERSEGS 20)
+(setq RFL:DRAWBARRIERLENGTH 24.2)
+(setq RFL:DRAWBARRIEROS 6.45)
+(defun C:DRAWBARRIER (/ CALCLENGTH DRAWLENGTH D D1 D2 OS OS1 OS2 P STA STA1 STA2 STAM TMP TOL)
+ (defun CALCLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS LENGTHB)
+  (setq STA STA1 OS OS1 LENGTHB 0.0)
+  (setq P (RFL:XY (list STA OS)))
+  (setq DSTA (/ (- STA2 STA1) NSEGS))
+  (setq DOS (/ (- OS2 OS1) NSEGS))
+  (repeat NSEGS
+   (setq LENGTHB (+ LENGTHB (distance P (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))))
+  )
+  LENGTHB
+ )
+ (defun DRAWLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS)
+  (setq STA STA1 OS OS1)
+  (command "._PLINE" "_NON" (setq P (RFL:XY (list STA OS))))
+  (setq DSTA (/ (- STA2 STA1) NSEGS))
+  (setq DOS (/ (- OS2 OS1) NSEGS))
+  (repeat NSEGS
+   (command "_NON" (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))
+  )
+  (command "")
+ )
+ (setq TOL 0.001)
+ (if (= nil (setq P (getpoint "\nStart point (<return> to enter Sta/OS) : ")))
+  (progn
+   (setq STA (getreal "\nStart Sta : "))
+   (setq OS1 (getreal "\nStart OS : "))
+  )
+  (progn
+   (setq P (RFL:STAOFF P))
+   (if (= nil (setq STA (getreal (strcat "\nStart Sta <" (rtos (car P)) "> : "))))
+    (setq STA (car P))
+   )
+   (if (= nil (setq OS1 (getreal (strcat "\nStart OS <" (rtos (cadr P)) ">: "))))
+    (setq OS1 (cadr P))
+   )
+  )
+ )
+ (setq TMP (getreal (strcat "\nLength (+ve = upchainage, -ve = downchainage) <" (rtos RFL:DRAWBARRIERLENGTH) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERLENGTH TMP))
+ (setq TMP (getreal (strcat "\nEnd OS (+ve = right, -ve = left) <" (rtos RFL:DRAWBARRIEROS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIEROS TMP))
+ (setq TMP (getint (strcat "\nNumber of pline segments <" (itoa RFL:DRAWBARRIERSEGS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERSEGS TMP))
+ (setq OS2 RFL:DRAWBARRIEROS)
+ (if (> RFL:DRAWBARRIERLENGTH 0.0)
+  (setq STA1 STA STA2 (- (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) TOL))
+  (setq STA1 STA STA2 (+ (caar RFL:ALIGNLIST) TOL))
+ )
+ (setq D1 0.0)
+ (setq D2 (CALCLENGTH STA OS1 STA2 OS2 RFL:DRAWBARRIERSEGS))
+ (while (> (abs (- D2 D1)) TOL)
+  (setq STAM (/ (+ STA1 STA2) 2.0))
+  (setq D (CALCLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS))
+  (if (> D (abs RFL:DRAWBARRIERLENGTH))
+   (setq STA2 STAM D2 D)
+   (setq STA1 STAM D1 D)
+  )
+;(print STAM)
+ )
+ (DRAWLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS)
+)
+;
+;
 ;     Program written by Robert Livingston, 2015-01-29
 ;
 ;     C:QSECTION is a utility for drawing a cross section at a specified station
