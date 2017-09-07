@@ -1,0 +1,61 @@
+;
+;
+;     Program written by Robert Livingston, 2017-09-07
+;
+;     RFL:GETSPOTPOINT returns a point with the X,Y of the insertion point and the elevation
+;                      of the object (if point) or attribute elevation.
+;
+;
+(defun RFL:GETSPOTPOINT (ENT / ENTLIST P Z)
+ (setq P nil Z nil)
+ (setq ENTLIST (entget ENT))
+ (cond ((= "POINT" (cdr (assoc 0 ENTLIST)))
+        (setq P (cdr (assoc 10 ENTLIST))
+              Z (caddr P)
+              P (list (car P) (cadr P))
+        )
+       )
+       ((and (= "INSERT" (cdr (assoc 0 ENTLIST))) (= 1 (cdr (assoc 66 ENTLIST))))
+        (progn
+         (setq P (cdr (assoc 10 ENTLIST))
+               P (list (car P) (cadr P))
+               ENT (entnext ENT)
+               ENTLIST (entget ENT)
+         )
+         (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
+          (if (or (= "Z" (strcase (cdr (assoc 2 ENTLIST))))
+                  (= "ELEV" (strcase (cdr (assoc 2 ENTLIST))))
+                  (= "ELEVATION" (strcase (cdr (assoc 2 ENTLIST))))
+              )
+           (setq Z (atof (cdr (assoc 1 ENTLIST))))
+          )
+          (setq ENTLIST (entget (setq ENT (entnext ENT))))
+         )
+        )
+       )
+       ((= "POINT" (cdr (assoc 0 ENTLIST)))
+        (setq P (cdr (assoc 10 ENTLIST))
+              Z (caddr P)
+              P (list (car P) (cadr P))
+        )
+       )
+       ((= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
+        (setq P (cdr (assoc 11 ENTLIST))
+              Z (caddr P)
+              P (list (car P) (cadr P))
+        )
+       )
+       ((= "AECC_COGO_POINT" (cdr (assoc 0 ENTLIST)))
+        (setq P (vlax-get-property (vlax-ename->vla-object ENT) "Location")
+              P (vlax-variant-value P)
+              Z (vlax-safearray-get-element P 2)
+              P (list (vlax-safearray-get-element P 0) (vlax-safearray-get-element P 1))
+        )
+       )
+ )
+
+ (if (= Z nil)
+  nil
+  (append P (list Z))
+ )
+)
