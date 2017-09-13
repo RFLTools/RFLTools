@@ -1302,6 +1302,78 @@
     (close OUTFILE) 
    ) 
   ) 
+  ((= (strcase DCLNAME) (strcase "QTCalc")) 
+   (progn 
+    (setq DCLLIST (list 
+                        "QTCALC : dialog {\n" 
+                        "                  label = \"QuickTurn Vehicle Turn Calculator\";\n" 
+                        "                  : column {\n" 
+                        "                             alignment = centered;\n" 
+                        "                             : row {\n" 
+                        "                                     : boxed_column {\n" 
+                        "                                                      label = \"Vehicle Width \";\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   key = \"W\";\n" 
+                        "                                                                   value = \"2.600\";\n" 
+                        "                                                                   edit_width = 5;\n" 
+                        "                                                                   width = 22;\n" 
+                        "                                                                 }\n" 
+                        "                                                    }\n" 
+                        "                                     : boxed_column {\n" 
+                        "                                                      label = \"Wheel Base  \";\n" 
+                        "                                                      : edit_box {\n" 
+                        "                                                                   key = \"WB\";\n" 
+                        "                                                                   value = \"12.000\";\n" 
+                        "                                                                   edit_width = 5;\n" 
+                        "                                                                   width = 22;\n" 
+                        "                                                                 }\n" 
+                        "                                                    }\n" 
+                        "                                     :boxed_column {\n" 
+                        "                                                     label = \"Lock Angle (degrees) \";\n" 
+                        "                                                     : edit_box {\n" 
+                        "                                                                  key = \"L\";\n" 
+                        "                                                                  value = \"15\";\n" 
+                        "                                                                  edit_width = 5;\n" 
+                        "                                                                  width = 22;\n" 
+                        "                                                                }\n" 
+                        "                                                   }\n" 
+                        "                                   }\n" 
+                        "                             : boxed_row {\n" 
+                        "                                           label = \"Radius \";\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        label = \"Inside :\";\n" 
+                        "                                                        key = \"RI\";\n" 
+                        "                                                        value = \"12.0\";\n" 
+                        "                                                        edit_width = 5;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        label = \"Center :\";\n" 
+                        "                                                        key = \"RC\";\n" 
+                        "                                                        value = \"12.0\";\n" 
+                        "                                                        edit_width = 5;\n" 
+                        "                                                      }\n" 
+                        "                                           : edit_box {\n" 
+                        "                                                        label = \"Outside :\";\n" 
+                        "                                                        key = \"RO\";\n" 
+                        "                                                        value = \"12.0\";\n" 
+                        "                                                        edit_width = 5;\n" 
+                        "                                                      }\n" 
+                        "                                         }\n" 
+                        "                             : row {\n" 
+                        "                                     : cancel_button {\n" 
+                        "                                                       label = \"Cancel\";\n" 
+                        "                                                       key = \"CANCEL\";\n" 
+                        "                                                     }\n" 
+                        "                                   }\n" 
+                        "                           }\n" 
+                        "                }\n" 
+                  ) 
+    ) 
+    (setq OUTFILE (open OUTFILENAME "w")) 
+    (foreach NODE DCLLIST (princ NODE OUTFILE)) 
+    (close OUTFILE) 
+   ) 
+  ) 
   ((= (strcase DCLNAME) (strcase "QTMAKE")) 
    (progn 
     (setq DCLLIST (list 
