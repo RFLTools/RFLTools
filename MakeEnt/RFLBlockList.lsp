@@ -16,6 +16,7 @@
                                  "RFLALIGN" 
                                  "RFLPROF" 
                                  "RFLTRAIN" 
+                                 "ROUNDABOUT" 
                                  "RTRAINSECTION" 
                                  "SPOTELEVATION" 
                                  "SPOTELEVATION2" 
