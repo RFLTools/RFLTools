@@ -265,8 +265,10 @@
            )
           )
          )
-         (if (and (= nil P2) (<= CUTOS (car NODE1)))
-          (if (setq P2 (inters NODE1 NODE2 (list CUTOS Z1CUT) (list SWATH (+ Z1CUT (/ (- SWATH CUTOS) CUT)))))
+         (if (= nil P2)
+          (if (and (setq P2 (inters NODE1 NODE2 (list CUTOS Z1CUT) (list SWATH (+ Z1CUT (/ (- SWATH CUTOS) CUT)))))
+                   (<= CUTOS (car P2))
+              )
            (progn
             (setq FLAG nil)
             (setq PLISTD (list (list (+ (car P1) 
