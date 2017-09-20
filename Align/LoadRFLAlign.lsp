@@ -19835,7 +19835,7 @@
            (if (< (sin (- (angle P1 P2) (angle P1 P))) 0.0) (setq D3 (* -1.0 D3)))
            (setq Z (+ Z1 (* D1 G1) (* D3 G2)))
            (setq GRADE (* 100.0 (sqrt (+ (expt G1 2) (expt G2 2)))))
-           (setq ANG (+ pi (angle P1 P2) (atan (/ G2 G1))))
+           (setq ANG (+ pi (- (angle P1 P2) (atan (/ G2 G1)))))
            (setq ENTOBJ (vlax-ename->vla-object ENT))
            (vlax-put-property ENTOBJ 'Rotation ANG)
            (setq ENT2 (entnext ENT))
