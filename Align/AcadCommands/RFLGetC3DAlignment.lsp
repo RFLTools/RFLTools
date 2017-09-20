@@ -19,8 +19,10 @@
    (setq C (+ C 1))
    (princ (strcat (itoa C) " - " (vlax-get-property C3DALIGN "DisplayName") "\n"))
   )
-  (setq C (getint "Enter alignment number : "))
-  (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
+  (if (setq C (getint "Enter alignment number : "))
+   (setq OBALIGNMENT (vlax-invoke-method C3DALIGNS "Item" (- C 1)))
+   nil
+  )
   (graphscr)
  )
  (setq OBALIGNMENT nil)
