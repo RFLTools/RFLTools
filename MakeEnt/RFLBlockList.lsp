@@ -8,6 +8,7 @@
                                  "CURVETABLEDATA" 
                                  "DRAWGRIDDEF" 
                                  "FORCE" 
+                                 "LTESTTRAINSECTION" 
                                  "LTRAINSECTION" 
                                  "POINT" 
                                  "PPSLOPE" 
@@ -17,7 +18,9 @@
                                  "RFLPROF" 
                                  "RFLTRAIN" 
                                  "ROUNDABOUT" 
+                                 "RTESTTRAINSECTION" 
                                  "RTRAINSECTION" 
+                                 "SECT-REF" 
                                  "SPOTELEVATION" 
                                  "SPOTELEVATION2" 
                                  "STALBL" 
@@ -26,6 +29,7 @@
                                  "STATICK" 
                                  "SUPER" 
                                  "SURVEYSPOT" 
+                                 "TESTTRAINSECTION" 
                                  "TRAINSECTION" 
                            ) 
 ) 
