@@ -13,6 +13,7 @@ COPY /B ".\Align\RFL*.lsp" + ^
         ".\Common\RFL*.lsp" + ^
         ".\AcadCommands\RFL*.lsp" + ^
         ".\Commands\C*.lsp" + ^
+        ".\Roundabout\*.lsp" + ^
         ".\QSection\C*.lsp" + ^
         ".\SightLine\*.lsp" + ^
         ".\BarrierWarrant\*.lsp" ^
