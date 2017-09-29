@@ -656,7 +656,8 @@
    (while (<= STA STA2)
     (if (setq P (RFL:XY (list STA 0.0)))
      (progn
-      (command (RFL:PROFPOINT STA Z)
+      
+      (command (RFL:PROFPOINT STA Z))
      )
     )
     (setq STA (+ STA INC))
