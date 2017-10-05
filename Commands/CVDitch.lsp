@@ -1,0 +1,142 @@
+;
+;
+;     Program written by Robert Livingston, 05-10-14
+;
+;     C:VDITCH draws a V-Ditch 3D polyline based on 2 selected 3D polylines
+;
+;
+(defun C:VDITCH (/ *error* ANG ANGBASE ANGDIR CMDECHO D D1 ORTHOMODE OSMODE P P1 P2 PINWHEEL PINWHEELCHAR PLIST PLIST1 PLIST2 SLOPE1 SLOPE2 Z Z1 Z2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (command "._UCS" "P")
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (princ msg)
+  (setq *error* nil)
+ )
+
+ (defun PINWHEEL ()
+  (if (= PINWHEELCH nil)
+   (setq PINWHEELCH "|")
+  )
+  (setq PINWHEELCH (cond ((= PINWHEELCH "|") "/")
+                         ((= PINWHEELCH "/") "-")
+                         ((= PINWHEELCH "-") "\\")
+                         ((= PINWHEELCH "\\") "|")))
+  (princ "\r")
+  (princ PINWHEELCH)
+ )
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (setq ENT (car (entsel "\nSelect first 3D polyline : ")))
+ (setq ENTLIST (entget ENT))
+ (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
+  (progn
+   (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
+           (/ (cdr (assoc 70 ENTLIST)) 16.0))
+    (progn
+     (setq PLIST1 nil)
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+      (setq PLIST1 (append PLIST1 (list (cdr (assoc 10 ENTLIST)))))
+      (setq ENT (entnext ENT))
+      (setq ENTLIST (entget ENT))
+     )
+     (setq ENT (car (entsel "\nSelect second 3D polyline : ")))
+     (setq ENTLIST (entget ENT))
+     (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
+      (progn
+       (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
+               (/ (cdr (assoc 70 ENTLIST)) 16.0))
+        (progn
+         (setq PLIST2 nil)
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq PLIST2 (append PLIST2 (list (cdr (assoc 10 ENTLIST)))))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+         (princ "\nPairing...\n")
+         (foreach P1 PLIST1
+          (progn
+             (PINWHEEL)
+           (setq P nil)
+           (foreach P2 PLIST2
+            (progn
+             (if (= P nil)
+              (setq P P2)
+              (if (< (distance P1 P2) (distance P1 P)) (setq P P2))
+             )
+            )
+           )
+           (setq PLIST (append PLIST (list (list P1 P))))
+          )
+         )
+         (setq SLOPE1 (getreal "\nEnter slope from first poly (X:1) : "))
+         (setq SLOPE2 (getreal "\nEnter slope from second poly (X:1) : "))
+         (command "._3DPOLY")
+         (foreach P PLIST
+          (progn
+           (setq P1 (car P))
+           (setq P2 (cadr P))
+           (setq Z1 (nth 2 P1))
+           (setq P1 (list (nth 0 P1) (nth 1 P1)))
+           (setq Z2 (nth 2 P2))
+           (setq P2 (list (nth 0 P2) (nth 1 P2)))
+           (setq ANG (angle P1 P2))
+           (setq D (distance P1 P2))
+;           (setq D1 (/ (- D (* SLOPE (- Z2 Z1))) 2.0))
+           (setq D1 (/ (* SLOPE1 SLOPE2 (+ (- Z1 Z2) (/ D SLOPE2))) (+ SLOPE1 SLOPE2)))
+           (setq Z (- Z1 (/ D1 SLOPE1)))
+           (setq P (list (+ (nth 0 P1) (* D1 (cos ANG)))
+                         (+ (nth 1 P1) (* D1 (sin ANG)))
+                         Z
+                   )
+           )
+           (command P)
+          )
+         )
+         (command "")
+        )
+        (progn
+         (princ "\nEntity not a 3D polyline!")
+        )
+       )
+      )
+      (princ "\nEntity not a polyline!")
+     )
+    )
+    (progn
+     (princ "\nEntity not a 3D polyline!")
+    )
+   )
+  )
+  (princ "\nEntity not a polyline!")
+ )
+
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ T
+)
