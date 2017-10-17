@@ -7,13 +7,13 @@ Namespace RFLToolsApplication
         Private Shared TolFine As Double = 0.0000000000000001
 
         Public Shared Function OddEven(ByVal N As Integer) As Integer
-            Dim Remainder, Quotient As Integer
+            Dim Remainder As Integer
 
-            Quotient = DivRem(N, 2, Remainder)
+            Remainder = N Mod 2
             If Remainder = 1 Then
-                OddEven = -1.0
+                OddEven = -1
             Else
-                OddEven = 1.0
+                OddEven = 1
             End If
         End Function
 

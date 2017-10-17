@@ -902,13 +902,13 @@ Namespace RFLToolsApplication
             End Function
 
             Private Function OddEven(ByVal N As Integer) As Integer
-                Dim Remainder, Quotient As Integer
+                Dim Remainder As Integer
 
-                Quotient = DivRem(N, 2, Remainder)
+                Remainder = N Mod 2
                 If Remainder = 1 Then
-                    Return -1.0
+                    Return -1
                 Else
-                    Return 1.0
+                    Return 1
                 End If
             End Function
 
