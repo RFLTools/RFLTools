@@ -200,7 +200,7 @@ Namespace RFLToolsApplication
         Public Function GetAlignLength(ByVal Args As ResultBuffer)
             Dim AlignList As New AlignList("RFL:AlignList")
 
-            If IsNothing(AlignList) Then
+            If (AlignList Is Nothing) Then
                 Return Nothing
             Else
                 Return AlignList.Length
@@ -211,7 +211,7 @@ Namespace RFLToolsApplication
         Public Function SightDist(ByVal Args As ResultBuffer)
             Dim AlignList As New AlignList("RFL:AlignList")
 
-            If IsNothing(AlignList) Then
+            If (AlignList Is Nothing) Then
                 Return Nothing
             Else
                 If Args Is Nothing Then

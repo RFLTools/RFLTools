@@ -22,7 +22,7 @@ Namespace RFLToolsApplication
         End Sub
 
         Public Function StaStart() As Double
-            If IsNothing(Nodes) Then
+            If (Nodes Is Nothing) Then
                 Return Double.NaN
             Else
                 Return Nodes(0).StaStart
@@ -112,7 +112,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function StaOff(ByVal P As DataTypes.Point2d, ByRef StaOffResult As DataTypes.Point2d) As Boolean
-            If Not IsNothing(Nodes) Then
+            If Not (Nodes Is Nothing) Then
                 Dim Node, Node0 As DataTypes.AlignmentNode
                 Dim Sta, StaBest, Offset, OffsetBest As Double
                 Dim Found As Boolean = False
@@ -167,7 +167,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function XY(ByVal P As DataTypes.Point2d, ByRef XYResult As DataTypes.Point2d) As Boolean
-            If Not IsNothing(Nodes) Then
+            If Not (Nodes Is Nothing) Then
                 Dim Node As DataTypes.AlignmentNode
                 Dim Found As Boolean = False
                 Dim C As Integer = 0
@@ -193,7 +193,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function Length() As Double
-            If IsNothing(Nodes) Then
+            If (Nodes Is Nothing) Then
                 Return Nothing
             Else
                 Dim Node As DataTypes.AlignmentNode
@@ -216,7 +216,7 @@ Namespace RFLToolsApplication
         Public Function GetAlignList(ByVal AlignListName As String) As DataTypes.AlignmentNode()
             Dim Alignlist As ResultBuffer = GetPutSym.GetSymString(AlignListName)
 
-            If IsNothing(Alignlist) Then
+            If (Alignlist Is Nothing) Then
                 Return Nothing
             Else
                 Dim NodeCount As Integer
@@ -382,7 +382,7 @@ Namespace RFLToolsApplication
         Public Function GetProfList(ByVal ProfListName As String) As DataTypes.ProfileNode()
             Dim Proflist As ResultBuffer = GetPutSym.GetSymString(ProfListName)
 
-            If IsNothing(Proflist) Then
+            If (Proflist Is Nothing) Then
                 Return Nothing
             Else
                 Dim NodeCount As Integer
@@ -479,7 +479,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function Elevation(ByVal Sta As Double, ByRef ElevationResult As Double) As Boolean
-            If Not IsNothing(Nodes) Then
+            If Not (Nodes Is Nothing) Then
                 If Nodes.Length > 1 Then
                     Dim C As Integer = 1
 
@@ -493,8 +493,8 @@ Namespace RFLToolsApplication
                         ElevationResult = Nodes(C - 1).Elevation + Nodes(C).G1 * (Sta - Nodes(C - 1).Station)
                         D = Sta - (Nodes(C).Station - (Nodes(C).Value / 2.0))
                         If D > TolFine And Nodes(C).Value > TolFine Then
-                            ElevationResult = ElevationResult + _
-                                              ((D * D * (Nodes(C).G2 - Nodes(C).G1)) / _
+                            ElevationResult = ElevationResult +
+                                              ((D * D * (Nodes(C).G2 - Nodes(C).G1)) /
                                                (2.0 * Nodes(C).Value))
                         End If
                         Return True
@@ -511,7 +511,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function Slope(ByVal Sta As Double, ByRef SlopeResult As Double) As Boolean
-            If Not IsNothing(Nodes) Then
+            If Not (Nodes Is Nothing) Then
                 If Nodes.Length > 1 Then
                     Dim C As Integer = 1
 
@@ -567,7 +567,7 @@ Namespace RFLToolsApplication
         Public Function GetSuperList(ByVal SuperListName As String) As DataTypes.SuperNode()
             Dim SuperList As ResultBuffer = GetPutSym.GetSymString(SuperListName)
 
-            If IsNothing(SuperList) Then
+            If (SuperList Is Nothing) Then
                 Return Nothing
             Else
                 Dim NodeCount As Integer
@@ -614,7 +614,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Function Super(ByVal Sta As Double, ByRef SuperResult As DataTypes.Point2d) As Boolean
-            If Not IsNothing(Nodes) Then
+            If Not (Nodes Is Nothing) Then
                 If Sta < Nodes(0).Station Then
                     SuperResult.X = Nodes(0).Left
                     SuperResult.Y = Nodes(0).Right
@@ -630,11 +630,11 @@ Namespace RFLToolsApplication
                         C = C + 1
                     End While
 
-                    SuperResult.X = Nodes(C - 1).Left + _
-                                    ((Sta - Nodes(C - 1).Station) / (Nodes(C).Station - Nodes(C - 1).Station)) * _
+                    SuperResult.X = Nodes(C - 1).Left +
+                                    ((Sta - Nodes(C - 1).Station) / (Nodes(C).Station - Nodes(C - 1).Station)) *
                                     (Nodes(C).Left - Nodes(C - 1).Left)
-                    SuperResult.Y = Nodes(C - 1).Right + _
-                                    ((Sta - Nodes(C - 1).Station) / (Nodes(C).Station - Nodes(C - 1).Station)) * _
+                    SuperResult.Y = Nodes(C - 1).Right +
+                                    ((Sta - Nodes(C - 1).Station) / (Nodes(C).Station - Nodes(C - 1).Station)) *
                                     (Nodes(C).Right - Nodes(C - 1).Right)
 
                     Return True
@@ -690,11 +690,7 @@ Namespace RFLToolsApplication
             Public P2 As Point2d
 
             Public Function Length() As Double
-                If IsNothing(P1) Or IsNothing(P2) Then
-                    Return 0.0
-                Else
-                    Return P1.DistanceTo(P2)
-                End If
+                Return P1.DistanceTo(P2)
             End Function
 
             Public Function StaOff(ByVal P As Point2d, ByRef StaOffResult As Point2d) As Boolean
@@ -1196,9 +1192,7 @@ Namespace RFLToolsApplication
             Public AlignNodeSpiral As Spiral
 
             Public Function StaStart() As Double
-                If IsNothing(AlignNodeType) Then
-                    Return 0.0
-                ElseIf AlignNodeType = AlignmentNodeType.Tangent Then
+                If AlignNodeType = AlignmentNodeType.Tangent Then
                     Return AlignNodeTangent.StaStart
                 ElseIf AlignNodeType = AlignmentNodeType.Arc Then
                     Return AlignNodeArc.StaStart
@@ -1210,9 +1204,7 @@ Namespace RFLToolsApplication
             End Function
 
             Public Function Length() As Double
-                If IsNothing(AlignNodeType) Then
-                    Return 0.0
-                ElseIf AlignNodeType = AlignmentNodeType.Tangent Then
+                If AlignNodeType = AlignmentNodeType.Tangent Then
                     Return AlignNodeTangent.Length
                 ElseIf AlignNodeType = AlignmentNodeType.Arc Then
                     Return AlignNodeArc.Length
@@ -1280,9 +1272,7 @@ Namespace RFLToolsApplication
             End Function
 
             Public Function AngIn() As Double
-                If IsNothing(AlignNodeType) Then
-                    Return Double.NaN
-                ElseIf AlignNodeType = AlignmentNodeType.Tangent Then
+                If AlignNodeType = AlignmentNodeType.Tangent Then
                     Return AlignNodeTangent.AngIn
                 ElseIf AlignNodeType = AlignmentNodeType.Arc Then
                     Return AlignNodeArc.AngIn
@@ -1294,9 +1284,7 @@ Namespace RFLToolsApplication
             End Function
 
             Public Function AngOut() As Double
-                If IsNothing(AlignNodeType) Then
-                    Return Double.NaN
-                ElseIf AlignNodeType = AlignmentNodeType.Tangent Then
+                If AlignNodeType = AlignmentNodeType.Tangent Then
                     Return AlignNodeTangent.AngOut
                 ElseIf AlignNodeType = AlignmentNodeType.Arc Then
                     Return AlignNodeArc.AngOut
