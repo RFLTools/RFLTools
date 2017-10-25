@@ -18,7 +18,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq ENT1 (car (entsel "\nSelect first 3D polyline or line : ")))

@@ -20,7 +20,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun MP:Echo ( x / cmdecho millisecs ceiling )

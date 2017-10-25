@@ -40,7 +40,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq TMP (getint "\nStation text '+' location <2> : "))

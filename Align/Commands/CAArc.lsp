@@ -21,7 +21,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun DRAWARC (P1 P2 R / ANG D PC X Y)

@@ -9,7 +9,7 @@
  (defun *error* (msg)
   (close OUTFILE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (defun GETF (VDES / )
   (cond ((<= VDES 30.0) 0.40)

@@ -74,7 +74,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (setvar "PLINETYPE" PLINETYPE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -370,7 +370,7 @@
   (setvar "PLINETYPE" PLINETYPE)
   (setq RFL:ALIGNLIST ALSAVE)
   (setq RFL:RAMPLIST RLSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  
@@ -1027,7 +1027,7 @@
  (defun *error* (msg)
   (setq RFL:ALIGNLIST ALSAVE)
   (setq RFL:RAMPLIST RLSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 

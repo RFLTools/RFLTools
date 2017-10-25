@@ -25,7 +25,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 

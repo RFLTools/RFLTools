@@ -23,7 +23,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 

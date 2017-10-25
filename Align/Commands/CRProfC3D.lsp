@@ -13,7 +13,7 @@
 
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (princ msg)
  )
 

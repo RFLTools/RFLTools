@@ -29,7 +29,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "DIMZIN" DIMZIN)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun GETSLOPEINT (OFFSET ELEV SLOPE OGLIST / C ELEV1 ELEV2 ELEV3 OFFSET1 OFFSET2 OFFSET3 TOL)

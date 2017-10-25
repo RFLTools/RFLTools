@@ -20,7 +20,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 

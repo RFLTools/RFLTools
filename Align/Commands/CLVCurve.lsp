@@ -23,7 +23,7 @@
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq H nil)

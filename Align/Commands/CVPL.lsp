@@ -7,7 +7,7 @@
 (defun C:VPL (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST OFFSET P1 P2 P3 SIGN STA STR STR2 STR3 STR4 *error* TMP Z)
  (defun *error* (msg)
   (terpri)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)

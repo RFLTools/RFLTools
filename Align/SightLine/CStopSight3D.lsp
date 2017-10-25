@@ -31,7 +31,7 @@
   (setvar "CLAYER" CLAYER)
   (setvar "CECOLOR" CECOLOR)
   (setq RFL:ALIGNLIST ALSAVE PVILIST PVISAVE SUPERLIST ESAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (if (= nil VLAX-CREATE-OBJECT) (vl-load-com))

@@ -23,7 +23,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun DRAWLINE (P1 P2)

@@ -772,7 +772,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun SIGN (X)
@@ -1577,7 +1577,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq TMP (getint "\nStation text '+' location <2> : "))
@@ -6421,7 +6421,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -6590,7 +6590,7 @@
 
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (setq RFL:ALIGNLIST ALIGNLISTSAVE)
   (setq RFL:PVILIST PVILISTSAVE)
   (setq RFL:SUPERLIST SUPERLISTSAVE)
@@ -8531,7 +8531,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  
  (defun ALINTERS (P1 P2 RFL:ALIGNLIST / C OS OS1 OS2 P)
@@ -8701,7 +8701,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun DRAWARC (P1 P2 R / ANG D PC X Y)
@@ -9892,7 +9892,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun DRAWLINE (P1 P2)
@@ -10042,7 +10042,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (command "._UCS" "W")
@@ -10295,7 +10295,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -12628,7 +12628,7 @@
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -14126,7 +14126,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -14525,7 +14525,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -14827,7 +14827,7 @@
 
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (princ msg)
  )
 
@@ -15046,7 +15046,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq STRLIST nil
@@ -15188,7 +15188,7 @@
 
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (princ msg)
  )
 
@@ -15896,7 +15896,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -16000,7 +16000,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -16431,7 +16431,7 @@
 (defun C:VPL (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST OFFSET P1 P2 P3 SIGN STA STR STR2 STR3 STR4 *error* TMP Z)
  (defun *error* (msg)
   (terpri)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -16725,7 +16725,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -17146,7 +17146,7 @@
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq INC (getreal "\nEnter incrament to add to horizontal and vertical alignments : "))
@@ -17217,7 +17217,7 @@
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq H nil)
@@ -17332,7 +17332,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun MP:Echo ( x / cmdecho millisecs ceiling )
@@ -17522,7 +17522,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "DIMZIN" DIMZIN)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun GETSLOPEINT (OFFSET ELEV SLOPE OGLIST / C ELEV1 ELEV2 ELEV3 OFFSET1 OFFSET2 OFFSET3 TOL)
@@ -18111,7 +18111,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (setvar "PLINETYPE" PLINETYPE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -18407,7 +18407,7 @@
   (setvar "PLINETYPE" PLINETYPE)
   (setq RFL:ALIGNLIST ALSAVE)
   (setq RFL:RAMPLIST RLSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  
@@ -19064,7 +19064,7 @@
  (defun *error* (msg)
   (setq RFL:ALIGNLIST ALSAVE)
   (setq RFL:RAMPLIST RLSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 
@@ -19174,7 +19174,7 @@
   (setvar "ANGDIR" ANGDIR)
   (setvar "DIMZIN" DIMZIN)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun GETSLOPEINT (OFFSET ELEV SLOPE OGLIST / C ELEV1 ELEV2 ELEV3 OFFSET1 OFFSET2 OFFSET3 TOL)
@@ -19560,7 +19560,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (setvar "OSMODE" OSMODE)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (defun DRAW3DP (PLIST CLOSED / P)
   (command "._3DPOLY")
@@ -19781,7 +19781,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (vl-load-com)
  (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
@@ -19983,7 +19983,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (setvar "OSMODE" OSMODE)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -20075,7 +20075,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (if (not INFILE) (close INFILE))
   (if (not INFILE2) (close INFILE2))
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  
@@ -21255,7 +21255,7 @@
  (defun *error* (msg)
   (close OUTFILE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  (defun GETF (VDES / )
   (cond ((<= VDES 30.0) 0.40)
@@ -21375,7 +21375,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (command "._UNDO" "M")
@@ -21531,7 +21531,7 @@
   (setvar "CECOLOR" CECOLOR)
   (setvar "CLAYER" CLAYER)
   (setq RFL:ALIGNLIST ALSAVE RFL:PVILIST PVISAVE RFL:SUPERLIST ESAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (if (= nil VLAX-CREATE-OBJECT) (vl-load-com))
@@ -22028,7 +22028,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (command "._UNDO" "M")
@@ -22132,7 +22132,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (setvar "OSMODE" OSMODE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun PINWHEEL ()
@@ -22284,7 +22284,7 @@
   (setvar "CLAYER" CLAYER)
   (setvar "CECOLOR" CECOLOR)
   (setq RFL:ALIGNLIST ALSAVE PVILIST PVISAVE SUPERLIST ESAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (if (= nil VLAX-CREATE-OBJECT) (vl-load-com))

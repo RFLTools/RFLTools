@@ -17,7 +17,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (print msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  
  (defun ALINTERS (P1 P2 RFL:ALIGNLIST / C OS OS1 OS2 P)

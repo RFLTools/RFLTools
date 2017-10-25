@@ -26,7 +26,7 @@
   (setvar "ATTREQ" ATTREQ)
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  

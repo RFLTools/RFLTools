@@ -27,7 +27,7 @@
   (setvar "ORTHOMODE" ORTHOMODE)
   (if (not INFILE) (close INFILE))
   (if (not INFILE2) (close INFILE2))
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  

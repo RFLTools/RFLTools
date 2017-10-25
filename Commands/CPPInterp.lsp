@@ -45,7 +45,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
  
  (princ "\nFirst POINT block (first wil be block inserted) :")

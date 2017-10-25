@@ -12,7 +12,7 @@
  (defun *error* (msg)
   (if (/= nil OUTFILE) (close OUTFILE))
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (princ msg)
  )
 
@@ -32,7 +32,7 @@
  (defun *error* (msg)
   (if (/= nil OUTFILE) (close OUTFILE))
   (setvar "DIMZIN" DIMZIN)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (princ msg)
  )
 

@@ -72,7 +72,7 @@
   (setq RFL:ALIGNLIST ALSAVEH)
   (setq RFL:SUPERLIST ALSAVES)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (defun 2DDIST (P1 P2)

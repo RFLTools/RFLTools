@@ -8,7 +8,7 @@
 (defun C:FILE2BINARY (/ *error* C1 C2 CODE FILE FILEBINARY FLAG OUTFILE _ReadStream)
  (defun *error* (msg)
   (close OUTFILE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
  ;;  Thanks to MP @ TheSwamp for his _ReadStream and WriteStream code:

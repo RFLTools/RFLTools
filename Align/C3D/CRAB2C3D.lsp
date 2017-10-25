@@ -14,7 +14,7 @@
 
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (setq RFL:ALIGNLIST ALIGNLISTSAVE)
   (setq RFL:PVILIST PVILISTSAVE)
   (setq RFL:SUPERLIST SUPERLISTSAVE)

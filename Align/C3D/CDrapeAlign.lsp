@@ -28,7 +28,7 @@
   (setvar "OSMODE" OSMODE)
   (setvar "ORTHOMODE" ORTHOMODE)
   (setq RFL:ALIGNLIST ALSAVE)
-  (setq *error* nil)
+  ;(setq *error* nil)
   (print msg)
  )
 

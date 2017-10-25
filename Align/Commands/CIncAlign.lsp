@@ -12,7 +12,7 @@
  (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
   (princ msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq INC (getreal "\nEnter incrament to add to horizontal and vertical alignments : "))

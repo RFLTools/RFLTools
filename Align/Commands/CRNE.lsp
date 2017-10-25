@@ -37,7 +37,7 @@
   (setvar "ANGBASE" ANGBASE)
   (setvar "ANGDIR" ANGDIR)
   (alert msg)
-  (setq *error* nil)
+  ;(setq *error* nil)
  )
 
  (setq STRLIST nil
