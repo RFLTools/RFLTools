@@ -17,7 +17,10 @@
  (setvar "OSMODE" 0)
 
  (defun *error* (msg)
-  (command "._UCS" "P")
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
   (setvar "CMDECHO" CMDECHO)
   (setvar "OSMODE" OSMODE)
   (setvar "ANGBASE" ANGBASE)
