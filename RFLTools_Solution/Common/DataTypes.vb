@@ -206,7 +206,7 @@ Namespace RFLToolsApplication
         End Function
 
         Public Sub GetAlign()
-            Nodes = GetAlignList("AlignList")
+            Nodes = GetAlignList("RFL:AlignList")
         End Sub
 
         Public Sub GetAlign(ByVal AlignListName As String)
@@ -372,7 +372,7 @@ Namespace RFLToolsApplication
         End Sub
 
         Public Sub GetProf()
-            Nodes = GetProfList("PVIList")
+            Nodes = GetProfList("RFL:PVIList")
         End Sub
 
         Public Sub GetProf(ByVal ProfListName As String)
@@ -557,7 +557,7 @@ Namespace RFLToolsApplication
         End Sub
 
         Public Sub GetSuper()
-            Nodes = GetSuperList("SuperList")
+            Nodes = GetSuperList("RFL:SuperList")
         End Sub
 
         Public Sub GetSuper(ByVal SuperListName As String)

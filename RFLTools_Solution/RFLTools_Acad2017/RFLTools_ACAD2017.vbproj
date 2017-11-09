@@ -183,6 +183,9 @@
     <Compile Include="..\Common\myPlugin.vb">
       <Link>myPlugin.vb</Link>
     </Compile>
+    <Compile Include="..\Common\QuickTrain.vb">
+      <Link>QuickTrain.vb</Link>
+    </Compile>
     <Compile Include="..\Common\SpiralCommands.vb">
       <Link>SpiralCommands.vb</Link>
     </Compile>

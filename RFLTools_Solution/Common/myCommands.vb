@@ -489,6 +489,366 @@ Namespace RFLToolsApplication
             Return Nothing
         End Function
 
+        ' ------------------------------------------------------------------------------------------------------
+        ' QuickTrain Functions
+
+        <LispFunction("RFL:PointAtStation", "PointAtStationLocal")>
+        Public Function PointAtStation(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Sta As Double
+                Dim POut As DataTypes.Point3d
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 1 Then
+                    If InputArgs(0).TypeCode = LispDataType.Double Or
+                       InputArgs(0).TypeCode = LispDataType.Int16 Or
+                       InputArgs(0).TypeCode = LispDataType.Int32 Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        Sta = Convert.ToDouble(InputArgs(0).Value)
+
+                        If QuickTrain.PointAtStation(Sta, POut) Then
+                            Return New ResultBuffer _
+                                       (New TypedValue(LispDataType.ListBegin),
+                                        New TypedValue(CInt(LispDataType.Double), POut.X),
+                                        New TypedValue(CInt(LispDataType.Double), POut.Y),
+                                        New TypedValue(CInt(LispDataType.Double), POut.Z),
+                                        New TypedValue(LispDataType.ListEnd))
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Not real value" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:FindFrontSta", "FindFrontStaLocal")>
+        Public Function FindFrontStation(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Sta, StaOut, WB As Double
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 2 Then
+                    If (InputArgs(0).TypeCode = LispDataType.Double Or
+                        InputArgs(0).TypeCode = LispDataType.Int16 Or
+                        InputArgs(0).TypeCode = LispDataType.Int32) And
+                       (InputArgs(1).TypeCode = LispDataType.Double Or
+                        InputArgs(1).TypeCode = LispDataType.Int16 Or
+                        InputArgs(1).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        Sta = Convert.ToDouble(InputArgs(0).Value)
+                        WB = Convert.ToDouble(InputArgs(1).Value)
+
+                        If QuickTrain.FindFrontStation(Sta, WB, StaOut) Then
+                            Return StaOut
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Not real value" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:FindBackSta", "FindBackStaLocal")>
+        Public Function FindBackStation(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Sta, StaOut, WB As Double
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 2 Then
+                    If (InputArgs(0).TypeCode = LispDataType.Double Or
+                        InputArgs(0).TypeCode = LispDataType.Int16 Or
+                        InputArgs(0).TypeCode = LispDataType.Int32) And
+                       (InputArgs(1).TypeCode = LispDataType.Double Or
+                        InputArgs(1).TypeCode = LispDataType.Int16 Or
+                        InputArgs(1).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        Sta = Convert.ToDouble(InputArgs(0).Value)
+                        WB = Convert.ToDouble(InputArgs(1).Value)
+
+                        If QuickTrain.FindBackStation(Sta, WB, StaOut) Then
+                            Return StaOut
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Not real value" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+
+        End Function
+
+        <LispFunction("RFL:GetTruckPOut", "GetTruckPOutLocal")>
+        Public Function GetTruckPOut(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Sta, WB, Gauge, DX, DY, DZ As Double
+                Dim POut As DataTypes.Point3d
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 6 Then
+                    If (InputArgs(0).TypeCode = LispDataType.Double Or
+                        InputArgs(0).TypeCode = LispDataType.Int16 Or
+                        InputArgs(0).TypeCode = LispDataType.Int32) And
+                       (InputArgs(1).TypeCode = LispDataType.Double Or
+                        InputArgs(1).TypeCode = LispDataType.Int16 Or
+                        InputArgs(1).TypeCode = LispDataType.Int32) And
+                       (InputArgs(2).TypeCode = LispDataType.Double Or
+                        InputArgs(2).TypeCode = LispDataType.Int16 Or
+                        InputArgs(2).TypeCode = LispDataType.Int32) And
+                       (InputArgs(3).TypeCode = LispDataType.Double Or
+                        InputArgs(3).TypeCode = LispDataType.Int16 Or
+                        InputArgs(3).TypeCode = LispDataType.Int32) And
+                       (InputArgs(4).TypeCode = LispDataType.Double Or
+                        InputArgs(4).TypeCode = LispDataType.Int16 Or
+                        InputArgs(4).TypeCode = LispDataType.Int32) And
+                       (InputArgs(5).TypeCode = LispDataType.Double Or
+                        InputArgs(5).TypeCode = LispDataType.Int16 Or
+                        InputArgs(5).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        Sta = Convert.ToDouble(InputArgs(0).Value)
+                        WB = Convert.ToDouble(InputArgs(1).Value)
+                        Gauge = Convert.ToDouble(InputArgs(2).Value)
+                        DX = Convert.ToDouble(InputArgs(3).Value)
+                        DY = Convert.ToDouble(InputArgs(4).Value)
+                        DZ = Convert.ToDouble(InputArgs(5).Value)
+
+                        If QuickTrain.GetTruckPOut(Sta, WB, Gauge, DX, DY, DZ, POut) Then
+                            Return New ResultBuffer _
+                                       (New TypedValue(LispDataType.ListBegin),
+                                        New TypedValue(CInt(LispDataType.Double), POut.X),
+                                        New TypedValue(CInt(LispDataType.Double), POut.Y),
+                                        New TypedValue(CInt(LispDataType.Double), POut.Z),
+                                        New TypedValue(LispDataType.ListEnd))
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Not real value" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:FindFrontTruck", "FindFrontTruckLocal")>
+        Public Function FindFrontTruck(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim WB, WBT, DX, DZ, Gauge, StaOut As Double
+                Dim P As DataTypes.Point3d
+                Dim PAcad As Point3d
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 6 Then
+                    If InputArgs(0).TypeCode = LispDataType.Point3d And
+                       (InputArgs(1).TypeCode = LispDataType.Double Or
+                        InputArgs(1).TypeCode = LispDataType.Int16 Or
+                        InputArgs(1).TypeCode = LispDataType.Int32) And
+                       (InputArgs(2).TypeCode = LispDataType.Double Or
+                        InputArgs(2).TypeCode = LispDataType.Int16 Or
+                        InputArgs(2).TypeCode = LispDataType.Int32) And
+                       (InputArgs(3).TypeCode = LispDataType.Double Or
+                        InputArgs(3).TypeCode = LispDataType.Int16 Or
+                        InputArgs(3).TypeCode = LispDataType.Int32) And
+                       (InputArgs(4).TypeCode = LispDataType.Double Or
+                        InputArgs(4).TypeCode = LispDataType.Int16 Or
+                        InputArgs(4).TypeCode = LispDataType.Int32) And
+                       (InputArgs(5).TypeCode = LispDataType.Double Or
+                        InputArgs(5).TypeCode = LispDataType.Int16 Or
+                        InputArgs(5).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        PAcad = InputArgs(0).Value
+                        P.X = PAcad.X
+                        P.Y = PAcad.Y
+                        P.Z = PAcad.Z
+                        WB = Convert.ToDouble(InputArgs(1).Value)
+                        WBT = Convert.ToDouble(InputArgs(2).Value)
+                        DX = Convert.ToDouble(InputArgs(3).Value)
+                        DZ = Convert.ToDouble(InputArgs(4).Value)
+                        Gauge = Convert.ToDouble(InputArgs(5).Value)
+
+                        If QuickTrain.FindFrontTruck(P, WB, WBT, DX, DZ, Gauge, StaOut) Then
+                            Return StaOut
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Incorrect data format" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:GetTruckAngs", "GetTruckAngsLocal")>
+        Public Function GetTruckAngs(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Sta1, Sta2, Gauge As Double
+                Dim A As DataTypes.Point3d
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 3 Then
+                    If (InputArgs(0).TypeCode = LispDataType.Double Or
+                        InputArgs(0).TypeCode = LispDataType.Int16 Or
+                        InputArgs(0).TypeCode = LispDataType.Int32) And
+                       (InputArgs(1).TypeCode = LispDataType.Double Or
+                        InputArgs(1).TypeCode = LispDataType.Int16 Or
+                        InputArgs(1).TypeCode = LispDataType.Int32) And
+                       (InputArgs(2).TypeCode = LispDataType.Double Or
+                        InputArgs(2).TypeCode = LispDataType.Int16 Or
+                        InputArgs(2).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        Sta1 = Convert.ToDouble(InputArgs(0).Value)
+                        Sta2 = Convert.ToDouble(InputArgs(1).Value)
+                        Gauge = Convert.ToDouble(InputArgs(2).Value)
+
+                        If QuickTrain.GetTruckAngs(Sta1, Sta2, Gauge, A) Then
+                            Return New ResultBuffer _
+                                       (New TypedValue(LispDataType.ListBegin),
+                                        New TypedValue(CInt(LispDataType.Double), A.X),
+                                        New TypedValue(CInt(LispDataType.Double), A.Y),
+                                        New TypedValue(CInt(LispDataType.Double), A.Z),
+                                        New TypedValue(LispDataType.ListEnd))
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Incorrect data format" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:GetCarAngs", "GetCarAngsLocal")>
+        Public Function GetCarAngs(ByVal Args As ResultBuffer)
+
+            If Args Is Nothing Then
+                Return Nothing
+            Else
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim Gauge As Double
+                Dim A As DataTypes.Point3d
+                Dim P1, P2 As DataTypes.Point3d
+                Dim PAcad As Point3d
+
+                Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+                Dim ed As Editor = doc.Editor
+
+                If InputArgs.Length = 3 Then
+                    If InputArgs(0).TypeCode = LispDataType.Point3d And
+                       InputArgs(1).TypeCode = LispDataType.Point3d And
+                       (InputArgs(2).TypeCode = LispDataType.Double Or
+                        InputArgs(2).TypeCode = LispDataType.Int16 Or
+                        InputArgs(2).TypeCode = LispDataType.Int32) Then
+
+                        Dim QuickTrain As New QuickTrain
+
+                        PAcad = InputArgs(0).Value
+                        P1.X = PAcad.X
+                        P1.Y = PAcad.Y
+                        P1.Z = PAcad.Z
+                        PAcad = InputArgs(1).Value
+                        P2.X = PAcad.X
+                        P2.Y = PAcad.Y
+                        P2.Z = PAcad.Z
+                        Gauge = Convert.ToDouble(InputArgs(2).Value)
+
+                        If QuickTrain.GetCarAngs(P1, P2, Gauge, A) Then
+                            Return New ResultBuffer _
+                                       (New TypedValue(LispDataType.ListBegin),
+                                        New TypedValue(CInt(LispDataType.Double), A.X),
+                                        New TypedValue(CInt(LispDataType.Double), A.Y),
+                                        New TypedValue(CInt(LispDataType.Double), A.Z),
+                                        New TypedValue(LispDataType.ListEnd))
+                        Else
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Incorrect data format" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        ' ------------------------------------------------------------------------------------------------------
+
     End Class
 
 End Namespace
