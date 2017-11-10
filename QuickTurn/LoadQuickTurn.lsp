@@ -32,7 +32,7 @@
   (progn
    (setq ENTLIST (entget ENT))
    (setq BLOCKSCALE (cdr (assoc 41 ENTLIST)))
-   (if (= "INSERT" (cdr (assoc 0 ENTLIST)))
+   (if (and (= "INSERT" (cdr (assoc 0 ENTLIST))) (= 1 (cdr (assoc 66 ENTLIST))))
     (progn
      (setq ENT (entnext ENT))
      (setq ENTLIST (entget ENT))
