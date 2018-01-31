@@ -5,7 +5,7 @@
 ;     C:QSECTION is a utility for drawing a cross section at a specified station
 ;
 ;
-(defun C:QSECTION (/ *error* ANGBASE ATTREQ CMDECHO GETQSECTIONLIST INFILE INFILE2 INFILENAME INLINE INLINE2 OSMODE ORTHOMODE PBASE STA STALIST)
+(defun C:QSECTION (/ *error* ANGBASE ATTREQ CMDECHO GETQSECTIONLIST INC INFILE INFILE2 INFILENAME INLINE INLINE2 OSMODE ORTHOMODE PBASE SHEIGHT STA STA1 STA2 STALIST)
 ;(defun C:QSECTION ()
  (setq ATTREQ (getvar "ATTREQ"))
  (setvar "ATTREQ" 0)
@@ -100,11 +100,17 @@
    (initget "Yes No")
    (setq REP (getkword "\nAdd another (Yes/<No>) : "))
   )
+  (setq MATCHGRIDENT (car (entsel "\nSelect grid to match (<return> for none) : ")))
+  (setq OGLAYERENT (car (entsel "\nSelect OG layer to match (<return> for none) : ")))
+  (setq DESLAYERENT (car (entsel "\nSelect design layer to match (<return> for none) : ")))
   (setq RFL:QSECTIONLIST (list (cons "VEXAG" VEXAG)
                                (cons "SWATH" SWATH)
                                (cons "THEIGHT" THEIGHT)
                                (cons "DCIRCLE" DCIRCLE)
                                (cons "OBSURFACE" OBSURFACE)
+                               (cons "MATCHGRIDENT" MATCHGRIDENT)
+                               (cons "OGLAYER" (cdr (assoc 8 (entget OGLAYERENT))))
+                               (cons "DESLAYER" (cdr (assoc 8 (entget DESLAYERENT))))
                          )
   )
  )
@@ -112,24 +118,54 @@
   (princ "\n!!! No Alignment Defined !!!")
   (progn
    (if (= nil RFL:QSECTIONLIST) (GETQSECTIONLIST))
-   (while (= "" (setq STA (getstring "\nStation (<return> to pick point, <P> to pick point) : ")))
+   (while (= "" (setq STA (getstring "\nStation (<return> to pick point, 'P' to pick point, 'M' multiple stations) : ")))
     (GETQSECTIONLIST)
    )
    (if (= "P" (strcase (substr STA 1 1)))
     (setq STA (car (RFL:STAOFF (getpoint "\nPick point for section : "))))
-    (setq STA (atof STA))
+    (if (= "M" (strcase (substr STA 1 1)))
+     (setq STA (list (getreal "\nStart Station : ")
+                     (getreal "\nEnd Station : ")
+                     (getreal "\nStation Increment : ")
+               )
+     )
+     (setq STA (atof STA))
+    )
    )
    (setq PBASE (getpoint "\nBase point : "))
    (setvar "OSMODE" 0)
    (setvar "ORTHOMODE" 0)
-   (RFL:QSECTION STA
-                 (cdr (assoc "SWATH" RFL:QSECTIONLIST))
-                 PBASE
-                 nil
-                 (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
-                 (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
-                 (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
-                 (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+   (if (listp STA)
+    (progn
+     (setq STA1 (car STA)
+           STA2 (cadr STA)
+           INC (caddr STA)
+     )
+     (setq SHEIGHT (getreal "\nSection height spacing : "))
+     (setq STA STA1)
+     (while (<= STA STA2)
+      (RFL:QSECTION STA
+                    (cdr (assoc "SWATH" RFL:QSECTIONLIST))
+                    PBASE
+                    nil
+                    (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
+                    (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
+                    (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
+                    (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+      )
+      (setq STA (+ STA INC))
+      (setq PBASE (list (car PBASE) (+ (cadr PBASE) SHEIGHT)))
+     )
+    )
+    (RFL:QSECTION STA
+                  (cdr (assoc "SWATH" RFL:QSECTIONLIST))
+                  PBASE
+                  nil
+                  (cdr (assoc "VEXAG" RFL:QSECTIONLIST))
+                  (cdr (assoc "THEIGHT" RFL:QSECTIONLIST))
+                  (cdr (assoc "DCIRCLE" RFL:QSECTIONLIST))
+                  (cdr (assoc "OBSURFACE" RFL:QSECTIONLIST))
+    )
    )
   )
  )
@@ -141,8 +177,9 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (eval nil)
 )
-(defun RFL:QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
+(defun RFL:QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE / A ADDHANDLE AFLAG ALLIST ALSAVE C CLAYER D DX DY DY2 DZ ENT ENTLIST ENTSET H HANDENTLIST GETTPL ISABOVE NODE OX P P0 P1 P2 PA PB OSLIST PLIST PVISAVE S1 S2 SLIST SLISTDEFAULT TLIST TLISTL TLISTCL TLISTFL TLISTR TLISTCR TLISTFR TMP TOL TX TY Z ZHEIGHT)
 ;(defun RFL:QSECTION (STA SWATH PBASE ZBASE VEXAG THEIGHT DCIRCLE OBSURFACE)
+ (setq CLAYER (getvar "CLAYER"))
  (setq TOL 0.0001)
  (defun ISABOVE (P OSLIST / C RES)
   (if P
@@ -288,7 +325,13 @@
                  1.0                                                         ; Master Scale
                  1                                                           ; Direction (1 = Left to Right, -1 = Right to Left)
    )
+   (if (cdr (assoc "MATCHGRIDENT" RFL:QSECTIONLIST))
+    (RFL:MATCHGRID (cdr (assoc "MATCHGRIDENT" RFL:QSECTIONLIST)) (entlast))
+   )
    (ADDHANDLE)
+   (if (cdr (assoc "OGLAYER" RFL:QSECTIONLIST))
+    (setvar "CLAYER" (cdr (assoc "OGLAYER" RFL:QSECTIONLIST)))
+   )
    (command "._PLINE")
    (foreach P OSLIST
     (progn
@@ -307,6 +350,7 @@
     )
    )
    (command)
+   (setvar "CLAYER" CLAYER)
    ;(setq HANDENTLIST (append HANDENTLIST (list (cdr (assoc 5 (entget (entlast)))))))
    (if (listp DCIRCLE)
     (progn
@@ -853,6 +897,9 @@
        )
        (if (/= nil TLIST)
         (progn
+         (if (cdr (assoc "DESLAYER" RFL:QSECTIONLIST))
+          (setvar "CLAYER" (cdr (assoc "DESLAYER" RFL:QSECTIONLIST)))
+         )
          (command "._PLINE")
          (foreach P TLIST
           (command (list (+ (car PBASE) (car P))
@@ -861,6 +908,7 @@
           )
          )
          (command "")
+         (setvar "CLAYER" CLAYER)
          (ADDHANDLE)
         )
        )
