@@ -5,7 +5,7 @@
 ;     C:QSECTION is a utility for drawing a cross section at a specified station
 ;
 ;
-(defun C:QSECTION (/ *error* ANGBASE ATTREQ CMDECHO GETQSECTIONLIST INC INFILE INFILE2 INFILENAME INLINE INLINE2 OSMODE ORTHOMODE PBASE SHEIGHT STA STA1 STA2 STALIST)
+(defun C:QSECTION (/ *error* ANGBASE ATTREQ CMDECHO DESLAYER DESLAYERENT GETQSECTIONLIST INC INFILE INFILE2 INFILENAME INLINE INLINE2 MATCHGRIDENT OGLAYER OGLAYERENT OSMODE ORTHOMODE PBASE SHEIGHT STA STA1 STA2 STALIST)
 ;(defun C:QSECTION ()
  (setq ATTREQ (getvar "ATTREQ"))
  (setvar "ATTREQ" 0)
@@ -101,16 +101,24 @@
    (setq REP (getkword "\nAdd another (Yes/<No>) : "))
   )
   (setq MATCHGRIDENT (car (entsel "\nSelect grid to match (<return> for none) : ")))
-  (setq OGLAYERENT (car (entsel "\nSelect OG layer to match (<return> for none) : ")))
-  (setq DESLAYERENT (car (entsel "\nSelect design layer to match (<return> for none) : ")))
+  (setq OGLAYER (if (setq OGLAYERENT (car (entsel "\nSelect OG layer to match (<return> for none) : ")))
+                 (cdr (assoc 8 (entget OGLAYERENT)))
+                 CLAYER
+                )
+  )
+  (setq DESLAYER (if (setq DESLAYERENT (car (entsel "\nSelect design layer to match (<return> for none) : ")))
+                  (cdr (assoc 8 (entget DESLAYERENT)))
+                  CLAYER
+                 )
+  )
   (setq RFL:QSECTIONLIST (list (cons "VEXAG" VEXAG)
                                (cons "SWATH" SWATH)
                                (cons "THEIGHT" THEIGHT)
                                (cons "DCIRCLE" DCIRCLE)
                                (cons "OBSURFACE" OBSURFACE)
                                (cons "MATCHGRIDENT" MATCHGRIDENT)
-                               (cons "OGLAYER" (cdr (assoc 8 (entget OGLAYERENT))))
-                               (cons "DESLAYER" (cdr (assoc 8 (entget DESLAYERENT))))
+                               (cons "OGLAYER" OGLAYER)
+                               (cons "DESLAYER" DESLAYER)
                          )
   )
  )
