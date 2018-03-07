@@ -24208,7 +24208,7 @@
             (setq INCLAYER (+ INCLAYER 1))
            )
           )
-          (setq P1 (STAOFF PEYE))
+          (setq P1 (RFL:STAOFF PEYE))
           (if (= nil P1)
            (princ "\n!!! Point not adjacent to target line !!!")
            (progn
