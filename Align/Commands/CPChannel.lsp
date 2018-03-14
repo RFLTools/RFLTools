@@ -121,12 +121,12 @@
     (progn
      (setq P0 (list (car P0) (cadr P0)))
      (setq REP (getreal (strcat "\nEnter channel start elevation <" (rtos Z0) "> : ")))
-     (if (= nil REP) (setq Z0 REP))
+     (if (/= nil REP) (setq Z0 REP))
      (setq P2 (getpoint "\nChannel end point : "))
      (if (/= nil (setq Z2 (RFL:GETSURFACEPOINT P2 OBSURFACE)))
       (progn
        (setq REP (getreal (strcat "\nEnter channel end elevation <" (rtos Z2) "> : ")))
-       (if (= nil REP) (setq Z2 REP))
+       (if (/= nil REP) (setq Z2 REP))
        (setq GRADE (* 100.0 (/ (- Z2 Z0) (DIST2D P0 P2))))
        (princ (strcat "\nGrade (%) = " (rtos GRADE)))
        (setq GRADE (/ GRADE 100.0))
