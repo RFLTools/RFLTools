@@ -39,7 +39,7 @@
    (setq F (GETF VDES))
    (setq REACTION 0.0)
    (while (= REACTION 0.0)
-    (setq REACTION (getdist "\nStation increment (seconds) <2.5> : "))
+    (setq REACTION (getdist "\nReaction time (seconds) <2.5> : "))
     (if (= REACTION nil) (setq REACTION 2.5))
    )
    (setq INC 0.0)
