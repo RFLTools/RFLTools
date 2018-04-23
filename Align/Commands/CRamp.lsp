@@ -145,7 +145,7 @@
                            (cons "WEAVEOFFSETEXITDUAL" (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST)))
                            (cons "GOREWIDTH" (atof (get_tile "GOREWIDTH")))
                            (cons "GOREWIDTHENTRANCESINGLE" (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST)))
-                           (cons "GOREWIDTHENTRAMCEDUAL" (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
+                           (cons "GOREWIDTHENTRANCEDUAL" (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
                            (cons "GOREWIDTHEXITSINGLE" (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST)))
                            (cons "GOREWIDTHEXITDUAL" (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST)))
                            (cons "TAPEROFFSET" (atof (get_tile "TAPEROFFSET")))
