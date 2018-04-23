@@ -18080,7 +18080,7 @@
  )
 
  (defun SETSINGLELANE ()
-  (set_tile "LANEWIDTH" (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST)))
+  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST))))
   (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST))))
   (if (= "1" (get_tile "EXITTERMINAL"))
    (SETEXIT)
@@ -18089,7 +18089,7 @@
  )
 
  (defun SETDUALLANE ()
-  (set_tile "LANEWIDTH" (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST)))
+  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST))))
   (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST))))
   (if (= "1" (get_tile "EXITTERMINAL"))
    (SETEXIT)
