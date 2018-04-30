@@ -10026,7 +10026,7 @@
    (if (= "ARC" (cdr (assoc 0 ENTLIST)))
     (eval (cdr (assoc 40 ENTLIST)))
     (if (/= (setq ENTLIST (RFL:GETSPIRALDATA ENT)) nil)
-     (if (< (distance P (nth 0 ENTLIST)) (distance P (nth 2 ENTLIST)))
+     (if (< (- (distance P (nth 0 ENTLIST)) (last ENTLIST)) (distance P (nth 2 ENTLIST)))
       (if (= 0.0 (last ENTLIST))
        (eval 0.0)
        (/ (* (RFL:GETSPIRALR ENT) (RFL:GETSPIRALLS ENT)) (last ENTLIST))
