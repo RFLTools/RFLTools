@@ -7,13 +7,15 @@
 ;     NOTE - Works for type 1 and type 3 vertical curves
 ;
 ;
-(defun RFL:RPROFC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTITY ENTITYNEXT ENTLIST OBPROFILE OBENTITIES
-                           PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE)
+(defun RFL:RPROFC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTITY ENTITYNEXT ENTLIST N1 N2 OBPROFILE OBENTITIES
+                           PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE TMP)
  (if (= nil vlax-create-object) (vl-load-com))
  
  (defun GETPVISTATION ()
   (setq PVISTATION (vlax-get-property ENTITY "PVIStation"))
  )
+ 
+ (setq RFL:PVILIST nil)
  
  (setq ENTLIST (entget ENT))
  
@@ -58,8 +60,37 @@
     )
     (setq C (1+ C))
    )
+   
    (setq RFL:PVILIST (append RFL:PVILIST (list (list ENDSTATION ENDELEVATION "L" 0.0))))
   )
  )
+ (if RFL:PVILIST
+  (progn
+   ; Sorting
+   (setq RFL:PVILIST (vl-sort RFL:PVILIST (function (lambda (N1 N2) (< (car N1) (car N2))))))
+   ; Removing extra PVIs
+   (setq TMP (list (car RFL:PVILIST))
+         RFL:PVILIST (cdr RFL:PVILIST)
+   )
+   (while (cdr RFL:PVILIST)
+    (if (and (> (abs (- (caar RFL:PVILIST) (car (last TMP)))) RFL:TOL)
+             (> (abs (- (caadr RFL:PVILIST) (caar RFL:PVILIST))) RFL:TOL)
+             (> (abs (- (/ (- (cadar RFL:PVILIST) (cadr (last TMP))) (- (caar RFL:PVILIST) (car (last TMP))))
+                        (/ (- (cadadr RFL:PVILIST) (cadar RFL:PVILIST)) (- (caadr RFL:PVILIST) (caar RFL:PVILIST)))
+                     )
+                )
+                RFL:TOL
+             )
+        )
+     (setq TMP (append TMP (list (car RFL:PVILIST))))
+    )
+    (setq RFL:PVILIST (cdr RFL:PVILIST))
+   )
+   (setq TMP (append TMP RFL:PVILIST))
+   (setq RFL:PVILIST TMP)
+  )
+ )
  
+ 
+ RFL:PVILIST
 )
