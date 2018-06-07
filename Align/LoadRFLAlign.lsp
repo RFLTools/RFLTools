@@ -21605,6 +21605,170 @@
 )
 ;
 ;
+;   Program written by Robert Livingston, 2018/06/06
+;
+;   C:GEXSUPER Estimates existing superelevation based on an alignment and surface
+;
+;
+(defun C:GEXSUPER (/ C CMDECHO INC GETSUPERNODE GETBESTPARABOLA NODE NSAMPLES OBSURFACE OS OSL OSR P PBLIST PL PR SL SLIST SR STA STAEND TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (defun GETSUPERNODE (OBSURFACE STA OSL OS OSR / NODE SL SR Z ZL ZR)
+  (setq NODE nil
+        SL nil
+        SR nil
+        Z nil
+        ZL nil
+        ZR nil
+  )
+  (if (setq PL (RFL:XY (list STA OSL)))
+   (if (= (setq ZL (RFL:GETSURFACEPOINT PL OBSURFACE)) nil)
+    (setq ZL nil)
+   )
+  )
+  (if (setq PR (RFL:XY (list STA OSR)))
+   (if (= (setq ZR (RFL:GETSURFACEPOINT PR OBSURFACE)) nil)
+    (setq ZR nil)
+   )
+  )
+  (if OS
+   (progn
+    (if (setq P (RFL:XY (list STA OS)))
+     (if (= (setq Z (RFL:GETSURFACEPOINT P OBSURFACE)) nil)
+      (setq Z nil)
+     )
+    )
+    (if (and ZL Z ZR)
+     (progn
+      (setq SL (* (/ (- Z ZL) (- OS OSL)) -100.0))
+      (setq SR (* (/ (- ZR Z) (- OSR OS)) 100.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+   (progn
+    (if (and ZL ZR)
+     (progn
+      (setq SL (* (/ (- ZR ZL) (- OSR OSL)) -100.0))
+      (setq SR (* SL -1.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+  )
+  NODE
+ )
+ ; LR : "L" or "R"
+ (defun GETBESTPARABOLA (SLIST LR / A B C G1 G2 NODE P1 P2 P3 PLIST TMP)
+  (setq PLIST nil)
+  (foreach NODE SLIST
+   (if NODE
+    (if (= LR "L")
+     (setq PLIST (append PLIST (list (list (car NODE) (cadr NODE)))))
+     (setq PLIST (append PLIST (list (list (car NODE) (caddr NODE)))))
+    )
+   )
+  )
+  (cond ((= (length PLIST) 0)
+         nil
+        )
+        ((= (length PLIST) 1)
+         (list (setq A 0.0) (setq B 0.0) (setq C (cadar PLIST)))
+        )
+        ((= (length PLIST) 2)
+         (list (setq A 0.0)
+               (setq B (/ (- (cadadr PLIST) (cadar PLIST)) (- (caadr PLIST) (caar PLIST))))
+               (setq C (- (cadar PLIST) (* B (caar PLIST))))
+         )
+        )
+        (T
+         (progn
+          (if (setq TMP (RFL:BESTVCURVE PLIST))
+           (progn
+            (setq P1 (car TMP))
+            (setq P2 (cadr TMP))
+            (setq P3 (caddr TMP))
+            (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
+            (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
+            (list (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
+                  (setq B (- G1 (* 2.0 A (car P1))))
+                  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
+            )
+           )
+           nil
+          )
+         )
+        )
+  )
+ )
+ (if (/= RFL:ALIGNLIST nil)
+  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
+   (progn
+    (setq RFL:SUPERLIST nil)
+    (setq INC 0.0)
+    (while (= INC 0.0)
+     (setq INC (getdist "\nStation increment <10.0> : "))
+     (if (= INC nil) (setq INC 10.0))
+    )
+    (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
+    (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STA) (setq STA TMP))
+    (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
+    (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STAEND) (setq STAEND TMP))
+    (setq NSAMPLES 0)
+    (while (< NSAMPLES 1)
+     (setq NSAMPLES (getint (strcat "\nNumber of samples (use odd number) <9> : ")))
+     (if (= NSAMPLES nil)
+      (setq NSAMPLES 9)
+      (if (/= (rem NSAMPLES 2) 1)
+       (setq NSAMPLES 0)
+      )
+     )
+    )
+    (setq TMP -3.0)
+    (setq OSL (getreal (strcat "\nLeft offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSL nil) (setq OSL TMP))
+    (setq TMP 3.0)
+    (setq OSR (getreal (strcat "\nRight offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSR nil) (setq OSR TMP))
+    (setq TMP 0.0)
+    (setq OS (getreal (strcat "\nCenter offset (<return> for single carriageway) <nil> : ")))
+    (setq SLIST nil)
+    (setq C (/ NSAMPLES -2))
+    (while (<= C (/ NSAMPLES 2))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* C INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+     (setq C (1+ C))
+    )
+    (while (<= STA STAEND)
+     (print (RFL:STATXT STA))
+     (if (setq PBLIST (GETBESTPARABOLA SLIST "L"))
+      (progn
+       (setq SL (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+       (if (setq PBLIST (GETBESTPARABOLA SLIST "R"))
+        (progn
+         (setq SR (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+         (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SL SR))))
+        )
+       )
+      )
+     )
+     (setq STA (+ STA INC))
+     (setq SLIST (cdr SLIST))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* (/ NSAMPLES 2) INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+    )
+   )
+   (princ "\n!!!!! Surface Not Set !!!!!\n")
+  )
+  (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
 ;     Program written by Robert Livingston, 2017-09-18
 ;
 ;     ROUNDABOUT is a collection of utilities for grading roundabouts
