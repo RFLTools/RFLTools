@@ -105,7 +105,7 @@
 
  (setq VT (getvar "VIEWTWIST"))
  (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
-
+ (if (and (= RFL:LARCCIRCLES "Yes") (not (tblsearch "BLOCK" "CIRC"))) (RFL:MAKEENT "CIRC"))
  (if (/= nil (setq ENT (car (entsel "Select arc or LDD spiral : "))))
   (progn
    (setq ENTLIST (entget ENT))
@@ -118,7 +118,6 @@
        (setq P2 (cdr (assoc 11 ENTLIST)))
        (if (= RFL:LARCCIRCLES "Yes")
         (progn
-         (if (not (tblsearch "BLOCK" "CIRC")) (RFL:MAKEENT "CIRC"))
          (vla-insertblock ACTIVESPC
                           (vlax-3D-point P1)
                           "CIRC"
