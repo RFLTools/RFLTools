@@ -21605,6 +21605,670 @@
 )
 ;
 ;
+;   Program written by Robert Livingston, 2018/06/06
+;
+;   C:GEXSUPER Estimates existing superelevation based on an alignment and surface
+;
+;
+(defun C:GEXSUPER (/ C CMDECHO INC GETSUPERNODE GETBESTPARABOLA NODE NSAMPLES OBSURFACE OS OSL OSR P PBLIST PL PR SL SLIST SR STA STAEND TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (defun GETSUPERNODE (OBSURFACE STA OSL OS OSR / NODE SL SR Z ZL ZR)
+  (setq NODE nil
+        SL nil
+        SR nil
+        Z nil
+        ZL nil
+        ZR nil
+  )
+  (if (setq PL (RFL:XY (list STA OSL)))
+   (if (= (setq ZL (RFL:GETSURFACEPOINT PL OBSURFACE)) nil)
+    (setq ZL nil)
+   )
+  )
+  (if (setq PR (RFL:XY (list STA OSR)))
+   (if (= (setq ZR (RFL:GETSURFACEPOINT PR OBSURFACE)) nil)
+    (setq ZR nil)
+   )
+  )
+  (if OS
+   (progn
+    (if (setq P (RFL:XY (list STA OS)))
+     (if (= (setq Z (RFL:GETSURFACEPOINT P OBSURFACE)) nil)
+      (setq Z nil)
+     )
+    )
+    (if (and ZL Z ZR)
+     (progn
+      (setq SL (* (/ (- Z ZL) (- OS OSL)) -100.0))
+      (setq SR (* (/ (- ZR Z) (- OSR OS)) 100.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+   (progn
+    (if (and ZL ZR)
+     (progn
+      (setq SL (* (/ (- ZR ZL) (- OSR OSL)) -100.0))
+      (setq SR (* SL -1.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+  )
+  NODE
+ )
+ ; LR : "L" or "R"
+ (defun GETBESTPARABOLA (SLIST LR / A B C G1 G2 NODE P1 P2 P3 PLIST TMP)
+  (setq PLIST nil)
+  (foreach NODE SLIST
+   (if NODE
+    (if (= LR "L")
+     (setq PLIST (append PLIST (list (list (car NODE) (cadr NODE)))))
+     (setq PLIST (append PLIST (list (list (car NODE) (caddr NODE)))))
+    )
+   )
+  )
+  (cond ((= (length PLIST) 0)
+         nil
+        )
+        ((= (length PLIST) 1)
+         (list (setq A 0.0) (setq B 0.0) (setq C (cadar PLIST)))
+        )
+        ((= (length PLIST) 2)
+         (list (setq A 0.0)
+               (setq B (/ (- (cadadr PLIST) (cadar PLIST)) (- (caadr PLIST) (caar PLIST))))
+               (setq C (- (cadar PLIST) (* B (caar PLIST))))
+         )
+        )
+        (T
+         (progn
+          (if (setq TMP (RFL:BESTVCURVE PLIST))
+           (progn
+            (setq P1 (car TMP))
+            (setq P2 (cadr TMP))
+            (setq P3 (caddr TMP))
+            (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
+            (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
+            (list (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
+                  (setq B (- G1 (* 2.0 A (car P1))))
+                  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
+            )
+           )
+           nil
+          )
+         )
+        )
+  )
+ )
+ (if (/= RFL:ALIGNLIST nil)
+  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
+   (progn
+    (setq RFL:SUPERLIST nil)
+    (setq INC 0.0)
+    (while (= INC 0.0)
+     (setq INC (getdist "\nStation increment <10.0> : "))
+     (if (= INC nil) (setq INC 10.0))
+    )
+    (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
+    (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STA) (setq STA TMP))
+    (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
+    (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STAEND) (setq STAEND TMP))
+    (setq NSAMPLES 0)
+    (while (< NSAMPLES 1)
+     (setq NSAMPLES (getint (strcat "\nNumber of samples (use odd number) <9> : ")))
+     (if (= NSAMPLES nil)
+      (setq NSAMPLES 9)
+      (if (/= (rem NSAMPLES 2) 1)
+       (setq NSAMPLES 0)
+      )
+     )
+    )
+    (setq TMP -3.0)
+    (setq OSL (getreal (strcat "\nLeft offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSL nil) (setq OSL TMP))
+    (setq TMP 3.0)
+    (setq OSR (getreal (strcat "\nRight offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSR nil) (setq OSR TMP))
+    (setq TMP 0.0)
+    (setq OS (getreal (strcat "\nCenter offset (<return> for single carriageway) <nil> : ")))
+    (setq SLIST nil)
+    (setq C (/ NSAMPLES -2))
+    (while (<= C (/ NSAMPLES 2))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* C INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+     (setq C (1+ C))
+    )
+    (while (<= STA STAEND)
+     (print (RFL:STATXT STA))
+     (if (setq PBLIST (GETBESTPARABOLA SLIST "L"))
+      (progn
+       (setq SL (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+       (if (setq PBLIST (GETBESTPARABOLA SLIST "R"))
+        (progn
+         (setq SR (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+         (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SL SR))))
+        )
+       )
+      )
+     )
+     (setq STA (+ STA INC))
+     (setq SLIST (cdr SLIST))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* (/ NSAMPLES 2) INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+    )
+   )
+   (princ "\n!!!!! Surface Not Set !!!!!\n")
+  )
+  (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;     Program written by Robert Livingston, 2018-06-12
+;
+;     C:REVSUPER swaps left/right values on superelevation blocks
+;
+;
+(defun C:REVSUPER (/ ENT ENT2 ENTLIST SUPERLEFT SUPERRIGHT TMP)
+ (while (setq ENT (car (entsel "\nSelect superelevation block : ")))
+  (setq ENTLIST (entget ENT))
+  (if (and (= (strcase (cdr (assoc 2 ENTLIST))) "SUPER")
+           (= (cdr (assoc 66 ENTLIST)) 1)
+      )
+   (progn
+    (setq ENT2 (entnext ENT))
+    (setq ENTLIST (entget ENT2))
+    (setq SUPERLEFT nil)
+    (setq SUPERRIGHT nil)
+    (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+     (if (= (strcase (cdr (assoc 2 ENTLIST))) "LEFT")
+      (setq SUPERLEFT (cdr (assoc 1 ENTLIST)))
+     )
+     (if (= (strcase (cdr (assoc 2 ENTLIST))) "RIGHT")
+      (setq SUPERRIGHT (cdr (assoc 1 ENTLIST)))
+     )
+     (setq ENT2 (entnext ENT2))
+     (setq ENTLIST (entget ENT2))
+    )
+    (if (and SUPERLEFT SUPERRIGHT)
+     (progn
+      (setq ENT2 (entnext ENT))
+      (setq ENTLIST (entget ENT2))
+      (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+       (if (= (strcase (cdr (assoc 2 ENTLIST))) "LEFT")
+        (progn
+         (setq ENTLIST (subst (cons 1 SUPERRIGHT) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT2)
+         (entupd ENT)
+        )
+       )
+       (if (= (strcase (cdr (assoc 2 ENTLIST))) "RIGHT")
+        (progn
+         (setq ENTLIST (subst (cons 1 SUPERLEFT) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT2)
+         (entupd ENT)
+        )
+       )
+       (setq ENT2 (entnext ENT2))
+       (setq ENTLIST (entget ENT2))
+      )
+     )
+    )
+   )
+  )
+ )
+ T
+);
+;
+;     Program written by Robert Livingston, 01/02/14
+;
+;     LARC is a small utility for labelling arc and spiral entities
+;
+;
+(setq RFL:LARCSCALE 1.0 RFL:LARCLAYER "")
+(setq RFL:LARCCIRCLES "Yes")
+(setq RFL:LARCSPIRALS "B")
+(setq RFL:LARCTHEIGHT 3.0)
+(defun C:LARCSETUP (/ CMDECHO TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq TMP (getreal (strcat "\nEnter scale for blocks <" (rtos RFL:LARCSCALE) "> : " )))
+ (if (/= nil TMP) (setq RFL:LARCSCALE TMP))
+ (setq RFL:LARCLAYER (getstring "\nEnter layer of new entities (<return> for current layer) : "))
+ (initget "Yes No")
+ (setq RFL:LARCCIRCLES (getkword "\nDraw circles at entity ends (<Yes>/No) : "))
+ (initget "Yes No")
+ (if (= RFL:LARCCIRCLES nil) (setq RFL:LARCCIRCLES "Yes"))
+ (setq LARCEQUALS (getkword "\nInclude equals '=' (Yes/<No>) : "))
+ (if (= LARCEQUALS nil) (setq LARCEQUALS "No"))
+ (initget "A L B")
+ (setq RFL:LARCSPIRALS (getkword "\nLabel spiral A, Ls or Both (A/L/<B>) : "))
+ (if (= RFL:LARCSPIRALS nil) (setq RFL:LARCSPIRALS "B"))
+ (setq RFL:LARCTHEIGHT (getdist "\nLabel text height <3.0> :"))
+ (if (or (= RFL:LARCTHEIGHT nil) (= RFL:LARCTHEIGHT 0.0)) (setq RFL:LARCTHEIGHT 3.0))
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun C:LARC (/ *error* A ACTIVEDOC ACTIVESPC ANG ANG1 ANG2 ANGBASE ANGDIR CHECKDUPLICATE CLAYER CMDECHO DIMZIN ENT ENTLIST LO LS OS OSMODE P P1 P2 PC R RL SPIRALDATA TEXTOBJ TEXTSTRING VT)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 8)
+
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+
+ (command "._UNDO" "M")
+ 
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "DIMZIN" DIMZIN)
+  ;(setq *error* nil)
+  (princ msg)
+ )
+
+ (defun CHECKDUPLICATE (/ ENT ENTLIST ENTSET)
+  (setq ENT (entlast))
+  (setq ENTLIST (entget ENT))
+  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST))) (= "CIRC" (cdr (assoc 2 ENTLIST))))
+   (progn
+    (setq ENTSET (ssget "X" (list (cons 0 "INSERT")
+                                  (cons 2 "CIRC")
+                                  (assoc 8 ENTLIST)
+                                  (assoc 10 ENTLIST)
+                                  (assoc 41 ENTLIST)
+                                  (assoc 42 ENTLIST)
+                                  (assoc 43 ENTLIST)
+                                  (assoc 50 ENTLIST)
+                            )
+                 )
+    )
+    (if (> (sslength ENTSET) 1) (command "._ERASE" ENT ""))
+   )
+  )
+ )
+ (command "._UNDO" "M")
+
+ (command "._UCS" "W")
+
+ (if (/= "" RFL:LARCLAYER)
+  (progn
+   (if (= nil (tblsearch "LAYER" RFL:LARCLAYER))
+    (command "._LAYER" "M" RFL:LARCLAYER)
+    (setvar "CLAYER" RFL:LARCLAYER)
+   )
+  )
+ )
+
+ (setq VT (getvar "VIEWTWIST"))
+ (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
+ (if (and (= RFL:LARCCIRCLES "Yes") (not (tblsearch "BLOCK" "CIRC"))) (RFL:MAKEENT "CIRC"))
+ (if (/= nil (setq ENT (car (entsel "Select arc or LDD spiral : "))))
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "ARC" (cdr (assoc 0 ENTLIST)))
+    (if (= (setq SPIRALDATA (RFL:GETSPIRALDATA ENT)) nil)
+     (if (/= "LINE" (cdr (assoc 0 ENTLIST)))
+      (princ "\n***** NOT AN ARC OR LDD SPIRAL *****")
+      (progn
+       (setq P1 (cdr (assoc 10 ENTLIST)))
+       (setq P2 (cdr (assoc 11 ENTLIST)))
+       (if (= RFL:LARCCIRCLES "Yes")
+        (progn
+         (vla-insertblock ACTIVESPC
+                          (vlax-3D-point P1)
+                          "CIRC"
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          0.0
+         )
+         (CHECKDUPLICATE)
+         (vla-insertblock ACTIVESPC
+                          (vlax-3D-point P2)
+                          "CIRC"
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          0.0
+         )
+         (CHECKDUPLICATE)
+        )
+       )
+
+       (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+       (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+        (setq ANG (- (angle P P2) pi))
+        (setq ANG (angle P P2))
+       )
+       (setq TEXTSTRING "TAN")
+       (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                      TEXTSTRING
+                                      (vlax-3D-point P)
+                                      RFL:LARCTHEIGHT
+                         )
+           )
+        (progn
+         (vla-put-Alignment textObj acAlignmentMiddle)
+         (vla-put-Rotation textObj ANG)
+         (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+        )
+       )
+      )
+     )
+     (progn
+      (setq LS (RFL:GETSPIRALLS ENT))
+      (setq A (RFL:GETSPIRALA ENT))
+
+      (if (listp (last SPIRALDATA))
+       (setq LO 0.0)
+       (setq LO (last SPIRALDATA))
+      )
+      (setq LS (- LS LO))
+
+      (setq OS (RFL:SPIRALOFFSET ENT))
+      (if (< (abs OS) RFL:TOL) (setq OS 0.0))
+
+      (if (/= 0.0 OS)
+       (progn
+        (setq R (RFL:GETSPIRALR ENT))
+        (if (= LO 0.0)
+         (setq RL 0.0)
+         (setq RL (/ (* A A) LO))
+        )
+        (setq LS (+ LS (* OS (* A A 0.5 (- (/ 1.0 (* R R))
+                                         (if (= LO 0.0) 0.0 (/ 1.0 (* RL RL)))
+                                      )
+                             )
+                       )
+                 )
+        )
+       )
+      )
+
+      (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+       (progn
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
+        (setq P2 (cdr (assoc 10 (reverse ENTLIST))))
+        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
+       )
+       (progn
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+         (setq P2 (cdr (assoc 10 ENTLIST)))
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+       )
+      )
+      (if (= RFL:LARCCIRCLES "Yes")
+       (progn
+        (vla-insertblock ACTIVESPC
+                         (vlax-3D-point P1)
+                         "CIRC"
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         0.0
+        )
+        (CHECKDUPLICATE)
+        (vla-insertblock ACTIVESPC
+                         (vlax-3D-point P2)
+                         "CIRC"
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         0.0
+        )
+        (CHECKDUPLICATE)
+       )
+      )
+
+      (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+      (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+       (setq ANG (- (angle P P2) pi))
+       (setq ANG (angle P P2))
+      )
+      (if (or (= RFL:LARCSPIRALS "L") (= RFL:LARCSPIRALS "B"))
+       (progn
+        (setq TEXTSTRING (strcat (if (> (abs OS) 0.0) "os-" "") (if (> LO 0.0) "c" "") (if (= LARCEQUALS "Yes") "Ls=" "Ls") (rtos LS 2 1)))
+        (if (= RFL:LARCSPIRALS "B")
+         (progn
+          (setq TEXTSTRING (strcat TEXTSTRING " / " (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
+         )
+        )
+       )
+       (progn
+        (if (= RFL:LARCSPIRALS "A")
+         (progn
+          (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
+         )
+        )
+       )
+      )
+      (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                     TEXTSTRING
+                                     (vlax-3D-point P)
+                                     RFL:LARCTHEIGHT
+                        )
+          )
+       (progn
+        (vla-put-Alignment textObj acAlignmentMiddle)
+        (vla-put-Rotation textObj ANG)
+        (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+       )
+      )
+     )
+    )
+    (progn
+     (setq PC (cdr (assoc 10 ENTLIST)))
+     (setq R (cdr (assoc 40 ENTLIST)))
+     (setq ANG1 (cdr (assoc 50 ENTLIST)))
+     (setq ANG2 (cdr (assoc 51 ENTLIST)))
+     (setq P1 (list (+ (nth 0 PC) (* R (cos ANG1)))
+                    (+ (nth 1 PC) (* R (sin ANG1)))
+              )
+     )
+     (setq P2 (list (+ (nth 0 PC) (* R (cos ANG2)))
+                    (+ (nth 1 PC) (* R (sin ANG2)))
+              )
+     )
+     (if (= RFL:LARCCIRCLES "Yes")
+      (progn
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P1)
+                        "CIRC"
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        0.0
+       )
+       (CHECKDUPLICATE)
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P2)
+                        "CIRC"
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        0.0
+       )
+       (CHECKDUPLICATE)
+      )
+     )
+
+     (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+     (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+      (setq ANG (- (angle P P2) pi))
+      (setq ANG (angle P P2))
+     )
+     (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "R=" "R") (rtos R 2 1)))
+     (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                    TEXTSTRING
+                                    (vlax-3D-point P)
+                                    RFL:LARCTHEIGHT
+                       )
+         )
+      (progn
+       (vla-put-Alignment textObj acAlignmentMiddle)
+       (vla-put-Rotation textObj ANG)
+       (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CLAYER" CLAYER)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "DIMZIN" DIMZIN)
+)
+(princ "\n*****  Use LARC2SETUP to change defaults *****\n");
+;
+;     Program written by Robert Livingston, 2001/01/02
+;
+;     STEXT is a utility for "sliding" text along it's axis
+;
+;
+(defun C:STEXT (/ *error* CMDECHO ENT ENTLIST ORTHOMODE SNAPANG)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 1)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 1)
+ (setq SNAPANG (getvar "SNAPANG"))
+
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setvar "SNAPANG" SNAPANG)
+  (princ msg)
+  ;(setq *error* nil)
+ )
+
+ (command "._UCS" "W")
+
+ (setq ENT (car (entsel "\nSelect text :")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (or (= (cdr (assoc 0 ENTLIST)) "TEXT") (= (cdr (assoc 0 ENTLIST)) "MTEXT"))
+    (progn
+     (setq P nil)
+     (if (and (= (cdr (assoc 0 ENTLIST)) "TEXT")
+              (or (/= (cdr (assoc 72 ENTLIST)) 0)
+                  (/= (cdr (assoc 73 ENTLIST)) 0)
+              )
+         )
+      (setq P (cdr (assoc 11 ENTLIST)))
+     )
+     (if (= nil P)
+      (setq P (cdr (assoc 10 ENTLIST)))
+     )
+     (setvar "SNAPANG" (cdr (assoc 50 ENTLIST)))
+     (command "._MOVE" ENT "" "_NON" P "_NON" "\\")
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "SNAPANG" SNAPANG)
+)
+(defun C:STEXTM (/ *error* CMDECHO ENT ENTLIST ENTSET ORTHOMODE SNAPANG)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 1)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 1)
+ (setq SNAPANG (getvar "SNAPANG"))
+
+ (defun *error* (msg)
+  (command "._UCS" "P")
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setvar "SNAPANG" SNAPANG)
+  (princ msg)
+  ;(setq *error* nil)
+ )
+
+ (command "._UCS" "W")
+
+ (setq ENT (car (entsel "\nSelect text :")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (or (= (cdr (assoc 0 ENTLIST)) "TEXT") (= (cdr (assoc 0 ENTLIST)) "MTEXT"))
+    (progn
+     (setq P nil)
+     (if (and (= (cdr (assoc 0 ENTLIST)) "TEXT")
+              (or (/= (cdr (assoc 72 ENTLIST)) 0)
+                  (/= (cdr (assoc 73 ENTLIST)) 0)
+              )
+         )
+      (setq P (cdr (assoc 11 ENTLIST)))
+     )
+     (if (= nil P)
+      (setq P (cdr (assoc 10 ENTLIST)))
+     )
+     (setvar "SNAPANG" (cdr (assoc 50 ENTLIST)))
+     (setq ENTSET (ssadd ENT))
+     (while (/= (setq ENT (car (entsel "\nSelect entity :"))) nil)
+      (ssadd ENT ENTSET)
+     )
+     (command "._MOVE" ENTSET "" "_NON" P "_NON" "\\")
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "SNAPANG" SNAPANG)
+);
+;
 ;     Program written by Robert Livingston, 2017-09-18
 ;
 ;     ROUNDABOUT is a collection of utilities for grading roundabouts
