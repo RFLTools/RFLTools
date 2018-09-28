@@ -5,8 +5,7 @@
 ;     RFL:BESTLINE is a utility for finding best fit line along a selected polyline
 ;
 ;
-(defun RFL:BESTLINE (PLIST / CALCE CALCSUME2 CALCXY COUNT OS P0 P1 P2 STEP SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 THETA TOL)
- (setq TOL 0.00001)
+(defun RFL:BESTLINE (PLIST / CALCE CALCSUME2 CALCXY COUNT OS P0 P1 P2 STEP SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4 THETA)
  (defun CALCXY (P P1 THETA / X Y)
   (setq X (+ (* (- (cadr P) (cadr P1)) (sin THETA)) (* (- (car P) (car P1)) (cos THETA))))
   (setq Y (- (* (- (cadr P) (cadr P1)) (cos THETA)) (* (- (car P) (car P1)) (sin THETA))))
@@ -43,7 +42,7 @@
  (setq THETA (angle (car PLIST) (last PLIST)))
  (setq STEP (CALCE OS THETA PLIST))
  (setq SUME2 (CALCSUME2 OS THETA PLIST))
- (while (> STEP TOL)
+ (while (> STEP RFL:TOL)
   (setq SUME2T1 (CALCSUME2 (+ OS STEP) THETA PLIST))
   (setq SUME2T2 (CALCSUME2 (- OS STEP) THETA PLIST))
   (setq SUME2T3 (CALCSUME2 OS (+ THETA (/ STEP 10.0)) PLIST))
