@@ -5,10 +5,10 @@
 ;     LARC is a small utility for labelling arc and spiral entities
 ;
 ;
-(setq RFL:LARCSCALE 1.0 RFL:LARCLAYER "")
+(setq RFL:LARCSCALE 0.1 RFL:LARCLAYER "")
 (setq RFL:LARCCIRCLES "Yes")
 (setq RFL:LARCSPIRALS "B")
-(setq RFL:LARCTHEIGHT 3.0)
+(setq RFL:LARCTHEIGHT 0.75)
 (defun C:LARCSETUP (/ CMDECHO TMP)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -25,8 +25,8 @@
  (initget "A L B")
  (setq RFL:LARCSPIRALS (getkword "\nLabel spiral A, Ls or Both (A/L/<B>) : "))
  (if (= RFL:LARCSPIRALS nil) (setq RFL:LARCSPIRALS "B"))
- (setq RFL:LARCTHEIGHT (getdist "\nLabel text height <3.0> :"))
- (if (or (= RFL:LARCTHEIGHT nil) (= RFL:LARCTHEIGHT 0.0)) (setq RFL:LARCTHEIGHT 3.0))
+ (setq RFL:LARCTHEIGHT (getdist "\nLabel text height <0.75> :"))
+ (if (or (= RFL:LARCTHEIGHT nil) (= RFL:LARCTHEIGHT 0.0)) (setq RFL:LARCTHEIGHT 0.75))
 
  (setvar "CMDECHO" CMDECHO)
 )
@@ -333,4 +333,4 @@
  (setvar "ANGDIR" ANGDIR)
  (setvar "DIMZIN" DIMZIN)
 )
-(princ "\n*****  Use LARC2SETUP to change defaults *****\n")
+(princ "\n*****  Use LARCSETUP to change defaults *****\n")
