@@ -31,7 +31,7 @@
 
  (setq PLIST nil)
  (setq ENT (car (entsel "\nSelect polyline : ")))
- (if (/= (setq PLIST (RFL:GETPLIST ENT)) nil)
+ (if (/= (setq PLIST (RFL:GETPLIST2D ENT)) nil)
   (progn
    (setq P1 (getpoint "\nPick point near desired start vertex (<return> for entire polyline) : "))
    (if (/= P1 nil)
@@ -44,9 +44,9 @@
    )
    (if (>= (length PLIST) 2)
     (progn
-     (setq TMP (RFL:BESTARC PLIST))
-     ;(setq R (getreal (strcat "\nRadius <" (rtos (RFL:RADIUS (car TMP) (cadr TMP) (caddr TMP))) "> : ")))
-     ;(if (/= nil R) (setq TMP (BESTARCR R PLIST)))
+     (setq TMP (RFL:BESTARC PLIST nil))
+     (setq R (getreal (strcat "\nRadius <" (rtos (RFL:RADIUS (car TMP) (cadr TMP) (caddr TMP))) "> : ")))
+     (if (/= nil R) (setq TMP (RFL:BESTARC PLIST R)))
      (if (> (abs (last TMP)) TOL)
       (progn
        (setq PC (RFL:CENTER (car TMP) (cadr TMP) (caddr TMP)))

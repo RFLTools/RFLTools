@@ -147,10 +147,41 @@
 ;;;  (list P1 P2 (RFL:BULGE P1 P2 R))
 ;;; )
 ;;;)
-(defun RFL:BESTARC (PLIST / BULGE P1 P2 PC PCLIST R)
+(defun RFL:BESTARC (PLIST R2 / BULGE C CMAX CALCSUME2 P1 P2 PC PCLIST R STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 TOL)
+ (setq TOL 0.0001)
+ (setq CMAX 10000)
+ (defun CALCSUME2 (PC R PLIST / P SUME2)
+  (setq SUME2 0.0)
+  (foreach P PLIST
+   (setq SUME2 (+ SUME2 (expt (- R (distance P PC)) 2)))
+  )
+  SUME2
+ )
  (if (setq PCLIST (RFL:BESTCIRCLE PLIST))
   (progn
    (setq PC (car PCLIST) R (cadr PCLIST))
+   (if R2
+    (progn
+     (setq C 0)
+     (setq STEP (abs (- R R2)))
+     (setq R R2)
+     (setq SUME2 (CALCSUME2 PC R PLIST))
+     (while (and (> STEP TOL) (< C CMAX))
+      (setq SUME2T1 (CALCSUME2 (list (- (car PC) STEP) (cadr PC)) R PLIST))
+      (setq SUME2T2 (CALCSUME2 (list (+ (car PC) STEP) (cadr PC)) R PLIST))
+      (setq SUME2T3 (CALCSUME2 (list (car PC) (- (cadr PC) STEP)) R PLIST))
+      (setq SUME2T4 (CALCSUME2 (list (car PC) (+ (cadr PC) STEP)) R PLIST))
+      (setq SUME2T (min SUME2 SUME2T1 SUME2T2 SUME2T3 SUME2T4))
+      (cond ((= SUME2T SUME2T1) (setq SUME2 SUME2T1 PC (list (- (car PC) STEP) (cadr PC))))
+            ((= SUME2T SUME2T2) (setq SUME2 SUME2T2 PC (list (+ (car PC) STEP) (cadr PC))))
+            ((= SUME2T SUME2T3) (setq SUME2 SUME2T3 PC (list (car PC) (- (cadr PC) STEP))))
+            ((= SUME2T SUME2T4) (setq SUME2 SUME2T4 PC (list (car PC) (+ (cadr PC) STEP))))
+            (T (setq SUME2 SUME2T STEP (/ STEP 2.0)))
+      )
+     )
+     (if (= C CMAX) (princ "\n*** MAX ITTERATIONS REACHED ***"))
+    )
+   )
    (setq P1 (list (+ (car PC) (* R (cos (angle PC (car PLIST)))))
                   (+ (cadr PC) (* R (sin (angle PC (car PLIST)))))
             )
@@ -163,8 +194,6 @@
     (setq R (* R -1.0))
    )
    (setq BULGE (RFL:BULGE P1 P2 R))
-   
-   
    (list P1 P2 BULGE)
   )
   nil
