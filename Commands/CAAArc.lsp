@@ -5,8 +5,7 @@
 ;     C:AAARC attaches two tangents with two reverse arcs such that all entities are continuous and linear
 ;
 ;
-;(defun C:AAARC (/ ANG ANG1 ANG2 ANGD D ENT1 ENT2 ENTLIST1 ENTLIST2 FILLETRAD P P1 P11 P12 P2 P21 P22 PC1 PC2 PINT R R1 R2 TMP)
-(defun C:AAARC ()
+(defun C:AAARC (/ ANG ANG1 ANG2 ANGD D ENT1 ENT2 ENTLIST1 ENTLIST2 FILLETRAD P P1 P11 P12 P2 P21 P22 PC1 PC2 PINT R R1 R2 TMP)
  (if (setq ENT1 (car (entsel "\nSelect first tangent : ")))
   (if (/= "LINE" (cdr (assoc 0 (setq ENTLIST1 (entget ENT1)))))
    (princ "\n*** ENTITY NOT A LINE ***")
@@ -39,10 +38,11 @@
                 (< (distance P2 PINT) (distance P1 P2))
            )
         (progn ; Single
-         (princ "SINGLE")
+         (princ "SINGLE\n")
          (setq D (min (distance P1 PINT) (distance P2 PINT)))
          (setq ANG (- ANG2 ANG1))
          (setq R (abs (/ D (RFL:TAN (/ ANG 2.0)))))
+         (princ (strcat "R = " (rtos R) "\n"))
          (setq FILLETRAD (getvar "FILLETRAD"))
          (setvar "FILLETRAD" R)
          (command "._FILLET" ENT1 ENT2)
@@ -60,7 +60,7 @@
           )
           (if (> (sin (- ANGD ANG1)) 0.0)
            (progn ; Left
-            (princ "LEFT")
+            (princ "LEFT\n")
             (setq ANG (abs (- ANGD ANG1)))
             (setq R1 (abs (/ (/ D 2.0) (sin ANG))))
             (setq PC1 (list (+ (car P1) (* R1 (cos (+ ANG1 (/ pi 2.0)))))
@@ -80,6 +80,7 @@
                             (+ (cadr P2) (* R2 (sin (- ANG2 (/ pi 2.0)))))
                       )
             )
+            (princ (strcat "R1 = " (rtos R1) ", R2 = " (rtos R2) "\n"))
             (entmake (list (cons 0 "ARC")
                            (cons 10 PC2)
                            (cons 40 R2)
@@ -89,7 +90,7 @@
             )
            )
            (progn ; Right
-            (princ "RIGHT")
+            (princ "RIGHT\n")
             (setq ANG (abs (- ANGD ANG1)))
             (setq R1 (abs (/ (/ D 2.0) (sin ANG))))
             (setq PC1 (list (+ (car P1) (* R1 (cos (- ANG1 (/ pi 2.0)))))
@@ -109,6 +110,7 @@
                             (+ (cadr P2) (* R2 (sin (+ ANG2 (/ pi 2.0)))))
                       )
             )
+            (princ (strcat "R1 = " (rtos R1) ", R2 = " (rtos R2) "\n"))
             (entmake (list (cons 0 "ARC")
                            (cons 10 PC2)
                            (cons 40 R2)

@@ -53,6 +53,7 @@ COPY /B ".\LoadDLL\RFLLoadRFLDLL.lsp" + ^
         ".\Commands\C*.lsp" + ^
         ".\Commands\RFL*.lsp" + ^
         ".\Common\RFL*.lsp" + ^
+        ".\UTMLatLng\UTMLatLng.lsp" + ^
         ".\LoadDLL\Loaded.lsp" ^
         ".\LoadRFLTools.lsp"
 rem

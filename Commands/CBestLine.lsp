@@ -27,7 +27,12 @@
     (progn
      (setq P1 (car P))
      (setq P2 (cadr P))
-     (command "._LINE" P1 P2 "")
+     (entmake (list (cons 0 "LINE")
+                    (cons 10 P1)
+                    (cons 11 P2)
+              )
+     )
+     (if (last P) (princ (strcat "\nMax Offset = " (rtos (last P)) "\n")))
     )
    )
   )

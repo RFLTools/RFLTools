@@ -147,7 +147,7 @@
 ;;;  (list P1 P2 (RFL:BULGE P1 P2 R))
 ;;; )
 ;;;)
-(defun RFL:BESTARC (PLIST R2 / BULGE C CMAX CALCSUME2 P1 P2 PC PCLIST R STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 TOL)
+(defun RFL:BESTARC (PLIST R2 / BULGE C CMAX CALCE CALCSUME2 P1 P2 PC PCLIST R STEP SUME2 SUME2T SUME2T1 SUME2T2 SUME2T3 SUME2T4 TOL)
  (setq TOL 0.0001)
  (setq CMAX 10000)
  (defun CALCSUME2 (PC R PLIST / P SUME2)
@@ -157,9 +157,22 @@
   )
   SUME2
  )
+ (defun CALCE (PC R PLIST / E NODE TMP)
+  (setq E nil)
+  (foreach NODE PLIST
+   (progn
+    (setq TMP (abs (- (distance PC NODE) R)))
+    (if (= E nil)
+     (setq E TMP)
+     (if (> TMP E) (setq E TMP))
+    )
+   )
+  )
+  E
+ )
  (if (setq PCLIST (RFL:BESTCIRCLE PLIST))
   (progn
-   (setq PC (car PCLIST) R (cadr PCLIST))
+   (setq PC (car PCLIST) R (cadr PCLIST) E (caddr PCLIST))
    (if R2
     (progn
      (setq C 0)
@@ -194,7 +207,7 @@
     (setq R (* R -1.0))
    )
    (setq BULGE (RFL:BULGE P1 P2 R))
-   (list P1 P2 BULGE)
+   (list P1 P2 BULGE (CALCE PC R PLIST))
   )
   nil
  )

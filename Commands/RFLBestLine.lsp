@@ -15,14 +15,15 @@
                (* (- (car P) (car P0)) (sin ANG))
             )
     )
-    (if (= YMAX nil)
-     (setq YMAX (abs Y))
+    (if YMAX
      (if (> (abs Y) YMAX)
       (setq YMAX (abs Y))
      )
+     (setq YMAX (abs Y))
     )
    )
   )
+  YMAX
  )
  (if (< (length PLIST) 2)
   nil

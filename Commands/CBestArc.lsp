@@ -5,7 +5,7 @@
 ;     BESTARC is a utility for finding best fit arc along a selected polyline
 ;
 ;
-(defun C:BESTARC (/ *error* ANG1 ANG2 ANGBASE ANGDIR ATTREQ C C1 C2 CMDECHO ENT ENTLIST ORTHOMODE OSMODE P P1 P2 PC PLIST R TMP)
+(defun C:BESTARC (/ *error* ANG1 ANG2 ANGBASE ANGDIR ATTREQ C C1 C2 CMDECHO E ENT ENTLIST ORTHOMODE OSMODE P P1 P2 PC PLIST R TMP)
  (setq ATTREQ (getvar "ATTREQ"))
  (setvar "ATTREQ" 0)
  (setq ANGBASE (getvar "ANGBASE"))
@@ -30,6 +30,7 @@
  )
 
  (setq PLIST nil)
+ (setq E nil)
  (setq ENT (car (entsel "\nSelect polyline : ")))
  (if (/= (setq PLIST (RFL:GETPLIST2D ENT)) nil)
   (progn
@@ -47,11 +48,12 @@
      (setq TMP (RFL:BESTARC PLIST nil))
      (setq R (getreal (strcat "\nRadius <" (rtos (RFL:RADIUS (car TMP) (cadr TMP) (caddr TMP))) "> : ")))
      (if (/= nil R) (setq TMP (RFL:BESTARC PLIST R)))
-     (if (> (abs (last TMP)) TOL)
+     (setq E (cadddr TMP))
+     (if (> (abs (caddr TMP)) TOL)
       (progn
        (setq PC (RFL:CENTER (car TMP) (cadr TMP) (caddr TMP)))
        (setq R (RFL:RADIUS (car TMP) (cadr TMP) (caddr TMP)))
-       (if (> (last TMP) 0.0)
+       (if (> (caddr TMP) 0.0)
         (progn
          (setq ANG1 (angle PC (car TMP)))
          (setq ANG2 (angle PC (cadr TMP)))
@@ -69,6 +71,7 @@
                      )
        )
        (entmake ENTLIST)
+       (if E (princ (strcat "\nMax Offset = " (rtos E) "\n"))) 
       )
       (progn
        (setq ENTLIST (list (cons 0 "LINE")
@@ -90,4 +93,5 @@
  (setvar "CMDECHO" CMDECHO)
  (setvar "OSMODE" OSMODE)
  (setvar "ORTHOMODE" ORTHOMODE)
+ E
 )
