@@ -59,79 +59,7 @@
    )
   )
  )
-)(defun RFL:AXY (AL STA SWATH / ALSAVE ENTLIST OFFSET1 OFFSET2 OFFSET3 P1 P2 P3)
- (setq ENTLIST (entget ENT))
- (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
-  (progn
-   (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
-   (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
-   (if (and (/= P1 nil) (/= P2 nil))
-    (progn
-     (setq ALSAVE RFL:ALIGNLIST)
-     (setq RFL:ALIGNLIST AL)
-     (if (= nil RFL:ALIGNLIST)
-      (progn
-       (setq RFL:ALIGNLIST ALSAVE)
-       (eval nil)
-      )
-      (progn
-       (setq OFFSET1 (RFL:STAOFF P1))
-       (setq OFFSET2 (RFL:STAOFF P2))
-       (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-       (setq OFFSET3 (RFL:STAOFF P3))
-       (if (= OFFSET1 nil)
-        (progn
-         (setq P1 P3)
-         (setq OFFSET1 OFFSET3)
-        )
-       )
-       (if (= OFFSET2 nil)
-        (progn
-         (setq P2 P3)
-         (setq OFFSET2 OFFSET3)
-        )
-       )
-       (if (and (/= OFFSET1 nil) (/= OFFSET2 nil))
-        (progn
-         (setq OFFSET1 (cadr OFFSET1))
-         (setq OFFSET2 (cadr OFFSET2))
-         (if (> (* OFFSET1 OFFSET2) 0.0)
-          (progn
-           (setq RFL:ALIGNLIST ALSAVE)
-           (eval nil)
-          )
-          (progn
-           (while (> (distance P1 P2) RFL:TOL)
-            (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-            (setq OFFSET3 (cadr (RFL:STAOFF P3)))
-            (if (> (* OFFSET1 OFFSET3) 0.0)
-             (setq P1 P3)
-             (setq P2 P3)
-            )
-           )
-           (setq RFL:ALIGNLIST ALSAVE)
-           (setq P3 P3)
-          )
-         )
-        )
-        (progn
-         nil
-        )
-       )
-      )
-     )
-    )
-    (progn
-     nil
-    )
-   )
-  )
-  (progn
-   nil
-  )
- )
-)
-;
+);
 ;
 ;   Program written by Robert Livingston, 98/06/12
 ;
@@ -369,6 +297,78 @@
      (* R ATOTAL)
     )
    )
+  )
+ )
+)
+(defun RFL:AXY (AL STA SWATH / ALSAVE ENTLIST OFFSET1 OFFSET2 OFFSET3 P1 P2 P3)
+ (setq ENTLIST (entget ENT))
+ (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+  (progn
+   (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+   (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
+   (if (and (/= P1 nil) (/= P2 nil))
+    (progn
+     (setq ALSAVE RFL:ALIGNLIST)
+     (setq RFL:ALIGNLIST AL)
+     (if (= nil RFL:ALIGNLIST)
+      (progn
+       (setq RFL:ALIGNLIST ALSAVE)
+       (eval nil)
+      )
+      (progn
+       (setq OFFSET1 (RFL:STAOFF P1))
+       (setq OFFSET2 (RFL:STAOFF P2))
+       (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+       (setq OFFSET3 (RFL:STAOFF P3))
+       (if (= OFFSET1 nil)
+        (progn
+         (setq P1 P3)
+         (setq OFFSET1 OFFSET3)
+        )
+       )
+       (if (= OFFSET2 nil)
+        (progn
+         (setq P2 P3)
+         (setq OFFSET2 OFFSET3)
+        )
+       )
+       (if (and (/= OFFSET1 nil) (/= OFFSET2 nil))
+        (progn
+         (setq OFFSET1 (cadr OFFSET1))
+         (setq OFFSET2 (cadr OFFSET2))
+         (if (> (* OFFSET1 OFFSET2) 0.0)
+          (progn
+           (setq RFL:ALIGNLIST ALSAVE)
+           (eval nil)
+          )
+          (progn
+           (while (> (distance P1 P2) RFL:TOL)
+            (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+            (setq OFFSET3 (cadr (RFL:STAOFF P3)))
+            (if (> (* OFFSET1 OFFSET3) 0.0)
+             (setq P1 P3)
+             (setq P2 P3)
+            )
+           )
+           (setq RFL:ALIGNLIST ALSAVE)
+           (setq P3 P3)
+          )
+         )
+        )
+        (progn
+         nil
+        )
+       )
+      )
+     )
+    )
+    (progn
+     nil
+    )
+   )
+  )
+  (progn
+   nil
   )
  )
 )
@@ -4634,17 +4634,6 @@
 ;
 ;
 ;    Program Written by Robert Livingston, 99/07/14
-;    RFL:SPIRALPR returns (R * spiral 'P') for a given deflection
-;
-;
-(if RFL:SPIRALPR (princ "\nRFL:SPIRALPR already loaded...")
-(defun RFL:SPIRALPR (THETA)
- (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA)))
-)
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALPOINTON Checks is the entered point is within the spiral limits
 ;
 ;
@@ -4683,6 +4672,17 @@
   0
   1
  )
+)
+;
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    RFL:SPIRALPR returns (R * spiral 'P') for a given deflection
+;
+;
+(if RFL:SPIRALPR (princ "\nRFL:SPIRALPR already loaded...")
+(defun RFL:SPIRALPR (THETA)
+ (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA)))
+)
 )
 ;
 ;
@@ -8690,6 +8690,60 @@
  T
 );
 ;
+;   Program written by Robert Livingston, 01/03/05
+;
+;   3DP2PROF is a routine for drawing 3D polyline control lines on a profile
+;
+;
+(defun C:3DP2PROF (/ C CLAYER CMDECHO ENT ENTLIST LAYER LR ORTHOMODE OSMODE P S)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+
+ (if (= nil RFL:ALIGNLIST)
+  (princ "\n***** Alignment not set! *****\n")
+  (progn
+   (RFL:PROFDEF)
+   (while (/= (setq ENT (car (entsel "\nSelect 3D polyline : "))) nil)
+    (setq ENTLIST (entget ENT))
+    (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
+     (princ "\n***** Not a polyline! *****\n")
+     (progn
+      (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
+             (/ (cdr (assoc 70 ENTLIST)) 16.0))
+       (princ "\n***** Not a 3D polyline! *****\n")
+       (progn
+        (command "._PLINE")
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+         (setq P (cdr (assoc 10 ENTLIST)))
+         (setq S (RFL:STAOFF P))
+         (if (/= S nil)
+          (command (RFL:PROFPOINT (nth 0 S) (nth 2 P)))
+         )
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+        (command "")
+       )
+      )
+     )
+    ) 
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "CLAYER" CLAYER)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "OSMODE" OSMODE)
+);
+;
 ;    Program Written by Robert Livingston 00/03/07
 ;    AARC is a utility for attaching an arc to the end of a line or arc
 ;
@@ -9882,6 +9936,210 @@
  (setvar "TEXTSTYLE" TEXTSTYLE)
 );
 ;
+;     Program written by Robert Livingston, 05-09-15
+;
+;     C:ALIGN23DP creats a 3D polyline based on an alignment and profile
+;
+;
+(defun C:ALIGN23DP (/ *error* ANGDIR ANGBASE CMDECHO OSMODE P OS REGENMODE S STEP STA STA1 STA2 STAMIN STAMAX Z1 Z2)
+ (setq REGENMODE (getvar "REGENMODE"))
+ (setvar "REGENMODE" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ 
+ (command "._UNDO" "M")
+
+ (defun *error* (msg)
+  (setvar "REGENMODE" REGENMODE)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (if (and (/= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
+  (progn
+   (princ "\nNo vertical alignment exists - setting up interpretation...")
+   (setq STA1 (car (RFL:STAOFF (setq Z1 (getpoint "\nSelect point near start of alignment : ")))))
+   (if (= nil STA1)
+    (princ "Problem computing station...")
+    (progn
+     (setq Z1 (caddr Z1))
+     (if (= Z1 0.0)
+      (progn
+       (setq Z1 (getreal "\n0.000 elevation found for start point, press <return> to accept or enter another value : "))
+       (if (= nil Z1) (setq Z1 0.0))
+      )
+     )
+     (setq STA2 (car (RFL:STAOFF (setq Z2 (getpoint "\nSelect point near end of alignment : ")))))
+     (if (= nil STA2)
+      (princ "Problem computing station...")
+      (progn
+       (setq Z2 (caddr Z2))
+       (if (= Z2 0.0)
+        (progn
+         (setq Z2 (getreal "\n0.000 elevation found for end point, press <return> to accept or enter another value : "))
+         (if (= nil Z2) (setq Z2 0.0))
+        )
+       )
+       (setq RFL:PVILIST (list (list STA1 Z1 "L" 0.0) (list STA2 Z2 "L" 0.0)))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (if (or (= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
+  (alert "Profile and/or Alignment not defined")
+  (progn
+   (setq STEP 0.0)
+   (while (= 0.0 STEP) (setq STEP (getdist "Enter step size (> zero) : ")))
+   (setq OS (getreal "O/S (<return> = 0.0) : "))
+   (if (= OS nil) (setq OS 0.0))
+   (setq STAMIN (max (caar RFL:ALIGNLIST) (caar RFL:PVILIST)))
+   (setq STAMAX (min (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) (caar (reverse RFL:PVILIST))))
+   (setq STA STAMIN)
+   (command "._3DPOLY")
+   (while (< STA STAMAX)
+    (setq P (append (RFL:XY (list STA OS)) (list (RFL:ELEVATION STA))))
+    (if (/= OS 0.0)
+     (progn
+      (setq S (RFL:SUPER STA))
+      (if (= nil S) (setq S (list 0.0 0.0)))
+      (if (< OS 0.0)
+       (setq S (car S))
+       (setq S (cadr S))
+      )
+      (setq P (list (car P)
+                    (cadr P)
+                    (+ (caddr P) (* (abs OS) S 0.01))
+              )
+      )
+     )
+    )
+    (command P)
+    (setq STA (+ STA STEP))
+   )
+   (if (/= STAEND (+ STA STEP))
+    (progn
+     (setq P (append (RFL:XY (list STAEND 0.0)) (list (RFL:ELEVATION STAEND))))
+     (command P)
+    )
+   )
+   (command "")
+  )
+ )
+
+ (setvar "REGENMODE" REGENMODE)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 99/06/21
+;
+;     C:ALIGN2PROF utilizes the (RFL:PROFPOINT) command to creat a profile from points along an alignment
+;
+;
+(defun C:ALIGN2PROF (/ ATTREQ CMDECHO ELEV ENT ENTLIST OSMODE P1 P2 PPICK PT STATION)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+
+ (command "LINE")
+ (princ "\nSelect spot elevation block :")
+ (setq ENT (entsel))
+ (setq PPICK (car (cdr ENT)))
+ (setq PPICK (list (nth 0 PPICK) (nth 1 PPICK) 0.0))
+ (setq ENT (car ENT))
+ (while (/= ENT nil)
+  (setq ENTLIST (entget ENT))
+  (if (or (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
+          (and (= 1 (cdr (assoc 66 ENTLIST)))
+               (= "INSERT" (cdr (assoc 0 ENTLIST)))
+          )
+          (= "LINE" (cdr (assoc 0 ENTLIST)))
+      )
+   (progn
+    (if (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
+     (progn
+      (setq PT (cdr (assoc 11 ENTLIST)))
+      (setq ELEV (nth 2 PT))
+     )
+     (progn
+      (if (= "LINE" (cdr (assoc 0 ENTLIST)))
+       (progn
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
+        (setq P2 (cdr (assoc 11 ENTLIST)))
+        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
+        (if (< (distance P1 PPICK) (distance P2 PPICK))
+         (progn
+          (setq PT P1)
+          (setq ELEV (last (cdr (assoc 10 ENTLIST))))
+         )
+         (progn
+          (setq PT P2)
+          (setq ELEV (last (cdr (assoc 11 ENTLIST))))
+         )
+        )
+       )
+       (progn
+        (setq PT (cdr (assoc 10 ENTLIST)))
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (setq ELEV nil)
+        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+         (if (or (= "ELEV" (cdr (assoc 2 ENTLIST))) (= "ELEVATION" (cdr (assoc 2 ENTLIST))))
+          (setq ELEV (atof (if (= (substr (cdr (assoc 1 ENTLIST)) 1 1) "(")
+                            (substr (cdr (assoc 1 ENTLIST)) 2)
+                            (cdr (assoc 1 ENTLIST))
+                           )
+                     )
+          )
+         )
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+       )
+      )
+     )
+    )
+    (if (= ELEV nil)
+     (princ "\n*** NO ELEVATION FOR THIS BLOCK ***")
+     (progn
+      (setq STATION nil)
+      (setq STATION (car (RFL:STAOFF PT)))
+      (if (= STATION nil)
+       (princ "\n*** POINT NOT ON ALIGNMENT ***")
+       (progn
+        (command (RFL:PROFPOINT STATION ELEV))
+       )
+      )
+     )
+    )
+   )
+   (princ "\n*** NOT A VALID BLOCK ***")
+  )
+  (princ "\nSelect spot elevation block :")
+  (setq ENT (car (entsel)))
+ )
+ (command "")
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
 ;    Program Written by Robert Livingston 00/03/07
 ;
 ;    ALINE is a utility for attaching a line to the end of a line or arc
@@ -10288,210 +10546,6 @@
  (setvar "OSMODE" OSMODE)
 )
 ;
-;
-;     Program written by Robert Livingston, 05-09-15
-;
-;     C:ALIGN23DP creats a 3D polyline based on an alignment and profile
-;
-;
-(defun C:ALIGN23DP (/ *error* ANGDIR ANGBASE CMDECHO OSMODE P OS REGENMODE S STEP STA STA1 STA2 STAMIN STAMAX Z1 Z2)
- (setq REGENMODE (getvar "REGENMODE"))
- (setvar "REGENMODE" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- 
- (command "._UNDO" "M")
-
- (defun *error* (msg)
-  (setvar "REGENMODE" REGENMODE)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "OSMODE" OSMODE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (if (and (/= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
-  (progn
-   (princ "\nNo vertical alignment exists - setting up interpretation...")
-   (setq STA1 (car (RFL:STAOFF (setq Z1 (getpoint "\nSelect point near start of alignment : ")))))
-   (if (= nil STA1)
-    (princ "Problem computing station...")
-    (progn
-     (setq Z1 (caddr Z1))
-     (if (= Z1 0.0)
-      (progn
-       (setq Z1 (getreal "\n0.000 elevation found for start point, press <return> to accept or enter another value : "))
-       (if (= nil Z1) (setq Z1 0.0))
-      )
-     )
-     (setq STA2 (car (RFL:STAOFF (setq Z2 (getpoint "\nSelect point near end of alignment : ")))))
-     (if (= nil STA2)
-      (princ "Problem computing station...")
-      (progn
-       (setq Z2 (caddr Z2))
-       (if (= Z2 0.0)
-        (progn
-         (setq Z2 (getreal "\n0.000 elevation found for end point, press <return> to accept or enter another value : "))
-         (if (= nil Z2) (setq Z2 0.0))
-        )
-       )
-       (setq RFL:PVILIST (list (list STA1 Z1 "L" 0.0) (list STA2 Z2 "L" 0.0)))
-      )
-     )
-    )
-   )
-  )
- )
-
- (if (or (= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
-  (alert "Profile and/or Alignment not defined")
-  (progn
-   (setq STEP 0.0)
-   (while (= 0.0 STEP) (setq STEP (getdist "Enter step size (> zero) : ")))
-   (setq OS (getreal "O/S (<return> = 0.0) : "))
-   (if (= OS nil) (setq OS 0.0))
-   (setq STAMIN (max (caar RFL:ALIGNLIST) (caar RFL:PVILIST)))
-   (setq STAMAX (min (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) (caar (reverse RFL:PVILIST))))
-   (setq STA STAMIN)
-   (command "._3DPOLY")
-   (while (< STA STAMAX)
-    (setq P (append (RFL:XY (list STA OS)) (list (RFL:ELEVATION STA))))
-    (if (/= OS 0.0)
-     (progn
-      (setq S (RFL:SUPER STA))
-      (if (= nil S) (setq S (list 0.0 0.0)))
-      (if (< OS 0.0)
-       (setq S (car S))
-       (setq S (cadr S))
-      )
-      (setq P (list (car P)
-                    (cadr P)
-                    (+ (caddr P) (* (abs OS) S 0.01))
-              )
-      )
-     )
-    )
-    (command P)
-    (setq STA (+ STA STEP))
-   )
-   (if (/= STAEND (+ STA STEP))
-    (progn
-     (setq P (append (RFL:XY (list STAEND 0.0)) (list (RFL:ELEVATION STAEND))))
-     (command P)
-    )
-   )
-   (command "")
-  )
- )
-
- (setvar "REGENMODE" REGENMODE)
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 99/06/21
-;
-;     C:ALIGN2PROF utilizes the (RFL:PROFPOINT) command to creat a profile from points along an alignment
-;
-;
-(defun C:ALIGN2PROF (/ ATTREQ CMDECHO ELEV ENT ENTLIST OSMODE P1 P2 PPICK PT STATION)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
-
- (command "LINE")
- (princ "\nSelect spot elevation block :")
- (setq ENT (entsel))
- (setq PPICK (car (cdr ENT)))
- (setq PPICK (list (nth 0 PPICK) (nth 1 PPICK) 0.0))
- (setq ENT (car ENT))
- (while (/= ENT nil)
-  (setq ENTLIST (entget ENT))
-  (if (or (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
-          (and (= 1 (cdr (assoc 66 ENTLIST)))
-               (= "INSERT" (cdr (assoc 0 ENTLIST)))
-          )
-          (= "LINE" (cdr (assoc 0 ENTLIST)))
-      )
-   (progn
-    (if (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
-     (progn
-      (setq PT (cdr (assoc 11 ENTLIST)))
-      (setq ELEV (nth 2 PT))
-     )
-     (progn
-      (if (= "LINE" (cdr (assoc 0 ENTLIST)))
-       (progn
-        (setq P1 (cdr (assoc 10 ENTLIST)))
-        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
-        (setq P2 (cdr (assoc 11 ENTLIST)))
-        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
-        (if (< (distance P1 PPICK) (distance P2 PPICK))
-         (progn
-          (setq PT P1)
-          (setq ELEV (last (cdr (assoc 10 ENTLIST))))
-         )
-         (progn
-          (setq PT P2)
-          (setq ELEV (last (cdr (assoc 11 ENTLIST))))
-         )
-        )
-       )
-       (progn
-        (setq PT (cdr (assoc 10 ENTLIST)))
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-        (setq ELEV nil)
-        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-         (if (or (= "ELEV" (cdr (assoc 2 ENTLIST))) (= "ELEVATION" (cdr (assoc 2 ENTLIST))))
-          (setq ELEV (atof (if (= (substr (cdr (assoc 1 ENTLIST)) 1 1) "(")
-                            (substr (cdr (assoc 1 ENTLIST)) 2)
-                            (cdr (assoc 1 ENTLIST))
-                           )
-                     )
-          )
-         )
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-        )
-       )
-      )
-     )
-    )
-    (if (= ELEV nil)
-     (princ "\n*** NO ELEVATION FOR THIS BLOCK ***")
-     (progn
-      (setq STATION nil)
-      (setq STATION (car (RFL:STAOFF PT)))
-      (if (= STATION nil)
-       (princ "\n*** POINT NOT ON ALIGNMENT ***")
-       (progn
-        (command (RFL:PROFPOINT STATION ELEV))
-       )
-      )
-     )
-    )
-   )
-   (princ "\n*** NOT A VALID BLOCK ***")
-  )
-  (princ "\nSelect spot elevation block :")
-  (setq ENT (car (entsel)))
- )
- (command "")
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
 ;
 ;   Program written by Robert Livingston, 15-02-03
 ;
@@ -11925,5442 +11979,6 @@
 )
 ;
 ;
-;   Program written by Robert Livingston, 99/11/15
-;
-;   DPROF draws the current profile
-;
-;
-(defun C:DPROF (/ ANGBASE ANGDIR CMDECHO OSMODE REP STEP STEPSTA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (/= nil RFL:PVILIST)
-  (progn
-   (RFL:PROFDEF)
-   (initget "Yes No")
-   (setq REP (getkword "\nDraw profile (<Yes>/No) :"))
-   (if (= REP nil) (setq REP "Yes"))
-   (if (= REP "Yes")
-    (progn
-     (initget "Yes No")
-     (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
-     (if (= REP nil) (setq REP "No"))
-     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
-     (RFL:DRAWPROF RFL:PVILIST)
-    )
-   )
-   (initget "Yes No")
-   (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
-   (if (= REP nil) (setq REP "No"))
-   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
-  )
-  (progn
-   (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 99/11/15
-;
-;   DPROFOG draws on the current layer the current OG profile defined in RFL:OGLIST
-;
-;
-(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (/= nil RFL:OGLIST)
-  (progn
-   (RFL:PROFDEF)
-   (setq C 0)
-   (command "._PLINE")
-   (while (< C (length RFL:OGLIST))
-    (command (RFL:PROFPOINT (nth 0 (nth C RFL:OGLIST)) (nth 1 (nth C RFL:OGLIST))))
-    (setq C (+ C 1))
-   )
-   (command "")
-  )
-  (progn
-   (princ "\n*** OG PROFILE NOT SET ***\n")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
-;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
-;
-;
-(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq ENT (entsel "\nSelect line : "))
- (if (/= ENT nil) 
-  (progn
-   (setq P (car (cdr ENT)))
-   (setq P (list (car P) (cadr P)))
-   (setq ENT (car ENT))
-   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
-    (progn
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq P1 (list (car P1) (cadr P1)))
-     (setq P2 (cdr (assoc 11 ENTLIST)))
-     (setq P2 (list (car P2) (cadr P2)))
-     (if (< (distance P P1) (distance P P2))
-      (progn
-       (setq TMP P1)
-       (setq P1 P2)
-       (setq P2 TMP)
-      )
-     )
-     (setq ANG (angle P1 P2))
-     (if (/= (setq R (getreal "Radius : ")) nil)
-      (if (/= (setq L (getreal "Length : ")) nil)
-       (progn
-        (initget 1 "Left Right")
-        (setq LR (getkword "\n Left or Right : "))
-        (if (= LR "Left")
-         (setq DIR 1.0)
-         (setq DIR -1.0)
-        )
-        (setq THETA (/ L (* 2.0 R)))
-        (setq FX (* R (RFL:SPIRALFXR THETA)))
-        (setq FY (* R (RFL:SPIRALFYR THETA)))
-        (setq PLT P2)
-        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
-                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
-        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
-                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
-        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   DSUPER inserts SUPER blocks along the current alignment
-;
-;
-(defun C:DSUPER (/ AL DIMZIN CMDECHO REP SFLAG STEP STEPSTA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (RFL:DSUPER)
-
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;     Program written by Robert Livingston, 2017-04-10
-;
-;     C:DRAWMID draws a polyline midpoint between two selected polylines
-;
-;
-(defun C:DRAWMID (/ 3D CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 P PLIST1 PLIST2 PLISTM ORTHOMODE OSMODE)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
-
- (setq PLISTM nil)
- (if (setq ENT1 (car (entsel "\nSelect first polyline : ")))
-  (if (setq PLIST1 (RFL:GETPLIST ENT1))
-   (if (setq ENT2 (car (entsel "\nSelect second polyline : ")))
-    (if (setq PLIST2 (RFL:GETPLIST ENT2))
-     (setq PLISTM (RFL:MIDPLIST PLIST1 PLIST2))
-    )
-   )
-  )
- )
- (if PLISTM
-  (progn
-   (setq ENTLIST1 (entget ENT1)
-         ENTLIST2 (entget ENT2)
-   )
-   (if (or (= (float (/ (cdr (assoc 70 ENTLIST1)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST1)) 16.0))
-           (= (float (/ (cdr (assoc 70 ENTLIST2)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST2)) 16.0))
-       )
-    (command "._PLINE")
-    (command "._3DPOLY")
-   )
-   (foreach P PLISTM (command P))
-   (command "")
-  )
- )
- (setvar "CMDECHO" CMDECHO)
- (setvar "ORTHOMODE" ORTHOMODE)
- (setvar "OSMODE" OSMODE)
- T
-);
-;
-;     Program written by Robert Livingston, 2017-04-11
-;
-;     C:ESTRADIUS estimates the segmented alignments radius at a given point
-;
-;
-(defun C:ESTRADIUS (/ CMDECHO R RFL:ESTRADIUSDIST RFL:ESTRADIUSNUMPOINTS STA TMP)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- 
- (setq R nil)
- 
- (if (setq TMP (getdist "\nMaximum distance from point for estimation <30.0> : "))
-  (setq RFL:ESTRADIUSDIST TMP)
-  (setq RFL:ESTRADIUSDIST 30.0)
- )
- (if (or (= nil (setq TMP (getint "\nMaximum number of points for estimation <10> : ")))
-         (> TMP 2)
-     )
-  (setq RFL:ESTRADIUSNUMPOINTS TMP)
-  (setq RFL:ESTRADIUSNUMPOINTS 10)
- )
- (while (setq STA (car (RFL:STAOFF (getpoint "\nSelect point : "))))
-  (if (setq R (RFL:ESTRADIUS STA))
-   (if (< R 0.0)
-    (princ (strcat "\nRadius = " (rtos (abs R)) " Right\n"))
-    (princ (strcat "\nRadius = " (rtos (abs R)) " Left\n"))
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
- R
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
-;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
-;
-;
-(defun C:FITSPIRAL (/ CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 GETLS LS1 LS2 R)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun GETLS (R MSG / LS AL)
-  (setq LS nil)
-  (setq AL "L")
-  (if (= R 0.0)
-   (progn
-    (princ "\n*** Zero length arc selected - only spiral length valid!")
-    (setq LS (getreal (strcat MSG " length :")))
-   )
-   (progn
-    (while (= LS nil)
-     (if (= AL "L")
-      (progn
-       (setq LS (getreal (strcat MSG " length <return for A>:")))
-       (if (= LS nil)
-        (progn
-         (setq AL "A")
-        )
-       )
-      )
-      (progn
-       (setq LS (getreal (strcat MSG " A <return for length>:")))
-       (if (= LS nil)
-        (progn
-         (setq AL "L")
-        )
-        (progn
-         (setq LS (/ (* LS LS) R))
-        )
-       )
-      )
-     )
-    )
-   )
-  )
-  (eval LS)
- )
- 
- (if (/= (setq ENT1 (car (entsel "\nSelect first entity : "))) nil)
-  (if (/= (setq ENT2 (car (entsel "\nSelect second entity : "))) nil)
-   (progn
-    (setq ENTLIST1 (entget ENT1))
-    (setq ENTLIST2 (entget ENT2))
-    (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
-     (progn
-      (if (/= (setq R (getreal "\nEnter radius (0 for Spiral/Spiral) : ")) nil)
-       (if (/= (setq LS1 (GETLS R "\nSpiral IN")) nil)
-        (if (/= (setq LS2 (GETLS R "\nSpiral OUT")) nil)
-         (RFL:FITSPIRALLL ENT1 ENT2 LS1 R LS2)
-        )
-       )
-      )
-     )
-     (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
-      (progn
-       (RFL:FITSPIRALLA ENT1 ENT2)
-      )
-      (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
-       (progn
-        (RFL:FITSPIRALLA ENT2 ENT1)
-       )
-       (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
-        (progn
-;         (RFL:FITSPIRALAA ENT1 ENT2)
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 2015-03-13
-;
-;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
-;
-;
-(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE)
- (setq ATTREQ (getvar "ATTREQ"))
- (setvar "ATTREQ" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
-
- (defun *error* (msg)
-  (setvar "ATTREQ" ATTREQ)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (print msg)
- )
-
- (while (/= nil (setq ENT (car (entsel))))
-  (RFL:FIX+ ENT)
- )
- 
- (setvar "ATTREQ" ATTREQ)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
-)
-;
-;
-;   Program written by Robert Livingston, 98/06/11
-;
-;   GALIGN extracts a horizontal alignment from the current drawing
-;
-;
-(defun C:GALIGN (/ ALIGNENT ALIGNENTLIST ANGBASE ANGDIR CMDECHO PSTART STASTART)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (command "._UNDO" "M")
- (command "._UCS" "W")
-
- (if (/= RFL:ALIGNDEF nil)
-  (progn
-   (setq RFL:ALIGNLIST nil)
-   (setq PSTART (getpoint "\nStart point:"))
-   (if (/= PSTART nil)
-    (progn
-     (setq STASTART (getreal "\nStart chainage:"))
-     (if (/= STASTART nil)
-      (progn
-       (princ "\nSelect R14 polyline (<return> to select SoftDesk entities):")
-       (setq ALIGNENT (car (entsel)))
-       (if (= ALIGNENT nil)
-        (progn
-         (setq ALIGNENT (ssget))
-         (setq RFL:ALIGNLIST (RFL:ALIGNDEF (list ALIGNENT) PSTART STASTART))
-        )
-        (progn
-         (setq ALIGNENTLIST (entget ALIGNENT))
-         (if (= (cdr (assoc 0 ALIGNENTLIST)) "POLYLINE")
-          (progn
-           (command "._CONVERT" "P" "S" ALIGNENT "")
-           (setq ALIGNENTLIST (entget ALIGNENT))
-          )
-         )
-         (if (= (cdr (assoc 0 ALIGNENTLIST)) "LWPOLYLINE")
-          (progn
-           (setq RFL:ALIGNLIST (RFL:ALIGNDEF ALIGNENT PSTART STASTART))
-          )
-          (princ "\n**** NOT A POLYLINE ****")
-         )
-        )
-       )
-      )
-     )
-    )
-   )
-  )
-  (progn
-   (princ "\n!!!!! ALIGNMENT UTILITIES NOT LOADED !!!!!\n")
-  )
- )
-
- (command "._UCS" "P")
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-);
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:GPROF extracts a vertical alignment from the current drawing
-;
-;
-(defun C:GPROF (/ ANGBASE ANGDIR C CMDECHO ENT ENTSET PVIENT PVISET STA ELEV LR VAL)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (RFL:PROFDEF)
-
- (setq RFL:PVILIST nil)
- (if (/= nil RFL:PROFDEFLIST)
-  (progn
-   (princ "Select PVI blocks (or <return> to find all based on profile definition block) : ")
-   (setq ENTSET (ssget))
-   (if (= nil ENTSET)
-    (progn
-     (setq PVISET (ssget "X" (list (cons 0 "INSERT")
-                                   (cons -4 "<OR")
-                                   (cons 2 "RFLPVI")
-                                   (cons 2 "PVI2")
-                                   (cons -4 "OR>")
-                                   (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))))
-    )
-    (progn
-     (setq C 0)
-     (setq PVISET nil)
-     (while (< C (sslength ENTSET))
-      (setq ENT (ssname ENTSET C))
-      (if (and (/= nil (cdr (assoc 2 (entget ENT))))
-               (or (= "RFLPVI" (strcase (cdr (assoc 2 (entget ENT)))))
-                   (= "PVI2" (strcase (cdr (assoc 2 (entget ENT)))))
-               )
-          )
-       (if (= nil PVISET)
-        (setq PVISET (ssadd ENT))
-        (ssadd ENT PVISET)
-       )
-      )
-      (setq C (+ C 1))
-     )
-    )
-   )
-
-   (if (= PVISET nil)
-    (princ "\n*** NO PVI's EXIST ***\n")
-    (if (= (sslength PVISET) 1)
-     (princ "\n*** ONLY ONE PVI EXISTS ***\n")
-     (progn
-      (while (> (sslength PVISET) 0)
-       (setq C 1)
-       (setq PVIENT (ssname PVISET 0))
-       (while (< C (sslength PVISET))
-        (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil))
-         (if (< (nth 0 (cdr (assoc 10 (entget PVIENT))))
-                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
-          (setq PVIENT (ssname PVISET C))
-         )
-         (if (> (nth 0 (cdr (assoc 10 (entget PVIENT))))
-                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
-          (setq PVIENT (ssname PVISET C))
-         )
-        )
-        (setq C (+ C 1))
-       )
-       (setq PVISET (ssdel PVIENT PVISET))
-       (setq STA (+ (* (- (nth 0 (cdr (assoc 10 (entget PVIENT))))
-                          (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                       (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
-                    )
-                    (cdr (assoc "STA" RFL:PROFDEFLIST))
-                 )
-       )
-       (setq ELEV (+ (/ (- (nth 1 (cdr (assoc 10 (entget PVIENT))))
-                           (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                        (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
-                     (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-       (setq PVIENT (entnext PVIENT))
-       (while (/= "SEQEND" (cdr (assoc 0 (entget PVIENT))))
-        (if (= "R" (cdr (assoc 2 (entget PVIENT))))
-         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
-          (progn
-           (setq LR "R")
-           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
-          )
-         )
-        )
-        (if (= "L" (cdr (assoc 2 (entget PVIENT))))
-         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
-          (progn
-           (setq LR "L")
-           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
-          )
-         )
-        )
-        (if (= "LENGTH" (cdr (assoc 2 (entget PVIENT))))
-         (progn
-          (setq LR "L")
-          (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
-         )
-        )
-        (setq PVIENT (entnext PVIENT))
-       )
-       (setq RFL:PVILIST (append (list (list STA ELEV LR VAL)) RFL:PVILIST))
-      )
-     )
-    )
-   )
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:GPROFOG extracts an OG vertical alignment from the current drawing
-;
-;
-(defun C:GPROFOG (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P TOL)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (setq TOL 0.0001)
- (setq NODEPREV nil)
- 
- (RFL:PROFDEF)
-
- (setq RFL:OGLIST nil)
- (if (/= nil RFL:PROFDEFLIST)
-  (progn
-   (princ "\nSelect OG polyline:")
-   (setq ENT (car (entsel)))
-   (if (= ENT nil)
-    (setq ENTLIST nil)
-    (setq ENTLIST (entget ENT))
-   )
-   (if (= nil ENT)
-    (princ "\n*** NO ENTITY SELECTED ***\n")
-    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
-     (princ "\n*** NOT A R14 POLYLINE ***\n")
-     (progn
-      (while (/= ENTLIST nil)
-       (setq NODE (car ENTLIST))
-       (setq ENTLIST (cdr ENTLIST))
-       (if (= (car NODE) 10)
-        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
-         (progn
-          (setq STA (+ (* (- (nth 0 (cdr NODE))
-                             (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                          (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
-                       )
-                       (cdr (assoc "STA" RFL:PROFDEFLIST))
-                    )
-          )
-          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
-                              (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                           (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
-                        (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-          (setq RFL:OGLIST (append (list (list STA ELEV)) RFL:OGLIST))
-          (setq NODEPREV NODE)
-         )
-        )
-       )
-      )
-      (if (> (nth 0 (car RFL:OGLIST)) (nth 0 (last RFL:OGLIST)))
-       (setq RFL:OGLIST (reverse RFL:OGLIST))
-      )
-     )
-    )
-   )
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:GPROFP extracts an vertical alignment from a selected polyline
-;
-;
-(defun C:GPROFP (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P PLIST TOL)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (setq TOL 0.0001)
- (setq NODEPREV nil)
- 
- (RFL:PROFDEF)
-
- (setq PLIST nil)
- (if (/= nil RFL:PROFDEFLIST)
-  (progn
-   (princ "\nSelect polyline:")
-   (setq ENT (car (entsel)))
-   (if (= ENT nil)
-    (setq ENTLIST nil)
-    (setq ENTLIST (entget ENT))
-   )
-   (if (= nil ENT)
-    (princ "\n*** NO ENTITY SELECTED ***\n")
-    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
-     (princ "\n*** NOT A R14 POLYLINE ***\n")
-     (progn
-      (while (/= ENTLIST nil)
-       (setq NODE (car ENTLIST))
-       (setq ENTLIST (cdr ENTLIST))
-       (if (= (car NODE) 10)
-        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
-         (progn
-          (setq STA (+ (* (- (nth 0 (cdr NODE))
-                             (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                          (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
-                       )
-                       (cdr (assoc "STA" RFL:PROFDEFLIST))
-                    )
-          )
-          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
-                              (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
-                           (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
-                        (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-          (setq PLIST (append (list (list STA ELEV)) PLIST))
-          (setq NODEPREV NODE)
-         )
-        )
-       )
-      )
-      (if (> (nth 0 (car PLIST)) (nth 0 (last PLIST)))
-       (setq PLIST (reverse PLIST))
-      )
-     )
-    )
-   )
-  )
- )
- (if (/= nil PLIST)
-  (progn
-   (setq RFL:PVILIST nil)
-   (foreach NODE PLIST
-    (progn
-     (setq RFL:PVILIST (append RFL:PVILIST (list (list (car NODE) (cadr NODE) "L" 0.0))))
-    )
-   )
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-);
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   C:GSUPER extracts superelevation from the current drawing for the current alignment
-;
-;
-(defun C:GSUPER (/ ENTSET)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (if (/= RFL:ALIGNLIST nil)
-  (progn
-   (if (/= RFL:SUPERDEF nil)
-    (progn
-     (princ "\nSelect SUPER blocks :")
-     (setq ENTSET (ssget))
-     (if (/= ENTSET nil)
-      (progn
-       (RFL:SUPERDEF ENTSET)
-      )
-     )
-    )
-    (progn
-     (princ "\n!!!!! Superelevation tools not loaded !!!!!\n")
-    )
-   )
-  )
-  (progn
-   (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
-  )
- )
- (setvar "CMDECHO" CMDECHO)
- nil
-)
-;
-;
-;     Program written by Robert Livingston 2017-05-22
-;
-;     C:HOR2TABLE is a wrapper for alignment table creation
-;
-;          RFL:HOR2TABLE  - Alberta Infrastructure
-;          RFL:HOR2TABLE2 - BC Ministry
-;
-;
-(defun C:HOR2TABLE (/ *error* CMDECHO REP)
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (print msg)
-  ;(setq *error* nil)
- )
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- 
- (initget "Ai Bc")
- (setq REP (getkword "\nAlberta Infrastructure / BC Ministry (AI/<BC>) : "))
- (if (= nil REP) (setq REP "BC"))
- (setq REP (strcase REP))
- (cond ((= REP "AI")
-        (RFL:HOR2TABLE)
-       )
-       ((= REP "BC")
-        (RFL:HOR2TABLE2)
-       )
- )
- 
- (setvar "CMDECHO" CMDECHO)
- T
-);
-;
-;     Program written by Robert Livingston, 2016/07/07
-;
-;     C:LALIGN is a utility for labelling alignments
-;
-;
-;     NODEMODE = 0  :  LEFT
-;     NODEMODE = 1  :  RIGHT
-;     NODEMODE = 2  :  INSIDE
-;     NODEMODE = 3  :  OUTSIDE
-;
-;     xxxLAYER  :  '*' concatinates current layer
-;
-(setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")
-                           (cons "LABEL" 1)
-                           (cons "LABELLAYER" "*-LBL")
-                           (cons "LABELINC" 100.0)
-                           (cons "LABELSCALE" 1.0)
-                           (cons "LABELOFFSET" 4.0)
-                           (cons "LABELROTATE" 0.0)
-                           (cons "TICKBLOCK" "STATICK")
-                           (cons "TICK" 1)
-                           (cons "TICKLAYER" "*-LBL")
-                           (cons "TICKINC" 20.0)
-                           (cons "TICKSCALE" 1.0)
-                           (cons "TICKOFFSET" 0.0)
-                           (cons "TICKROTATE" 0.0)
-                           (cons "NODELEFTBLOCK" "STANODELEFT")
-                           (cons "NODERIGHTBLOCK" "STANODERIGHT")
-                           (cons "NODE" 1)
-                           (cons "NODELAYER" "*-LBL")
-                           (cons "NODEMODE" 3)
-                           (cons "NODESCALE" 1.0)
-                           (cons "NODEOFFSET" 0.0)
-                           (cons "NODEROTATE" 0.0)
-                     )
-)
-(defun C:LALIGN (/ ACTIVEDOC ACTIVESPC ENT ENTLIST LLABEL LTICK LNODE P P1 PREVENT)
- (command "._UNDO" "M")
- (vl-load-com)
- (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
- (setq ACTIVESPC
-       (vlax-get-property ACTIVEDOC
-        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
-         'modelspace
-         'paperspace
-        )
-       )
- )
- (defun LLABEL (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAH STAL STAMAX)
-  (setq ANGBASE (getvar "ANGBASE"))
-  (setvar "ANGBASE" 0.0)
-  (setq ANGDIR (getvar "ANGDIR"))
-  (setvar "ANGDIR" 0)
-  (setq CLAYER (getvar "CLAYER"))
-  (setq NLAYER (cdr (assoc "LABELLAYER" RFL:LALIGNLIST)))
-  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
-  (if (not (tblsearch "LAYER" NLAYER))
-   (entmake (list (cons 0 "LAYER")
-                  (cons 100 "AcDbSymbolTableRecord")
-                  (cons 100 "AcDbLayerTableRecord")
-                  (cons 2 NLAYER)
-                  (cons 70 0)
-            )
-   )
-  )
-  (setvar "CLAYER" NLAYER)
-  (if (not (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))))
-   (RFL:MAKEENT (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
-  )
-  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
-   (progn
-    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
-                                (cdr (assoc "LABELINC" RFL:LALIGNLIST))
-                             )
-                        )
-                        (cdr (assoc "LABELINC" RFL:LALIGNLIST))
-                     )
-              )
-    )
-    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
-    (setq INC (cdr (assoc "LABELINC" RFL:LALIGNLIST)))
-    (while (<= STA STAEND)
-     (if (setq P (RFL:XY (list STA (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)))))
-      (progn
-       (setq P1 (RFL:XY (list STA (- (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)) 1))))
-       (vla-insertblock ACTIVESPC
-                        (vlax-3D-point P)
-                        (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))
-                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
-                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
-                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
-                        (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "LABELROTATE" RFL:LALIGNLIST))))
-       )
-       (setq ENT (entlast))
-       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-       (if (= 1 (cdr (assoc 66 (setq ENTLIST (entget ENT)))))
-        (progn
-         (setq STAH (RFL:STATXT STA))
-         (setq STAL (substr STAH (+ 2 (vl-string-search "+" STAH))))
-         (setq STAH (substr STAH 1 (vl-string-search "+" STAH)))
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
-          (cond ((= "STAH" (cdr (assoc 2 ENTLIST)))
-                 (entmod (subst (cons 1 STAH) (assoc 1 ENTLIST) ENTLIST))
-                )
-                ((= "STAL" (cdr (assoc 2 ENTLIST)))
-                 (entmod (subst (cons 1 STAL) (assoc 1 ENTLIST) ENTLIST))
-                )
-           )
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (setq STA (+ STA INC))
-    )
-   )
-   (princ "\n!!! Unable to locate or create Lable Block !!!")
-  )
-  (setvar "CLAYER" CLAYER)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  1
- )
- (defun LTICK (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAMAX)
-  (setq ANGBASE (getvar "ANGBASE"))
-  (setvar "ANGBASE" 0.0)
-  (setq ANGDIR (getvar "ANGDIR"))
-  (setvar "ANGDIR" 0)
-  (setq CLAYER (getvar "CLAYER"))
-  (setq NLAYER (cdr (assoc "TICKLAYER" RFL:LALIGNLIST)))
-  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
-  (if (not (tblsearch "LAYER" NLAYER))
-   (entmake (list (cons 0 "LAYER")
-                  (cons 100 "AcDbSymbolTableRecord")
-                  (cons 100 "AcDbLayerTableRecord")
-                  (cons 2 NLAYER)
-                  (cons 70 0)
-            )
-   )
-  )
-  (setvar "CLAYER" NLAYER)
-  (if (not (tblsearch "BLOCK" (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))))
-   (RFL:MAKEENT (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST)))
-  )
-  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
-   (progn
-    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
-                                (cdr (assoc "TICKINC" RFL:LALIGNLIST))
-                             )
-                        )
-                        (cdr (assoc "TICKINC" RFL:LALIGNLIST))
-                     )
-              )
-    )
-    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
-    (setq INC (cdr (assoc "TICKINC" RFL:LALIGNLIST)))
-    (while (<= STA STAEND)
-     (if (setq P (RFL:XY (list STA (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)))))
-      (progn
-       (setq P1 (RFL:XY (list STA (- (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)) 1))))
-       (vla-insertblock ACTIVESPC
-                        (vlax-3D-point P)
-                        (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))
-                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
-                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
-                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
-                        (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "TICKROTATE" RFL:LALIGNLIST))))
-       )
-       (setq ENT (entlast))
-       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-      )
-     )
-     (setq STA (+ STA INC))
-    )
-   )
-   (princ "\n!!! Unable to locate or create Tick Block !!!")
-  )
-  (setvar "CLAYER" CLAYER)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  1
- )
- (defun LNODE (/ ANGBASE ANGDIR CLAYER NODEDIR NODELABEL NODETYPE NLAYER NODE NODEBLOCK NODEPREV P STA STAH STAMAX)
-  (defun NODETYPE (NODE / TOL)
-   ; 0 = Tangent
-   ; 1 = Arc
-   ; 2 = Spiral
-   (setq TOL 0.00000001)
-   (if NODE
-    (if (listp (last NODE))
-     2
-     (if (< (abs (last NODE)) TOL)
-      0
-      1
-     )
-    )
-    nil
-   )
-  )
-  (defun NODEDIR (NODE / DIR TOL)
-   ; 0 = Tangent
-   ; -1 = Right
-   ; 1 = Left
-   (setq TOL 0.00000001)
-   (if NODE
-    (if (listp (last NODE))
-     (progn
-      (setq DIR (RFL:SIGN (sin (- (angle (nth 1 (last NODE))  (nth 2 (last NODE)))
-                                  (angle (nth 0 (last NODE))  (nth 1 (last NODE)))
-                               )
-                          )
-                )
-      )
-      (if (> (distance (nth 2 NODE) (nth 2 (last NODE))) TOL)
-       (setq DIR (* -1 DIR))
-      )
-      (fix DIR)
-     )
-     (if (< (abs (last NODE)) TOL)
-      0
-      (if (< (last NODE) 0.0)
-       -1
-       1
-      )
-     )
-    )
-    nil
-   )
-  )
-  (defun NODELABEL (NODE NODEPREV)
-   (cond ((and (= (NODETYPE NODE) 0)
-               (= (NODETYPE NODEPREV) nil)
-          )
-          "POT "
-         )
-         ((and (= (NODETYPE NODE) 0)
-               (= (NODETYPE NODEPREV) 0)
-          )
-          "PI "
-         )
-         ((and (= (NODETYPE NODE) 0)
-               (= (NODETYPE NODEPREV) 1)
-          )
-          "EC "
-         )
-         ((and (= (NODETYPE NODE) 0)
-               (= (NODETYPE NODEPREV) 2)
-          )
-          "ST "
-         )
-         ((and (= (NODETYPE NODE) 1)
-               (= (NODETYPE NODEPREV) nil)
-          )
-          "POC "
-         )
-         ((and (= (NODETYPE NODE) 1)
-               (= (NODETYPE NODEPREV) 0)
-          )
-          "BC "
-         )
-         ((and (= (NODETYPE NODE) 1)
-               (= (NODETYPE NODEPREV) 1)
-          )
-          (if (= (NODEDIR NODE) (NODEDIR NODEPREV))
-           "PCC "
-           "EC/BC "
-          )
-         )
-         ((and (= (NODETYPE NODE) 1)
-               (= (NODETYPE NODEPREV) 2)
-          )
-          "SC "
-         )
-         ((and (= (NODETYPE NODE) 2)
-               (= (NODETYPE NODEPREV) nil)
-          )
-          "POS "
-         )
-         ((and (= (NODETYPE NODE) 2)
-               (= (NODETYPE NODEPREV) 0)
-          )
-          "TS "
-         )
-         ((and (= (NODETYPE NODE) 2)
-               (= (NODETYPE NODEPREV) 1)
-          )
-          "CS "
-         )
-         ((and (= (NODETYPE NODE) 2)
-               (= (NODETYPE NODEPREV) 2)
-          )
-          "S/S "
-         )
-         (T
-          ""
-         )
-   )
-  )
-  (defun NODEINSERT (STA NODESTR)
-   (cond ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 0)
-          (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-         )
-         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 1)
-          (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-         )
-         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 2)
-          (cond ((= (NODEDIR NODE) nil)
-                 (cond ((= (NODEDIR NODEPREV) nil)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) -1)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 0)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 1)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       (T
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                 )
-                )
-                ((= (NODEDIR NODE) -1)
-                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                )
-                ((= (NODEDIR NODE) 0)
-                 (cond ((= (NODEDIR NODEPREV) nil)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) -1)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 0)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 1)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       (T
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                 )
-                )
-                ((= (NODEDIR NODE) 1)
-                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                )
-                (T
-                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                )
-          )
-         )
-         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 3)
-          (cond ((= (NODEDIR NODE) nil)
-                 (cond ((= (NODEDIR NODEPREV) nil)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) -1)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 0)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 1)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       (T
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                 )
-                )
-                ((= (NODEDIR NODE) -1)
-                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                )
-                ((= (NODEDIR NODE) 0)
-                 (cond ((= (NODEDIR NODEPREV) nil)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) -1)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 0)
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       ((= (NODEDIR NODEPREV) 1)
-                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                       )
-                       (T
-                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                       )
-                 )
-                )
-                ((= (NODEDIR NODE) 1)
-                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-                )
-                (T
-                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-                )
-          )
-         )
-         (T
-          (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-         )
-   )
-   (if (setq P (RFL:XY (list STA (cdr (assoc "NODEOFFSET" RFL:LALIGNLIST)))))
-    (progn
-     (setq P1 (RFL:XY (list STA (- (cdr (assoc "NODEOFFSET" RFL:LALIGNLIST)) 1))))
-     (vla-insertblock ACTIVESPC
-                      (vlax-3D-point P)
-                      NODEBLOCK
-                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
-                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
-                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
-                      (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "NODEROTATE" RFL:LALIGNLIST))))
-     )
-     (setq ENT (entlast))
-     (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-     (if (= 1 (cdr (assoc 66 (setq ENTLIST (entget ENT)))))
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
-        (cond ((= "NODE" (cdr (assoc 2 ENTLIST)))
-               (entmod (subst (cons 1 NODESTR) (assoc 1 ENTLIST) ENTLIST))
-              )
-         )
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-       )
-      )
-     )
-    )
-   )
-  )
-  (setq ANGBASE (getvar "ANGBASE"))
-  (setvar "ANGBASE" 0.0)
-  (setq ANGDIR (getvar "ANGDIR"))
-  (setvar "ANGDIR" 0)
-  (setq CLAYER (getvar "CLAYER"))
-  (setq NLAYER (cdr (assoc "NODELAYER" RFL:LALIGNLIST)))
-  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
-  (if (not (tblsearch "LAYER" NLAYER))
-   (entmake (list (cons 0 "LAYER")
-                  (cons 100 "AcDbSymbolTableRecord")
-                  (cons 100 "AcDbLayerTableRecord")
-                  (cons 2 NLAYER)
-                  (cons 70 0)
-            )
-   )
-  )
-  (setvar "CLAYER" NLAYER)
-  (if (not (tblsearch "BLOCK" (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST))))
-   (RFL:MAKEENT (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-  )
-  (if (not (tblsearch "BLOCK" (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST))))
-   (RFL:MAKEENT (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-  )
-  (if (and (tblsearch "BLOCK" (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
-           (tblsearch "BLOCK" (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
-      )
-   (progn
-    (setq NODEPREV nil)
-    (foreach NODE RFL:ALIGNLIST
-     (setq STA (car NODE))
-     (setq STAH (RFL:STATXT STA))
-     (setq STAH (strcat (NODELABEL NODE NODEPREV) STAH))
-     (NODEINSERT STA STAH)
-     (setq NODEPREV NODE)
-    )
-    (setq STA (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
-    (setq STAH (RFL:STATXT STA))
-    (setq STAH (strcat (NODELABEL (last RFL:ALIGNLIST) nil) STAH))
-    (NODEINSERT STA STAH)
-   )
-   (princ "\n!!! Unable to locate or create Lable Block !!!")
-  )
-  (setvar "CLAYER" CLAYER)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  1
- )
- (if RFL:ALIGNLIST
-  (progn
-   (setq PREVENT nil)
-   (if (= 1 (cdr (assoc "LABEL" RFL:LALIGNLIST))) (LLABEL))
-   (if (= 1 (cdr (assoc "TICK" RFL:LALIGNLIST))) (LTICK))
-   (if (= 1 (cdr (assoc "NODE" RFL:LALIGNLIST))) (LNODE))
-   T
-  )
-  (progn
-   (princ "\n!!! No alignment defined !!!")
-   nil
-  )
- )
-)
-;
-;
-;     Program written by Robert Livingston, 2016/07/11
-;
-;     C:LPROF is a utility for labelling profiles
-;
-;     xxxLAYER  :  '*' concatinates current layer
-;
-(setq RFL:LPROFLIST (list (cons "PROFDRAW" 0)           ;  Draw profile
-                          (cons "PROFLAYER" "*")        ;  Profile Layer
-                          (cons "TEXTLAYER" "*-LBL")    ;  Text Layer
-                          (cons "TEXTHEIGHT" 3.5)       ;  Text Height
-                          (cons "UNITS" "m")            ;  Linear Units
-                          (cons "LSLOPE" 1)             ;  Label Slope
-                          (cons "LL" 1)                 ;  Label 'L'
-                          (cons "LK" 1)                 ;  Label 'K'
-                          (cons "CNODES" 1)             ;  Circle Nodes
-                          (cons "CNODERAD" 1.0)         ;  Node Circle Radius
-                          (cons "CNODELENGTH" 10.0)     ;  Node Line Length
-                          (cons "CNODEVOFFSET" 1.0)     ;  Node Text Vertical Offset
-                          (cons "CNODEHOFFSET" 0.875)   ;  Node Text Horisontal Offset
-                          (cons "DPVI" 1)               ;  Draw PVI
-                          (cons "LPVI" 1)               ;  Label PVI
-                          (cons "LBVC" 1)               ;  Label BVC and EVC
-                          (cons "LHIGH" 0)              ;  Label 'high' Chainage (if not stations are labelled as '+234.567'
-                          (cons "LELEVATIONSC" 1)       ;  Label Elevations Curves
-                          (cons "LELEVATIONST" 1)       ;  Label Elevations Tangents
-                          (cons "ELEVTEXTHEIGHT" 2.5)   ;  Elevation Text Height
-                          (cons "ELEVTEXTINC" 20.0)     ;  Elevation Text Increment
-                          (cons "ELEVTEXTOS" -20.0)     ;  Elevation Text Offset (from grid basepoint)
-                          (cons "RAB" 0)                ;  Reverse Above/Below flag (1 = labels above with K/L below)
-                          (cons "DIRECTION" "DIRRIGHT") ;  Label Direction (DIRRIGHT / DIRLEFT / DIRUP / DIRDOWN)
-                          (cons "KPREC" 1)              ;  'K' Precision
-                          (cons "LPREC" 0)              ;  'L' Precision
-                          (cons "SLOPEPREC" 3)          ;  Slope Precision
-                          (cons "STAPREC" 3)            ;  Station Precision
-                          (cons "ELEVPREC" 3)           ;  Elevation Precision
-                    )
-)
-(defun C:LPROF (/ ACTIVEDOC ACTIVESPC ADDTEXT ANG ANGBASE ANGDIR C CLAYER CMDECHO DIMZIN DIRECTIONT DIRECTIONS ENT
-                  G1 G2 K L1 L2 L3 LUPREC MLMR MLMRT MLMRB NLAYER OSMODE P P1 P2 PLINETYPE PREVENT
-                  REGENMODE REP SIDE STA STA1 STA2 STA3 STAH STAL STAHTXT SPLINETYPE
-                  SPLINESEGS TEXTSTYLE TOL Z1 Z2 Z3 ZMAX ZMIN)
- (setq REGENMODE (getvar "REGENMODE"))
- (setvar "REGENMODE" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq DIMZIN (getvar "DIMZIN"))
- (setq LUPREC (getvar "LUPREC"))
- (setvar "DIMZIN" 0)
- (setq CLAYER (getvar "CLAYER"))
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq SPLINETYPE (getvar "SPLINETYPE"))
- (setvar "SPLINETYPE" 5)
- (setq SPLINESEGS (getvar "SPLINESEGS"))
- (setvar "SPLINESEGS" 65)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 0)
- (setq TEXTSTYLE (getvar "TEXTSTYLE"))
-
- (setq TOL 0.000001)
- 
- (setq PREVENT nil)
- 
- (command "._UNDO" "M")
-
- (vl-load-com)
- (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
- (setq ACTIVESPC
-       (vlax-get-property ACTIVEDOC
-        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
-         'modelspace
-         'paperspace
-        )
-       )
- )
-
- (defun ADDTEXT (STR P H AL A / ANGBASE ANGDIR OBJ P1)
-  (setq ANGBASE (getvar "ANGBASE"))
-  (setvar "ANGBASE" 0.0)
-  (setq ANGDIR (getvar "ANGDIR"))
-  (setvar "ANGDIR" 0)
-  ; acAlignmentLeft          :   0
-  ; acAlignmentCenter        :   1
-  ; acAlignmentRight         :   2
-  ; acAlignmentMiddle        :   4
-  ; acAlignmentTopLeft       :   6
-  ; acAlignmentTopCenter     :   7
-  ; acAlignmentTopRight      :   8
-  ; acAlignmentMiddleLeft    :   9
-  ; acAlignmentMiddleCenter  :  10
-  ; acAlignmentMiddleRight   :  11
-  ; acAlignmentBottomLeft    :  12
-  ; acAlignmentBottomCenter  :  13
-  ; acAlignmentBottomRight   :  14
-  (vla-addtext ACTIVESPC
-               STR
-               (vlax-3d-point P)
-               H
-  )
-  (setq ENT (entlast))
-  (setq OBJ (vlax-ename->vla-object ENT))
-  (setq ENTLIST (entget ENT))
-  (setq P1 (vlax-get-property OBJ 'InsertionPoint))
-  (cond ((= AL "L")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentLeft)
-         )
-        )
-        ((= AL "C")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentCenter)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "R")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentRight)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "M")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentMiddle)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "TL")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentTopLeft)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "TC")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentTopCenter)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "TR")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentTopRight)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "ML")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentMiddleLeft)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "MC")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentMiddleCenter)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "MR")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentMiddleRight)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "BL")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentBottomLeft)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "BC")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentBottomCenter)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-        ((= AL "BR")
-         (progn
-          (vlax-put-property OBJ 'Alignment acAlignmentBottomRight)
-          (vlax-put-property OBJ 'TextAlignmentPoint P1)
-         )
-        )
-  )
-  (vlax-put-property OBJ 'Rotation A)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
- )
- 
- (if RFL:PVILIST
-  (progn
-   (RFL:PROFDEF)
-   (if RFL:PROFDEFLIST
-    (progn
-     (if (= (cdr (assoc "PROFDRAW" RFL:LPROFLIST)) 1)
-      (progn
-       (setq NLAYER (cdr (assoc "PROFLAYER" RFL:LPROFLIST)))
-       (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
-       (if (not (tblsearch "LAYER" NLAYER))
-        (entmake (list (cons 0 "LAYER")
-                       (cons 100 "AcDbSymbolTableRecord")
-                       (cons 100 "AcDbLayerTableRecord")
-                       (cons 2 NLAYER)
-                       (cons 70 0)
-                 )
-        )
-       )
-       (setvar "CLAYER" NLAYER)
-       (command "._PLINE")
-       (foreach TMP RFL:PVILIST
-        (progn
-         (if (< (cadddr TMP) TOL)
-          (command (RFL:PROFPOINT (car TMP) (cadr TMP)))
-          (progn
-           (setq C 0)
-           (while (<= C 64)
-            (command (RFL:PROFPOINT (+ (- (car TMP) (/ (cadddr TMP) 2.0)) (* (/ (cadddr TMP) 64) C))
-                                    (RFL:ELEVATION (+ (- (car TMP) (/ (cadddr TMP) 2.0)) (* (/ (cadddr TMP) 64) C)))
-                     )
-            )
-            (setq C (+ C 1))
-           )
-          )
-         )
-        )
-       )
-       (command "")
-       (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-      )
-     )
-     (if (or (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "LL" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "LK" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "LPVI" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
-             (= (cdr (assoc "LELEVATIONS" RFL:LPROFLIST)) 1)
-         )
-      (progn
-       (if (or (= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) 1)
-               (= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) nil)
-           )
-        (cond ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRLEFT")
-               (setq DIRECTIONT 1 DIRECTIONS 1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRRIGHT")
-               (setq DIRECTIONT -1 DIRECTIONS 1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRUP")
-               (setq DIRECTIONT 1 DIRECTIONS 1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRDOWN")
-               (setq DIRECTIONT -1 DIRECTIONS 1)
-              )
-        )
-        (cond ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRLEFT")
-               (setq DIRECTIONT 1 DIRECTIONS -1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRRIGHT")
-               (setq DIRECTIONT -1 DIRECTIONS -1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRUP")
-               (setq DIRECTIONT -1 DIRECTIONS -1)
-              )
-              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRDOWN")
-               (setq DIRECTIONT 1 DIRECTIONS -1)
-              )
-        )
-       )
-       (if (= DIRECTIONT 1)
-        (progn
-         (if (= (cdr (assoc "RAB" RFL:LPROFLIST)) 0)
-          (progn
-           (setq MLMR "MR")
-           (setq MLMRT "R")
-           (setq MLMRB "TR")
-           (setq SIDE 1)
-          )
-          (progn
-           (setq MLMR "ML")
-           (setq MLMRT "L")
-           (setq MLMRB "TL")
-           (setq SIDE -1)
-          )
-         )
-        )
-        (progn
-         (if (= (cdr (assoc "RAB" RFL:LPROFLIST)) 0)
-          (progn
-           (setq MLMR "ML")
-           (setq MLMRT "L")
-           (setq MLMRB "TL")
-           (setq SIDE 1)
-          )
-          (progn
-           (setq MLMR "MR")
-           (setq MLMRT "R")
-           (setq MLMRB "TR")
-           (setq SIDE -1)
-          )
-         )
-        )
-       )
-       (setq ZMAX (nth 1 (nth 0 RFL:PVILIST)))
-       (setq ZMIN (nth 1 (nth 0 RFL:PVILIST)))
-       (setq C 1)
-       (while (< C (length RFL:PVILIST))
-        (if (> (nth 1 (nth C RFL:PVILIST)) ZMAX)
-         (setq ZMAX (nth 1 (nth C RFL:PVILIST)))
-        )
-        (if (< (nth 1 (nth C RFL:PVILIST)) ZMIN)
-         (setq ZMIN (nth 1 (nth C RFL:PVILIST)))
-        )
-        (setq C (+ C 1))
-       )
-       (setq C 1)
-       (setq NLAYER (cdr (assoc "TEXTLAYER" RFL:LPROFLIST)))
-       (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
-       (if (not (tblsearch "LAYER" NLAYER))
-        (entmake (list (cons 0 "LAYER")
-                       (cons 100 "AcDbSymbolTableRecord")
-                       (cons 100 "AcDbLayerTableRecord")
-                       (cons 2 NLAYER)
-                       (cons 70 0)
-                 )
-        )
-       )
-       (setvar "CLAYER" NLAYER)
-       (setq STA1 (nth 0 (nth 0 RFL:PVILIST)))
-       (setq Z1 (nth 1 (nth 0 RFL:PVILIST)))
-       (setq L1 (nth 3 (nth 0 RFL:PVILIST)))
-       (setq P (RFL:PROFPOINT STA1 Z1))
-       (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
-        (progn
-         (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         (command "._LINE"
-                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
-                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
-                  ""
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-        )
-       )
-       (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
-        (progn
-         (setq TMP (RFL:STATXT STA1))
-         (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
-          (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
-         )
-         (ADDTEXT (strcat "STA " TMP)
-                  (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                  )
-                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                  MLMRT
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         (setq TMP (RFL:ROUND Z1 (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-         (ADDTEXT (strcat "PIVC  "
-                          (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                          " "
-                          (cdr (assoc "UNITS" RFL:LPROFLIST))
-                  )
-                  (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                  )
-                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                  MLMRB
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-        )
-       )
-       (while (< (+ C 1) (length RFL:PVILIST))
-        (setq STA1 (nth 0 (nth (- C 1) RFL:PVILIST)))
-        (setq Z1 (nth 1 (nth (- C 1) RFL:PVILIST)))
-        (setq L1 (nth 3 (nth (- C 1) RFL:PVILIST)))
-        (setq STA2 (nth 0 (nth C RFL:PVILIST)))
-        (setq Z2 (nth 1 (nth C RFL:PVILIST)))
-        (setq L2 (nth 3 (nth C RFL:PVILIST)))
-        (setq STA3 (nth 0 (nth (+ C 1) RFL:PVILIST)))
-        (setq Z3 (nth 1 (nth (+ C 1) RFL:PVILIST)))
-        (setq L3 (nth 3 (nth (+ C 1) RFL:PVILIST)))
-        (setq G1 (* (/ (- Z2 Z1) (- STA2 STA1)) 100.0))
-        (setq G2 (* (/ (- Z3 Z2) (- STA3 STA2)) 100.0))
-        (setq STA (/ (+ (+ STA1
-                           (/ L1 2.0)
-                        )
-                        (- STA2
-                           (/ L2 2.0)
-                        )
-                     )
-                     2.0
-                  )
-        )
-        (if (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) 1)
-         (progn
-          (ADDTEXT (strcat (if (> G1 0.0) "+" "") (rtos G1 2 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))) "%")
-                   (list (+ (car (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
-                            (* 1.75
-                               SIDE
-                               (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
-                               (sin (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
-                            )
-                         )
-                         (+ (cadr (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
-                            (* -1.75
-                               SIDE
-                               (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
-                               (cos (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
-                            )
-                         )
-                   )
-                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                   (if (= SIDE 1) "C" "TC")
-                   (if (= DIRECTIONS 1)
-                    (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1))
-                    (angle (RFL:PROFPOINT STA1 Z1) (RFL:PROFPOINT STA2 Z2))
-                   )
-          )
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         )
-        )
-        (setq P (RFL:PROFPOINT STA2 Z2))
-        (if (= (cdr (assoc "LPVI" RFL:LPROFLIST)) 1)
-         (progn
-          (setq TMP (RFL:STATXT STA2))
-          (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
-           (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
-          )
-          (ADDTEXT (strcat "STA  " TMP)
-                   (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                         (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                   )
-                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                   MLMRT
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-          )
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-          (setq TMP (RFL:ROUND Z2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-          (ADDTEXT (strcat "PIVC  "
-                           (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                           " "
-                           (cdr (assoc "UNITS" RFL:LPROFLIST))
-                   )
-                   (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                         (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                   )
-                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                   MLMRB
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-          )
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         )
-        )
-        (if (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
-         (progn
-          (command "._CIRCLE" (RFL:PROFPOINT STA2 Z2) (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-          (command "._LINE"
-                   (list (nth 0 (RFL:PROFPOINT STA2 Z2)) (+ (nth 1 (RFL:PROFPOINT STA2 Z2)) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
-                   (list (nth 0 (RFL:PROFPOINT STA2 Z2)) (+ (nth 1 (RFL:PROFPOINT STA2 Z2)) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
-                   ""
-          )
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         )
-        )
-        (if (> L2 0.0)
-         (progn
-          (setq K (abs (/ L2
-                          (- G2 G1)
-                       )
-                  )
-          )
-          (if (= (cdr (assoc "LL" RFL:LPROFLIST)) 1)
-           (progn
-            (setq TMP (RFL:ROUND L2 (cdr (assoc "LPREC" RFL:LPROFLIST))))
-            (ADDTEXT (strcat (rtos TMP 2 (cdr (assoc "LPREC" RFL:LPROFLIST))) " VC")
-                     (list (nth 0 P) (- (nth 1 P) (* SIDE 50.0)))
-                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                     "TC"
-                    0.0
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (if (= (cdr (assoc "LK" RFL:LPROFLIST)) 1)
-           (progn
-            (setq TMP (RFL:ROUND K (cdr (assoc "KPREC" RFL:LPROFLIST))))
-            (ADDTEXT (strcat "K = " (rtos TMP 2 (cdr (assoc "KPREC" RFL:LPROFLIST))))
-                     (list (nth 0 P) (- (nth 1 P) (* SIDE 50.0) 5.25))
-                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                     "TC"
-                    0.0
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (if (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
-           (progn
-            (setq ANG (angle P (RFL:PROFPOINT STA1 Z1)))
-            (command "._LINE"
-                     (list (+ (nth 0 P)
-                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
-                                 (cos ANG)
-                              )
-                           )
-                           (+ (nth 1 P)
-                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
-                                 (sin ANG)
-                              )
-                           )
-                     )
-                     (list (+ (nth 0 P)
-                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
-                                 (cos ANG)
-                              )
-                           )
-                           (+ (nth 1 P)
-                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
-                                 (sin ANG)
-                              )
-                           )
-                     )
-                     ""
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-            (setq ANG (angle P (RFL:PROFPOINT STA3 Z3)))
-            (command "._LINE"
-                     (list (+ (nth 0 P)
-                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
-                                 (cos ANG)
-                              )
-                           )
-                           (+ (nth 1 P)
-                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
-                                 (sin ANG)
-                              )
-                           )
-                     )
-                     (list (+ (nth 0 P)
-                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
-                                 (cos ANG)
-                              )
-                           )
-                           (+ (nth 1 P)
-                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
-                                 (sin ANG)
-                              )
-                           )
-                     )
-                     ""
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (setq P (RFL:PROFPOINT (- STA2 (/ L2 2.0)) (RFL:ELEVATION (- STA2 (/ L2 2.0)))))
-          (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
-           (progn
-            (setq TMP (RFL:ROUND (RFL:ELEVATION (- STA2 (/ L2 2.0))) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-            (ADDTEXT (strcat "BVC  "
-                             (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                             " "
-                             (cdr (assoc "UNITS" RFL:LPROFLIST))
-                     )
-                     (list (nth 0 P)
-                           (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                     )
-                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                     MLMR
-                     (if (= DIRECTIONT 1)
-                      (/ pi -2.0)
-                      (/ pi 2.0)
-                     )
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
-           (progn
-            (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-            (command "._LINE"
-                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
-                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
-                     ""
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (setq P (RFL:PROFPOINT (+ STA2 (/ L2 2.0)) (RFL:ELEVATION (+ STA2 (/ L2 2.0)))))
-          (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
-           (progn
-            (setq TMP (RFL:ROUND (RFL:ELEVATION (+ STA2 (/ L2 2.0))) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-            (ADDTEXT (strcat "EVC  "
-                             (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                             " "
-                             (cdr (assoc "UNITS" RFL:LPROFLIST))
-                     )
-                     (list (nth 0 P)
-                           (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                     )
-                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                     MLMR
-                     (if (= DIRECTIONT 1)
-                      (/ pi -2.0)
-                      (/ pi 2.0)
-                     )
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
-           (progn
-            (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-            (command "._LINE"
-                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
-                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
-                     ""
-            )
-            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-           )
-          )
-          (if (= (cdr (assoc "LELEVATIONSC" RFL:LPROFLIST)) 1)
-           (progn
-            (setq STA (float (* (+ (fix (/ (- STA2 (/ L2 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
-            (while (< STA (+ STA2 (/ L2 2.0)))
-             (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-             (setq P (list (car P)
-                           (+ (cadr P)
-                              (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
-                           )
-                     )
-             )
-             (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-             (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                      P
-                      (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
-                      MLMR
-                      (if (= DIRECTIONT 1)
-                       (/ pi -2.0)
-                       (/ pi 2.0)
-                      )
-             )
-             (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-             (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
-            )
-           )
-          )
-          (if (= (cdr (assoc "LELEVATIONST" RFL:LPROFLIST)) 1)
-           (progn
-            (setq STA (float (* (+ (fix (/ (+ STA1 (/ L1 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
-            (while (< STA (- STA2 (/ L2 2.0)))
-             (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-             (setq P (list (car P)
-                           (+ (cadr P)
-                              (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
-                           )
-                     )
-             )
-             (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-             (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                      P
-                      (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
-                      MLMR
-                      (if (= DIRECTIONT 1)
-                       (/ pi -2.0)
-                       (/ pi 2.0)
-                      )
-             )
-             (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-             (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
-            )
-           )
-          )
-         )
-        )
-        (setq C (+ C 1))
-       )
-       (setq STA (/ (+ (+ STA2
-                          (/ L2 2.0)
-                       )
-                       (- STA3
-                          (/ L3 2.0)
-                       )
-                    )
-                    2.0
-                 )
-       )
-       (if (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) )
-        (progn
-         (ADDTEXT (strcat (if (> G2 0.0) "+" "") (rtos G2 2 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))) "%")
-                  (list (+ (car (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
-                           (* 1.75
-                              SIDE
-                              (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
-                              (sin (angle (RFL:PROFPOINT STA3 Z3) (RFL:PROFPOINT STA2 Z2)))
-                           )
-                        )
-                        (+ (cadr (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
-                           (* -1.75
-                              SIDE
-                              (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
-                              (cos (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
-                           )
-                        )
-                  )
-                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                  (if (= SIDE 1) "C" "TC")
-                  (if (= DIRECTIONS 1)
-                   (angle (RFL:PROFPOINT STA3 Z3) (RFL:PROFPOINT STA2 Z2))
-                   (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA3 Z3))
-                  )
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-        )
-       )
-       (setq P (RFL:PROFPOINT STA3 Z3))
-       (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
-        (progn
-         (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         (command "._LINE"
-                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
-                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
-                  ""
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-        )
-       )
-       (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
-        (progn
-         (setq TMP (RFL:STATXT STA3))
-         (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
-          (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
-         )
-         (ADDTEXT (strcat "STA  " TMP)
-                  (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                  )
-                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                  MLMRT
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-         (setq TMP (RFL:ROUND Z3 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))))
-         (ADDTEXT (strcat "PIVC  "
-                          (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                          " "
-                          (cdr (assoc "UNITS" RFL:LPROFLIST))
-                  )
-                  (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
-                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
-                  )
-                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
-                  MLMRB
-                  (if (= DIRECTIONT 1)
-                   (/ pi -2.0)
-                   (/ pi 2.0)
-                  )
-         )
-         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-        )
-       )
-       (if (= (cdr (assoc "LELEVATIONSC" RFL:LPROFLIST)) 1)
-        (progn
-         (setq STA (float (* (+ (fix (/ (+ STA2 (/ L2 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
-         (while (< STA (- STA3 (/ L3 2.0)))
-          (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
-          (setq P (list (car P)
-                        (+ (cadr P)
-                           (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
-                        )
-                  )
-          )
-          (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
-          (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
-                   P
-                   (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
-                   MLMR
-                   (if (= DIRECTIONT 1)
-                    (/ pi -2.0)
-                    (/ pi 2.0)
-                   )
-          )
-          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-          (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
-         )
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (setvar "REGENMODE" REGENMODE)
- (setvar "CMDECHO" CMDECHO)
- (setvar "DIMZIN" DIMZIN)
- (setvar "LUPREC" LUPREC)
- (setvar "CLAYER" CLAYER)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
- (setvar "SPLINETYPE" SPLINETYPE)
- (setvar "SPLINESEGS" SPLINESEGS)
- (setvar "PLINETYPE" PLINETYPE)
- (setvar "TEXTSTYLE" TEXTSTYLE)
-);
-;
-;     Program written by Robert Livingston, 2017-02-18
-;
-;     C:MAKESUPER is a utility for generating Superelevations along an alignment.
-;
-;
-(defun C:MAKESUPER (/ C GETSUPER L NODE REP R R1 R2 RUNOUT S S1 S2 STA TABLE VDES)
- (defun GETSUPER (TABLE R VDES)
-  (apply (read TABLE) (list R VDES))
- )
- (initget "Bc Tac")
- (if (setq REP (getkword "\n6% BC Sup or 6% TAC (BC/TAC) <TAC> : "))
-  (setq TABLE REP)
-  (setq TABLE "TAC")
- )
- (if (= TABLE "TAC")
-  (setq TABLE "RFL:GETTACSUPER")
-  (setq TABLE "RFL:GETBCSUPER")
- )
- (if (setq REP (getdist "\nDesign speed (must be table column value) <60>: "))
-  (setq VDES REP)
-  (setq VDES 60.0)
- )
- (if (setq REP (getdist "\nEnter spiral runout distance <60.0> : "))
-  (setq RUNOUT REP)
-  (setq RUNOUT 60.0)
- )
- (setq RFL:SUPERLIST nil)
- (foreach NODE RFL:ALIGNLIST
-  (cond ((listp (last NODE))
-         (progn ; Spiral
-          (print "SPIRAL")
-          (setq S nil S1 nil S2 nil)
-          (setq STA (car NODE))
-          (setq L (- (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)) (last (nth 3 NODE))))
-          (setq R1 (RFL:GETRADIUS STA))
-          (if (> (abs R1) 10000.0) (setq R1 0.0))
-          (setq R2 (RFL:GETRADIUS (+ STA L)))
-          (if (> (abs R2) 10000.0) (setq R2 0.0))
-          (if (< (abs R1) RFL:TOL)
-           (setq S1 (list -2.0 0.0))
-           (setq S1 (GETSUPER TABLE (abs R1) VDES))
-          )
-          (if (or (< R1 0.0) (< R2 0.0)) (setq S1 (reverse S1)))
-          (if (< (abs R2) RFL:TOL)
-           (setq S2 (list -2.0 0.0))
-           (setq S2 (GETSUPER TABLE (abs R2) VDES))
-          )
-          (if (or (< R1 0.0) (< R2 0.0)) (setq S2 (reverse S2)))
-          (cond ((= 0.0 (car S1))
-                 (setq S (list (+ STA (* L (/ 2.0 (car S2)))) 2.0 -2.0))
-                )
-                ((= 0.0 (cadr S1))
-                 (setq S (list (+ STA (* L (/ 2.0 (cadr S2)))) -2.0 2.0))
-                )
-                ((= 0.0 (car S2))
-                 (setq S (list (- (+ STA L) (* L (/ 2.0 (car S1)))) 2.0 -2.0))
-                )
-                ((= 0.0 (cadr S2))
-                 (setq S (list (- (+ STA L) (* L (/ 2.0 (cadr S1)))) -2.0 2.0))
-                )
-          )
-          (if (/= S nil)
-           (progn
-            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA (car S1) (cadr S1)))))
-            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list S)))
-            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ STA L) (car S2) (cadr S2)))))
-           )
-          )
-         )
-        )
-        ((< (abs (last NODE)) RFL:TOL)
-         (progn ; Line
-          (print "LINE")
-          (if (> (distance (nth 1 NODE) (nth 2 NODE)) (* 2.0 RUNOUT))
-           (progn
-            (if (= (car NODE) (car (car RFL:ALIGNLIST)))
-             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (nth 0 NODE) -2.0 -2.0))))
-             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) RUNOUT) -2.0 -2.0))))
-            )
-            (if (= (car NODE) (car (last RFL:ALIGNLIST)))
-             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) (distance (nth 1 NODE) (nth 2 NODE))) -2.0 -2.0))))
-             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (- (+ (nth 0 NODE) (distance (nth 1 NODE) (nth 2 NODE))) RUNOUT) -2.0 -2.0))))
-            )
-           )
-          )
-         )
-        )
-        (T
-         (progn ; Arc
-          (print "ARC")
-          (setq S (GETSUPER TABLE (RFL:RADIUS (nth 1 NODE) (nth 2 NODE) (abs (nth 3 NODE))) VDES))
-          (if (< (nth 3 NODE) 0.0)
-           (setq S (reverse S))
-          )
-          (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (nth 0 NODE) (car S) (cadr S)))))
-          (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE))) (car S) (cadr S)))))
-         )
-        )
-  )
- )
- (setq S RFL:SUPERLIST)
- (setq RFL:SUPERLIST (list (car S)))
- (setq C 1)
- (while (< C (length S))
-  (if (> (abs (- (car (nth C S)) (car (nth (1- C) S)))) RFL:TOL)
-   (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (nth C S))))
-   (if (and (or (= (cadr (nth C S)) 0.0) (= (cadr (nth C S)) -2.0))
-            (or (= (caddr (nth C S)) 0.0) (= (caddr (nth C S)) -2.0))
-       )
-    (progn
-     (setq RFL:SUPERLIST (reverse (cdr (reverse RFL:SUPERLIST))))
-     (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (car (nth C S)) 0.0 0.0))))
-    )
-   )
-  )
-  (setq C (1+ C))
- )
-);
-;
-;     Program written by Robert Livingston, 2015-02-20
-;
-;     C:PGRADE is a routine for finding a polyline with constant grade along a surface between two selected points
-;
-;
-(defun C:PGRADE (/ *error* ANG ANGBASE ANGDIR CMDECHO CONTINUE D DIST2D GETOS GRADE GRSECTION NODE OBSURFACE OGLIST OS OSMODE P P0 P1 P2 PL PR REP STEP SWATH TMP Z0 Z1 Z2)
-;(defun C:PGRADE ()
- (command "._UNDO" "M")
- (command "._UCS" "W")
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq ALSAVE RFL:ALIGNLIST)
-
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
-  )
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "OSMODE" OSMODE)
-  (setq RFL:ALIGNLIST ALSAVE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (defun GETOS (/ C OSBEST L P1 P2 P3 P4 TMP ZBEST)
-  (setq OSBEST nil ZBEST nil)
-  (setq C 0)
-  (while (< (+ C 1) (length OGLIST))
-   (setq P1 (nth C OGLIST))
-   (setq L (sqrt (+ (expt (car P1) 2) (expt D 2))))
-   (setq P3 (list (car P1) (+ Z0 (* L GRADE))))
-   (setq P2 (nth (+ C 1) OGLIST))
-   (setq L (sqrt (+ (expt (car P2) 2) (expt D 2))))
-   (setq P4 (list (car P2) (+ Z0 (* L GRADE))))
-   (setq TMP (inters P1 P2 P3 P4))
-   (if (/= nil TMP)
-    (if (= nil OSBEST)
-     (setq OSBEST (car TMP) ZBEST (cadr TMP))
-     (if (< (abs (car TMP)) (abs OSBEST))
-      (setq OSBEST (car TMP) ZBEST (cadr TMP))
-     )
-    )
-   )
-   (setq C (+ C 1))
-  )
-  (list OSBEST ZBEST)
- )
- 
- (defun GRSECTION (/ C H NODE P1 P2 PC PB SCALE)
-  (setq PC (getvar "VIEWCTR"))
-  (setq H (getvar "VIEWSIZE"))
-  (setq PB (list (+ (car PC) (/ H 3.0)) (- (cadr PC) (/ H 4.0))))
-  (setq SCALE (/ (/ H 2.0) SWATH))
-  (setq C 0)
-  (setq P1 (nth C OGLIST))
-  (setq P1 (list (+ (car PB) (* SCALE (car P1))) (+ (cadr PB) (* SCALE (- (cadr P1) Z2)))))
-  (while (< (+ C 1) (length OGLIST))
-   (progn
-    (setq P2 (nth (+ C 1) OGLIST))
-    (setq P2 (list (+ (car PB) (* SCALE (car P2))) (+ (cadr PB) (* SCALE (- (cadr P2) Z2)))))
-    (grdraw P1 P2 -1)
-    (setq P1 P2)
-    (setq C (+ C 1))
-   )
-  )
-  (setq P1 (list (+ (car PB) (* SCALE (car OS))) (+ (cadr PB) (* SCALE (- (cadr OS) Z2)))))
-  (grdraw (list (+ (car P1) (/ H -25.0)) (cadr P1))
-          (list (+ (car P1) (/ H 25.0)) (cadr P1)) -1)
-  (grdraw (list (car P1) (+ (cadr P1) (/ H -25.0)))
-          (list (car P1) (+ (cadr P1) (/ H 25.0))) -1)
- )
- 
- (defun DIST2D (P1 P2)
-  (distance (list (car P1) (cadr P1)) (list (car P2) (cadr P2)))
- )
- 
- (if (/= nil (setq OBSURFACE (RFL:GETC3DSURFACE)))
-  (if (/= nil (setq P0 (getpoint "\nStart Point : ")))
-   (if (/= nil (setq Z0 (RFL:GETSURFACEPOINT P0 OBSURFACE)))
-    (progn
-     (setq P0 (list (car P0) (cadr P0)))
-     (princ (strcat "\nElevation at start point = " (rtos Z0)))
-     (setq P2 (getpoint "\nPick second point for grade reference : "))
-     (if (/= nil (setq Z2 (RFL:GETSURFACEPOINT P2 OBSURFACE)))
-      (progn
-       (setq GRADE (* 100.0 (/ (- Z2 Z0) (DIST2D P0 P2))))
-       (setq REP (getreal (strcat "\nEnter desired grade (%) <" (rtos GRADE) "> : ")))
-       (if (/= nil REP) (setq GRADE REP))
-       (setq GRADE (/ GRADE 100.0))
-       (setq SWATH 500.0)
-       (setq REP (getreal (strcat "\nEnter swath width <" (rtos SWATH) "> : ")))
-       (if (/= nil REP) (setq SWATH REP))
-       ;(setq STEP 100.0)
-       ;(setq REP (getreal (strcat "\nEnter step size <" (rtos STEP) "> : ")))
-       ;(if (/= nil REP) (setq STEP REP))
-        (setq CONTINUE T)
-       (setvar "OSMODE" 0)
-       (command "._PLINE" P0)
-       (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
-       (while (and (or (= 5 (car (setq P1 (grread T))))
-                       (= 3 (car P1))
-                       (= 2 (car P1))
-                   )
-                   CONTINUE
-              )
-        (if (= 2 (car P1))
-         (if (= 43 (cadr P1))
-          (progn
-           (setq GRADE (+ GRADE 0.001))
-           (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
-          )
-          (if (= 45 (cadr P1))
-           (progn
-            (setq GRADE (- GRADE 0.001))
-            (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
-           )
-           (if (= 13 (cadr P1))
-            (setq CONTINUE nil)
-            (if (= 32 (cadr P1))
-             (setq CONTINUE nil)
-            )
-           )
-          )
-         )
-         (progn
-          (setq P (list (caadr P1) (cadadr P1)))
-          (setq ANG (angle P0 P))
-          (setq D (DIST2D P0 P))
-          (setq P2 nil)
-          (setq RFL:ALIGNLIST (list (list 0.0 P0 (list (+ (car P0) (* 2.0 D (cos ANG))) (+ (cadr P0) (* 2.0 D (sin ANG)))) 0.0)))
-          (setq PL (RFL:XY (list D (/ SWATH -2.0))))
-          (setq PR (RFL:XY (list D (/ SWATH 2.0))))
-          (setq OGLIST nil)
-          (if (and (/= nil PL) (/= nil PR))
-           (progn
-            (setq TMP (RFL:GETSURFACELINE PL P OBSURFACE))
-            (foreach NODE TMP
-             (setq OGLIST (append OGLIST (list (list (* -1.0 (DIST2D NODE P)) (last NODE)))))
-            )
-            (setq TMP (cdr (RFL:GETSURFACELINE P PR OBSURFACE)))
-            (foreach NODE TMP
-             (setq OGLIST (append OGLIST (list (list (DIST2D NODE P) (last NODE)))))
-            )
-           )
-          )
-          (if (/= nil OGLIST)
-           (if (/= nil (car (setq OS (GETOS))))
-            (progn
-             (command "'REDRAW")
-             (if (and (/= nil PL) (/= nil PR)) (grdraw PL PR -1))
-             (GRSECTION)
-             (setq P2 (RFL:XY (list D (car OS))))
-             (setq Z2 (cadr OS))
-             (grdraw P0 P2 -1)
-            )
-           )
-          )
-          (if (= 3 (car P1))
-           (if (/= nil P2)
-            (progn
-             (command "'REDRAW")
-             (setq P0 P2 Z0 Z2)
-             (command P0)
-             (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
-            )
-           )
-          )
-         )
-        )
-       )
-       (command "")
-      )
-     )
-    )
-   )
-  )
- )
-
- (command "._UCS" "P")
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
- (setq RFL:ALIGNLIST ALSAVE)
- (command "'REDRAW")
- nil
-);
-;
-;     Program written by Robert Livingston - 2015-07-29
-;
-;     C:PL2TANGENT is a routine for fitting an alignment to a selected polyline
-;
-;
-(defun C:PL2TANGENT (/ ENT ENTLIST MINTANCOUNT MINTANOS ORTHOMODE OSMODE PLIST PLISTALL PLISTPART PREVENT SUBLINE SUBLINEBEST)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (defun PLISTPART (PLIST C1 C2 / TEMPLIST)
-  (setq TEMPLIST nil)
-  (if (and (< C1 (length PLIST)) (< C2 (length PLIST)) (<= C1 C2))
-   (while (<= C1 C2)
-    (setq TEMPLIST (append TEMPLIST (list (nth C1 PLIST))))
-    (setq C1 (1+ C1))
-   )
-  )
-  TEMPLIST
- )
- (setq PLISTALL nil)
- (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
- (setq ENTLIST (entget ENT))
- (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-  (while (/= nil ENTLIST)
-   (if (= 10 (caar ENTLIST))
-    (setq PLISTALL (append PLISTALL (list (cdar ENTLIST))))
-   )
-   (setq ENTLIST (cdr ENTLIST))
-  )
-  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-   (progn
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-     (setq P (cdr (assoc 10 ENTLIST)))
-     (setq PLISTALL (append PLISTALL (list (list (car P) (cadr P)))))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-    )
-   )
-   (princ "\n*** Not a polyline!")
-  )
- )
- (if (= nil PLISTALL)
-  (princ "\n!!! Problem finding vertexes !!!")
-  (progn
-   (setq PREVENT nil)
-   (setq MINTANCOUNT (getint "\nEnter minimum number of tangent vertexes <5> : "))
-   (if (= nil MINTANCOUNT) (setq MINTANCOUNT 5))
-   (setq MINTANOS (getdist "\nEnter minimum tangent offset <0.5> : "))
-   (if (= nil MINTANOS) (setq MINTANOS 0.5))
-   (setq C1 0)
-   (while (< C1 (- (length PLISTALL) MINTANCOUNT))
-    (setq C2 (+ C1 MINTANCOUNT -1))
-    (setq SUBLINEBEST nil)
-    (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
-    (while (and (/= nil SUBLINE) (< C2 (length PLISTALL)) (<= (last SUBLINE) MINTANOS))
-     (setq SUBLINEBEST SUBLINE)
-     (setq C2 (1+ C2))
-     (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
-    )
-    (princ (strcat "\nC1 = " (itoa C1) ", C2 = " (itoa C2) ", OS = " (if (/= nil SUBLINE) (rtos (last SUBLINE)) "nil")))
-    (if (/= nil SUBLINEBEST)
-     (progn
-      (entmake (list (cons 0 "LINE")
-                     (list 10 (car (nth 0 SUBLINEBEST)) (cadr (nth 0 SUBLINEBEST)) 0.0)
-                     (list 11 (car (nth 1 SUBLINEBEST)) (cadr (nth 1 SUBLINEBEST)) 0.0)
-               )
-      )
-      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
-     )
-    )
-    (if (= nil SUBLINEBEST)
-     (setq C1 (1+ C1))
-     (setq C1 C2)
-    )
-   )
-  )
- )
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- T
-);
-;
-;   Program written by Robert Livingston, 99/07/14
-;
-;   C:POFFSET offsets an arc a calculated spiral 'P' distance
-;   Modified 02/04/18 - presets the offset distance and starts the offset command
-;                     - works for compound spirals
-;
-;
-(defun C:POFFSET (/ A AL CMDECHO ENT ENTLIST LS1 LS2 P PCEN1 PCEN2 R1 R2 THETA1 THETA2)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq R1 nil)
- (if (/= (setq ENT (car (entsel "\nSelect first arc or circle (<return> to enter radius) :"))) nil)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (or (= (cdr (assoc 0 ENTLIST)) "ARC")
-           (= (cdr (assoc 0 ENTLIST)) "CIRCLE"))
-    (progn
-     (setq R1 (cdr (assoc 40 ENTLIST)))
-    )
-   )
-  )
- )
- (if (= R1 nil)
-  (progn
-   (setq R1 (getdist "\nEnter radius : "))
-  )
- )
- (setq R2 nil)
- (if (/= (setq ENT (car (entsel "\nSelect second arc or circle (<return> to enter radius) :"))) nil)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (or (= (cdr (assoc 0 ENTLIST)) "ARC")
-           (= (cdr (assoc 0 ENTLIST)) "CIRCLE"))
-    (progn
-     (setq R2 (cdr (assoc 40 ENTLIST)))
-    )
-   )
-  )
- )
- (if (= R2 nil)
-  (progn
-   (setq R2 (getdist "\nEnter radius (<return> for simple spiral) : "))
-  )
- )
- (if (= R2 nil)
-  (progn
-   (setq LS nil)
-   (setq AL "L")
-   (while (= LS nil)
-    (if (= AL "L")
-     (progn
-      (setq LS (getreal "\nEnter spiral length <return for A>:"))
-      (if (= LS nil)
-       (progn
-        (setq AL "A")
-       )
-      )
-     )
-     (progn
-      (setq LS (getreal "\nEnter spiral A <return for length>:"))
-      (if (= LS nil)
-       (progn
-        (setq AL "L")
-       )
-       (progn
-        (setq LS (/ (* LS LS) R1))
-       )
-      )
-     )
-    )
-   )
-   (setq THETA1 (/ LS R1 2.0))
-   (setq P (* R1 (RFL:SPIRALPR THETA1)))
-   (command "_OFFSET" P)
-  )
-  (progn
-   (setq LS nil)
-   (setq AL "L")
-   (setq A nil)
-   (while (= LS nil)
-    (if (= AL "L")
-     (progn
-      (setq LS (getreal "\nEnter spiral length <return for A>:"))
-      (if (= LS nil)
-       (progn
-        (setq AL "A")
-       )
-       (progn
-        (setq A (sqrt (abs (/ (* LS R1 R2) (- R2 R1)))))
-       )
-      )
-     )
-     (progn
-      (setq LS (getreal "\nEnter spiral A <return for length>:"))
-      (if (= LS nil)
-       (progn
-        (setq AL "L")
-       )
-       (progn
-        (setq A LS)
-        (setq LS (abs (* (* LS LS) (/ (- R2 R1) (* R1 R2)))))
-       )
-      )
-     )
-    )
-   )
-   (setq THETA1 (/ (* A A) (* 2 R1 R1)))
-   (setq PCEN1 (list (* R1 (- (RFL:SPIRALFXR THETA1) (sin THETA1)))
-                     (* R1 (+ (RFL:SPIRALFYR THETA1) (cos THETA1)))))
-   (setq THETA2 (/ (* A A) (* 2 R2 R2)))
-   (setq PCEN2 (list (* R2 (- (RFL:SPIRALFXR THETA2) (sin THETA2)))
-                     (* R2 (+ (RFL:SPIRALFYR THETA2) (cos THETA2)))))
-   (setq P (- (abs (- R1 R2)) (distance PCEN1 PCEN2)))
-   (command "_OFFSET" P)
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
-) ;
-;
-;     Program written by Robert Livingston, 2015-02-20
-;
-;     C:PPGRADE is a routine for finding a polyline with constant grade along a surface between two selected points
-;
-;
-(defun C:PPGRADE (/ *error* ALSAVE ANG ANGBASE ANGDIR C CMDECHO D GETL GETOS INC L NODE NSEGS OBSURFACE OGLIST OS OSLIST OSMAX OSMODE P1 P2 REP SLOPE SWATH TMP TOL Z Z1 Z2)
-;(defun C:PPGRADE ()
- (command "._UNDO" "M")
- (command "._UCS" "W")
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq ALSAVE RFL:ALIGNLIST)
-
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
-  )
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "OSMODE" OSMODE)
-  (setq RFL:ALIGNLIST ALSAVE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (defun GETOS (Z PLIST OS / C OSBEST P1 P2 TMP)
-  (setq OSBEST nil)
-  (setq P1 (list (/ SWATH -2.0) Z))
-  (setq P2 (list (/ SWATH 2.0) Z))
-  (setq C 0)
-  (while (< (+ C 1) (length PLIST))
-   (setq TMP (inters P1 P2 (nth C PLIST) (nth (+ C 1) PLIST)))
-   (if (/= nil TMP)
-    (if (= nil OSBEST)
-     (setq OSBEST (car TMP))
-     (if (< (abs (- (car TMP) OS)) (abs OSBEST))
-      (setq OSBEST (car TMP))
-     )
-    )
-   )
-   (setq C (+ C 1))
-  )
-  (eval OSBEST)
- )
- 
- (defun GETL (/ C L)
-  (setq L 0.0)
-  (setq C 1)
-  (while (< C (length OSLIST))
-   (setq L (+ L (sqrt (+ (expt INC 2) (expt (- (nth C OSLIST) (nth (- C 1) OSLIST)) 2)))))
-   (setq C (+ C 1))
-  )
-  (setq L (+ L (sqrt (+ (expt INC 2) (expt (nth (- C 1) OSLIST) 2)))))
- )
- 
- (setq TOL 0.1)
- (setq MAXOS (* 2.0 TOL))
- 
- (if (/= nil (setq P1 (getpoint "\nFirst point : ")))
-  (if (/= nil (setq P2 (getpoint "\nSecond point : ")))
-   (if (/= nil (setq OBSURFACE (RFL:GETC3DSURFACE)))
-    (progn
-     (setq P1 (list (car P1) (cadr P1)))
-     (setq Z1 (RFL:GETSURFACEPOINT P1 OBSURFACE))
-     (setq P2 (list (car P2) (cadr P2)))
-     (setq Z2 (RFL:GETSURFACEPOINT P2 OBSURFACE))
-     (setvar "OSMODE" 0)
-     (setq D (distance P1 P2))
-     (setq NSEGS 0)
-     (while (< NSEGS 2)
-      (setq NSEGS (getint "\nNumber of segments (2 minimum) <10> : "))
-      (if (= nil NSEGS) (setq NSEGS 10))
-     )
-     (setq INC (/ D NSEGS))
-     (setq NSEGS (- NSEGS 1))
-     (setq SWATH (float (fix (/ D NSEGS))))
-     (setq SWATH 500.0)
-     (setq REP (getdist (strcat "\nEnter swath width : <" (rtos SWATH) "> : ")))
-     (if (/= nil REP) (setq SWATH REP))
-     (setq RFL:ALIGNLIST (list (list 0.0 P1 P2 0.0)))
-     (setq TMP (RFL:GETSECTIONSET INC
-                                  (* INC NSEGS)
-                                  SWATH
-                                  INC
-                                  OBSURFACE
-                                  RFL:ALIGNLIST
-               )
-     )
-     (setq OSLIST (list 0.0))
-     (setq OGLIST nil)
-     (setq C 0)
-     (while (< C NSEGS)
-      (setq OGLIST (append OGLIST (list (cadr (nth C TMP)))))
-      (setq OSLIST (append OSLIST (list 0.0)))
-      (setq C (+ C 1))
-     )
-     (while (> MAXOS TOL)
-      (setq MAXOS nil)
-      (setq TMP (list 0.0))
-      (setq SLOPE (/ (- Z2 Z1) (GETL)))
-      (setq L 0.0)
-      (setq Z Z1)
-      (setq C 1)
-      (while (< C (length OSLIST))
-       (setq L (sqrt (+ (expt INC 2) (expt (- (nth C OSLIST) (nth (- C 1) OSLIST)) 2))))
-       (setq Z (+ Z (* SLOPE L)))
-       (setq OS (GETOS Z (nth (- C 1) OGLIST) (nth C OSLIST)))
-       (setq TMP (append TMP (list OS)))
-       (if (= nil MAXOS)
-        (setq MAXOS (abs (- OS (nth C OSLIST))))
-        (if (> (abs (- OS (nth C OSLIST))) MAXOS)
-         (setq MAXOS (abs (- OS (nth C OSLIST))))
-        )
-       )
-       (setq C (+ C 1))
-      )
-      (setq OSLIST TMP)
-     )
-     (princ (strcat "\nFinal slope = " (rtos (* SLOPE 100.0)) "%"))
-     (command "._PLINE" P1)
-     (setq C 1)
-     (while (< C (length OSLIST))
-      (command (RFL:XY (list (* C INC) (nth C OSLIST))))
-      (setq C (+ C 1))
-     )
-     (command P2 "")
-    )
-   )
-  )
- )
-
- (command "._UCS" "P")
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
- (setq RFL:ALIGNLIST ALSAVE)
- (eval nil)
-)
-;
-;
-;     Program written by Robert Livingston, 2016/07/11
-;
-;     C:PVI0 draws a pviblock with 0.0 for K and L at the selected point
-(defun C:PVI0 (/ ACTIVEDOC ACTIVESPACE P)
- (vl-load-com)
- (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
- (setq ACTIVESPC
-       (vlax-get-property ACTIVEDOC
-        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
-         'modelspace
-         'paperspace
-        )
-       )
- )
- (if (setq P (getpoint "\nSelect point : "))
-  (progn
-   (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
-   (vla-insertblock ACTIVESPC
-                    (vlax-3D-point P)
-                    "PVI2"
-                    25.4
-                    25.4
-                    25.4
-                    0.0
-   )
-   (entlast)
-  )
-  nil
- )
-)
-;
-;
-;     Program written by Robert Livingston, 2008-11-04
-;
-;     RAB loads hor/vrt/E/OG from a selected RFLALign block
-;
-;
-(defun C:RAB (/ BLKENT BLKENTLIST CMDECHO)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (progn
-   (RFL:RALIGNB BLKENT)
-   (RFL:RPROFB BLKENT)
-   (RFL:RSUPERB BLKENT)
-   (RFL:RPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 2008-11-04
-;
-;     RABKILL removes alignment definition lists from RFLALIGN blocks
-;
-;
-(defun C:RABKILL (/ ENT)
- (command "._UNDO" "M")
- (setq ENT (car (entsel "\nSelect Alignment Block : ")))
- (RFL:RABKILL ENT "HOR")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "VRT")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "OG")
- (setq ENT (entlast))
- (RFL:RABKILL ENT "E")
-)
-;
-;
-;     Program written by Robert Livingston, 2008-11-04
-;
-;     RAB loads hor/vrt/E/OG from a selected nested RFLALign block
-;
-;
-(defun C:RABN (/ BLKENT BLKENTLIST CMDECHO)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (progn
-   (RFL:RALIGNB BLKENT)
-   (RFL:RPROFB BLKENT)
-   (RFL:RSUPERB BLKENT)
-   (RFL:RPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 98/06/11
-;
-;   RALIGN reads a horizontal alignment from file
-;
-;
-(defun C:RALIGN (/ ANGBASE ANGDIR CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (setq INFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 2))
- (RFL:RALIGN INFILENAME)
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   RALIGNB reads a horizontal alignment from a RFLAlign Block
-;
-;
-(defun C:RALIGNB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RALIGNB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   RALIGNBN reads a horizontal alignment from a nested RFLAlign Block
-;
-;
-(defun C:RALIGNBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RALIGNB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 10-04-30
-;
-;     RALIGNC3D reads the alignment from a selected C3D alignment
-;     NOTE - Must be using C3D, will not work in straight AutoCAD
-;     NOTE - Works for type 1, type 2, type 3 and type 4 alignment entities
-;
-;
-(defun C:RALIGNC3D (/ *error* ALSAVE C CMAX CMDECHO E1 E2 ENT ENTITY ENTLIST NODE
-                      OBALIGNMENT OBENTITIES SETARC SETSPIRAL SETTANGENT SPIRALENTITY STA STALIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= nil vlax-create-object) (vl-load-com))
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  ;(setq *error* nil)
-  (princ msg)
- )
-
- (defun SETTANGENT (ENTITY / P1 P2)
-  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                 (vlax-get-property ENTITY "StartNorthing")
-           )
-  )
-  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                 (vlax-get-property ENTITY "EndNorthing")
-           )
-  )
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 0.0))))
- )
-
- (defun SETARC (ENTITY / P1 P2 PC CCW R ANG BULGE)
-  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                 (vlax-get-property ENTITY "StartNorthing")
-           )
-  )
-  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                 (vlax-get-property ENTITY "EndNorthing")
-           )
-  )
-  (setq PC (list (vlax-get-property ENTITY "CenterEasting")
-                 (vlax-get-property ENTITY "CenterNorthing")
-           )
-  )
-  (setq CCW (vlax-get-property ENTITY "Clockwise"))
-  (setq R (vlax-get-property ENTITY "Radius"))
-  (setq ANG (vlax-get-property ENTITY "Delta"))
-  (setq BULGE (RFL:TAN (/ ANG 4.0)))
-  (if (= :vlax-true CCW) (setq BULGE (* -1.0 BULGE)))
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
- )
-
- (defun SETSPIRAL (ENTITY / A ANG BULGE L0 LT P1 P2 PLTST PINT PST RIN ROUT ST THETA TMP X Y)
-  (setq RIN (vlax-get-property ENTITY "RadiusIn"))
-  (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
-  (setq TMP (/ 1.0 (max RIN ROUT)))
-  ;(setq TMP (vlax-get-property ENTITY "Compound"))
-  ;(if (= TMP :vlax-false)
-  (if (< TMP RFL:TOL)
-   (progn
-    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                   (vlax-get-property ENTITY "StartNorthing")
-             )
-    )
-    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                   (vlax-get-property ENTITY "EndNorthing")
-             )
-    )
-    (setq PLTST (list (vlax-get-property ENTITY "SPIEasting")
-                      (vlax-get-property ENTITY "SPINorthing")
-                )
-    )
-    (setq LO 0.0)
-    (if (< (distance P2 PLTST) (distance P1 PLTST))
-     (setq PLT P1 PST P2)
-     (setq PLT P2 PST P1)
-    )
-    (setq BULGE (list PLT PLTST PST LO))
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
-   )
-   (progn
-    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
-                   (vlax-get-property ENTITY "StartNorthing")
-             )
-    )
-    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
-                   (vlax-get-property ENTITY "EndNorthing")
-             )
-    )
-    (setq PINT (list (vlax-get-property ENTITY "SPIEasting")
-                     (vlax-get-property ENTITY "SPINorthing")
-               )
-    )
-    (setq RIN (vlax-get-property ENTITY "RadiusIn"))
-    (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
-    (setq A (vlax-get-property ENTITY "A"))
-    (if (< RIN ROUT)
-     (progn
-      (setq THETA (/ (* A A) (* 2.0 RIN RIN)))
-      (setq PST P1)
-      ;(setq LO (- (/ (* A A) RIN) (vlax-get-property ENTITY "Length")))
-      (setq LO (/ (* A A) ROUT))
-      (setq ANG (angle PST PINT))
-      (setq X (* RIN (SPIRALFXR THETA)))
-      (setq Y (* RIN (SPIRALFYR THETA)))
-      (setq ST (/ Y (sin THETA)))
-      (setq LT (- X (/ Y (RFL:TAN THETA))))
-      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
-                        (+ (cadr PST) (* ST (sin ANG)))))
-      (if (> (sin (- (angle PINT P2) (angle P1 PINT))) 0.0)
-       (setq ANG (+ ANG THETA))
-       (setq ANG (- ANG THETA))
-      )
-      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
-                      (+ (cadr PLTST) (* LT (sin ANG)))))
-     )
-     (progn
-      (setq THETA (/ (* A A) (* 2.0 ROUT ROUT)))
-      (setq PST P2)
-      ;(setq LO (- (/ (* A A) ROUT) (vlax-get-property ENTITY "Length")))
-      (setq LO (/ (* A A) RIN))
-      (setq ANG (angle PST PINT))
-      (setq X (* ROUT (SPIRALFXR THETA)))
-      (setq Y (* ROUT (SPIRALFYR THETA)))
-      (setq ST (/ Y (sin THETA)))
-      (setq LT (- X (/ Y (RFL:TAN THETA))))
-      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
-                        (+ (cadr PST) (* ST (sin ANG)))))
-      (if (> (sin (- (angle PINT P1) (angle P2 PINT))) 0.0)
-       (setq ANG (+ ANG THETA))
-       (setq ANG (- ANG THETA))
-      )
-      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
-                      (+ (cadr PLTST) (* LT (sin ANG)))))
-     )
-    )
-    (setq BULGE (list PLT PLTST PST LO))
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
-   )
-  )
- )
-
- (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
- (if (/= OBALIGNMENT nil) 
-  (progn
-   (setq RFL:ALIGNLIST nil)
-   (setq OBENTITIES (vlax-get-property OBALIGNMENT "Entities"))
-   (setq CMAX (vlax-get-property OBENTITIES "Count"))
-   (setq C 0)
-   (while (< C CMAX)
-(print C)
-    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
-    (cond
-     ((= 1 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETTANGENT ENTITY)
-      )
-     )
-     ((= 2 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETARC ENTITY)
-      )
-     )
-     ((= 3 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL ENTITY)
-      )
-     )
-     ((= 4 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
-       (SETARC (vlax-get-property ENTITY "Arc"))
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
-      )
-     )
-     ((= 8 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
-       (SETARC (vlax-get-property ENTITY "ArcOut"))
-      )
-     )
-     ((= 9 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETARC (vlax-get-property ENTITY "ArcIn"))
-       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
-      )
-     )
-     ((= 12 (vlax-get-property ENTITY "Type"))
-      (progn
-       (SETSPIRAL (vlax-get-property ENTITY "Spiral1"))
-       (SETARC (vlax-get-property ENTITY "Arc1"))
-       (SETSPIRAL (vlax-get-property ENTITY "Spiral2"))
-       (SETARC (vlax-get-property ENTITY "Arc2"))
-       (SETSPIRAL (vlax-get-property ENTITY "Spiral3"))
-      )
-     )
-    )
-    (setq C (1+ C))
-   )
-  )
- )
-
- (setq ALSAVE RFL:ALIGNLIST RFL:ALIGNLIST nil)
- (if (/= nil ALSAVE)
-  (progn
-   (setq STALIST nil)
-   (foreach NODE ALSAVE
-    (setq STALIST (append STALIST (list (car NODE))))
-   )
-   (setq STALIST (vl-sort STALIST '<))
-   (foreach STA STALIST
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (assoc STA ALSAVE))))
-   )
-  )
- )
- 
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;    Program written by Robert Livingston, 95/04/25
-;                                 Revised, 98/05/12
-;
-;    RNE labels the Northing and Easting
-;
-;
-(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
-                        (cons "SO" 1)   ;  Label Station and Offset
-                        (cons "Z" 1)    ;  Label Control Elevations
-                        (cons "G" 1)    ;  Label Control Grades
-                        (cons "SE" 1)   ;  Label Superelevations
-                 )
-)
-(defun C:RNE (/ P1 P2)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq P1 (getpoint "\nEnter point :"))
- (setq P2 (getpoint P1 "Second point for leader :"))
- (RFL:RNE P1 P2)
-
- (setvar "CMDECHO" CMDECHO)
-)
-(defun RFL:RNE (P1 P2 / *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G OFFSET P3
-                        S STA STR STRLIST TMP Z)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (alert msg)
-  ;(setq *error* nil)
- )
-
- (setq STRLIST nil
-       STA nil
-       OFFSET nil
-       G nil
-       Z nil
- )
- (if (setq STA (RFL:STAOFF P1))
-  (setq OFFSET (cadr STA)
-        STA (car STA)
-        Z (RFL:ELEVATION STA)
-        G (RFL:SLOPE STA)
-        S (RFL:SUPER STA)
-  )
- )
- (if (and (= (cdr (assoc "NE" RFL:RNELIST)) 1)
-          P1
-     )
-  (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
- )
- (if (and (= (cdr (assoc "SO" RFL:RNELIST)) 1)
-          STA
-          OFFSET
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
- )
- (if (and (= (cdr (assoc "Z" RFL:RNELIST)) 1)
-          Z
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
- )
- (if (and (= (cdr (assoc "G" RFL:RNELIST)) 1)
-          G
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
- )
- (if (and (= (cdr (assoc "SE" RFL:RNELIST)) 1)
-          S
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
-                                              (rtos (abs (nth 0 S)))
-                                              "%"
-                                              (if (= (RFL:SIGN (nth 0 S)) 1) " up" " down")
-                                              ", R:"
-                                              (rtos (abs (nth 1 S)))
-                                              "%"
-                                              (if (= (RFL:SIGN (nth 1 S)) 1) " up" " down")
-                                      )
-                                )
-                )
-  )
- )
- (if STRLIST
-  (progn
-   (command "LEADER" "_NON" P1 "_NON" P2 "")
-   (foreach STR STRLIST
-    (command STR)
-   )
-   (command "")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:RPROF reads a vertical alignment from file
-;
-;
-(defun C:RPROF (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (setq INFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 2))
- (RFL:RPROF INFILENAME)
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFB reads a vertical profile from a RFLAlign Block
-;
-;
-(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFBN reads a vertical profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 11-03-09
-;
-;     RPROF3D reads the profile from a selected C3D profile
-;     NOTE - Must be using C3D, will not work in straight AutoCAD
-;     NOTE - Works for type 1 and type 3 vertical curves
-;
-;
-(defun C:RPROFC3D (/ *error* ENT)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  ;(setq *error* nil)
-  (princ msg)
- )
-
- (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
-  (RFL:RPROFC3D ENT)
- )
-
- (setvar "CMDECHO" CMDECHO)
- T
-);
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable RFL:OGLIST
-;
-;
-(defun C:RPROFOG (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq INFILENAME (getfiled "Select an OG Vertical Alignment File" "" "vrt" 2))
- (RFL:RPROFOG INFILENAME)
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
-;
-;
-(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   RSUPER reads the Superelevation from file
-;
-;
-(defun C:RSUPER (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (setq INFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 2))
- (RFL:RSUPER INFILENAME)
- (setvar "CMDECHO" CMDECHO)
- nil
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RSUPERB reads the Superelevation from a RFLAlign Block
-;
-;
-(defun C:RSUPERB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RSUPERB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RSUPERBN reads the Superelevation from a nested RFLAlign Block
-;
-;
-(defun C:RSUPERBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RSUPERB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 0/12/18
-;
-;     VC2TAN draws a line tangent to two vertical curves
-;
-(defun C:VC2TAN (/ A1 A2 B1 B2 C1 C2 ENT ENTLIST F G GA GB G1 G2 P P1 P2 P3 SIGN V VA VB X XA XB X1 X2 Y YA YB Y1 Y2 TMP)
-
- (defun SIGN (X)
-  (if (< X 0.0)
-   (eval -1)
-   (eval 1)
-  )
- )
-
- (defun F (X Y / SA SB SC X1A X1B Y1A Y1B)
-  (setq SA A2)
-  (setq SB (* -2.0 A2 X))
-  (setq SC (- Y C2 (* B2 X)))
-  (setq X1A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-  (setq Y1A (+ (* A2 X1A X1A) (* B2 X1A) C2))
-  (setq X1B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-  (setq Y1B (+ (* A2 X1B X1B) (* B2 X1B) C2))
-  (if (> X1A X1B)
-   (list X1A Y1A)
-   (list X1B Y1B)
-  )
- )
-
- (setq ENT (car (entsel "\nSelect 'from' vertical curve :")))
- (if (/= nil ENT)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-      (progn
-       (setq X1 (nth 0 P1))
-       (setq Y1 (nth 1 P1))
-       (setq X2 (nth 0 P2))
-       (setq Y2 (nth 1 P2))
-       (setq X3 (nth 0 P3))
-       (setq Y3 (nth 1 P3))
-       (setq XA (min X1 X3))
-       (setq XB (max X1 X3))
-       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-       (setq A1 (/ (- G2 G1) (- X3 X1) 2.0))
-       (setq B1 (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-       (setq C1 (- Y1 (+ (* A1 X1 X1) (* B1 X1))))
-       (setq ENT (car (entsel "\nSelect 'to' vertical curve :")))
-       (if (/= nil ENT)
-        (progn
-         (setq ENTLIST (entget ENT))
-         (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-          (progn
-           (setq ENT (entnext ENT))
-           (setq ENTLIST (entget ENT))
-           (setq P1 (cdr (assoc 10 ENTLIST)))
-           (setq ENT (entnext ENT))
-           (setq ENTLIST (entget ENT))
-           (setq P2 (cdr (assoc 10 ENTLIST)))
-           (if (/= nil P2)
-            (progn
-             (setq ENT (entnext ENT))
-             (setq ENTLIST (entget ENT))
-             (setq P3 (cdr (assoc 10 ENTLIST)))
-             (if (/= nil P3)
-              (progn
-               (setq ENT (entnext ENT))
-               (setq ENTLIST (entget ENT))
-               (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-                (setq P2 P3)
-                (setq P3 (cdr (assoc 10 ENTLIST)))
-                (setq ENT (entnext ENT))
-                (setq ENTLIST (entget ENT))
-               )
-              )
-             )
-            )
-           )
-           (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-            (progn
-             (setq X1 (nth 0 P1))
-             (setq Y1 (nth 1 P1))
-             (setq X2 (nth 0 P2))
-             (setq Y2 (nth 1 P2))
-             (setq X3 (nth 0 P3))
-             (setq Y3 (nth 1 P3))
-             (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-             (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-             (setq A2 (/ (- G2 G1) (- X3 X1) 2.0))
-             (setq B2 (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-             (setq C2 (- Y1 (+ (* A2 X1 X1) (* B2 X1))))
-             (setq YA (+ (* A1 XA XA) (* B1 XA) C1))
-             (setq GA (+ (* 2.0 A1 XA) B1))
-             (setq VA (F XA YA))
-             (setq VA (- GA (/ (- (nth 1 VA) YA) (- (nth 0 VA) XA))))
-             (setq TMP (/ (- XB XA) 25.0))
-             (setq X (+ XB TMP))
-             (setq XB (+ XA TMP))
-             (setq YB (+ (* A1 XB XB) (* B1 XB) C1))
-             (setq GB (+ (* 2.0 A1 XB) B1))
-             (setq VB (F XB YB))
-             (setq VB (- GB (/ (- (nth 1 VB) YB) (- (nth 0 VB) XB))))
-             (while (and (= (SIGN VA) (SIGN VB)) (< XB X))
-              (setq XA XB)
-              (setq YA YB)
-              (setq GA GB)
-              (setq VA VB)
-              (setq XB (+ XB TMP))
-              (setq YB (+ (* A1 XB XB) (* B1 XB) C1))
-              (setq GB (+ (* 2.0 A1 XB) B1))
-              (setq VB (F XB YB))
-              (setq VB (- GB (/ (- (nth 1 VB) YB) (- (nth 0 VB) XB))))
-             )
-             (setq X (/ (+ XA XB) 2.0))
-             (setq Y (+ (* A1 X X) (* B1 X) C1))
-             (setq G (+ (* 2.0 A1 X) B1))
-             (setq V (F X Y))
-             (setq V (- G (/ (- (nth 1 V) Y) (- (nth 0 V) X))))
-             (if (= (SIGN VA) (SIGN VB))
-              (princ "\n*** No solution found ***")
-              (progn
-               (setq TMP 0)
-               (while (and (/= XA XB) (< TMP 1000))
-                (if (< (* (SIGN V) (SIGN VB)) 0.0)
-                 (progn
-                  (setq XA X)
-                  (setq YA Y)
-                  (setq VA V)
-                 )
-                 (progn
-                  (setq XB X)
-                  (setq YB Y)
-                  (setq VB V)
-                 )
-                )
-                (setq X (/ (+ XA XB) 2.0))
-                (setq Y (+ (* A1 X X) (* B1 X) C1))
-                (setq G (+ (* 2.0 A1 X) B1))
-                (setq V (F X Y))
-                (setq V (- G (/ (- (nth 1 V) Y) (- (nth 0 V) X))))
-                (setq TMP (+ TMP 1))
-               )
-               (command "._LINE" "_NON" (list X Y) "_NON" (F X Y) "")
-              )
-             )
-            )
-           )
-          )
-         )
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-);
-;
-;   Program written by Robert Livingston, 00/09/18
-;
-;   VC3P is a utility for drawing vertical curves through 3 points
-;
-;
-(defun C:VC3P (/ A B CMDECHO ENT1 ENT2 G1 G2 L OSMODE P1 P2 P3 P1 VCURVE VEXAG X1 X2 Y1 Y2 TMP Z1 Z2 Z3)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
-
- (defun VCURVE (ENT1 ENT2 VEXAG L / ATTREQ ENT ENTLIST G1 G2 K P P1 P2 P3 P4 SPLINETYPE SPLINESEGS TMP)
-  (setq ATTREQ (getvar "ATTREQ"))
-  (setvar "ATTREQ" 1)
-  (setq SPLINETYPE (getvar "SPLINETYPE"))
-  (setvar "SPLINETYPE" 5)
-  (setq SPLINESEGS (getvar "SPLINESEGS"))
-  (setvar "SPLINESEGS" 65)
-
-  (setq ENTLIST (entget ENT1))
-  (setq P1 (cdr (assoc 10 ENTLIST)))
-  (setq P2 (cdr (assoc 11 ENTLIST)))
-  (setq ENTLIST (entget ENT2))
-  (setq P3 (cdr (assoc 10 ENTLIST)))
-  (setq P4 (cdr (assoc 11 ENTLIST)))
-  (setq P (inters P1 P2 P3 P4 nil))
-  (if (/= nil P)
-   (progn
-    (if (> (distance P2 P) (distance P1 P))
-     (setq P1 P2)
-    )
-    (if (> (distance P3 P) (distance P4 P))
-     (setq P4 P3)
-    )
-    (setq G1 (/ (- (nth 1 P) (nth 1 P1))
-                (- (nth 0 P) (nth 0 P1))
-                VEXAG
-             )
-    )
-    (setq G2 (/ (- (nth 1 P4) (nth 1 P))
-                (- (nth 0 P4) (nth 0 P))
-                VEXAG
-             )
-    )
-    (setq K (abs (/ L (- G2 G1) 100.0)))
-    (setvar "ATTREQ" 0)
-    (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
-    (command "._INSERT"
-             "PVI2"
-             P
-             25.4
-             25.4
-             0.0
-    )
-    (setq ENT (entlast))
-    (setq ENTLIST (entget ENT))
-    (if (= (cdr (assoc 66 ENTLIST)) 1)
-     (progn
-      (setq ENT (entnext ENT))
-      (setq ENTLIST (entget ENT))
-      (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
-       (if (= (cdr (assoc 2 ENTLIST)) "LENGTH")
-        (progn
-         (setq ENTLIST (subst (cons 1 (rtos L 2 8)) (assoc 1 ENTLIST) ENTLIST))
-         (entmod ENTLIST)
-         (entupd ENT)
-        )
-       )
-       (if (= (cdr (assoc 2 ENTLIST)) "K")
-        (progn
-         (setq ENTLIST (subst (cons 1 (rtos K 2 8)) (assoc 1 ENTLIST) ENTLIST))
-         (entmod ENTLIST)
-         (entupd ENT)
-        )
-       )
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-      )
-     )
-    )
-    (setvar "ATTREQ" 1)
-    (setq P2 (list (- (nth 0 P) (/ L 2.0))
-                   (- (nth 1 P) (* (/ L 2.0) G1 VEXAG))
-             )
-    )
-    (setq P3 (list (+ (nth 0 P) (/ L 2.0))
-                   (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
-             )
-    )
-    (command "._PLINE" P2 P P3 "")
-    (setq ENT (entlast))
-    (command "._PEDIT" ENT "S" "")
-   )
-  )
-  (setvar "ATTREQ" ATTREQ)
-  (setvar "SPLINETYPE" SPLINETYPE)
-  (setvar "SPLINESEGS" SPLINESEGS)
- )
-
- (setq VEXAG (getreal "Vertical exageration <10.000> :"))
- (if (= nil VEXAG) (setq VEXAG 10.0))
- (setq P1 (getpoint "\nFirst point :"))
- (setq P2 (getpoint "\nSecond point :"))
- (setq P3 nil K nil)
- (while (or (= P3 nil) (= K nil))
-  (if (= P3 nil)
-   (progn
-    (setq P3 (getpoint "\nThird point (<Return> to enter K) :"))
-    (if (= P3 nil)
-     (setq P3 1)
-     (setq K 1)
-    )
-   )
-   (progn
-    (setq K (getreal "\nK (<Return> to enter third point) :"))
-    (if (= K nil)
-     (setq P3 nil)
-     (progn
-      (setq L (/ (- (nth 0 P2) (nth 0 P1)) 2.0))
-      (setq Z1 (/ (nth 1 P1) VEXAG))
-      (setq Z3 (/ (nth 1 P2) VEXAG))
-      (setq Z2 (* (/ (+ Z1 Z3 (/ (* L L) (* 100.0 K))) 2.0) VEXAG))
-      (setq P3 (list (+ (nth 0 P1) L) Z2 0.0))
-     )
-    )
-   )
-  )
- )
- (setvar "OSMODE" 0)
- (if (< (nth 0 P2) (nth 0 P1))
-  (progn
-   (setq TMP P1)
-   (setq P1 P2)
-   (setq P2 TMP)
-  )
- )
- (if (< (nth 0 P3) (nth 0 P1))
-  (progn
-   (setq TMP P1)
-   (setq P1 P3)
-   (setq P3 TMP)
-  )
- )
- (if (< (nth 0 P3) (nth 0 P2))
-  (progn
-   (setq TMP P2)
-   (setq P2 P3)
-   (setq P3 TMP)
-  )
- )
- (setq X1 (- (nth 0 P2) (nth 0 P1)))
- (setq Y1 (/ (- (nth 1 P2) (nth 1 P1)) VEXAG))
- (setq X2 (- (nth 0 P3) (nth 0 P1)))
- (setq Y2 (/ (- (nth 1 P3) (nth 1 P1)) VEXAG))
-
- (setq A (/ (- (/ Y2 X2)
-               (/ Y1 X1)
-            )
-            (- X2 X1)
-         )
- )
- (setq B (/ (- (/ Y2 (* X2 X2))
-               (/ Y1 (* X1 X1))
-            )
-            (- (/ 1.0 X2)
-               (/ 1.0 X1)
-            )
-         )
- )
-
- (setq G1 (* B 100.0))
- (setq G2 (* (+ (* 2.0 A X2) B) 100.0))
-
- (setq TMP nil)
- (setq TMP (getreal (strcat "G1 = " (rtos G1) ", desired (<return> to accept) : ")))
- (if (/= TMP nil)
-  (setq G1 TMP)
- )
- (setq TMP nil)
- (setq TMP (getreal (strcat "G2 = " (rtos G2) ", desired (<return> to accept) : ")))
- (if (/= TMP nil)
-  (setq G2 TMP)
- )
-
- (setq X1 (/ (- (/ G1 100.0)
-                B
-             )
-             (* 2.0 A)
-          )
- )
- (setq Y1 (+ (* A X1 X1)
-             (* B X1)
-          )
- )
- (setq X2 (/ (- (/ G2 100.0)
-                B
-             )
-             (* 2.0 A)
-          )
- )
- (setq Y2 (+ (* A X2 X2)
-             (* B X2)
-          )
- )
- (setq P2 (list (+ (nth 0 P1) X2)
-                (+ (nth 1 P1)
-                   (* VEXAG Y2)
-                )
-          )
- )
- (setq P1 (list (+ (nth 0 P1) X1)
-                (+ (nth 1 P1)
-                   (* VEXAG Y1)
-                )
-          )
- )
- (setq P3 (list (+ (nth 0 P1)
-                   (/ (- (nth 0 P2) (nth 0 P1))
-                      2.0
-                   )
-                )
-                (+ (nth 1 P1)
-                   (* (/ (- (nth 0 P2) (nth 0 P1))
-                         2.0
-                      )
-                      (/ G1 100.0)
-                      VEXAG
-                   )
-                )
-          )
- )
- (command "._LINE" P1 P3 "")
- (setq ENT1 (entlast))
- (command "._LINE" P3 P2 "")
- (setq ENT2 (entlast))
- (VCURVE ENT1 ENT2 VEXAG (- X2 X1))
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 2009-11-25
-;
-;     VCDTAN is a routine for drawing tangents off of vertical curves.
-;
-;
-(defun C:VCDTAN (/ A B C D ENT ENTLIST G1 G2 ORTHOMODE OSMODE P P1 P2 P3 ROUNDSLOPE S SA SB SC X X0A X0B X1 X2 X3 XB Y Y0A Y0B Y1 Y2 Y3 YB TMP VEXAG)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (command "._UNDO" "M")
- (if (= nil VCURVEVEXAG) (setq VCURVEVEXAG 10.0))
- (setq VEXAG (getdist (strcat "\nVertical exaggeration <" (rtos VCURVEVEXAG) "> : ")))
- (if (= nil VEXAG)
-  (setq VEXAG VCURVEVEXAG)
-  (setq VCURVEVEXAG VEXAG)
- )
- (if (= nil VCURVETANROUND) (setq VCURVETANROUND 0.1))
- (setq ROUNDSLOPE (getdist (strcat "\nRound slope to nearest <" (rtos VCURVETANROUND) "> : ")))
- (if (= nil ROUNDSLOPE)
-  (setq ROUNDSLOPE VCURVETANROUND)
-  (setq VCURVETANROUND ROUNDSLOPE)
- )
- (setq ROUNDSLOPE (* ROUNDSLOPE VEXAG 0.01))
- (setq ENT (car (entsel "\nSelect vertical curve : ")))
- (if (/= nil ENT)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-      (progn
-       (setq X1 (nth 0 P1))
-       (setq Y1 (nth 1 P1))
-       (setq X2 (nth 0 P2))
-       (setq Y2 (nth 1 P2))
-       (setq X3 (nth 0 P3))
-       (setq Y3 (nth 1 P3))
-       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-       (setq A (/ (- G2 G1) (- X3 X1) 2.0))
-       (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-       (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
-       (while (= (car (setq TMP (grread nil 1))) 5)
-        (setq X (caadr TMP))
-        (setq Y (cadadr TMP))
-        (command "._REDRAW")
-        (setq SA A)
-        (setq SB (* -2.0 A X))
-        (setq SC (- Y C (* B X)))
-        (if (> (- (* SB SB) (* 4.0 SA SC)) 0.0)
-         (progn
-          (setq X0A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-          (setq Y0A (+ (* A X0A X0A) (* B X0A) C))
-          (setq X0B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-          (setq Y0B (+ (* A X0B X0B) (* B X0B) C))
-          (if (> X0A X0B)
-           (progn
-            (setq TMP X0A)
-            (setq X0A X0B)
-            (setq X0B TMP)
-            (setq TMP Y0A)
-            (setq Y0A Y0B)
-            (setq Y0B TMP)
-           )
-          )
-          (if (< (nth 0 P2) X)
-           (progn
-            (setq XB X0A YB Y0A)
-           )
-           (progn
-            (setq XB X0B YB Y0B)
-           )
-          )
-          (setq D (distance (list XB YB) (list X Y)))
-          (setq S (/ (- Y YB) (- X XB)))
-          (if (> S 0.0) (setq TMP 1.0) (setq TMP -1.0))
-          (setq S (abs S))
-          (setq S (* TMP (* (float (fix (+ 0.5 (/ S ROUNDSLOPE)))) ROUNDSLOPE)))
-          (setq XB (/ (- S B) (* 2.0 A)))
-          (setq YB (+ (* A XB XB) (* B XB) C))
-          (if (< (nth 0 P2) X)
-           (progn
-            (setq X (+ XB (* D (cos (atan S)))))
-            (setq Y (+ YB (* D (sin (atan S)))))
-           )
-           (progn
-            (setq X (- XB (* D (cos (atan S)))))
-            (setq Y (- YB (* D (sin (atan S)))))
-           )
-          )
-          (grdraw (list XB YB) (list X Y) 7)
-         )
-        )
-       )
-       (command "._REDRAW")
-       (if (> (- (* SB SB) (* 4.0 SA SC)) 0.0)
-        (command "._LINE" (list XB YB) (list X Y) "")
-        (princ "\nBad Point!")
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
-);
-;
-;     Program written by Robert Livingston, 02/05/08
-;
-;     VCPTAN draws a tangent at the specified point on a vertical curve
-;
-(defun C:VCPTAN (/ *error* ANGBASE ANGDIR A B C CMDECHO ENT ENTLIST G G1 G2 L OSMODE P P1 P2 P3 S X X1 X2 X3 Y Y1 Y2 Y3)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
-  )
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (command "._UCS" "W")
-
- (command "._UNDO" "M")
-
- (setq ENT (car (entsel "\nSelect vertical curve :")))
- (if (/= nil ENT)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (princ "\n*** Entity not a polyline ***")
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-      (progn
-       (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
-       (if (= nil VEXAG) (setq VEXAG 10.0))
-       (setq X1 (nth 0 P1))
-       (setq Y1 (/ (nth 1 P1) VEXAG))
-       (setq X2 (nth 0 P2))
-       (setq Y2 (/ (nth 1 P2) VEXAG))
-       (setq X3 (nth 0 P3))
-       (setq Y3 (/ (nth 1 P3) VEXAG))
-       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-       (setq P (getpoint (strcat "\nG1 = " (rtos (* G1 100.0)) ", G2 = " (rtos (* G2 100.0)) ", enter point : ")))
-       (if (/= P nil)
-        (progn
-         (setq A (/ (- G2 G1) (- X3 X1) 2.0))
-         (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-         (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
-         (setq X (nth 0 P))
-         (setq Y (+ (* A X X) (* B X) C))
-         (setq G (+ (* 2.0 A X) B))
-         (setq L (getdist (strcat "\nEnter length (" (rtos (abs (- X3 X1))) ") : ")))
-         (if (= nil L) (setq L (abs (- X3 X1))))
-         (setq P1 (list (- X (/ L 2.0))
-                        (* (- Y (* (/ L 2.0) G)) VEXAG)))
-         (setq P2 (list (+ X (/ L 2.0))
-                        (* (+ Y (* (/ L 2.0) G)) VEXAG)))
-         (command "._LINE" P1 P2 "")
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (command "._UCS" "P")
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 02/05/08
-;
-;     VCSTAN draws a tangent at the specified slope on a vertical curve
-;
-(defun C:VCSTAN (/ *error* ANGBASE ANGDIR A B C CMDECHO ENT ENTLIST G G1 G2 L OSMODE P P1 P2 P3 S X X1 X2 X3 Y Y1 Y2 Y3)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
-  )
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (command "._UCS" "W")
-
- (command "._UNDO" "M")
-
- (setq ENT (car (entsel "\nSelect vertical curve :")))
- (if (/= nil ENT)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (princ "\n*** Entity not a polyline ***")
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-      (progn
-       (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
-       (if (= nil VEXAG) (setq VEXAG 10.0))
-       (setq X1 (nth 0 P1))
-       (setq Y1 (/ (nth 1 P1) VEXAG))
-       (setq X2 (nth 0 P2))
-       (setq Y2 (/ (nth 1 P2) VEXAG))
-       (setq X3 (nth 0 P3))
-       (setq Y3 (/ (nth 1 P3) VEXAG))
-       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-       (setq G (getreal (strcat "\nG1 = " (rtos (* G1 100.0)) ", G2 = " (rtos (* G2 100.0)) ", enter slope (%) : ")))
-       (if (/= G nil)
-        (progn
-         (setq G (/ G 100.0))
-         (setq A (/ (- G2 G1) (- X3 X1) 2.0))
-         (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-         (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
-         (setq X (+ X1 (* (/ (- G G1) (- G2 G1)) (- X3 X1))))
-         (setq Y (+ (* A X X) (* B X) C))
-         (setq L (getdist (strcat "\nEnter length (" (rtos (abs (- X3 X1))) ") : ")))
-         (if (= nil L) (setq L (abs (- X3 X1))))
-         (setq P1 (list (- X (/ L 2.0))
-                        (* (- Y (* (/ L 2.0) G)) VEXAG)))
-         (setq P2 (list (+ X (/ L 2.0))
-                        (* (+ Y (* (/ L 2.0) G)) VEXAG)))
-         (command "._LINE" P1 P2 "")
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (command "._UCS" "P")
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 0/12/18
-;
-;     VCTAN returns the tangent from a point to a vertical curve
-;
-(defun C:VCTAN (/ A B C ENT ENTLIST G1 G2 P P1 P2 P3 PE RFL:PVILIST SA SB SC X X0A X0B X1 X2 X3 Y Y0A Y0B Y1 Y2 Y3 TMP)
- (setq P (getvar "LASTPOINT"))
- (setq X (nth 0 P))
- (setq Y (nth 1 P))
- (setq ENT (entsel "\nSelect vertical curve :"))
- (setq PE (cadr ENT))
- (setq ENT (car ENT))
- (if (and (/= nil ENT) (/= nil P))
-  (progn
-   (setq P1 nil P2 nil P3 nil)
-   (setq ENTLIST (entget ENT))
-   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-    )
-   )
-   (if (= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq RFL:PVILIST nil)
-     (RFL:RPROFC3D ENT)
-     (if (/= RFL:PVILIST nil)
-      (progn
-       (setq C 0)
-       (while (< C (length RFL:PVILIST))
-        
-        
-        (setq C (1+ C))
-       )
-      )
-     )
-    )
-   )
-   (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-    (progn
-     (setq X1 (nth 0 P1))
-     (setq Y1 (nth 1 P1))
-     (setq X2 (nth 0 P2))
-     (setq Y2 (nth 1 P2))
-     (setq X3 (nth 0 P3))
-     (setq Y3 (nth 1 P3))
-     (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-     (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-     (setq A (/ (- G2 G1) (- X3 X1) 2.0))
-     (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
-     (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
-     (setq SA A)
-     (setq SB (* -2.0 A X))
-     (setq SC (- Y C (* B X)))
-     (setq X0A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-     (setq Y0A (+ (* A X0A X0A) (* B X0A) C))
-     (setq X0B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
-     (setq Y0B (+ (* A X0B X0B) (* B X0B) C))
-     (if (> X0A X0B)
-      (progn
-       (setq TMP X0A)
-       (setq X0A X0B)
-       (setq X0B TMP)
-       (setq TMP Y0A)
-       (setq Y0A Y0B)
-       (setq Y0B TMP)
-      )
-     )
-     (princ "\nPick side :")
-     (while (= (car (setq TMP (grread nil 1))) 5)
-     )
-     (if (= (car TMP) 3)
-      (if (< (nth 0 (car (cdr TMP))) X)
-       (list X0A Y0A)
-       (list X0B Y0B)
-      )
-      nil
-     )
-    )
-    nil
-   )
-  )
- )
-)(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
-                   OSMODE TMP VEXAG X Y Z)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
-
- (vl-load-com)
- (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
- (setq ACTIVESPC
-       (vlax-get-property ACTIVEDOC
-        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
-         'modelspace
-         'paperspace
-        )
-       )
- )
- 
- (setq ENT (car (entsel "\nSelect first tangent :")))
- (if (/= nil ENT)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (= (cdr (assoc 0 ENTLIST)) "LINE")
-    (progn
-     (command "._LIST" ENT)
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq P2 (cdr (assoc 11 ENTLIST)))
-     (setq ENT (car (entsel "\nSelect second tangent :")))
-     (if (/= nil ENT)
-      (progn
-       (setq ENTLIST (entget ENT))
-       (if (= (cdr (assoc 0 ENTLIST)) "LINE")
-        (progn
-         (command ENT)
-         (setq P3 (cdr (assoc 10 ENTLIST)))
-         (setq P4 (cdr (assoc 11 ENTLIST)))
-         (setq P (inters P1 P2 P3 P4 nil))
-         (if (/= nil P)
-          (progn
-           (setq VEXAG (getreal (strcat "\nEnter vertical exageration <" (rtos (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)) "> :")))
-           (if (= VEXAG nil) (setq VEXAG (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)))
-           (if (/= VEXAG nil)
-            (progn
-             (if (> VEXAG 0.0)
-              (progn
-               (if (> (distance P2 P) (distance P1 P))
-                (setq P1 P2)
-               )
-               (if (> (distance P3 P) (distance P4 P))
-                (setq P4 P3)
-               )
-               (setq K nil)
-               (setq L nil)
-               (setq PP nil)
-               (setq G1 (/ (- (nth 1 P) (nth 1 P1))
-                           (- (nth 0 P) (nth 0 P1))
-                           VEXAG
-                        )
-               )
-               (setq G2 (/ (- (nth 1 P4) (nth 1 P))
-                           (- (nth 0 P4) (nth 0 P))
-                           VEXAG
-                        )
-               )
-               (while (or (= K nil) (= L nil) (= PP nil))
-                (if (= L nil)
-                 (progn
-                  (setq L (getdist "\nEnter vertical curve 'L' (<return> for 'K') :"))
-                  (if (= L nil)
-                   (progn
-                    (setq L -1.0)
-                    (setq K nil)
-                    (setq PP -1.0)
-                   )
-                   (progn
-                    (setq K (abs (/ L (- G2 G1) 100.0)))
-                    (setq PP -1.0)
-                   )
-                  )
-                 )
-                 (progn
-                  (if (= K nil)
-                   (progn
-                    (setq K (getreal "\nEnter vertical curve 'K' (<return> for 'P') :"))
-                    (if (= K nil)
-                     (progn
-                      (setq L -1.0)
-                      (setq K -1.0)
-                      (setq PP nil)
-                     )
-                     (progn
-                      (setq L (abs (* K (- G2 G1) 100.0)))
-                      (setq REP (getreal (strcat "\nL = " (rtos L) ", enter new value or <return> to accept :")))
-                      (if (/= nil REP)
-                       (progn
-                        (setq L REP)
-                        (setq K (abs (/ L (- G2 G1) 100.0)))
-                       )
-                      )
-                      (setq PP -1.0)
-                     )
-                    )
-                   )
-                   (progn
-                    (setq PP (getpoint "\nEnter through point (<return> for 'L') :"))
-                    (if (= PP nil)
-                     (progn
-                      (setq L nil)
-                      (setq K -1.0)
-                      (setq PP -1.0)
-                     )
-                     (progn
-                      (setq D (- (nth 0 P) (nth 0 PP)))
-                      (setq G (- G2 G1))
-                      (setq Z (- (/ (nth 1 PP) VEXAG)
-                                 (- (/ (nth 1 P) VEXAG)
-                                    (* G1 D)
-                                 )
-                              )
-                      )
-                      (setq A 0.25)
-                      (setq B (* -1.0
-                                 (+ D
-                                    (/ (* 2.0 Z)
-                                       G
-                                    )
-                                 )
-                              )
-                      )
-                      (setq C (* D D))
-                      (setq TMP (- (* B B) (* 4.0 A C)))
-                      (if (< TMP 0.0)
-                       (progn
-                        (princ "\n*** No solution ***")
-                        (setq L -1.0)
-                        (setq K -1.0)
-                        (setq PP nil)
-                       )
-                       (progn
-                        (setq L (/ (- (sqrt TMP) B) (* 2.0 A)))
-                        (if (< L 0.0)
-                         (progn
-                          (princ "\n*** No solution ***")
-                          (setq L -1.0)
-                          (setq K -1.0)
-                          (setq PP nil)
-                         )
-                         (progn
-                          (setq REP (getreal (strcat "\nL = " (rtos L) ", enter new value or <return> to accept :")))
-                          (if (/= nil REP)
-                           (progn
-                            (setq L REP)
-                           )
-                          )
-                          (setq K (abs (/ L (- G2 G1) 100.0)))
-                         )
-                        )
-                       )
-                      )
-                     )
-                    )
-                   )
-                  )
-                 )
-                )
-               )
-               (command)
-               (setvar "OSMODE" 0)
-               (setvar "ATTREQ" 0)
-               (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
-               (vla-insertblock ACTIVESPC
-                                (vlax-3D-point P)
-                                "PVI2"
-                                25.4
-                                25.4
-                                25.4
-                                0.0
-               )
-               (setq ENT (entlast))
-               (setq ENTLIST (entget ENT))
-               (if (= (cdr (assoc 66 ENTLIST)) 1)
-                (progn
-                 (setq ENT (entnext ENT))
-                 (setq ENTLIST (entget ENT))
-                 (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
-                  (if (= (cdr (assoc 2 ENTLIST)) "LENGTH")
-                   (progn
-                    (setq ENTLIST (subst (cons 1 (rtos L 2 8)) (assoc 1 ENTLIST) ENTLIST))
-                    (entmod ENTLIST)
-                    (entupd ENT)
-                   )
-                  )
-                  (if (= (cdr (assoc 2 ENTLIST)) "K")
-                   (progn
-                    (setq ENTLIST (subst (cons 1 (rtos K 2 8)) (assoc 1 ENTLIST) ENTLIST))
-                    (entmod ENTLIST)
-                    (entupd ENT)
-                   )
-                  )
-                  (setq ENT (entnext ENT))
-                  (setq ENTLIST (entget ENT))
-                 )
-                )
-               )
-               (setvar "ATTREQ" 1)
-               (setq P2 (list (- (nth 0 P) (/ L 2.0))
-                              (- (nth 1 P) (* (/ L 2.0) G1 VEXAG))
-                        )
-               )
-               (setq P3 (list (+ (nth 0 P) (/ L 2.0))
-                              (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
-                        )
-               )
-               (RFL:DRAWPARABOLICVCURVE P2 P P3)
-               (setvar "OSMODE" OSMODE)
-              )
-              (princ "\n**** NOT VALID ****")
-             )
-            )
-           )
-          )
-          (princ "\n**** NO INTERSECTION FOUND ****")
-         )
-        )
-        (princ "\n**** NOT A LINE ****")
-       )
-      )
-     )
-    )
-    (princ "\n**** NOT A LINE ****")
-   )
-  )
- )
-)
-;
-;
-;   Program written by Robert Livingston, 99/12/03
-;
-;   C:VPL labels a selected point's station and elevation
-;
-(defun C:VPL (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST OFFSET P1 P2 P3 SIGN STA STR STR2 STR3 STR4 *error* TMP Z)
- (defun *error* (msg)
-  (terpri)
-  ;(setq *error* nil)
- )
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (defun SIGN (X)
-  (if (< X 0)
-   (eval -1)
-   (eval 1)
-  )
- )
-
- (if (= RFL:ELEVATION nil)
-  (progn
-   (princ "\n*****   Alignment utilities not loaded   *****")
-  )
-  (progn
-   (if (= RFL:PROFDEFLIST nil) (RFL:PROFDEF))
-   (setq P1 (getpoint "\nEnter point :"))
-   (setq P2 (getpoint P1 "Second point for leader :"))
-   (setq TMP (RFL:VPP P1))
-   (setq STA (car TMP))
-   (setq Z (cadr TMP))
-   (setq STR (strcat "Sta.: " (RFL:STATXT STA)))
-   (setq STR2 (strcat "Elev.: " (rtos Z)))
-   (setq TMP (RFL:ELEVATION STA))
-   (if (/= TMP nil)
-    (setq STR3 (strcat "Ctrl.Elev.: " (rtos TMP)))
-    (setq STR3 nil)
-   )
-   (setq TMP (RFL:SLOPE STA))
-   (if (/= TMP nil)
-    (setq STR4 (strcat "Ctrl.Grade: " (rtos (* 100.0 TMP)) "%"))
-    (setq STR4 nil)
-   )
-
-   (command "LEADER" "_NON" P1 "_NON" P2 "" STR)
-   (if (/= nil STR2) (command  STR2))
-   (if (/= nil STR3) (command  STR3))
-   (if (/= nil STR4) (command  STR4))
-   (command "")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 98/06/11
-;
-;   WALIGN writes a horizontal alignment to file
-;
-;
-(defun C:WALIGN (/ CMDECHO OUTFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (if (= RFL:ALIGNLIST nil)
-  (princ "\n*** NO ALIGNMENT EXISTS - USE RALIGN OR GALIGN ***\n")
-  (progn
-   (setq OUTFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 1))
-   (RFL:WALIGN OUTFILENAME)
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WALIGNB writes a horizontal alignment to a RFLALIGN Block
-;
-;
-(defun C:WALIGNB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:ALIGNLIST)
-   (RFL:RABKILL BLKENT "HOR")
-   (RFL:WALIGNB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:WPROF writes a vertical alignment to file
-;
-;
-(defun C:WPROF (/ CMDECHO OUTFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (if (= RFL:PVILIST nil)
-  (princ "\n*** NO VERTICAL EXISTS - USE RPROF OR GPROF ***\n")
-  (progn
-   (setq OUTFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 1))
-   (RFL:WPROF OUTFILENAME)
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WPROFB writes a vertical alinment to a RFLALIGN Block
-;
-;
-(defun C:WPROFB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:PVILIST)
-   (RFL:RABKILL BLKENT "VRT")
-   (RFL:WPROFB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:WPROFOG writes a vertical alignment to file
-;
-;
-(defun C:WPROFOG (/ C CMDECHO OUTFILE OUTFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= RFL:OGLIST nil)
-  (princ "\n*** NO OG EXISTS - USE GPROFOG ***\n")
-  (progn
-   (setq OUTFILENAME (getfiled "Select a Vertical OG File" "" "vrt" 1))
-   (RFL:WPROFOG OUTFILENAME)
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WPROFOGB writes a OG vertical alinment to a RFLALIGN Block
-;
-;
-(defun C:WPROFOGB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:OGLIST)
-   (RFL:RABKILL BLKENT "OG")
-   (RFL:WPROFOGB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   WSUPER writes the superelevation to file
-;
-;
-(defun C:WSUPER (/ CMDECHO OUTFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (if (= RFL:SUPERLIST nil)
-  (princ "\n*** NO SUPERELEVATION EXISTS - USE RSUPER OR GSUPER ***\n")
-  (progn
-   (setq OUTFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 1))
-   (RFL:WSUPER OUTFILENAME)
-  )
- )
- (setvar "CMDECHO" CMDECHO)
- nil
-)
-;
-;
-;   Program written by Robert Livingston, 2008/11/04
-;
-;   WSUPERB writes the superelevation to a RFLALIGN Block
-;
-;
-(defun C:WSUPERB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (if (= nil RFL:SUPERLIST)
-   (RFL:RABKILL BLKENT "E")
-   (RFL:WSUPERB BLKENT)
-  )
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston - 2015-11-06
-;
-;     C:GPROF3DP extracts the vertex elevations and sets the RFL profile based on the current alignment
-;
-;
-(defun C:GPROF3DP (/ ENT ENTLIST NODE P PLIST)
- (if (and (/= nil RFL:ALIGNLIST)
-          (/= nil (setq PLIST (RFL:GETPLIST (car (entsel)))))
-          (/= nil (caddar PLIST))
-     )
-  (progn
-   (while (and (/= nil PLIST) (= nil (RFL:STAOFF (car PLIST))))
-    (setq PLIST (cdr PLIST))
-   )
-   (setq PLIST (reverse PLIST))
-   (while (and (/= nil PLIST) (= nil (RFL:STAOFF (car PLIST))))
-    (setq PLIST (cdr PLIST))
-   )
-   (if (and (/= nil PLIST) (> (length PLIST) 1))
-    (progn
-     (if (< (car (RFL:STAOFF (last PLIST))) (car (RFL:STAOFF (car PLIST))))
-      (setq PLIST (reverse PLIST))
-     )
-     (setq RFL:PVILIST nil)
-     (foreach P PLIST
-      (setq RFL:PVILIST (append RFL:PVILIST (list (list (car (RFL:STAOFF P)) (caddr P) "L" 0.0))))
-     )
-    )
-   )
-  )
- )
- nil
-);
-;
-;   Program written by Robert Livingston, 2000/08/01
-;
-;   C:TPROF is a utility for drawing drawing one alignments profile onto another
-;
-;
-(defun C:TPROF (/ ALIGNLISTFROM ALIGNLISTTO CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (command "._UNDO" "M")
-
- (princ "\nSelect 'FROM' alignment :\n")
- (C:RALIGN)
- (if (/= RFL:ALIGNLIST nil)
-  (progn
-   (setq ALIGNLISTFROM RFL:ALIGNLIST)
-   (princ "\nSelect 'FROM' profile :\n")
-   (C:RPROF)
-   (if (/= RFL:PVILIST nil)
-    (progn
-     (setq PVILISTFROM RFL:PVILIST)
-     (princ "\nSelect 'TO' alignment :\n")
-     (C:RALIGN)
-     (if (/= RFL:ALIGNLIST nil)
-      (progn
-       (setq ALIGNLISTTO RFL:ALIGNLIST)
-       (princ "\nSelect 'TO' profile :\n")
-       (RFL:PROFDEF)
-       (if (/= RFL:PROFDEFLIST nil)
-        (progn
-         (setq PROFDEFTO RFL:PROFDEFLIST)
-         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
-         (if (= STAFROM nil)
-          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
-         )
-         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
-         (if (= STATO nil)
-          (progn
-           (setq RFL:ALIGNLIST ALIGNLISTFROM)
-           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
-          )
-         )
-         (setq INC (getreal "\nEnter incrament :"))
-         (setq STA STAFROM)
-         (command "._PLINE")
-         (while (<= STA STATO)
-          (setq RFL:ALIGNLIST ALIGNLISTFROM)
-          (setq P (RFL:XY (list STA 0.0)))
-          (if (/= P nil)
-           (progn
-            (setq RFL:PVILIST PVILISTFROM)
-            (setq Z (RFL:ELEVATION STA))
-            (if (/= Z nil)
-             (progn
-              (setq RFL:ALIGNLIST ALIGNLISTTO)
-              (setq P (RFL:STAOFF P))
-              (if (/= P nil)
-               (progn
-                (setq RFL:PROFDEFLIST PROFDEFTO)
-                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
-               )
-              )
-             )
-            )
-           )
-          )
-          (setq STA (+ STA INC))
-         )
-         (command "")
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;   Program written by Robert Livingston, 2009/05/20
-;
-;   C:TPROFB is a utility for drawing drawing one alignments profile onto another
-;
-;
-(defun C:TPROFB (/ ALIGNLISTFROM ALIGNLISTTO ENT CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
-;(defun C:TPROF ()
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (command "._UNDO" "M")
-
- (princ "\nSelect 'FROM' alignment block :\n")
- (setq ENT (car (entsel)))
- (RFL:RALIGNB ENT)
- (if (/= RFL:ALIGNLIST nil)
-  (progn
-   (setq ALIGNLISTFROM RFL:ALIGNLIST)
-   (RFL:RPROFB ENT)
-   (if (/= RFL:PVILIST nil)
-    (progn
-     (setq PVILISTFROM RFL:PVILIST)
-     (princ "\nSelect 'TO' alignment block :\n")
-     (setq ENT (car (entsel)))
-     (RFL:RALIGNB ENT)
-     (if (/= RFL:ALIGNLIST nil)
-      (progn
-       (setq ALIGNLISTTO RFL:ALIGNLIST)
-       (princ "\nSelect 'TO' profile :\n")
-       (RFL:PROFDEF)
-       (if (/= RFL:PROFDEFLIST nil)
-        (progn
-         (setq PROFDEFTO RFL:PROFDEFLIST)
-         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
-         (if (= STAFROM nil)
-          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
-         )
-         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
-         (if (= STATO nil)
-          (progn
-           (setq RFL:ALIGNLIST ALIGNLISTFROM)
-           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
-          )
-         )
-         (setq INC (getreal "\nEnter incrament :"))
-         (setq STA STAFROM)
-         (command "._PLINE")
-         (while (<= STA STATO)
-          (setq RFL:ALIGNLIST ALIGNLISTFROM)
-          (setq P (RFL:XY (list STA 0.0)))
-          (if (/= P nil)
-           (progn
-            (setq RFL:PVILIST PVILISTFROM)
-            (setq Z (RFL:ELEVATION STA))
-            (if (/= Z nil)
-             (progn
-              (setq RFL:ALIGNLIST ALIGNLISTTO)
-              (setq P (RFL:STAOFF P))
-              (if (/= P nil)
-               (progn
-                (setq RFL:PROFDEFLIST PROFDEFTO)
-                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
-               )
-              )
-             )
-            )
-           )
-          )
-          (setq STA (+ STA INC))
-         )
-         (command "")
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;   Program written by Robert Livingston, 2009/05/20
-;
-;   C:TPROFB is a utility for drawing drawing one alignments profile onto another
-;          Modified to TPROFBN 2012/06/13 to work with nested RAB blocks
-;
-;
-(defun C:TPROFBN (/ ALIGNLISTFROM ALIGNLISTTO ENT CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
-;(defun C:TPROFN ()
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (command "._UNDO" "M")
-
- (setq ENT (car (nentsel "\nSelect 'FROM' nested alignment block :\n")))
- (setq ENT (cdr (assoc 330 (entget ENT))))
- (RFL:RALIGNBN ENT)
- (if (/= RFL:ALIGNLIST nil)
-  (progn
-   (setq ALIGNLISTFROM RFL:ALIGNLIST)
-   (RFL:RPROFBN ENT)
-   (if (/= RFL:PVILIST nil)
-    (progn
-     (setq PVILISTFROM RFL:PVILIST)
-     (setq ENT (car (nentsel "\nSelect 'TO' nested alignment block :\n")))
-     (setq ENT (cdr (assoc 330 (entget ENT))))
-     (RFL:RALIGNB ENT)
-     (if (/= RFL:ALIGNLIST nil)
-      (progn
-       (setq ALIGNLISTTO RFL:ALIGNLIST)
-       (princ "\nSelect 'TO' profile :\n")
-       (RFL:PROFDEF)
-       (if (/= RFL:PROFDEFLIST nil)
-        (progn
-         (setq PROFDEFTO RFL:PROFDEFLIST)
-         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
-         (if (= STAFROM nil)
-          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
-         )
-         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
-         (if (= STATO nil)
-          (progn
-           (setq RFL:ALIGNLIST ALIGNLISTFROM)
-           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
-          )
-         )
-         (setq INC (getreal "\nEnter incrament :"))
-         (setq STA STAFROM)
-         (command "._PLINE")
-         (while (<= STA STATO)
-          (setq RFL:ALIGNLIST ALIGNLISTFROM)
-          (setq P (RFL:XY (list STA 0.0)))
-          (if (/= P nil)
-           (progn
-            (setq RFL:PVILIST PVILISTFROM)
-            (setq Z (RFL:ELEVATION STA))
-            (if (/= Z nil)
-             (progn
-              (setq RFL:ALIGNLIST ALIGNLISTTO)
-              (setq P (RFL:STAOFF P))
-              (if (/= P nil)
-               (progn
-                (setq RFL:PROFDEFLIST PROFDEFTO)
-                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
-               )
-              )
-             )
-            )
-           )
-          )
-          (setq STA (+ STA INC))
-         )
-         (command "")
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-);
-;
-;     Program written by Robert Livingston, 03-02-18
-;
-;     C:INCALIGN incruments the RFL alignment and profile by an entered amount
-;
-;
-(defun C:INCALIGN (/ *error* ALSAVE CMDECHO INC NODE PVISAVE SUPERSAVE)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (princ msg)
-  ;(setq *error* nil)
- )
-
- (setq INC (getreal "\nEnter incrament to add to horizontal and vertical alignments : "))
-
- (setq ALSAVE RFL:ALIGNLIST)
- (setq RFL:ALIGNLIST nil)
-
- (setq NODE (car ALSAVE))
- (setq ALSAVE (cdr ALSAVE))
-
- (while (/= NODE nil)
-  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list NODE)))
-  (setq NODE (car ALSAVE))
-  (setq ALSAVE (cdr ALSAVE))
- )
-
- (setq PVISAVE RFL:PVILIST)
- (setq RFL:PVILIST nil)
-
- (setq NODE (car PVISAVE))
- (setq PVISAVE (cdr PVISAVE))
-
- (while (/= NODE nil)
-  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
-  (setq RFL:PVILIST (append RFL:PVILIST (list NODE)))
-  (setq NODE (car PVISAVE))
-  (setq PVISAVE (cdr PVISAVE))
- )
-
- (setq SUPERSAVE RFL:SUPERLIST)
- (setq RFL:SUPERLIST nil)
-
- (setq NODE (car SUPERSAVE))
- (setq SUPERSAVE (cdr SUPERSAVE))
-
- (while (/= NODE nil)
-  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
-  (setq RFL:SUPERLIST (append RFL:SUPERLIST (list NODE)))
-  (setq NODE (car SUPERSAVE))
-  (setq SUPERSAVE (cdr SUPERSAVE))
- )
-
- (setvar "CMDECHO" CMDECHO)
- T
-);
-;
-;     Program written by Robert Livingston, 04-12-08
-;
-;     LVCURVE is a utility for labelling Vertical Profile entities
-;
-;
-(defun C:LVCURVE (/ *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G1 G2 K L P P1 P2 P3 STR TMP VEXAG)
- (command "._UNDO" "M")
-
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
-
- (defun *error* (msg)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (print msg)
-  ;(setq *error* nil)
- )
-
- (setq H nil)
- (setq ENTLIST (tblsearch "STYLE" (getvar "TEXTSTYLE")))
- (setq H (cdr (assoc 40 ENTLIST)))
-
- (setq VEXAG (getreal "\nEnter vertical exageration <10.000> : "))
- (if (= VEXAG nil) (setq VEXAG 10.0))
-
- (while (/= nil (setq ENT (car (entsel "\nSelect profile entity : "))))
-  (setq ENTLIST (entget ENT))
-  (if (= "LINE" (cdr (assoc 0 ENTLIST)))
-   (progn
-    (setq P1 (cdr (assoc 10 ENTLIST)))
-    (setq P2 (cdr (assoc 11 ENTLIST)))
-    (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-    (if (< (car P2) (car P1))
-     (progn
-      (setq TMP P1)
-      (setq P1 P2)
-      (setq P2 TMP)
-     )
-    )
-    (setq TMP (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1)) VEXAG 0.01))
-    (if (= H 0.0)
-     (command "._TEXT" "BC" P 5.0 P2 (strcat (if (< TMP 0.0) "-" "+") (rtos (abs TMP)) "%"))
-     (command "._TEXT" "BC" P P2 (strcat (if (< TMP 0.0) "-" "+") (rtos (abs TMP)) "%"))
-    )
-   )
-   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P2 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P2)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P3 (cdr (assoc 10 ENTLIST)))
-       (if (/= nil P3)
-        (progn
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-          (setq P2 P3)
-          (setq P3 (cdr (assoc 10 ENTLIST)))
-          (setq ENT (entnext ENT))
-          (setq ENTLIST (entget ENT))
-         )
-        )
-       )
-      )
-     )
-     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-      (progn
-       (setq P (list (car P2) (/ (+ (cadr P1) (cadr P2) (cadr P3)) 3.0)))
-       (setq L (abs (- (nth 0 P3) (nth 0 P1))))
-       (setq G1 (/ (- (nth 1 P2) (nth 1 P1))
-                   (- (nth 0 P2) (nth 0 P1))
-                   VEXAG
-                )
-       )
-       (setq G2 (/ (- (nth 1 P3) (nth 1 P2))
-                   (- (nth 0 P3) (nth 0 P2))
-                   VEXAG
-                )
-       )
-       (setq K (abs (/ L (- G2 G1) 100.0)))
-       (if (= H 0.0)
-        (progn
-         (command "._TEXT" "M" P 5.0 0.0 (strcat "K = " (rtos (abs K))))
-         (command "._TEXT" "" (strcat "L = " (rtos (abs L))))
-        )
-        (progn
-         (command "._TEXT" "M" P 0.0 (strcat "K = " (rtos (abs K))))
-         (command "._TEXT" "" (strcat "L = " (rtos (abs L))))
-        )
-       )
-      )
-     )
-    )
-   )
-  )
- )
-
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 2015-10-09
-;
-;     PL2SUPER estimates superelevations based on selected 3D polylines
-;
-;
-(defun C:PL2SUPER (/ *error* ALPLALPLLIST ALSAVE C ENT ENTLIST INC MP:Echo NODE ORTHOMODE OS OSMODE P P1 P2 P3 PC PL PR PLISTCENTER PLISTLEFT PLISTRIGHT PLIST PVIPL PVIPLLIST PVISAVE S STA STAEND SWATH TMP TOL Z Z1 Z2 ZLIST ZMAX)
-;(defun C:PL2SUPER ()
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- 
- (setq TOL 0.00001)
- 
- (defun *error* (msg)
-  (setq RFL:ALIGNLIST ALSAVE)
-  (setq PVISAVE RFL:PVILIST)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (print msg)
-  ;(setq *error* nil)
- )
-
- (defun MP:Echo ( x / cmdecho millisecs ceiling )
-
-     (cond
-         (   (null (setq ceiling 2000 millisecs (getvar 'millisecs)))
-         )
-         (   (/= 'int (type *MP:Echo:MilliSecs*))
-             (setq *MP:Echo:MilliSecs* millisecs)
-         )
-         (   (< ceiling (- millisecs *MP:Echo:MilliSecs*))
-             (setq cmdecho (getvar 'cmdecho))
-             (setvar 'cmdecho 0)
-             (vl-cmdf ".delay" 0)
-             (setvar 'cmdecho cmdecho)
-             (setq *MP:Echo:MilliSecs* millisecs)
-         )
-     )
-
-     (if (eq 'str (type x)) 
-         (setvar 'modemacro (vl-string-trim "\n\r\t" x))
-     )
-
-     (princ x)
-
-     (princ)
-
- ) 
-
- 
- (setq ALSAVE RFL:ALIGNLIST)
- (setq PVISAVE RFL:PVILIST)
- (if (= nil RFL:ALIGNLIST)
-  (princ "\n!!! NO ALIGNMENT DEFINED !!!\n")
-  (progn
-   (setq INC 0.0)
-   (while (= INC 0.0)
-    (setq INC (getdist "\nStation increment <10.0> : "))
-    (if (= INC nil) (setq INC 10.0))
-   )
-   (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
-   (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
-   (if (= nil STA) (setq STA TMP))
-   (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
-   (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
-   (if (= nil STAEND) (setq STAEND TMP))
-   (setq ALPLLIST nil)
-   (setq PVIPLLIST nil)
-   (while (/= nil (setq ENT (car (entsel "\nSelect Polyline : "))))
-    (setq ENTLIST (entget ENT))
-    (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
-     (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-                    (/ (cdr (assoc 70 ENTLIST)) 16.0))
-      (progn
-       (setq ALPL nil)
-       (setq PVIPL nil)
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (setq P1 nil)
-       (setq Z1 nil)
-       (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
-        (setq P2 (cdr (assoc 10 ENTLIST)))
-        (setq Z2 (caddr P2))
-        (if (= Z2 nil) (setq Z2 0.0))
-        (setq P2 (list (car P2) (cadr P2)))
-        (if (/= P1 nil)
-         (if (= nil ALPL)
-          (setq ALPL (list (list 0.0 P1 P2 0.0)))
-          (setq ALPL (append ALPL (list (list (+ (car (last ALPL)) (distance (cadr (last ALPL)) (caddr (last ALPL)))) P1 P2 0.0))))
-         )
-        )
-        (if (= nil PVIPL)
-         (setq PVIPL (list (list 0.0 Z2 "L" 0.0)))
-         (setq PVIPL (append PVIPL (list (list (+ (car (last ALPL)) (distance P1 P2)) Z2 "L" 0.0))))
-        )
-        (setq P1 P2)
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-       )
-       (setq ALPLLIST (append ALPLLIST (list ALPL)))
-       (setq PVIPLLIST (append PVIPLLIST (list PVIPL)))
-      )
-      (princ "\n!!! NOT a 3D POLYLINE !!!\n")
-     )
-    )
-   )
-   (if (/= nil ALPLLIST)
-    (progn
-     (setq SWATH (getdist "\nSwath with <100.0> : "))
-     (if (= nil SWATH) (setq SWATH 100.0))
-     (setq RFL:SUPERLIST nil)
-     (while (<= STA STAEND)
-      (setq RFL:ALIGNLIST ALSAVE)
-      (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
-      (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
-      (setq PLIST nil)
-      (setq ZLIST nil)
-      (setq C 0)
-      (while (< C (length ALPLLIST))
-       (setq RFL:ALIGNLIST (nth C ALPLLIST))
-       (setq RFL:PVILIST (nth C PVIPLLIST))
-       (setq P (RFL:ALINTERS P1 P2 RFL:ALIGNLIST))
-       (if (/= nil P)
-        (progn
-         (setq Z (RFL:ELEVATION (car (RFL:STAOFF P))))
-         (if (/= nil Z)
-          (progn
-           (setq PLIST (append PLIST (list P)))
-           (setq ZLIST (append ZLIST (list Z)))
-          )
-         )
-        )
-       )
-       (setq C (+ C 1))
-      )
-      (setq RFL:ALIGNLIST ALSAVE)
-      (if (and (= 3 (length PLIST)) (= 3 (length ZLIST)))
-       (progn
-        (setq PL (append (RFL:STAOFF (nth 0 PLIST)) (list (nth 0 ZLIST))))
-        (setq PC (append (RFL:STAOFF (nth 1 PLIST)) (list (nth 1 ZLIST))))
-        (setq PR (append (RFL:STAOFF (nth 2 PLIST)) (list (nth 2 ZLIST))))
-        (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA
-                                                              (* -100.0 (/ (- (caddr PC) (caddr PL)) (- (cadr PC) (cadr PL))))
-                                                              (* 100.0 (/ (- (caddr PC) (caddr PR)) (- (cadr PC) (cadr PR))))
-                                                        )
-                                                  )
-                            )
-        )
-       )
-      )
-      (MP:Echo (strcat "\nSta : " (RFL:STATXT STA)))
-      ;(princ (strcat "\nSta : " (RFL:STATXT STA)))
-      (setq STA (+ STA INC))
-     )
-    )
-   )
-  )
- )
- (setq RFL:ALIGNLIST ALSAVE)
- (setq PVISAVE RFL:PVILIST)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- T
-);
-;
 ;     Program written by Robert Livingston, 03/05/12
 ;
 ;     DAYLIGHT is a utility for 'Daylighting' 3D Polylines
@@ -17795,1339 +12413,6 @@
  (setvar "DIMZIN" DIMZIN)
 );
 ;
-;     Program written by Robert Livingston, 2016-03-30
-;
-;     DRAWBARRIER is a utility for drawing a polyline from one sta/os to another os at a specified length
-;
-;
-(setq RFL:DRAWBARRIERSEGS 20)
-(setq RFL:DRAWBARRIERLENGTH 24.2)
-(setq RFL:DRAWBARRIEROS 6.45)
-(defun C:DRAWBARRIER (/ CALCLENGTH DRAWLENGTH D D1 D2 OS OS1 OS2 P STA STA1 STA2 STAM TMP TOL)
- (defun CALCLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS LENGTHB)
-  (setq STA STA1 OS OS1 LENGTHB 0.0)
-  (setq P (RFL:XY (list STA OS)))
-  (setq DSTA (/ (- STA2 STA1) NSEGS))
-  (setq DOS (/ (- OS2 OS1) NSEGS))
-  (repeat NSEGS
-   (setq LENGTHB (+ LENGTHB (distance P (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))))
-  )
-  LENGTHB
- )
- (defun DRAWLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS)
-  (setq STA STA1 OS OS1)
-  (command "._PLINE" "_NON" (setq P (RFL:XY (list STA OS))))
-  (setq DSTA (/ (- STA2 STA1) NSEGS))
-  (setq DOS (/ (- OS2 OS1) NSEGS))
-  (repeat NSEGS
-   (command "_NON" (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))
-  )
-  (command "")
- )
- (setq TOL 0.001)
- (if (= nil (setq P (getpoint "\nStart point (<return> to enter Sta/OS) : ")))
-  (progn
-   (setq STA (getreal "\nStart Sta : "))
-   (setq OS1 (getreal "\nStart OS : "))
-  )
-  (progn
-   (setq P (RFL:STAOFF P))
-   (if (= nil (setq STA (getreal (strcat "\nStart Sta <" (rtos (car P)) "> : "))))
-    (setq STA (car P))
-   )
-   (if (= nil (setq OS1 (getreal (strcat "\nStart OS <" (rtos (cadr P)) ">: "))))
-    (setq OS1 (cadr P))
-   )
-  )
- )
- (setq TMP (getreal (strcat "\nLength (+ve = upchainage, -ve = downchainage) <" (rtos RFL:DRAWBARRIERLENGTH) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIERLENGTH TMP))
- (setq TMP (getreal (strcat "\nEnd OS (+ve = right, -ve = left) <" (rtos RFL:DRAWBARRIEROS) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIEROS TMP))
- (setq TMP (getint (strcat "\nNumber of pline segments <" (itoa RFL:DRAWBARRIERSEGS) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIERSEGS TMP))
- (setq OS2 RFL:DRAWBARRIEROS)
- (if (> RFL:DRAWBARRIERLENGTH 0.0)
-  (setq STA1 STA STA2 (- (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) TOL))
-  (setq STA1 STA STA2 (+ (caar RFL:ALIGNLIST) TOL))
- )
- (setq D1 0.0)
- (setq D2 (CALCLENGTH STA OS1 STA2 OS2 RFL:DRAWBARRIERSEGS))
- (while (> (abs (- D2 D1)) TOL)
-  (setq STAM (/ (+ STA1 STA2) 2.0))
-  (setq D (CALCLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS))
-  (if (> D (abs RFL:DRAWBARRIERLENGTH))
-   (setq STA2 STAM D2 D)
-   (setq STA1 STAM D1 D)
-  )
-;(print STAM)
- )
- (DRAWLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS)
-)
-;
-;
-;   Program written by Robert Livingston, 01/03/05
-;
-;   3DP2PROF is a routine for drawing 3D polyline control lines on a profile
-;
-;
-(defun C:3DP2PROF (/ C CLAYER CMDECHO ENT ENTLIST LAYER LR ORTHOMODE OSMODE P S)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq CLAYER (getvar "CLAYER"))
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
-
- (if (= nil RFL:ALIGNLIST)
-  (princ "\n***** Alignment not set! *****\n")
-  (progn
-   (RFL:PROFDEF)
-   (while (/= (setq ENT (car (entsel "\nSelect 3D polyline : "))) nil)
-    (setq ENTLIST (entget ENT))
-    (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
-     (princ "\n***** Not a polyline! *****\n")
-     (progn
-      (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-             (/ (cdr (assoc 70 ENTLIST)) 16.0))
-       (princ "\n***** Not a 3D polyline! *****\n")
-       (progn
-        (command "._PLINE")
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-        (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
-         (setq P (cdr (assoc 10 ENTLIST)))
-         (setq S (RFL:STAOFF P))
-         (if (/= S nil)
-          (command (RFL:PROFPOINT (nth 0 S) (nth 2 P)))
-         )
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-        )
-        (command "")
-       )
-      )
-     )
-    ) 
-   )
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "CLAYER" CLAYER)
- (setvar "ORTHOMODE" ORTHOMODE)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 03-06-11
-;     Modified 2014-11-07 to store ramp details into nose and add functionality
-;
-;     C:RAMP is a utility for drawing exit and entrance ramp tapers
-;
-;     C:RAMPTAPERLABEL : Toggles labelling of taper
-;     C:MOVENOSE       : Moves the nose to a new location
-;     C:UPDATENODE     : Updates the nose to it's current location
-;     C:SETNOSE        : Sets nos to it's current location
-;     C:ERASENOSE      : Erases the nose
-;     RFL:RAMPPUTXDATA : Adds extended data to entity
-;     RFL:RAMPGETXDATA : Reads extended data from entity
-;
-(setq RFL:RAMPTAPERLABEL T)
-(defun C:RAMPTAPERLABEL ()
- (if RFL:RAMPTAPERLABEL (setq RFL:RAMPTAPERLABEL nil) (setq RFL:RAMPTAPERLABEL T))
-)
-(setq RFL:RAMPLIST (list (cons "LANEOFFSET" 0.0)
-                         (cons "RAMPTAPER" 20.0)
-                         (cons "RAMPTAPERENTRANCE" 40.0)
-                         (cons "RAMPTAPEREXIT" 20.0)
-                         (cons "RAMPVERTICIES" 50)
-                         (cons "WEAVEOFFSET" 8.5)
-                         (cons "WEAVEOFFSETENTRANCESINGLE" 5.3)
-                         (cons "WEAVEOFFSETENTRANCEDUAL" 7.9)
-                         (cons "WEAVEOFFSETEXITSINGLE" 8.5)
-                         (cons "WEAVEOFFSETEXITDUAL" 11.1)
-                         (cons "GOREWIDTH" 5.5)
-                         (cons "GOREWIDTHENTRANCESINGLE" 5.3)
-                         (cons "GOREWIDTHENTRANCEDUAL" 7.9)
-                         (cons "GOREWIDTHEXITSINGLE" 5.5)
-                         (cons "GOREWIDTHEXITDUAL" 8.1)
-                         (cons "TAPEROFFSET" 0.5)
-                         (cons "TAPEROFFSETENTRANCE" 0.0)
-                         (cons "TAPEROFFSETEXIT" 0.5)
-                         (cons "INSIDEVERTICIES" 25)
-                         (cons "NOSESTATION" 0.0)
-                         (cons "NOSEOFFSET" 3.0)
-                         (cons "NOSERADIUS" 1.1)
-                         (cons "NOSERADIUSENTRANCE" 0.6)
-                         (cons "NOSERADIUSEXIT" 1.1)
-                         (cons "INSIDESHOULDER" 1.0)
-                         (cons "INSIDESHOULDERSINGLE" 1.0)
-                         (cons "INSIDESHOULDERDUAL" 2.0)
-                         (cons "LANEWIDTH" 4.8)
-                         (cons "LANEWIDTHSINGLE" 4.8)
-                         (cons "LANEWIDTHDUAL" 7.4)
-                         (cons "RETURNTAPER" 20.0)
-                         (cons "RETURNOFFSET" 3.0)
-                         (cons "RETURNVERTICIES" 10)
-                         (cons "SINGLELANE" "1")
-                         (cons "DUALLANE" "0")
-                         (cons "UPCHAINAGE" "1")
-                         (cons "DOWNCHAINAGE" "0")
-                         (cons "RIGHTSIDE" "1")
-                         (cons "LEFTSIDE" "0")
-                         (cons "EXITTERMINAL" "1")
-                         (cons "ENTRANCETERMINAL" "0")))
-(defun C:RAMP (/ *error* ACCEPTRAMP ALSAVE ANGBASE ANGDIR C CANCEL CANCELRAMP CLAYER
-                 CMDECHO D1 D2 DCL_ID DIMZIN ENTNOSE ENTNOSELIST FIXNUMBER
-                 INITIATE ORTHOMODE OSMODE RERUN SETDUALLANE SETENTRANCE SETEXIT
-                 SETSINGLELANE TEMPRAMPLIST)
-
- (command "._UNDO" "M")
-
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq CLAYER (getvar "CLAYER"))
- (setq DIMZIN (getvar "DIMZIN"))
- (setvar "DIMZIN" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 2)
- (setq ALSAVE RFL:ALIGNLIST)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CLAYER" CLAYER)
-  (setvar "DIMZIN" DIMZIN)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (setvar "PLINETYPE" PLINETYPE)
-  (setq RFL:ALIGNLIST ALSAVE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (defun INITIATE (RFL:RAMPLIST)
-  (start_image "IMAGE1")
-  (slide_image 0 0 (- (dimx_tile "IMAGE1") 1) (- (dimy_tile "IMAGE1") 1) (strcat RFLALIGNSLBNAME "(Tapered Single Exit)"))
-  (end_image)
-  (set_tile "LANEOFFSET" (rtos (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))))
-  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))))
-  (set_tile "RAMPVERTICIES" (itoa (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
-  (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))))
-  (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTH" RFL:RAMPLIST))))
-  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))))
-  (set_tile "INSIDEVERTICIES" (itoa (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
-  (set_tile "NOSESTATION" (rtos (cdr (assoc "NOSESTATION" RFL:RAMPLIST))))
-  (set_tile "NOSEOFFSET" (rtos (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))))
-  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))))
-  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))))
-  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))))
-  (set_tile "RETURNTAPER" (rtos (cdr (assoc "RETURNTAPER" RFL:RAMPLIST))))
-  (set_tile "RETURNOFFSET" (rtos (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))))
-  (set_tile "RETURNVERTICIES" (itoa (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
-  (set_tile "SINGLELANE" (cdr (assoc "SINGLELANE" RFL:RAMPLIST)))
-  (set_tile "DUALLANE" (cdr (assoc "DUALLANE" RFL:RAMPLIST)))
-  (set_tile "UPCHAINAGE" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
-  (set_tile "DOWNCHAINAGE" (cdr (assoc "DOWNCHAINAGE" RFL:RAMPLIST)))
-  (set_tile "RIGHTSIDE" (cdr (assoc "RIGHTSIDE" RFL:RAMPLIST)))
-  (set_tile "LEFTSIDE" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
-  (set_tile "EXITTERMINAL" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
-  (set_tile "ENTRANCETERMINAL" (cdr (assoc "ENTRANCETERMINAL" RFL:RAMPLIST)))
- )
-
- (defun CANCELRAMP ()
-  (setq CANCEL 1)
-  (done_dialog)
-  (unload_dialog DCL_ID)
- )
-
- (defun ACCEPTRAMP ()
-  (setq CANCEL 0)
-  (setq RFL:RAMPLIST (list (cons "LANEOFFSET" (atof (get_tile "LANEOFFSET")))
-                           (cons "RAMPTAPER" (atof (get_tile "RAMPTAPER")))
-                           (cons "RAMPTAPERENTRANCE" (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST)))
-                           (cons "RAMPTAPEREXIT" (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST)))
-                           (cons "RAMPVERTICIES" (atoi (get_tile "RAMPVERTICIES")))
-                           (cons "WEAVEOFFSET" (atof (get_tile "WEAVEOFFSET")))
-                           (cons "WEAVEOFFSETENTRANCESINGLE" (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST)))
-                           (cons "WEAVEOFFSETENTRANCEDUAL" (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST)))
-                           (cons "WEAVEOFFSETEXITSINGLE" (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST)))
-                           (cons "WEAVEOFFSETEXITDUAL" (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST)))
-                           (cons "GOREWIDTH" (atof (get_tile "GOREWIDTH")))
-                           (cons "GOREWIDTHENTRANCESINGLE" (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST)))
-                           (cons "GOREWIDTHENTRANCEDUAL" (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
-                           (cons "GOREWIDTHEXITSINGLE" (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST)))
-                           (cons "GOREWIDTHEXITDUAL" (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST)))
-                           (cons "TAPEROFFSET" (atof (get_tile "TAPEROFFSET")))
-                           (cons "TAPEROFFSETENTRANCE" (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST)))
-                           (cons "TAPEROFFSETEXIT" (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST)))
-                           (cons "INSIDEVERTICIES" (atoi (get_tile "INSIDEVERTICIES")))
-                           (cons "NOSESTATION" (atof (get_tile "NOSESTATION")))
-                           (cons "NOSEOFFSET" (atof (get_tile "NOSEOFFSET")))
-                           (cons "NOSERADIUS" (atof (get_tile "NOSERADIUS")))
-                           (cons "NOSERADIUSENTRANCE" (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST)))
-                           (cons "NOSERADIUSEXIT" (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST)))
-                           (cons "INSIDESHOULDER" (atof (get_tile "INSIDESHOULDER")))
-                           (cons "INSIDESHOULDERSINGLE" (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST)))
-                           (cons "INSIDESHOULDERDUAL" (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST)))
-                           (cons "LANEWIDTH" (atof (get_tile "LANEWIDTH")))
-                           (cons "LANEWIDTHSINGLE" (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST)))
-                           (cons "LANEWIDTHDUAL" (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST)))
-                           (cons "RETURNTAPER" (atof (get_tile "RETURNTAPER")))
-                           (cons "RETURNOFFSET" (atof (get_tile "RETURNOFFSET")))
-                           (cons "RETURNVERTICIES" (atoi (get_tile "RETURNVERTICIES")))
-                           (cons "SINGLELANE" (get_tile "SINGLELANE"))
-                           (cons "DUALLANE" (get_tile "DUALLANE"))
-                           (cons "UPCHAINAGE" (get_tile "UPCHAINAGE"))
-                           (cons "DOWNCHAINAGE" (get_tile "DOWNCHAINAGE"))
-                           (cons "RIGHTSIDE" (get_tile "RIGHTSIDE"))
-                           (cons "LEFTSIDE" (get_tile "LEFTSIDE"))
-                           (cons "EXITTERMINAL" (get_tile "EXITTERMINAL"))
-                           (cons "ENTRANCETERMINAL" (get_tile "ENTRANCETERMINAL"))))
-  (done_dialog)
-  (unload_dialog DCL_ID)
- )
-
- (defun FIXNUMBER (TYPE TILE)
-  (if (= TYPE 1)
-   (set_tile TILE (rtos (atof (get_tile TILE))))
-   (set_tile TILE (itoa (atoi (get_tile TILE))))
-  )
- )
-
- (defun SETSINGLELANE ()
-  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST))))
-  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST))))
-  (if (= "1" (get_tile "EXITTERMINAL"))
-   (SETEXIT)
-   (SETENTRANCE)
-  )
- )
-
- (defun SETDUALLANE ()
-  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST))))
-  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST))))
-  (if (= "1" (get_tile "EXITTERMINAL"))
-   (SETEXIT)
-   (SETENTRANCE)
-  )
- )
-
- (defun SETEXIT ()
-  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST))))
-  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST))))
-  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST))))
-  (if (= "1" (get_tile "SINGLELANE"))
-   (progn
-    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST))))
-    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST))))
-   )
-   (progn
-    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST))))
-    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST))))
-   )
-  )
- )
-
- (defun SETENTRANCE ()
-  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST))))
-  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST))))
-  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST))))
-  (if (= "1" (get_tile "SINGLELANE"))
-   (progn
-    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST))))
-    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST))))
-   )
-   (progn
-    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST))))
-    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST))))
-   )
-  )
- )
-
- (defun PICK ()
-  (setq RERUN 1)
-  (setq TEMPRAMPLIST RFL:RAMPLIST)
-  (ACCEPTRAMP)
-  (setq CANCEL "PICK")
- )
-
- (if (or (= nil RFL:ALIGNLIST) (= nil RFL:STAOFF))
-  (alert "\n!!!!!  Alignment and/or alignment utilities not loaded !!!!!")
-  (progn
-   (setq RERUN 1)
-   (setq PICKSTA nil)
-   (setq TEMPRAMPLIST RFL:RAMPLIST)
-   (while (= RERUN 1)
-    (setq RERUN 0)
-
-
-    (if (= RAMPDCLNAME nil)
-     (progn
-      (setq RAMPDCLNAME (vl-filename-mktemp "rfl.dcl"))
-      (RFL:MAKEDCL RAMPDCLNAME "RAMP")
-     )
-     (if (= nil (findfile RAMPDCLNAME))
-      (progn
-       (setq RAMPDCLNAME (vl-filename-mktemp "rfl.dcl"))
-       (RFL:MAKEDCL RAMPDCLNAME "RAMP")
-      )
-     )
-    )
-    (setq RFLALIGNSLBNAME "rflAlign.slb")
-    (if (= nil (findfile RFLALIGNSLBNAME))
-     (progn
-      (setq RFLALIGNSLBNAME (vl-filename-mktemp "rfl.slb"))
-      (RFL:MAKERFLSLB RFLALIGNSLBNAME)
-     )
-    )
-    (setq DCL_ID (load_dialog RAMPDCLNAME))
-    (if (not (new_dialog "RAMP" DCL_ID)) (exit))
-
-    (INITIATE RFL:RAMPLIST)
-
-    (if (/= nil PICKSTA)
-     (progn
-      (set_tile "NOSESTATION" (rtos PICKSTA))
-      (setq RFL:RAMPLIST TEMPRAMPLIST)
-      (setq PICKSTA nil)
-     )
-    )
-
-    (action_tile "LANEOFFSET" "(FIXNUMBER 1 \"LANEOFFSET\")")
-    (action_tile "RAMPTAPER" "(FIXNUMBER 1 \"RAMPTAPER\")")
-    (action_tile "RAMPVERTICIES" "(FIXNUMBER 2 \"RAMPVERTICIES\")")
-    (action_tile "WEAVEOFFSET" "(FIXNUMBER 1 \"WEAVEOFFSET\")")
-    (action_tile "GOREWIDTH" "(FIXNUMBER 1 \"GOREWIDTH\")")
-    (action_tile "TAPEROFFSET" "(FIXNUMBER 1 \"TAPEROFFSET\")")
-    (action_tile "INSIDEVERTICIES" "(FIXNUMBER 2 \"INSIDEVERTICIES\")")
-    (action_tile "NOSESTATION" "(FIXNUMBER 1 \"NOSESTATION\")")
-    (action_tile "NOSERADIUS" "(FIXNUMBER 1 \"NOSERADIUS\")")
-    (action_tile "INSIDESHOULDER" "(FIXNUMBER 1 \"INSIDESHOULDER\")")
-    (action_tile "LANEWIDTH" "(FIXNUMBER 1 \"LANEWIDTH\")")
-    (action_tile "RETURNTAPER" "(FIXNUMBER 1 \"RETURNTAPER\")")
-    (action_tile "RETURNOFFSET" "(FIXNUMBER 1 \"RETURNOFFSET\")")
-    (action_tile "RETURNVERTICIES" "(FIXNUMBER 2 \"RETURNVERTICIES\")")
-    (action_tile "SINGLELANE" "(SETSINGLELANE)")
-    (action_tile "DUALLANE" "(SETDUALLANE)")
-    (action_tile "EXITTERMINAL" "(SETEXIT)")
-    (action_tile "ENTRANCETERMINAL" "(SETENTRANCE)")
-    (action_tile "PICK" "(PICK)")
-    (action_tile "OK" "(ACCEPTRAMP)")
-    (action_tile "CANCEL" "(CANCELRAMP)")
-
-    (start_dialog)
-
-    (if (= CANCEL "PICK")
-     (setq PICKSTA (car (RFL:STAOFF (getpoint "\nPick point :"))))
-    )
-   )
-
-   (if (= CANCEL 0)
-    (progn
-     (vl-load-com)
-     (regapp "RFLTOOLS_XENT")
-     (if (= "1" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
-      (setq D1 1.0)
-      (setq D1 -1.0)
-     )
-     (if (= "1" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
-      (setq D2 1.0)
-      (setq D2 -1.0)
-     )
-     (if (= "1" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
-      (setq D1 (* D1 -1.0) D2 (* D2 -1.0))
-     )
-     (entmake)
-     (entmake (list (cons 0 "CIRCLE")
-                    (append (list 10) (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                                                    (* D1
-                                                       (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                                          (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                                                          (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                                                       )
-                                                    )
-                                              )
-                                      )
-                    )
-                    (cons 40 (cdr (assoc "NOSERADIUS" RFL:RAMPLIST)))
-              )
-     )
-;     (command "._CIRCLE"
-;              (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-;                            (* D1
-;                               (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-;                                  (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-;                                  (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-;                               )
-;                            )
-;                      )
-;              )
-;              (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-;     )
-     (setq ENTNOSE (entlast))
-     (RFL:RAMPPUTXDATA ENTNOSE nil)
-     (RFL:RAMPDRAW ENTNOSE 0)
-    )
-   )
-  )
- )
-
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CLAYER" CLAYER)
- (setvar "DIMZIN" DIMZIN)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- (setvar "PLINETYPE" PLINETYPE)
- (setq RFL:ALIGNLIST ALSAVE)
- nil
-)
-(defun RFL:RAMPDRAW (ENTNOSE MODE / ALSAVE ANG ANG2 ANGBASE ANGDIR C CMDECHO D1 D2 DIMZIN DOFFSET DSTA ENTDELSET ENTLISTNEW ENTNOSELIST
-                                    ENTNOSEP ENTSET NOSEALIGNRADIUS NOSEOFFSET NOSERADIUS NOSESTATION OFFSET OFFSET1 OFFSET2
-                                    ORTHOMODE OSMODE RLSAVE P P1 P2 PL1 PL2
-                                    PICK PICKSTA PLINETYPE RAMPENTLIST RLSAVE STA STA1 STA2)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq CLAYER (getvar "CLAYER"))
- (setq DIMZIN (getvar "DIMZIN"))
- (setvar "DIMZIN" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (setq PLINETYPE (getvar "PLINETYPE"))
- (setvar "PLINETYPE" 2)
- (setq ALSAVE RFL:ALIGNLIST)
- (setq RLSAVE RFL:RAMPLIST)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CLAYER" CLAYER)
-  (setvar "DIMZIN" DIMZIN)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (setvar "PLINETYPE" PLINETYPE)
-  (setq RFL:ALIGNLIST ALSAVE)
-  (setq RFL:RAMPLIST RLSAVE)
-  ;(setq *error* nil)
-  (print msg)
- )
- 
- (defun GETBIT (N B)
-  (while (> B 0)
-   (setq N (/ N 2))
-   (setq B (- B 1))
-  )
-  (rem N 2)
- )
-
- (setq ALSAVE RFL:ALIGNLIST)
- (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
- (setq ENTNOSELIST (entget ENTNOSE))
- (setq NOSESTATION (RFL:STAOFF (cdr (assoc 10 ENTNOSELIST))))
- (setq NOSERADIUS (cdr (assoc 40 ENTNOSELIST)))
- (if (= nil NOSESTATION)
-  (princ "!!! NOSE NOT ON ALIGNMENT !!!")
-  (progn
-   (setq NOSEOFFSET (cadr NOSESTATION))
-   (setq NOSESTATION (car NOSESTATION))
-   (setq NOSEALIGNRADIUS (RFL:GETRADIUS NOSESTATION))
-   (setq RLSAVE RFL:RAMPLIST)
-   (setq RFL:RAMPLIST (RFL:RAMPGETRAMP ENTNOSE))
-   (if (= nil RFL:RAMPLIST)
-    (princ "\n*** NO NOSE DATA FOUND ***")
-    (progn
-     (setq ENTSET (ssadd))
-     (if (= 1 (GETBIT MODE 0))
-      (progn
-       (setq RFL:RAMPLIST (subst (cons "NOSESTATION" NOSESTATION) (assoc "NOSESTATION" RFL:RAMPLIST) RFL:RAMPLIST))
-      )
-     )
-     (if (= 1 (GETBIT MODE 1))
-      (progn
-      )
-     )
-     (if (= 1 (GETBIT MODE 2))
-      (progn
-       (setq ENTDELSET (RFL:RAMPGETENT ENTNOSE))
-       (setq C 0)
-       (while (< C (sslength ENTDELSET))
-        (entdel (ssname ENTDELSET C))
-        (setq C (+ C 1))
-       )
-;       (command "._ERASE" (RFL:RAMPGETENT ENTNOSE) "")
-      )
-     )
-     (if (= "1" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
-      (setq D1 1.0)
-      (setq D1 -1.0)
-     )
-     (if (= "1" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
-      (setq D2 1.0)
-      (setq D2 -1.0)
-     )
-     (if (= "1" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
-      (setq D1 (* D1 -1.0) D2 (* D2 -1.0))
-     )
-
-     (setq ENTNOSEP (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                                  (* D1
-                                     (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                                     )
-                                  )
-                            )
-                    )
-     )
-     (entmod (subst (list 10 (car ENTNOSEP) (cadr ENTNOSEP) 0.0) (assoc 10 (entget ENTNOSE)) (entget ENTNOSE)))
-
-     (setq ANG (atan (/ 1.0 (cdr (assoc "RAMPTAPER" RFL:RAMPLIST)))))
-     (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                   (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                         (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
-                         (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))
-                      )
-                      -1.0
-                      D1
-                      D2
-                      (sin ANG)
-                   )
-                )
-     )
-     (setq OFFSET2 (+ (* D1
-                         (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                            (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                            (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                         )
-                            )
-                      (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                            (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
-                            (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))
-                         )
-                         D1
-                         (cos ANG)
-                      )
-                   )
-     )
-     (setq OFFSET1 (* D1
-                      (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                   )
-     )
-     (setq STA1 (+ STA2
-                   (* -1.0
-                      D1
-                      D2
-                      (abs (- OFFSET2 OFFSET1))
-                      (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
-                   )
-                )
-     )
-     (if (or (= nil (RFL:XY (list STA1 0.0)))
-             (= nil (RFL:XY (list STA2 0.0)))
-             (= nil (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST)) 0.0)))
-         )
-      (progn
-;       (alert "!!!!!  Point not on alignment  !!!!!")
-      )
-      (progn
-       (setq PL1 (RFL:XY (list STA2 OFFSET2)))
-       (setq STA STA1)
-       (setq OFFSET OFFSET1)
-       (setq DSTA (/ (- STA2 STA1) (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
-       (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
-       (setq C 0)
-;       (setq ENTLISTNEW (list (cons 0 "LWPOLYLINE")))
-;       (setq ENTLISTNEW (append ENTLISTNEW (list (cons 90 (+ (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)) 1)))))
-;       (while (<= C (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
-;        (setq ENTLISTNEW (append ENTLISTNEW (list (append (list 10) (RFL:XY (list (+ STA1 (* C DSTA))
-;                                                                                  (+ OFFSET1 (* C DOFFSET))))))))
-;        (setq C (+ C 1))
-;       )
-;(setq xxx ENTLISTNEW)
-;(exit)
-;       (entmake)
-;       (entmake ENTLISTNEW)
-       (command "._PLINE")
-       (while (<= C (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
-        (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
-                                  (+ OFFSET1 (* C DOFFSET)))))
-         (command P)
-        )
-        (setq C (+ C 1))
-       )
-       (command "")
-       (ssadd (entlast) ENTSET)
-       (setq STA (+ STA1
-                    (* (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                       (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
-                       D1
-                       D2
-                    )
-                 )
-       )
-       (command "._LINE"
-                (RFL:XY (list STA
-                              (* D1 (+ (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                       (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                    )
-                              )
-                        )
-                )
-                (RFL:XY (list STA
-                              (* D1 (+ 20.0
-                                       (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                       (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                    )
-                              )
-                        )
-                )
-                ""
-       )
-       (ssadd (entlast) ENTSET)
-       (setvar "DIMZIN" 8)
-       (if (= (cdr (assoc 40 (tblsearch "STYLE" (getvar "TEXTSTYLE")))) 0.0)
-        (command "._TEXT"
-                 "ML"
-                 (RFL:XY (list STA
-                               (* D1 (+ 20.0
-                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                     )
-                               )
-                         )
-                 )
-                 5.0
-                 (RFL:XY (list STA
-                               (* D1 (+ 50.0
-                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                     )
-                               )
-                         )
-                 )
-                 (if RFL:RAMPTAPERLABEL
-                  (strcat "Weave (" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))) ":1 TAPER)")
-                  (strcat "Weave: " (RFL:STATXT STA))
-                 )
-                 ;""
-        )
-        (command "._TEXT"
-                 "ML"
-                 (RFL:XY (list STA
-                               (* D1 (+ 20.0
-                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                     )
-                               )
-                         )
-                 )
-                 (RFL:XY (list STA
-                               (* D1 (+ 50.0
-                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
-                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                     )
-                               )
-                         )
-                 )
-                 (if RFL:RAMPTAPERLABEL
-                  (strcat "Weave (" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))) ":1 TAPER)")
-                  (strcat "Weave: " (RFL:STATXT STA))
-                 )
-                 ;""
-        )
-       )
-       (ssadd (entlast) ENTSET)
-       (setvar "DIMZIN" 0)
-       (setq STA1 (+ STA1
-                     (* (+ (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))
-                           (cdr (assoc "GOREWIDTH" RFL:RAMPLIST))
-                        )
-                        (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
-                        D1
-                        D2
-                     )
-                  )
-       )
-       (setq OFFSET1 (* D1
-                        (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                           (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))
-                        )
-                     )
-       )
-       (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                     (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                           (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
-                        )
-                        -1.0
-                        D1
-                        D2
-                        (sin ANG)
-                     )
-                  )
-       )
-       (setq OFFSET2 (+ (* D1
-                           (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                              (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                              (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                           )
-                        )
-                        (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                              (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
-                           )
-                           D1
-                           (cos ANG)
-                        )
-                     )
-       )
-       (setq STA STA1)
-       (setq OFFSET OFFSET1)
-       (setq DSTA (/ (- STA2 STA1) (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
-       (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
-       (setq C 0)
-       (command "._PLINE")
-       (if (> (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST)) 0.0)
-        (if (setq P (RFL:XY (list STA1
-                                  (* D1 (cdr (assoc "LANEOFFSET" RFL:RAMPLIST)))
-                            )
-                    )
-            )
-         (command P)
-        )
-       )
-       (while (<= C (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST)))
-        (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
-                                  (+ OFFSET1 (* C DOFFSET)))))
-         (command P)
-        )
-        (setq C (+ C 1))
-       )
-       (command "")
-       (ssadd (entlast) ENTSET)
-       (setq PL2 (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                               (* D1
-                                  (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                                     (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                                     (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                                  )
-                               )
-                         )
-                 )
-       )
-       (setq ANG2 (+ (angle PL1 PL2)
-                     (* D2
-                        (/ pi 2.0)
-                     )
-                  )
-       )
-       (setq PL2 (list (+ (car PL1)
-                          (* 50.0
-                             (cos ANG2)
-                          )
-                       )
-                       (+ (cadr PL1)
-                          (* 50.0
-                             (sin ANG2)
-                          )
-                       )
-                 )
-       )
-       (command "._LINE" PL1 PL2 "")
-       (ssadd (entlast) ENTSET)
-       (setvar "DIMZIN" 8)
-       (if (= (cdr (assoc 40 (tblsearch "STYLE" (getvar "TEXTSTYLE")))) 0.0)
-        (command "._TEXT"
-                 "MR"
-                 PL2
-                 5.0
-                 PL1
-                 (strcat "R=" (rtos (abs NOSEALIGNRADIUS)))
-                 ;""
-        )
-        (command "._TEXT"
-                 "MR"
-                 PL2
-                 PL1
-                 (strcat "R=" (rtos (abs NOSEALIGNRADIUS)))
-                 ;""
-        )
-       )
-       (ssadd (entlast) ENTSET)
-       (setvar "DIMZIN" 0)
-      )
-     )      
-     (if (> (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
-            (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-         )
-      (alert "!!!!!  Return offset greater than nose offset  !!!!!")
-      (if (/= (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
-              (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-          )
-       (progn
-        (setq ANG (atan (/ 1.0 (cdr (assoc "RETURNTAPER" RFL:RAMPLIST)))))
-        (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
-                      (* (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                         -1.0
-                         D1
-                         D2
-                         (sin ANG)
-                      )
-                   )
-        )
-        (setq OFFSET2 (- (* D1
-                            (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                               (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
-                               (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                            )
-                         )
-                         (* (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
-                            D1
-                            (cos ANG)
-                         )
-                      )
-        )
-        (setq OFFSET1 (* D1
-                         (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
-                            (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
-                         )
-                      )
-        )
-        (setq STA1 (+ STA2
-                      (* D1
-                         D2
-                         (abs (- OFFSET2 OFFSET1))
-                         (cdr (assoc "RETURNTAPER" RFL:RAMPLIST))
-                      )
-                   )
-        )
-        (if (or (= nil (RFL:XY (list STA1 0.0)))
-                (= nil (RFL:XY (list STA2 0.0)))
-            )
-         (alert "!!!!!  Point not on alignment  !!!!!")
-         (progn
-          (setq STA STA1)
-          (setq OFFSET OFFSET1)
-          (setq DSTA (/ (- STA2 STA1) (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
-          (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
-          (setq C 0)
-          (command "._PLINE")
-          (while (<= C (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST)))
-           (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
-                                     (+ OFFSET1 (* C DOFFSET)))))
-            (command P)
-           )
-           (setq C (+ C 1))
-          )
-          (command "")
-          (ssadd (entlast) ENTSET)
-         )
-        )
-       )
-      )
-     )
-     (RFL:RAMPPUTXDATA ENTNOSE ENTSET)
-    )
-   )
-  )
- )
- 
- (setq RFL:RAMPLIST ALSAVE)
- 
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CLAYER" CLAYER)
- (setvar "DIMZIN" DIMZIN)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- (setvar "PLINETYPE" PLINETYPE)
- (setq RFL:ALIGNLIST ALSAVE)
- (setq RFL:RAMPLIST RLSAVE)
- nil
-)
-(defun RFL:RAMPPUTXDATA (ENT ENTSET / ALIGNDATALIST C CMIN CMAX ENTLIST ENTDATALIST MAXNODES RAMPDATALIST STA)
- (setq MAXNODES 100)
- (vl-load-com)
- (regapp "RFLTOOLS_XENT")
- (setq RAMPDATALIST (list (cons 1000 "RFLTOOLS_RAMP_NOSE")
-                          (cons 1040 (cdr (assoc "LANEOFFSET" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "RAMPTAPER" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST)))
-                          (cons 1070 (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "GOREWIDTH" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST)))
-                          (cons 1070 (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "NOSESTATION" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "NOSERADIUS" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "LANEWIDTH" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "RETURNTAPER" RFL:RAMPLIST)))
-                          (cons 1040 (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST)))
-                          (cons 1070 (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "SINGLELANE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "DUALLANE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "DOWNCHAINAGE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "RIGHTSIDE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
-                          (cons 1000 (cdr (assoc "ENTRANCETERMINAL" RFL:RAMPLIST)))
-                    )
- )
- (setq STA (cdr (assoc "NOSESTATION" RFL:RAMPLIST)))
- (if (> MAXNODES (length RFL:ALIGNLIST))
-  (progn
-   (setq CMIN 0)
-   (setq CMAX (length RFL:ALIGNLIST))
-  )
-  (progn
-   (setq C 0)
-   (while (> STA (car (nth C RFL:ALIGNLIST)))
-    (setq C (+ C 1))
-   )
-   (setq CMIN (max (- C (/ MAXNODES 2)) 0))
-   (setq CMAX (min (+ C (/ MAXNODES 2)) (length RFL:ALIGNLIST)))
-   (if (= CMIN 0)
-    (setq CMAX (+ CMIN MAXNODES))
-    (if (= CMAX (length RFL:ALIGNLIST))
-     (setq CMIN (- CMAX MAXNODES))
-    )
-   )
-  )
- )
- (setq ALIGNDATALIST (list (cons 1000 "#RFL HORIZONTAL ALIGNMENT FILE")))
- (setq C CMIN)
- (while (< C CMAX)
-  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth C RFL:ALIGNLIST))))))
-  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 1 (nth C RFL:ALIGNLIST)))))))
-  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 1 (nth C RFL:ALIGNLIST)))))))
-  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 2 (nth C RFL:ALIGNLIST)))))))
-  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 2 (nth C RFL:ALIGNLIST)))))))
-  (if (listp (nth 3 (nth C RFL:ALIGNLIST)))
-   (progn
-    (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1000 "SPIRAL"))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 0 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 0 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 1 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 1 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 2 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 2 (nth 3 (nth C RFL:ALIGNLIST))))))))
-	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 3 (nth 3 (nth C RFL:ALIGNLIST)))))))
-   )
-   (progn
-    (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 3 (nth C RFL:ALIGNLIST))))))
-   )
-  )
-  (setq C (+ C 1))
- )
- (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1000 "#END DEFINITION"))))
- (setq ENTDATALIST (list (cons 1000 "RFLTOOLS_RAMP_ENTITIES")))
- (if (/= nil ENTSET)
-  (progn
-   (setq C 0)
-   (while (< C (sslength ENTSET))
-    (setq ENTDATALIST (append ENTDATALIST (list (cons 1005 (cdr (assoc 5 (entget (ssname ENTSET C))))))))
-    (setq C (+ C 1))
-   )
-  )
- )
- (setq ENTLIST (append (entget ENT)
-                       (list
-                             (list -3
-                                   (append (list "RFLTOOLS_XENT")
-                                           RAMPDATALIST
-                                           ALIGNDATALIST
-                                           ENTDATALIST
-                                   )
-                             )
-                       )
-               )
- )
- (entmod ENTLIST)
-)
-(defun RFL:RAMPGETENT (ENT / ENT2 ENTLIST ENTSET NODE)
- (setq ENTSET (ssadd))
- (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
- (foreach NODE ENTLIST
-  (progn
-   (if (= 1005 (car NODE))
-    (if (/= nil (setq ENT2 (handent (cdr NODE))))
-     (ssadd ENT2 ENTSET)
-    )
-   )
-  )
- )
- (setq ENTSET ENTSET)
-)
-(defun RFL:RAMPGETRAMP (ENT / ENTLIST ENTSET RFL:RAMPLIST)
- (setq RFL:RAMPLIST nil)
- (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
- (if (/= (cdar ENTLIST) "RFLTOOLS_RAMP_NOSE")
-  (princ "\n*** NO NOSE DATA FOUND ***")
-  (progn
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEOFFSET" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPER" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPERENTRANCE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPEREXIT" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPVERTICIES" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSET" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETENTRANCESINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETENTRANCEDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETEXITSINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETEXITDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTH" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHENTRANCESINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHENTRANCEDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHEXITSINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHEXITDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSET" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSETENTRANCE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSETEXIT" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDEVERTICIES" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSESTATION" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSEOFFSET" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUS" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUSENTRANCE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUSEXIT" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDER" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDERSINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDERDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTH" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTHSINGLE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTHDUAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNTAPER" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNOFFSET" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNVERTICIES" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "SINGLELANE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "DUALLANE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "UPCHAINAGE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "DOWNCHAINAGE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RIGHTSIDE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LEFTSIDE" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "EXITTERMINAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "ENTRANCETERMINAL" (cdar ENTLIST)))))
-   (setq ENTLIST (cdr ENTLIST))
-   (setq RAMPENTLIST nil)
-   (while (/= ENTLIST nil)
-    (setq RAMPENTLIST (append RAMPENTLIST (list (cdar ENTLIST))))
-    (setq ENTLIST (cdr ENTLIST))
-   )
-  )
- )
- RFL:RAMPLIST
-)
-(defun RFL:RAMPGETALIGN (ENT / RFL:ALIGNLIST BULGE ENTLIST LO P1X P1Y P2X P2Y PLTX PLTY PLTSTX PLTSTY PSTX PSTY STA)
- (setq RFL:ALIGNLIST nil)
- (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
- (while (and (/= ENTLIST nil) (/= (cdar ENTLIST) "#RFL HORIZONTAL ALIGNMENT FILE"))
-  (setq ENTLIST (cdr ENTLIST))
- )
- (setq ENTLIST (cdr ENTLIST))
- (while (and (/= ENTLIST nil) (/= (cdar ENTLIST) "#END DEFINITION"))
-  (setq STA (cdar ENTLIST))
-  (setq ENTLIST (cdr ENTLIST))
-  (setq P1X (cdar ENTLIST))
-  (setq ENTLIST (cdr ENTLIST))
-  (setq P1Y (cdar ENTLIST))
-  (setq ENTLIST (cdr ENTLIST))
-  (setq P2X (cdar ENTLIST))
-  (setq ENTLIST (cdr ENTLIST))
-  (setq P2Y (cdar ENTLIST))
-  (setq ENTLIST (cdr ENTLIST))
-  (if (= (cdar ENTLIST) "SPIRAL")
-   (progn
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PLTX (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PLTY (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PLTSTX (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PLTSTY (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PSTX (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq PSTY (cdar ENTLIST))
-    (setq ENTLIST (cdr ENTLIST))
-    (setq LO (cdar ENTLIST))
-    (setq BULGE (list (list PLTX PLTY) (list PLTSTX PLTSTY) (list PSTX PSTY) LO))
-   )
-   (progn
-    (setq BULGE (cdar ENTLIST))
-   )
-  )
-  (setq ENTLIST (cdr ENTLIST))
-  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list STA (list P1X P1Y) (list P2X P2Y) BULGE))))
- )
- RFL:ALIGNLIST
-)
-(defun C:MOVENOSE (/ *error* ALSAVE ENTNOSE ENTNOSELIST ENTSET GRCODE P P1 RLSAVE REP)
- (setq RLSAVE RFL:RAMPLIST)
- (setq ALSAVE RFL:ALIGNLIST)
-
- (defun *error* (msg)
-  (setq RFL:ALIGNLIST ALSAVE)
-  (setq RFL:RAMPLIST RLSAVE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
- (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
-  (princ "\n*** Entity does not contain RAMP information ***")
-  (progn
-   (setq ENTNOSELIST (entget ENTNOSE))
-   (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
-   (setq REP "")
-   (while (or (= (car (setq GRCODE (grread t 15 0))) 5) (= (car GRCODE) 2))
-    (cond ((= (car GRCODE) 2)
-           (progn
-            (princ (chr (cadr GRCODE)))
-           )
-          )
-          ((= (car GRCODE) 5)
-           (progn
-            (setq P (cadr GRCODE))
-            (setq P1 (RFL:STAOFF P))
-            (if (/= nil P1)
-             (progn
-              (setq P1 (RFL:XY (list (car P1) 0.0)))
-;              (grdraw P1 P -1)
-              (setq ENTNOSELIST (subst (append (list 10) P1) (assoc 10 ENTNOSELIST) ENTNOSELIST))
-              (entmod ENTNOSELIST)
-              (entupd ENTNOSE)
-              (RFL:RAMPDRAW ENTNOSE 7)
-             )
-            )
-           )
-          )
-    )
-   )
-  )
- )
- (setq RFL:RAMPLIST RLSAVE)
- (setq RFL:ALIGNLIST ALSAVE)
- nil
-)
-(defun C:UPDATENOSE (/ ALSAVE ENTNOSE RLSAVE)
- (command "._UNDO" "M")
- (setq RLSAVE RFL:RAMPLIST)
- (setq ALSAVE RFL:ALIGNLIST)
- (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
- (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
-  (princ "\n*** Entity does not contain RAMP information ***")
-  (progn
-   (RFL:RAMPDRAW ENTNOSE 7)
-  )
- )
- (setq RFL:RAMPLIST RLSAVE)
- (setq RFL:ALIGNLIST ALSAVE)
- nil
-)
-(defun C:SETNOSE (/ ENTNOSE)
- (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
- (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
-  (princ "\n*** Entity does not contain RAMP information ***")
-  (progn
-   (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
-   (setq RFL:RAMPLIST (RFL:RAMPGETRAMP ENTNOSE))
-   nil
-  )
- )
-)
-(defun C:ERASENOSE (/ ENTNOSE RAMPENTSET)
- (command "._UNDO" "M")
- (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
- (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
-  (princ "\n*** Entity does not contain RAMP information ***")
-  (progn
-   (setq RAMPENTSET (RFL:RAMPGETENT ENTNOSE))
-   (ssadd ENTNOSE RAMPENTSET)
-   (command "._ERASE" RAMPENTSET "")
-   nil
-  )
- )
-);
-;
 ;     Program written by Robert Livingston, 2017/09/07
 ;
 ;     DAYLIGHTP is a utility for 'Daylighting' from a specified point
@@ -19302,6 +12587,275 @@
  (setvar "ANGDIR" ANGDIR)
  (setvar "DIMZIN" DIMZIN)
  T
+);
+;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   DPROF draws the current profile
+;
+;
+(defun C:DPROF (/ ANGBASE ANGDIR CMDECHO OSMODE REP STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (/= nil RFL:PVILIST)
+  (progn
+   (RFL:PROFDEF)
+   (initget "Yes No")
+   (setq REP (getkword "\nDraw profile (<Yes>/No) :"))
+   (if (= REP nil) (setq REP "Yes"))
+   (if (= REP "Yes")
+    (progn
+     (initget "Yes No")
+     (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
+     (if (= REP nil) (setq REP "No"))
+     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
+     (RFL:DRAWPROF RFL:PVILIST)
+    )
+   )
+   (initget "Yes No")
+   (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
+   (if (= REP nil) (setq REP "No"))
+   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
+  )
+  (progn
+   (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   DPROFOG draws on the current layer the current OG profile defined in RFL:OGLIST
+;
+;
+(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (/= nil RFL:OGLIST)
+  (progn
+   (RFL:PROFDEF)
+   (setq C 0)
+   (command "._PLINE")
+   (while (< C (length RFL:OGLIST))
+    (command (RFL:PROFPOINT (nth 0 (nth C RFL:OGLIST)) (nth 1 (nth C RFL:OGLIST))))
+    (setq C (+ C 1))
+   )
+   (command "")
+  )
+  (progn
+   (princ "\n*** OG PROFILE NOT SET ***\n")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;     Program written by Robert Livingston, 2016-03-30
+;
+;     DRAWBARRIER is a utility for drawing a polyline from one sta/os to another os at a specified length
+;
+;
+(setq RFL:DRAWBARRIERSEGS 20)
+(setq RFL:DRAWBARRIERLENGTH 24.2)
+(setq RFL:DRAWBARRIEROS 6.45)
+(defun C:DRAWBARRIER (/ CALCLENGTH DRAWLENGTH D D1 D2 OS OS1 OS2 P STA STA1 STA2 STAM TMP TOL)
+ (defun CALCLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS LENGTHB)
+  (setq STA STA1 OS OS1 LENGTHB 0.0)
+  (setq P (RFL:XY (list STA OS)))
+  (setq DSTA (/ (- STA2 STA1) NSEGS))
+  (setq DOS (/ (- OS2 OS1) NSEGS))
+  (repeat NSEGS
+   (setq LENGTHB (+ LENGTHB (distance P (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))))
+  )
+  LENGTHB
+ )
+ (defun DRAWLENGTH (STA1 OS1 STA2 OS2 NSEGS / DSTA DOS STA OS)
+  (setq STA STA1 OS OS1)
+  (command "._PLINE" "_NON" (setq P (RFL:XY (list STA OS))))
+  (setq DSTA (/ (- STA2 STA1) NSEGS))
+  (setq DOS (/ (- OS2 OS1) NSEGS))
+  (repeat NSEGS
+   (command "_NON" (setq P (RFL:XY (list (setq STA (+ STA DSTA)) (setq OS (+ OS DOS))))))
+  )
+  (command "")
+ )
+ (setq TOL 0.001)
+ (if (= nil (setq P (getpoint "\nStart point (<return> to enter Sta/OS) : ")))
+  (progn
+   (setq STA (getreal "\nStart Sta : "))
+   (setq OS1 (getreal "\nStart OS : "))
+  )
+  (progn
+   (setq P (RFL:STAOFF P))
+   (if (= nil (setq STA (getreal (strcat "\nStart Sta <" (rtos (car P)) "> : "))))
+    (setq STA (car P))
+   )
+   (if (= nil (setq OS1 (getreal (strcat "\nStart OS <" (rtos (cadr P)) ">: "))))
+    (setq OS1 (cadr P))
+   )
+  )
+ )
+ (setq TMP (getreal (strcat "\nLength (+ve = upchainage, -ve = downchainage) <" (rtos RFL:DRAWBARRIERLENGTH) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERLENGTH TMP))
+ (setq TMP (getreal (strcat "\nEnd OS (+ve = right, -ve = left) <" (rtos RFL:DRAWBARRIEROS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIEROS TMP))
+ (setq TMP (getint (strcat "\nNumber of pline segments <" (itoa RFL:DRAWBARRIERSEGS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERSEGS TMP))
+ (setq OS2 RFL:DRAWBARRIEROS)
+ (if (> RFL:DRAWBARRIERLENGTH 0.0)
+  (setq STA1 STA STA2 (- (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) TOL))
+  (setq STA1 STA STA2 (+ (caar RFL:ALIGNLIST) TOL))
+ )
+ (setq D1 0.0)
+ (setq D2 (CALCLENGTH STA OS1 STA2 OS2 RFL:DRAWBARRIERSEGS))
+ (while (> (abs (- D2 D1)) TOL)
+  (setq STAM (/ (+ STA1 STA2) 2.0))
+  (setq D (CALCLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS))
+  (if (> D (abs RFL:DRAWBARRIERLENGTH))
+   (setq STA2 STAM D2 D)
+   (setq STA1 STAM D1 D)
+  )
+;(print STAM)
+ )
+ (DRAWLENGTH STA OS1 STAM OS2 RFL:DRAWBARRIERSEGS)
+)
+;
+;
+;     Program written by Robert Livingston, 2017-04-10
+;
+;     C:DRAWMID draws a polyline midpoint between two selected polylines
+;
+;
+(defun C:DRAWMID (/ 3D CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 P PLIST1 PLIST2 PLISTM ORTHOMODE OSMODE)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+
+ (setq PLISTM nil)
+ (if (setq ENT1 (car (entsel "\nSelect first polyline : ")))
+  (if (setq PLIST1 (RFL:GETPLIST ENT1))
+   (if (setq ENT2 (car (entsel "\nSelect second polyline : ")))
+    (if (setq PLIST2 (RFL:GETPLIST ENT2))
+     (setq PLISTM (RFL:MIDPLIST PLIST1 PLIST2))
+    )
+   )
+  )
+ )
+ (if PLISTM
+  (progn
+   (setq ENTLIST1 (entget ENT1)
+         ENTLIST2 (entget ENT2)
+   )
+   (if (or (= (float (/ (cdr (assoc 70 ENTLIST1)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST1)) 16.0))
+           (= (float (/ (cdr (assoc 70 ENTLIST2)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST2)) 16.0))
+       )
+    (command "._PLINE")
+    (command "._3DPOLY")
+   )
+   (foreach P PLISTM (command P))
+   (command "")
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "OSMODE" OSMODE)
+ T
+);
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
+;
+;
+(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq ENT (entsel "\nSelect line : "))
+ (if (/= ENT nil) 
+  (progn
+   (setq P (car (cdr ENT)))
+   (setq P (list (car P) (cadr P)))
+   (setq ENT (car ENT))
+   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
+    (progn
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq P1 (list (car P1) (cadr P1)))
+     (setq P2 (cdr (assoc 11 ENTLIST)))
+     (setq P2 (list (car P2) (cadr P2)))
+     (if (< (distance P P1) (distance P P2))
+      (progn
+       (setq TMP P1)
+       (setq P1 P2)
+       (setq P2 TMP)
+      )
+     )
+     (setq ANG (angle P1 P2))
+     (if (/= (setq R (getreal "Radius : ")) nil)
+      (if (/= (setq L (getreal "Length : ")) nil)
+       (progn
+        (initget 1 "Left Right")
+        (setq LR (getkword "\n Left or Right : "))
+        (if (= LR "Left")
+         (setq DIR 1.0)
+         (setq DIR -1.0)
+        )
+        (setq THETA (/ L (* 2.0 R)))
+        (setq FX (* R (RFL:SPIRALFXR THETA)))
+        (setq FY (* R (RFL:SPIRALFYR THETA)))
+        (setq PLT P2)
+        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
+                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
+        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
+                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
+        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   DSUPER inserts SUPER blocks along the current alignment
+;
+;
+(defun C:DSUPER (/ AL DIMZIN CMDECHO REP SFLAG STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (RFL:DSUPER)
+
+ (setvar "CMDECHO" CMDECHO)
 );
 ;
 ;     Program Written by Robert LIvingston, 03/03/17
@@ -21057,6 +14611,620 @@
  (setvar "OSMODE" OSMODE)
 );
 ;
+;     Program written by Robert Livingston, 2017-04-11
+;
+;     C:ESTRADIUS estimates the segmented alignments radius at a given point
+;
+;
+(defun C:ESTRADIUS (/ CMDECHO R RFL:ESTRADIUSDIST RFL:ESTRADIUSNUMPOINTS STA TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ 
+ (setq R nil)
+ 
+ (if (setq TMP (getdist "\nMaximum distance from point for estimation <30.0> : "))
+  (setq RFL:ESTRADIUSDIST TMP)
+  (setq RFL:ESTRADIUSDIST 30.0)
+ )
+ (if (or (= nil (setq TMP (getint "\nMaximum number of points for estimation <10> : ")))
+         (> TMP 2)
+     )
+  (setq RFL:ESTRADIUSNUMPOINTS TMP)
+  (setq RFL:ESTRADIUSNUMPOINTS 10)
+ )
+ (while (setq STA (car (RFL:STAOFF (getpoint "\nSelect point : "))))
+  (if (setq R (RFL:ESTRADIUS STA))
+   (if (< R 0.0)
+    (princ (strcat "\nRadius = " (rtos (abs R)) " Right\n"))
+    (princ (strcat "\nRadius = " (rtos (abs R)) " Left\n"))
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ R
+)
+;
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    C:FITSPIRAL draws a reverse engineered DCA spiral between two selected objects (lines and arcs)
+;
+;
+(defun C:FITSPIRAL (/ CMDECHO ENT1 ENT2 ENTLIST1 ENTLIST2 GETLS LS1 LS2 R)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun GETLS (R MSG / LS AL)
+  (setq LS nil)
+  (setq AL "L")
+  (if (= R 0.0)
+   (progn
+    (princ "\n*** Zero length arc selected - only spiral length valid!")
+    (setq LS (getreal (strcat MSG " length :")))
+   )
+   (progn
+    (while (= LS nil)
+     (if (= AL "L")
+      (progn
+       (setq LS (getreal (strcat MSG " length <return for A>:")))
+       (if (= LS nil)
+        (progn
+         (setq AL "A")
+        )
+       )
+      )
+      (progn
+       (setq LS (getreal (strcat MSG " A <return for length>:")))
+       (if (= LS nil)
+        (progn
+         (setq AL "L")
+        )
+        (progn
+         (setq LS (/ (* LS LS) R))
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+  (eval LS)
+ )
+ 
+ (if (/= (setq ENT1 (car (entsel "\nSelect first entity : "))) nil)
+  (if (/= (setq ENT2 (car (entsel "\nSelect second entity : "))) nil)
+   (progn
+    (setq ENTLIST1 (entget ENT1))
+    (setq ENTLIST2 (entget ENT2))
+    (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
+     (progn
+      (if (/= (setq R (getreal "\nEnter radius (0 for Spiral/Spiral) : ")) nil)
+       (if (/= (setq LS1 (GETLS R "\nSpiral IN")) nil)
+        (if (/= (setq LS2 (GETLS R "\nSpiral OUT")) nil)
+         (RFL:FITSPIRALLL ENT1 ENT2 LS1 R LS2)
+        )
+       )
+      )
+     )
+     (if (and (= (cdr (assoc 0 ENTLIST1)) "LINE") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
+      (progn
+       (RFL:FITSPIRALLA ENT1 ENT2)
+      )
+      (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "LINE"))
+       (progn
+        (RFL:FITSPIRALLA ENT2 ENT1)
+       )
+       (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
+        (progn
+;         (RFL:FITSPIRALAA ENT1 ENT2)
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2015-03-13
+;
+;     FIX+ modifies a text entity to adjust it's '+' to align with its insertion point.
+;
+;
+(defun C:FIX+ (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO ENT ORTHOMODE OSMODE)
+ (setq ATTREQ (getvar "ATTREQ"))
+ (setvar "ATTREQ" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+
+ (defun *error* (msg)
+  (setvar "ATTREQ" ATTREQ)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (print msg)
+ )
+
+ (while (/= nil (setq ENT (car (entsel))))
+  (RFL:FIX+ ENT)
+ )
+ 
+ (setvar "ATTREQ" ATTREQ)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   GALIGN extracts a horizontal alignment from the current drawing
+;
+;
+(defun C:GALIGN (/ ALIGNENT ALIGNENTLIST ANGBASE ANGDIR CMDECHO PSTART STASTART)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (if (/= RFL:ALIGNDEF nil)
+  (progn
+   (setq RFL:ALIGNLIST nil)
+   (setq PSTART (getpoint "\nStart point:"))
+   (if (/= PSTART nil)
+    (progn
+     (setq STASTART (getreal "\nStart chainage:"))
+     (if (/= STASTART nil)
+      (progn
+       (princ "\nSelect R14 polyline (<return> to select SoftDesk entities):")
+       (setq ALIGNENT (car (entsel)))
+       (if (= ALIGNENT nil)
+        (progn
+         (setq ALIGNENT (ssget))
+         (setq RFL:ALIGNLIST (RFL:ALIGNDEF (list ALIGNENT) PSTART STASTART))
+        )
+        (progn
+         (setq ALIGNENTLIST (entget ALIGNENT))
+         (if (= (cdr (assoc 0 ALIGNENTLIST)) "POLYLINE")
+          (progn
+           (command "._CONVERT" "P" "S" ALIGNENT "")
+           (setq ALIGNENTLIST (entget ALIGNENT))
+          )
+         )
+         (if (= (cdr (assoc 0 ALIGNENTLIST)) "LWPOLYLINE")
+          (progn
+           (setq RFL:ALIGNLIST (RFL:ALIGNDEF ALIGNENT PSTART STASTART))
+          )
+          (princ "\n**** NOT A POLYLINE ****")
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+  (progn
+   (princ "\n!!!!! ALIGNMENT UTILITIES NOT LOADED !!!!!\n")
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
+;   Program written by Robert Livingston, 2018/06/06
+;
+;   C:GEXSUPER Estimates existing superelevation based on an alignment and surface
+;
+;
+(defun C:GEXSUPER (/ C CMDECHO INC GETSUPERNODE GETBESTPARABOLA NODE NSAMPLES OBSURFACE OS OSL OSR P PBLIST PL PR SL SLIST SR STA STAEND TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (defun GETSUPERNODE (OBSURFACE STA OSL OS OSR / NODE SL SR Z ZL ZR)
+  (setq NODE nil
+        SL nil
+        SR nil
+        Z nil
+        ZL nil
+        ZR nil
+  )
+  (if (setq PL (RFL:XY (list STA OSL)))
+   (if (= (setq ZL (RFL:GETSURFACEPOINT PL OBSURFACE)) nil)
+    (setq ZL nil)
+   )
+  )
+  (if (setq PR (RFL:XY (list STA OSR)))
+   (if (= (setq ZR (RFL:GETSURFACEPOINT PR OBSURFACE)) nil)
+    (setq ZR nil)
+   )
+  )
+  (if OS
+   (progn
+    (if (setq P (RFL:XY (list STA OS)))
+     (if (= (setq Z (RFL:GETSURFACEPOINT P OBSURFACE)) nil)
+      (setq Z nil)
+     )
+    )
+    (if (and ZL Z ZR)
+     (progn
+      (setq SL (* (/ (- Z ZL) (- OS OSL)) -100.0))
+      (setq SR (* (/ (- ZR Z) (- OSR OS)) 100.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+   (progn
+    (if (and ZL ZR)
+     (progn
+      (setq SL (* (/ (- ZR ZL) (- OSR OSL)) -100.0))
+      (setq SR (* SL -1.0))
+      (setq NODE (list STA SL SR))
+     )
+    )
+   )
+  )
+  NODE
+ )
+ ; LR : "L" or "R"
+ (defun GETBESTPARABOLA (SLIST LR / A B C G1 G2 NODE P1 P2 P3 PLIST TMP)
+  (setq PLIST nil)
+  (foreach NODE SLIST
+   (if NODE
+    (if (= LR "L")
+     (setq PLIST (append PLIST (list (list (car NODE) (cadr NODE)))))
+     (setq PLIST (append PLIST (list (list (car NODE) (caddr NODE)))))
+    )
+   )
+  )
+  (cond ((= (length PLIST) 0)
+         nil
+        )
+        ((= (length PLIST) 1)
+         (list (setq A 0.0) (setq B 0.0) (setq C (cadar PLIST)))
+        )
+        ((= (length PLIST) 2)
+         (list (setq A 0.0)
+               (setq B (/ (- (cadadr PLIST) (cadar PLIST)) (- (caadr PLIST) (caar PLIST))))
+               (setq C (- (cadar PLIST) (* B (caar PLIST))))
+         )
+        )
+        (T
+         (progn
+          (if (setq TMP (RFL:BESTVCURVE PLIST))
+           (progn
+            (setq P1 (car TMP))
+            (setq P2 (cadr TMP))
+            (setq P3 (caddr TMP))
+            (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
+            (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
+            (list (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
+                  (setq B (- G1 (* 2.0 A (car P1))))
+                  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
+            )
+           )
+           nil
+          )
+         )
+        )
+  )
+ )
+ (if (/= RFL:ALIGNLIST nil)
+  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
+   (progn
+    (setq RFL:SUPERLIST nil)
+    (setq INC 0.0)
+    (while (= INC 0.0)
+     (setq INC (getdist "\nStation increment <10.0> : "))
+     (if (= INC nil) (setq INC 10.0))
+    )
+    (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
+    (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STA) (setq STA TMP))
+    (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
+    (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
+    (if (= nil STAEND) (setq STAEND TMP))
+    (setq NSAMPLES 0)
+    (while (< NSAMPLES 1)
+     (setq NSAMPLES (getint (strcat "\nNumber of samples (use odd number) <9> : ")))
+     (if (= NSAMPLES nil)
+      (setq NSAMPLES 9)
+      (if (/= (rem NSAMPLES 2) 1)
+       (setq NSAMPLES 0)
+      )
+     )
+    )
+    (setq TMP -3.0)
+    (setq OSL (getreal (strcat "\nLeft offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSL nil) (setq OSL TMP))
+    (setq TMP 3.0)
+    (setq OSR (getreal (strcat "\nRight offset <" (rtos TMP 2 3) "> : ")))
+    (if (= OSR nil) (setq OSR TMP))
+    (setq TMP 0.0)
+    (setq OS (getreal (strcat "\nCenter offset (<return> for single carriageway) <nil> : ")))
+    (setq SLIST nil)
+    (setq C (/ NSAMPLES -2))
+    (while (<= C (/ NSAMPLES 2))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* C INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+     (setq C (1+ C))
+    )
+    (while (<= STA STAEND)
+     (print (RFL:STATXT STA))
+     (if (setq PBLIST (GETBESTPARABOLA SLIST "L"))
+      (progn
+       (setq SL (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+       (if (setq PBLIST (GETBESTPARABOLA SLIST "R"))
+        (progn
+         (setq SR (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
+         (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SL SR))))
+        )
+       )
+      )
+     )
+     (setq STA (+ STA INC))
+     (setq SLIST (cdr SLIST))
+     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* (/ NSAMPLES 2) INC)) OSL OS OSR))
+     (setq SLIST (append SLIST (list NODE)))
+    )
+   )
+   (princ "\n!!!!! Surface Not Set !!!!!\n")
+  )
+  (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROF extracts a vertical alignment from the current drawing
+;
+;
+(defun C:GPROF (/ ANGBASE ANGDIR C CMDECHO ENT ENTSET PVIENT PVISET STA ELEV LR VAL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (RFL:PROFDEF)
+
+ (setq RFL:PVILIST nil)
+ (if (/= nil RFL:PROFDEFLIST)
+  (progn
+   (princ "Select PVI blocks (or <return> to find all based on profile definition block) : ")
+   (setq ENTSET (ssget))
+   (if (= nil ENTSET)
+    (progn
+     (setq PVISET (ssget "X" (list (cons 0 "INSERT")
+                                   (cons -4 "<OR")
+                                   (cons 2 "RFLPVI")
+                                   (cons 2 "PVI2")
+                                   (cons -4 "OR>")
+                                   (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))))
+    )
+    (progn
+     (setq C 0)
+     (setq PVISET nil)
+     (while (< C (sslength ENTSET))
+      (setq ENT (ssname ENTSET C))
+      (if (and (/= nil (cdr (assoc 2 (entget ENT))))
+               (or (= "RFLPVI" (strcase (cdr (assoc 2 (entget ENT)))))
+                   (= "PVI2" (strcase (cdr (assoc 2 (entget ENT)))))
+               )
+          )
+       (if (= nil PVISET)
+        (setq PVISET (ssadd ENT))
+        (ssadd ENT PVISET)
+       )
+      )
+      (setq C (+ C 1))
+     )
+    )
+   )
+
+   (if (= PVISET nil)
+    (princ "\n*** NO PVI's EXIST ***\n")
+    (if (= (sslength PVISET) 1)
+     (princ "\n*** ONLY ONE PVI EXISTS ***\n")
+     (progn
+      (while (> (sslength PVISET) 0)
+       (setq C 1)
+       (setq PVIENT (ssname PVISET 0))
+       (while (< C (sslength PVISET))
+        (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil))
+         (if (< (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
+          (setq PVIENT (ssname PVISET C))
+         )
+         (if (> (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                (nth 0 (cdr (assoc 10 (entget (ssname PVISET C))))))
+          (setq PVIENT (ssname PVISET C))
+         )
+        )
+        (setq C (+ C 1))
+       )
+       (setq PVISET (ssdel PVIENT PVISET))
+       (setq STA (+ (* (- (nth 0 (cdr (assoc 10 (entget PVIENT))))
+                          (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                       (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
+                    )
+                    (cdr (assoc "STA" RFL:PROFDEFLIST))
+                 )
+       )
+       (setq ELEV (+ (/ (- (nth 1 (cdr (assoc 10 (entget PVIENT))))
+                           (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                        (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
+                     (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+       (setq PVIENT (entnext PVIENT))
+       (while (/= "SEQEND" (cdr (assoc 0 (entget PVIENT))))
+        (if (= "R" (cdr (assoc 2 (entget PVIENT))))
+         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
+          (progn
+           (setq LR "R")
+           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+          )
+         )
+        )
+        (if (= "L" (cdr (assoc 2 (entget PVIENT))))
+         (if (/= "" (cdr (assoc 1 (entget PVIENT))))
+          (progn
+           (setq LR "L")
+           (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+          )
+         )
+        )
+        (if (= "LENGTH" (cdr (assoc 2 (entget PVIENT))))
+         (progn
+          (setq LR "L")
+          (setq VAL (atof (cdr (assoc 1 (entget PVIENT)))))
+         )
+        )
+        (setq PVIENT (entnext PVIENT))
+       )
+       (setq RFL:PVILIST (append (list (list STA ELEV LR VAL)) RFL:PVILIST))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;     Program written by Robert Livingston - 2015-11-06
+;
+;     C:GPROF3DP extracts the vertex elevations and sets the RFL profile based on the current alignment
+;
+;
+(defun C:GPROF3DP (/ ENT ENTLIST NODE P PLIST)
+ (if (and (/= nil RFL:ALIGNLIST)
+          (/= nil (setq PLIST (RFL:GETPLIST (car (entsel)))))
+          (/= nil (caddar PLIST))
+     )
+  (progn
+   (while (and (/= nil PLIST) (= nil (RFL:STAOFF (car PLIST))))
+    (setq PLIST (cdr PLIST))
+   )
+   (setq PLIST (reverse PLIST))
+   (while (and (/= nil PLIST) (= nil (RFL:STAOFF (car PLIST))))
+    (setq PLIST (cdr PLIST))
+   )
+   (if (and (/= nil PLIST) (> (length PLIST) 1))
+    (progn
+     (if (< (car (RFL:STAOFF (last PLIST))) (car (RFL:STAOFF (car PLIST))))
+      (setq PLIST (reverse PLIST))
+     )
+     (setq RFL:PVILIST nil)
+     (foreach P PLIST
+      (setq RFL:PVILIST (append RFL:PVILIST (list (list (car (RFL:STAOFF P)) (caddr P) "L" 0.0))))
+     )
+    )
+   )
+  )
+ )
+ nil
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROFOG extracts an OG vertical alignment from the current drawing
+;
+;
+(defun C:GPROFOG (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P TOL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (setq TOL 0.0001)
+ (setq NODEPREV nil)
+ 
+ (RFL:PROFDEF)
+
+ (setq RFL:OGLIST nil)
+ (if (/= nil RFL:PROFDEFLIST)
+  (progn
+   (princ "\nSelect OG polyline:")
+   (setq ENT (car (entsel)))
+   (if (= ENT nil)
+    (setq ENTLIST nil)
+    (setq ENTLIST (entget ENT))
+   )
+   (if (= nil ENT)
+    (princ "\n*** NO ENTITY SELECTED ***\n")
+    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+     (princ "\n*** NOT A R14 POLYLINE ***\n")
+     (progn
+      (while (/= ENTLIST nil)
+       (setq NODE (car ENTLIST))
+       (setq ENTLIST (cdr ENTLIST))
+       (if (= (car NODE) 10)
+        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
+         (progn
+          (setq STA (+ (* (- (nth 0 (cdr NODE))
+                             (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                          (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
+                       )
+                       (cdr (assoc "STA" RFL:PROFDEFLIST))
+                    )
+          )
+          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
+                              (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                           (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
+                        (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+          (setq RFL:OGLIST (append (list (list STA ELEV)) RFL:OGLIST))
+          (setq NODEPREV NODE)
+         )
+        )
+       )
+      )
+      (if (> (nth 0 (car RFL:OGLIST)) (nth 0 (last RFL:OGLIST)))
+       (setq RFL:OGLIST (reverse RFL:OGLIST))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
 ;     Program written by Robert Livingston, 2014-11-24
 ;
 ;     C:GPROFOGC3D extracts the existing ground profile of the currently defined alignment from a C3D surface
@@ -21253,6 +15421,2227 @@
  (setvar "ANGDIR" ANGDIR)
  (setq RFL:ALIGNLIST ALSAVE)
  (eval nil)
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:GPROFP extracts an vertical alignment from a selected polyline
+;
+;
+(defun C:GPROFP (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST ELEV LR NODE NODEPREV P PLIST TOL)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (setq TOL 0.0001)
+ (setq NODEPREV nil)
+ 
+ (RFL:PROFDEF)
+
+ (setq PLIST nil)
+ (if (/= nil RFL:PROFDEFLIST)
+  (progn
+   (princ "\nSelect polyline:")
+   (setq ENT (car (entsel)))
+   (if (= ENT nil)
+    (setq ENTLIST nil)
+    (setq ENTLIST (entget ENT))
+   )
+   (if (= nil ENT)
+    (princ "\n*** NO ENTITY SELECTED ***\n")
+    (if (/= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+     (princ "\n*** NOT A R14 POLYLINE ***\n")
+     (progn
+      (while (/= ENTLIST nil)
+       (setq NODE (car ENTLIST))
+       (setq ENTLIST (cdr ENTLIST))
+       (if (= (car NODE) 10)
+        (if (or (= NODEPREV nil) (> (distance (cdr NODEPREV) (cdr NODE)) TOL))
+         (progn
+          (setq STA (+ (* (- (nth 0 (cdr NODE))
+                             (nth 0 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                          (if (or (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) 1) (= (assoc "DIRECTION" RFL:PROFDEFLIST) nil)) 1.0 -1.0)
+                       )
+                       (cdr (assoc "STA" RFL:PROFDEFLIST))
+                    )
+          )
+          (setq ELEV (+ (/ (- (nth 1 (cdr NODE))
+                              (nth 1 (cdr (assoc "BPOINT" RFL:PROFDEFLIST))))
+                           (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
+                        (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+          (setq PLIST (append (list (list STA ELEV)) PLIST))
+          (setq NODEPREV NODE)
+         )
+        )
+       )
+      )
+      (if (> (nth 0 (car PLIST)) (nth 0 (last PLIST)))
+       (setq PLIST (reverse PLIST))
+      )
+     )
+    )
+   )
+  )
+ )
+ (if (/= nil PLIST)
+  (progn
+   (setq RFL:PVILIST nil)
+   (foreach NODE PLIST
+    (progn
+     (setq RFL:PVILIST (append RFL:PVILIST (list (list (car NODE) (cadr NODE) "L" 0.0))))
+    )
+   )
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   C:GSUPER extracts superelevation from the current drawing for the current alignment
+;
+;
+(defun C:GSUPER (/ ENTSET)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (if (/= RFL:ALIGNLIST nil)
+  (progn
+   (if (/= RFL:SUPERDEF nil)
+    (progn
+     (princ "\nSelect SUPER blocks :")
+     (setq ENTSET (ssget))
+     (if (/= ENTSET nil)
+      (progn
+       (RFL:SUPERDEF ENTSET)
+      )
+     )
+    )
+    (progn
+     (princ "\n!!!!! Superelevation tools not loaded !!!!!\n")
+    )
+   )
+  )
+  (progn
+   (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;     Program written by Robert Livingston 2017-05-22
+;
+;     C:HOR2TABLE is a wrapper for alignment table creation
+;
+;          RFL:HOR2TABLE  - Alberta Infrastructure
+;          RFL:HOR2TABLE2 - BC Ministry
+;
+;
+(defun C:HOR2TABLE (/ *error* CMDECHO REP)
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (print msg)
+  ;(setq *error* nil)
+ )
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ 
+ (initget "Ai Bc")
+ (setq REP (getkword "\nAlberta Infrastructure / BC Ministry (AI/<BC>) : "))
+ (if (= nil REP) (setq REP "BC"))
+ (setq REP (strcase REP))
+ (cond ((= REP "AI")
+        (RFL:HOR2TABLE)
+       )
+       ((= REP "BC")
+        (RFL:HOR2TABLE2)
+       )
+ )
+ 
+ (setvar "CMDECHO" CMDECHO)
+ T
+);
+;
+;     Program written by Robert Livingston, 03-02-18
+;
+;     C:INCALIGN incruments the RFL alignment and profile by an entered amount
+;
+;
+(defun C:INCALIGN (/ *error* ALSAVE CMDECHO INC NODE PVISAVE SUPERSAVE)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (princ msg)
+  ;(setq *error* nil)
+ )
+
+ (setq INC (getreal "\nEnter incrament to add to horizontal and vertical alignments : "))
+
+ (setq ALSAVE RFL:ALIGNLIST)
+ (setq RFL:ALIGNLIST nil)
+
+ (setq NODE (car ALSAVE))
+ (setq ALSAVE (cdr ALSAVE))
+
+ (while (/= NODE nil)
+  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list NODE)))
+  (setq NODE (car ALSAVE))
+  (setq ALSAVE (cdr ALSAVE))
+ )
+
+ (setq PVISAVE RFL:PVILIST)
+ (setq RFL:PVILIST nil)
+
+ (setq NODE (car PVISAVE))
+ (setq PVISAVE (cdr PVISAVE))
+
+ (while (/= NODE nil)
+  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
+  (setq RFL:PVILIST (append RFL:PVILIST (list NODE)))
+  (setq NODE (car PVISAVE))
+  (setq PVISAVE (cdr PVISAVE))
+ )
+
+ (setq SUPERSAVE RFL:SUPERLIST)
+ (setq RFL:SUPERLIST nil)
+
+ (setq NODE (car SUPERSAVE))
+ (setq SUPERSAVE (cdr SUPERSAVE))
+
+ (while (/= NODE nil)
+  (setq NODE (append (list (+ INC (car NODE))) (cdr NODE)))
+  (setq RFL:SUPERLIST (append RFL:SUPERLIST (list NODE)))
+  (setq NODE (car SUPERSAVE))
+  (setq SUPERSAVE (cdr SUPERSAVE))
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ T
+);
+;
+;     Program written by Robert Livingston, 2016/07/07
+;
+;     C:LALIGN is a utility for labelling alignments
+;
+;
+;     NODEMODE = 0  :  LEFT
+;     NODEMODE = 1  :  RIGHT
+;     NODEMODE = 2  :  INSIDE
+;     NODEMODE = 3  :  OUTSIDE
+;
+;     xxxLAYER  :  '*' concatinates current layer
+;
+(setq RFL:LALIGNLIST (list (cons "LABELBLOCK" "STALBL")
+                           (cons "LABEL" 1)
+                           (cons "LABELLAYER" "*-LBL")
+                           (cons "LABELINC" 100.0)
+                           (cons "LABELSCALE" 1.0)
+                           (cons "LABELOFFSET" 4.0)
+                           (cons "LABELROTATE" 0.0)
+                           (cons "TICKBLOCK" "STATICK")
+                           (cons "TICK" 1)
+                           (cons "TICKLAYER" "*-LBL")
+                           (cons "TICKINC" 20.0)
+                           (cons "TICKSCALE" 1.0)
+                           (cons "TICKOFFSET" 0.0)
+                           (cons "TICKROTATE" 0.0)
+                           (cons "NODELEFTBLOCK" "STANODELEFT")
+                           (cons "NODERIGHTBLOCK" "STANODERIGHT")
+                           (cons "NODE" 1)
+                           (cons "NODELAYER" "*-LBL")
+                           (cons "NODEMODE" 3)
+                           (cons "NODESCALE" 1.0)
+                           (cons "NODEOFFSET" 0.0)
+                           (cons "NODEROTATE" 0.0)
+                     )
+)
+(defun C:LALIGN (/ ACTIVEDOC ACTIVESPC ENT ENTLIST LLABEL LTICK LNODE P P1 PREVENT)
+ (command "._UNDO" "M")
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+ (defun LLABEL (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAH STAL STAMAX)
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  (setq CLAYER (getvar "CLAYER"))
+  (setq NLAYER (cdr (assoc "LABELLAYER" RFL:LALIGNLIST)))
+  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+  (if (not (tblsearch "LAYER" NLAYER))
+   (entmake (list (cons 0 "LAYER")
+                  (cons 100 "AcDbSymbolTableRecord")
+                  (cons 100 "AcDbLayerTableRecord")
+                  (cons 2 NLAYER)
+                  (cons 70 0)
+            )
+   )
+  )
+  (setvar "CLAYER" NLAYER)
+  (if (not (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+   (progn
+    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
+                                (cdr (assoc "LABELINC" RFL:LALIGNLIST))
+                             )
+                        )
+                        (cdr (assoc "LABELINC" RFL:LALIGNLIST))
+                     )
+              )
+    )
+    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq INC (cdr (assoc "LABELINC" RFL:LALIGNLIST)))
+    (while (<= STA STAEND)
+     (if (setq P (RFL:XY (list STA (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)))))
+      (progn
+       (setq P1 (RFL:XY (list STA (- (cdr (assoc "LABELOFFSET" RFL:LALIGNLIST)) 1))))
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P)
+                        (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "LABELSCALE" RFL:LALIGNLIST))
+                        (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "LABELROTATE" RFL:LALIGNLIST))))
+       )
+       (setq ENT (entlast))
+       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+       (if (= 1 (cdr (assoc 66 (setq ENTLIST (entget ENT)))))
+        (progn
+         (setq STAH (RFL:STATXT STA))
+         (setq STAL (substr STAH (+ 2 (vl-string-search "+" STAH))))
+         (setq STAH (substr STAH 1 (vl-string-search "+" STAH)))
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
+          (cond ((= "STAH" (cdr (assoc 2 ENTLIST)))
+                 (entmod (subst (cons 1 STAH) (assoc 1 ENTLIST) ENTLIST))
+                )
+                ((= "STAL" (cdr (assoc 2 ENTLIST)))
+                 (entmod (subst (cons 1 STAL) (assoc 1 ENTLIST) ENTLIST))
+                )
+           )
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (setq STA (+ STA INC))
+    )
+   )
+   (princ "\n!!! Unable to locate or create Lable Block !!!")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  1
+ )
+ (defun LTICK (/ ANGBASE ANGDIR CLAYER INC NLAYER P STA STAMAX)
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  (setq CLAYER (getvar "CLAYER"))
+  (setq NLAYER (cdr (assoc "TICKLAYER" RFL:LALIGNLIST)))
+  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+  (if (not (tblsearch "LAYER" NLAYER))
+   (entmake (list (cons 0 "LAYER")
+                  (cons 100 "AcDbSymbolTableRecord")
+                  (cons 100 "AcDbLayerTableRecord")
+                  (cons 2 NLAYER)
+                  (cons 70 0)
+            )
+   )
+  )
+  (setvar "CLAYER" NLAYER)
+  (if (not (tblsearch "BLOCK" (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (tblsearch "BLOCK" (cdr (assoc "LABELBLOCK" RFL:LALIGNLIST)))
+   (progn
+    (setq STA (float (* (fix (/ (caar RFL:ALIGNLIST)
+                                (cdr (assoc "TICKINC" RFL:LALIGNLIST))
+                             )
+                        )
+                        (cdr (assoc "TICKINC" RFL:LALIGNLIST))
+                     )
+              )
+    )
+    (setq STAEND (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq INC (cdr (assoc "TICKINC" RFL:LALIGNLIST)))
+    (while (<= STA STAEND)
+     (if (setq P (RFL:XY (list STA (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)))))
+      (progn
+       (setq P1 (RFL:XY (list STA (- (cdr (assoc "TICKOFFSET" RFL:LALIGNLIST)) 1))))
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P)
+                        (cdr (assoc "TICKBLOCK" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (cdr (assoc "TICKSCALE" RFL:LALIGNLIST))
+                        (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "TICKROTATE" RFL:LALIGNLIST))))
+       )
+       (setq ENT (entlast))
+       (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+      )
+     )
+     (setq STA (+ STA INC))
+    )
+   )
+   (princ "\n!!! Unable to locate or create Tick Block !!!")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  1
+ )
+ (defun LNODE (/ ANGBASE ANGDIR CLAYER NODEDIR NODELABEL NODETYPE NLAYER NODE NODEBLOCK NODEPREV P STA STAH STAMAX)
+  (defun NODETYPE (NODE / TOL)
+   ; 0 = Tangent
+   ; 1 = Arc
+   ; 2 = Spiral
+   (setq TOL 0.00000001)
+   (if NODE
+    (if (listp (last NODE))
+     2
+     (if (< (abs (last NODE)) TOL)
+      0
+      1
+     )
+    )
+    nil
+   )
+  )
+  (defun NODEDIR (NODE / DIR TOL)
+   ; 0 = Tangent
+   ; -1 = Right
+   ; 1 = Left
+   (setq TOL 0.00000001)
+   (if NODE
+    (if (listp (last NODE))
+     (progn
+      (setq DIR (RFL:SIGN (sin (- (angle (nth 1 (last NODE))  (nth 2 (last NODE)))
+                                  (angle (nth 0 (last NODE))  (nth 1 (last NODE)))
+                               )
+                          )
+                )
+      )
+      (if (> (distance (nth 2 NODE) (nth 2 (last NODE))) TOL)
+       (setq DIR (* -1 DIR))
+      )
+      (fix DIR)
+     )
+     (if (< (abs (last NODE)) TOL)
+      0
+      (if (< (last NODE) 0.0)
+       -1
+       1
+      )
+     )
+    )
+    nil
+   )
+  )
+  (defun NODELABEL (NODE NODEPREV)
+   (cond ((and (= (NODETYPE NODE) 0)
+               (= (NODETYPE NODEPREV) nil)
+          )
+          "POT "
+         )
+         ((and (= (NODETYPE NODE) 0)
+               (= (NODETYPE NODEPREV) 0)
+          )
+          "PI "
+         )
+         ((and (= (NODETYPE NODE) 0)
+               (= (NODETYPE NODEPREV) 1)
+          )
+          "EC "
+         )
+         ((and (= (NODETYPE NODE) 0)
+               (= (NODETYPE NODEPREV) 2)
+          )
+          "ST "
+         )
+         ((and (= (NODETYPE NODE) 1)
+               (= (NODETYPE NODEPREV) nil)
+          )
+          "POC "
+         )
+         ((and (= (NODETYPE NODE) 1)
+               (= (NODETYPE NODEPREV) 0)
+          )
+          "BC "
+         )
+         ((and (= (NODETYPE NODE) 1)
+               (= (NODETYPE NODEPREV) 1)
+          )
+          (if (= (NODEDIR NODE) (NODEDIR NODEPREV))
+           "PCC "
+           "EC/BC "
+          )
+         )
+         ((and (= (NODETYPE NODE) 1)
+               (= (NODETYPE NODEPREV) 2)
+          )
+          "SC "
+         )
+         ((and (= (NODETYPE NODE) 2)
+               (= (NODETYPE NODEPREV) nil)
+          )
+          "POS "
+         )
+         ((and (= (NODETYPE NODE) 2)
+               (= (NODETYPE NODEPREV) 0)
+          )
+          "TS "
+         )
+         ((and (= (NODETYPE NODE) 2)
+               (= (NODETYPE NODEPREV) 1)
+          )
+          "CS "
+         )
+         ((and (= (NODETYPE NODE) 2)
+               (= (NODETYPE NODEPREV) 2)
+          )
+          "S/S "
+         )
+         (T
+          ""
+         )
+   )
+  )
+  (defun NODEINSERT (STA NODESTR)
+   (cond ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 0)
+          (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+         )
+         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 1)
+          (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+         )
+         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 2)
+          (cond ((= (NODEDIR NODE) nil)
+                 (cond ((= (NODEDIR NODEPREV) nil)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) -1)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 0)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 1)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       (T
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                 )
+                )
+                ((= (NODEDIR NODE) -1)
+                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                )
+                ((= (NODEDIR NODE) 0)
+                 (cond ((= (NODEDIR NODEPREV) nil)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) -1)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 0)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 1)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       (T
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                 )
+                )
+                ((= (NODEDIR NODE) 1)
+                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                )
+                (T
+                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                )
+          )
+         )
+         ((= (cdr (assoc "NODEMODE" RFL:LALIGNLIST)) 3)
+          (cond ((= (NODEDIR NODE) nil)
+                 (cond ((= (NODEDIR NODEPREV) nil)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) -1)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 0)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 1)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       (T
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                 )
+                )
+                ((= (NODEDIR NODE) -1)
+                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                )
+                ((= (NODEDIR NODE) 0)
+                 (cond ((= (NODEDIR NODEPREV) nil)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) -1)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 0)
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       ((= (NODEDIR NODEPREV) 1)
+                        (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                       )
+                       (T
+                        (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                       )
+                 )
+                )
+                ((= (NODEDIR NODE) 1)
+                 (setq NODEBLOCK (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+                )
+                (T
+                 (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+                )
+          )
+         )
+         (T
+          (setq NODEBLOCK (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+         )
+   )
+   (if (setq P (RFL:XY (list STA (cdr (assoc "NODEOFFSET" RFL:LALIGNLIST)))))
+    (progn
+     (setq P1 (RFL:XY (list STA (- (cdr (assoc "NODEOFFSET" RFL:LALIGNLIST)) 1))))
+     (vla-insertblock ACTIVESPC
+                      (vlax-3D-point P)
+                      NODEBLOCK
+                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
+                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
+                      (cdr (assoc "NODESCALE" RFL:LALIGNLIST))
+                      (+ (/ pi 2.0) (angle P1 P) (* (/ pi 180.0) (cdr (assoc "NODEROTATE" RFL:LALIGNLIST))))
+     )
+     (setq ENT (entlast))
+     (RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+     (if (= 1 (cdr (assoc 66 (setq ENTLIST (entget ENT)))))
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (while (= "ATTRIB" (cdr (assoc 0 ENTLIST)))
+        (cond ((= "NODE" (cdr (assoc 2 ENTLIST)))
+               (entmod (subst (cons 1 NODESTR) (assoc 1 ENTLIST) ENTLIST))
+              )
+         )
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+       )
+      )
+     )
+    )
+   )
+  )
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  (setq CLAYER (getvar "CLAYER"))
+  (setq NLAYER (cdr (assoc "NODELAYER" RFL:LALIGNLIST)))
+  (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+  (if (not (tblsearch "LAYER" NLAYER))
+   (entmake (list (cons 0 "LAYER")
+                  (cons 100 "AcDbSymbolTableRecord")
+                  (cons 100 "AcDbLayerTableRecord")
+                  (cons 2 NLAYER)
+                  (cons 70 0)
+            )
+   )
+  )
+  (setvar "CLAYER" NLAYER)
+  (if (not (tblsearch "BLOCK" (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (not (tblsearch "BLOCK" (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST))))
+   (RFL:MAKEENT (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+  )
+  (if (and (tblsearch "BLOCK" (cdr (assoc "NODELEFTBLOCK" RFL:LALIGNLIST)))
+           (tblsearch "BLOCK" (cdr (assoc "NODERIGHTBLOCK" RFL:LALIGNLIST)))
+      )
+   (progn
+    (setq NODEPREV nil)
+    (foreach NODE RFL:ALIGNLIST
+     (setq STA (car NODE))
+     (setq STAH (RFL:STATXT STA))
+     (setq STAH (strcat (NODELABEL NODE NODEPREV) STAH))
+     (NODEINSERT STA STAH)
+     (setq NODEPREV NODE)
+    )
+    (setq STA (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
+    (setq STAH (RFL:STATXT STA))
+    (setq STAH (strcat (NODELABEL (last RFL:ALIGNLIST) nil) STAH))
+    (NODEINSERT STA STAH)
+   )
+   (princ "\n!!! Unable to locate or create Lable Block !!!")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  1
+ )
+ (if RFL:ALIGNLIST
+  (progn
+   (setq PREVENT nil)
+   (if (= 1 (cdr (assoc "LABEL" RFL:LALIGNLIST))) (LLABEL))
+   (if (= 1 (cdr (assoc "TICK" RFL:LALIGNLIST))) (LTICK))
+   (if (= 1 (cdr (assoc "NODE" RFL:LALIGNLIST))) (LNODE))
+   T
+  )
+  (progn
+   (princ "\n!!! No alignment defined !!!")
+   nil
+  )
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 01/02/14
+;
+;     LARC is a small utility for labelling arc and spiral entities
+;
+;
+(setq RFL:LARCSCALE 0.1 RFL:LARCLAYER "")
+(setq RFL:LARCCIRCLES "Yes")
+(setq RFL:LARCSPIRALS "B")
+(setq RFL:LARCTHEIGHT 0.75)
+(defun C:LARCSETUP (/ CMDECHO TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq TMP (getreal (strcat "\nEnter scale for blocks <" (rtos RFL:LARCSCALE) "> : " )))
+ (if (/= nil TMP) (setq RFL:LARCSCALE TMP))
+ (setq RFL:LARCLAYER (getstring "\nEnter layer of new entities (<return> for current layer) : "))
+ (initget "Yes No")
+ (setq RFL:LARCCIRCLES (getkword "\nDraw circles at entity ends (<Yes>/No) : "))
+ (initget "Yes No")
+ (if (= RFL:LARCCIRCLES nil) (setq RFL:LARCCIRCLES "Yes"))
+ (setq LARCEQUALS (getkword "\nInclude equals '=' (Yes/<No>) : "))
+ (if (= LARCEQUALS nil) (setq LARCEQUALS "No"))
+ (initget "A L B")
+ (setq RFL:LARCSPIRALS (getkword "\nLabel spiral A, Ls or Both (A/L/<B>) : "))
+ (if (= RFL:LARCSPIRALS nil) (setq RFL:LARCSPIRALS "B"))
+ (setq RFL:LARCTHEIGHT (getdist "\nLabel text height <0.75> :"))
+ (if (or (= RFL:LARCTHEIGHT nil) (= RFL:LARCTHEIGHT 0.0)) (setq RFL:LARCTHEIGHT 0.75))
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun C:LARC (/ *error* A ACTIVEDOC ACTIVESPC ANG ANG1 ANG2 ANGBASE ANGDIR CHECKDUPLICATE CLAYER CMDECHO DIMZIN ENT ENTLIST LO LS OS OSMODE P P1 P2 PC R RL SPIRALDATA TEXTOBJ TEXTSTRING VT)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 8)
+
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+
+ (command "._UNDO" "M")
+ 
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "DIMZIN" DIMZIN)
+  ;(setq *error* nil)
+  (princ msg)
+ )
+
+ (defun CHECKDUPLICATE (/ ENT ENTLIST ENTSET)
+  (setq ENT (entlast))
+  (setq ENTLIST (entget ENT))
+  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST))) (= "CIRC" (cdr (assoc 2 ENTLIST))))
+   (progn
+    (setq ENTSET (ssget "X" (list (cons 0 "INSERT")
+                                  (cons 2 "CIRC")
+                                  (assoc 8 ENTLIST)
+                                  (assoc 10 ENTLIST)
+                                  (assoc 41 ENTLIST)
+                                  (assoc 42 ENTLIST)
+                                  (assoc 43 ENTLIST)
+                                  (assoc 50 ENTLIST)
+                            )
+                 )
+    )
+    (if (> (sslength ENTSET) 1) (command "._ERASE" ENT ""))
+   )
+  )
+ )
+ (command "._UNDO" "M")
+
+ (command "._UCS" "W")
+
+ (if (/= "" RFL:LARCLAYER)
+  (progn
+   (if (= nil (tblsearch "LAYER" RFL:LARCLAYER))
+    (command "._LAYER" "M" RFL:LARCLAYER)
+    (setvar "CLAYER" RFL:LARCLAYER)
+   )
+  )
+ )
+
+ (setq VT (getvar "VIEWTWIST"))
+ (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
+ (if (and (= RFL:LARCCIRCLES "Yes") (not (tblsearch "BLOCK" "CIRC"))) (RFL:MAKEENT "CIRC"))
+ (if (/= nil (setq ENT (car (entsel "Select arc or LDD spiral : "))))
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "ARC" (cdr (assoc 0 ENTLIST)))
+    (if (= (setq SPIRALDATA (RFL:GETSPIRALDATA ENT)) nil)
+     (if (/= "LINE" (cdr (assoc 0 ENTLIST)))
+      (princ "\n***** NOT AN ARC OR LDD SPIRAL *****")
+      (progn
+       (setq P1 (cdr (assoc 10 ENTLIST)))
+       (setq P2 (cdr (assoc 11 ENTLIST)))
+       (if (= RFL:LARCCIRCLES "Yes")
+        (progn
+         (vla-insertblock ACTIVESPC
+                          (vlax-3D-point P1)
+                          "CIRC"
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          0.0
+         )
+         (CHECKDUPLICATE)
+         (vla-insertblock ACTIVESPC
+                          (vlax-3D-point P2)
+                          "CIRC"
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          RFL:LARCSCALE
+                          0.0
+         )
+         (CHECKDUPLICATE)
+        )
+       )
+
+       (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+       (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+        (setq ANG (- (angle P P2) pi))
+        (setq ANG (angle P P2))
+       )
+       (setq TEXTSTRING "TAN")
+       (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                      TEXTSTRING
+                                      (vlax-3D-point P)
+                                      RFL:LARCTHEIGHT
+                         )
+           )
+        (progn
+         (vla-put-Alignment textObj acAlignmentMiddle)
+         (vla-put-Rotation textObj ANG)
+         (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+        )
+       )
+      )
+     )
+     (progn
+      (setq LS (RFL:GETSPIRALLS ENT))
+      (setq A (RFL:GETSPIRALA ENT))
+
+      (if (listp (last SPIRALDATA))
+       (setq LO 0.0)
+       (setq LO (last SPIRALDATA))
+      )
+      (setq LS (- LS LO))
+
+      (setq OS (RFL:SPIRALOFFSET ENT))
+      (if (< (abs OS) RFL:TOL) (setq OS 0.0))
+
+      (if (/= 0.0 OS)
+       (progn
+        (setq R (RFL:GETSPIRALR ENT))
+        (if (= LO 0.0)
+         (setq RL 0.0)
+         (setq RL (/ (* A A) LO))
+        )
+        (setq LS (+ LS (* OS (* A A 0.5 (- (/ 1.0 (* R R))
+                                         (if (= LO 0.0) 0.0 (/ 1.0 (* RL RL)))
+                                      )
+                             )
+                       )
+                 )
+        )
+       )
+      )
+
+      (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+       (progn
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
+        (setq P2 (cdr (assoc 10 (reverse ENTLIST))))
+        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
+       )
+       (progn
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+         (setq P2 (cdr (assoc 10 ENTLIST)))
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+       )
+      )
+      (if (= RFL:LARCCIRCLES "Yes")
+       (progn
+        (vla-insertblock ACTIVESPC
+                         (vlax-3D-point P1)
+                         "CIRC"
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         0.0
+        )
+        (CHECKDUPLICATE)
+        (vla-insertblock ACTIVESPC
+                         (vlax-3D-point P2)
+                         "CIRC"
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         RFL:LARCSCALE
+                         0.0
+        )
+        (CHECKDUPLICATE)
+       )
+      )
+
+      (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+      (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+       (setq ANG (- (angle P P2) pi))
+       (setq ANG (angle P P2))
+      )
+      (if (or (= RFL:LARCSPIRALS "L") (= RFL:LARCSPIRALS "B"))
+       (progn
+        (setq TEXTSTRING (strcat (if (> (abs OS) 0.0) "os-" "") (if (> LO 0.0) "c" "") (if (= LARCEQUALS "Yes") "Ls=" "Ls") (rtos LS 2 1)))
+        (if (= RFL:LARCSPIRALS "B")
+         (progn
+          (setq TEXTSTRING (strcat TEXTSTRING " / " (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
+         )
+        )
+       )
+       (progn
+        (if (= RFL:LARCSPIRALS "A")
+         (progn
+          (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
+         )
+        )
+       )
+      )
+      (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                     TEXTSTRING
+                                     (vlax-3D-point P)
+                                     RFL:LARCTHEIGHT
+                        )
+          )
+       (progn
+        (vla-put-Alignment textObj acAlignmentMiddle)
+        (vla-put-Rotation textObj ANG)
+        (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+       )
+      )
+     )
+    )
+    (progn
+     (setq PC (cdr (assoc 10 ENTLIST)))
+     (setq R (cdr (assoc 40 ENTLIST)))
+     (setq ANG1 (cdr (assoc 50 ENTLIST)))
+     (setq ANG2 (cdr (assoc 51 ENTLIST)))
+     (setq P1 (list (+ (nth 0 PC) (* R (cos ANG1)))
+                    (+ (nth 1 PC) (* R (sin ANG1)))
+              )
+     )
+     (setq P2 (list (+ (nth 0 PC) (* R (cos ANG2)))
+                    (+ (nth 1 PC) (* R (sin ANG2)))
+              )
+     )
+     (if (= RFL:LARCCIRCLES "Yes")
+      (progn
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P1)
+                        "CIRC"
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        0.0
+       )
+       (CHECKDUPLICATE)
+       (vla-insertblock ACTIVESPC
+                        (vlax-3D-point P2)
+                        "CIRC"
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        RFL:LARCSCALE
+                        0.0
+       )
+       (CHECKDUPLICATE)
+      )
+     )
+
+     (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
+     (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
+      (setq ANG (- (angle P P2) pi))
+      (setq ANG (angle P P2))
+     )
+     (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "R=" "R") (rtos R 2 1)))
+     (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                    TEXTSTRING
+                                    (vlax-3D-point P)
+                                    RFL:LARCTHEIGHT
+                       )
+         )
+      (progn
+       (vla-put-Alignment textObj acAlignmentMiddle)
+       (vla-put-Rotation textObj ANG)
+       (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CLAYER" CLAYER)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "DIMZIN" DIMZIN)
+)
+(princ "\n*****  Use LARCSETUP to change defaults *****\n");
+;
+;     Program written by Robert Livingston, 2016/07/11
+;
+;     C:LPROF is a utility for labelling profiles
+;
+;     xxxLAYER  :  '*' concatinates current layer
+;
+(setq RFL:LPROFLIST (list (cons "PROFDRAW" 0)           ;  Draw profile
+                          (cons "PROFLAYER" "*")        ;  Profile Layer
+                          (cons "TEXTLAYER" "*-LBL")    ;  Text Layer
+                          (cons "TEXTHEIGHT" 3.5)       ;  Text Height
+                          (cons "UNITS" "m")            ;  Linear Units
+                          (cons "LSLOPE" 1)             ;  Label Slope
+                          (cons "LL" 1)                 ;  Label 'L'
+                          (cons "LK" 1)                 ;  Label 'K'
+                          (cons "CNODES" 1)             ;  Circle Nodes
+                          (cons "CNODERAD" 1.0)         ;  Node Circle Radius
+                          (cons "CNODELENGTH" 10.0)     ;  Node Line Length
+                          (cons "CNODEVOFFSET" 1.0)     ;  Node Text Vertical Offset
+                          (cons "CNODEHOFFSET" 0.875)   ;  Node Text Horisontal Offset
+                          (cons "DPVI" 1)               ;  Draw PVI
+                          (cons "LPVI" 1)               ;  Label PVI
+                          (cons "LBVC" 1)               ;  Label BVC and EVC
+                          (cons "LHIGH" 0)              ;  Label 'high' Chainage (if not stations are labelled as '+234.567'
+                          (cons "LELEVATIONSC" 1)       ;  Label Elevations Curves
+                          (cons "LELEVATIONST" 1)       ;  Label Elevations Tangents
+                          (cons "ELEVTEXTHEIGHT" 2.5)   ;  Elevation Text Height
+                          (cons "ELEVTEXTINC" 20.0)     ;  Elevation Text Increment
+                          (cons "ELEVTEXTOS" -20.0)     ;  Elevation Text Offset (from grid basepoint)
+                          (cons "RAB" 0)                ;  Reverse Above/Below flag (1 = labels above with K/L below)
+                          (cons "DIRECTION" "DIRRIGHT") ;  Label Direction (DIRRIGHT / DIRLEFT / DIRUP / DIRDOWN)
+                          (cons "KPREC" 1)              ;  'K' Precision
+                          (cons "LPREC" 0)              ;  'L' Precision
+                          (cons "SLOPEPREC" 3)          ;  Slope Precision
+                          (cons "STAPREC" 3)            ;  Station Precision
+                          (cons "ELEVPREC" 3)           ;  Elevation Precision
+                    )
+)
+(defun C:LPROF (/ ACTIVEDOC ACTIVESPC ADDTEXT ANG ANGBASE ANGDIR C CLAYER CMDECHO DIMZIN DIRECTIONT DIRECTIONS ENT
+                  G1 G2 K L1 L2 L3 LUPREC MLMR MLMRT MLMRB NLAYER OSMODE P P1 P2 PLINETYPE PREVENT
+                  REGENMODE REP SIDE STA STA1 STA2 STA3 STAH STAL STAHTXT SPLINETYPE
+                  SPLINESEGS TEXTSTYLE TOL Z1 Z2 Z3 ZMAX ZMIN)
+ (setq REGENMODE (getvar "REGENMODE"))
+ (setvar "REGENMODE" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setq LUPREC (getvar "LUPREC"))
+ (setvar "DIMZIN" 0)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq SPLINETYPE (getvar "SPLINETYPE"))
+ (setvar "SPLINETYPE" 5)
+ (setq SPLINESEGS (getvar "SPLINESEGS"))
+ (setvar "SPLINESEGS" 65)
+ (setq PLINETYPE (getvar "PLINETYPE"))
+ (setvar "PLINETYPE" 0)
+ (setq TEXTSTYLE (getvar "TEXTSTYLE"))
+
+ (setq TOL 0.000001)
+ 
+ (setq PREVENT nil)
+ 
+ (command "._UNDO" "M")
+
+ (vl-load-com)
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+
+ (defun ADDTEXT (STR P H AL A / ANGBASE ANGDIR OBJ P1)
+  (setq ANGBASE (getvar "ANGBASE"))
+  (setvar "ANGBASE" 0.0)
+  (setq ANGDIR (getvar "ANGDIR"))
+  (setvar "ANGDIR" 0)
+  ; acAlignmentLeft          :   0
+  ; acAlignmentCenter        :   1
+  ; acAlignmentRight         :   2
+  ; acAlignmentMiddle        :   4
+  ; acAlignmentTopLeft       :   6
+  ; acAlignmentTopCenter     :   7
+  ; acAlignmentTopRight      :   8
+  ; acAlignmentMiddleLeft    :   9
+  ; acAlignmentMiddleCenter  :  10
+  ; acAlignmentMiddleRight   :  11
+  ; acAlignmentBottomLeft    :  12
+  ; acAlignmentBottomCenter  :  13
+  ; acAlignmentBottomRight   :  14
+  (vla-addtext ACTIVESPC
+               STR
+               (vlax-3d-point P)
+               H
+  )
+  (setq ENT (entlast))
+  (setq OBJ (vlax-ename->vla-object ENT))
+  (setq ENTLIST (entget ENT))
+  (setq P1 (vlax-get-property OBJ 'InsertionPoint))
+  (cond ((= AL "L")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentLeft)
+         )
+        )
+        ((= AL "C")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentCenter)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "R")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentRight)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "M")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentMiddle)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "TL")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentTopLeft)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "TC")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentTopCenter)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "TR")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentTopRight)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "ML")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentMiddleLeft)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "MC")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentMiddleCenter)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "MR")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentMiddleRight)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "BL")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentBottomLeft)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "BC")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentBottomCenter)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+        ((= AL "BR")
+         (progn
+          (vlax-put-property OBJ 'Alignment acAlignmentBottomRight)
+          (vlax-put-property OBJ 'TextAlignmentPoint P1)
+         )
+        )
+  )
+  (vlax-put-property OBJ 'Rotation A)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+ )
+ 
+ (if RFL:PVILIST
+  (progn
+   (RFL:PROFDEF)
+   (if RFL:PROFDEFLIST
+    (progn
+     (if (= (cdr (assoc "PROFDRAW" RFL:LPROFLIST)) 1)
+      (progn
+       (setq NLAYER (cdr (assoc "PROFLAYER" RFL:LPROFLIST)))
+       (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+       (if (not (tblsearch "LAYER" NLAYER))
+        (entmake (list (cons 0 "LAYER")
+                       (cons 100 "AcDbSymbolTableRecord")
+                       (cons 100 "AcDbLayerTableRecord")
+                       (cons 2 NLAYER)
+                       (cons 70 0)
+                 )
+        )
+       )
+       (setvar "CLAYER" NLAYER)
+       (command "._PLINE")
+       (foreach TMP RFL:PVILIST
+        (progn
+         (if (< (cadddr TMP) TOL)
+          (command (RFL:PROFPOINT (car TMP) (cadr TMP)))
+          (progn
+           (setq C 0)
+           (while (<= C 64)
+            (command (RFL:PROFPOINT (+ (- (car TMP) (/ (cadddr TMP) 2.0)) (* (/ (cadddr TMP) 64) C))
+                                    (RFL:ELEVATION (+ (- (car TMP) (/ (cadddr TMP) 2.0)) (* (/ (cadddr TMP) 64) C)))
+                     )
+            )
+            (setq C (+ C 1))
+           )
+          )
+         )
+        )
+       )
+       (command "")
+       (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+      )
+     )
+     (if (or (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "LL" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "LK" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "LPVI" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
+             (= (cdr (assoc "LELEVATIONS" RFL:LPROFLIST)) 1)
+         )
+      (progn
+       (if (or (= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) 1)
+               (= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) nil)
+           )
+        (cond ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRLEFT")
+               (setq DIRECTIONT 1 DIRECTIONS 1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRRIGHT")
+               (setq DIRECTIONT -1 DIRECTIONS 1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRUP")
+               (setq DIRECTIONT 1 DIRECTIONS 1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRDOWN")
+               (setq DIRECTIONT -1 DIRECTIONS 1)
+              )
+        )
+        (cond ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRLEFT")
+               (setq DIRECTIONT 1 DIRECTIONS -1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRRIGHT")
+               (setq DIRECTIONT -1 DIRECTIONS -1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRUP")
+               (setq DIRECTIONT -1 DIRECTIONS -1)
+              )
+              ((= (cdr (assoc "DIRECTION" RFL:LPROFLIST)) "DIRDOWN")
+               (setq DIRECTIONT 1 DIRECTIONS -1)
+              )
+        )
+       )
+       (if (= DIRECTIONT 1)
+        (progn
+         (if (= (cdr (assoc "RAB" RFL:LPROFLIST)) 0)
+          (progn
+           (setq MLMR "MR")
+           (setq MLMRT "R")
+           (setq MLMRB "TR")
+           (setq SIDE 1)
+          )
+          (progn
+           (setq MLMR "ML")
+           (setq MLMRT "L")
+           (setq MLMRB "TL")
+           (setq SIDE -1)
+          )
+         )
+        )
+        (progn
+         (if (= (cdr (assoc "RAB" RFL:LPROFLIST)) 0)
+          (progn
+           (setq MLMR "ML")
+           (setq MLMRT "L")
+           (setq MLMRB "TL")
+           (setq SIDE 1)
+          )
+          (progn
+           (setq MLMR "MR")
+           (setq MLMRT "R")
+           (setq MLMRB "TR")
+           (setq SIDE -1)
+          )
+         )
+        )
+       )
+       (setq ZMAX (nth 1 (nth 0 RFL:PVILIST)))
+       (setq ZMIN (nth 1 (nth 0 RFL:PVILIST)))
+       (setq C 1)
+       (while (< C (length RFL:PVILIST))
+        (if (> (nth 1 (nth C RFL:PVILIST)) ZMAX)
+         (setq ZMAX (nth 1 (nth C RFL:PVILIST)))
+        )
+        (if (< (nth 1 (nth C RFL:PVILIST)) ZMIN)
+         (setq ZMIN (nth 1 (nth C RFL:PVILIST)))
+        )
+        (setq C (+ C 1))
+       )
+       (setq C 1)
+       (setq NLAYER (cdr (assoc "TEXTLAYER" RFL:LPROFLIST)))
+       (if (= "*" (substr NLAYER 1 1)) (setq NLAYER (strcat CLAYER (substr NLAYER 2))))
+       (if (not (tblsearch "LAYER" NLAYER))
+        (entmake (list (cons 0 "LAYER")
+                       (cons 100 "AcDbSymbolTableRecord")
+                       (cons 100 "AcDbLayerTableRecord")
+                       (cons 2 NLAYER)
+                       (cons 70 0)
+                 )
+        )
+       )
+       (setvar "CLAYER" NLAYER)
+       (setq STA1 (nth 0 (nth 0 RFL:PVILIST)))
+       (setq Z1 (nth 1 (nth 0 RFL:PVILIST)))
+       (setq L1 (nth 3 (nth 0 RFL:PVILIST)))
+       (setq P (RFL:PROFPOINT STA1 Z1))
+       (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
+        (progn
+         (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         (command "._LINE"
+                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
+                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
+                  ""
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+       )
+       (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
+        (progn
+         (setq TMP (RFL:STATXT STA1))
+         (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
+          (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
+         )
+         (ADDTEXT (strcat "STA " TMP)
+                  (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                  )
+                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                  MLMRT
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         (setq TMP (RFL:ROUND Z1 (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+         (ADDTEXT (strcat "PIVC  "
+                          (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                          " "
+                          (cdr (assoc "UNITS" RFL:LPROFLIST))
+                  )
+                  (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                  )
+                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                  MLMRB
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+       )
+       (while (< (+ C 1) (length RFL:PVILIST))
+        (setq STA1 (nth 0 (nth (- C 1) RFL:PVILIST)))
+        (setq Z1 (nth 1 (nth (- C 1) RFL:PVILIST)))
+        (setq L1 (nth 3 (nth (- C 1) RFL:PVILIST)))
+        (setq STA2 (nth 0 (nth C RFL:PVILIST)))
+        (setq Z2 (nth 1 (nth C RFL:PVILIST)))
+        (setq L2 (nth 3 (nth C RFL:PVILIST)))
+        (setq STA3 (nth 0 (nth (+ C 1) RFL:PVILIST)))
+        (setq Z3 (nth 1 (nth (+ C 1) RFL:PVILIST)))
+        (setq L3 (nth 3 (nth (+ C 1) RFL:PVILIST)))
+        (setq G1 (* (/ (- Z2 Z1) (- STA2 STA1)) 100.0))
+        (setq G2 (* (/ (- Z3 Z2) (- STA3 STA2)) 100.0))
+        (setq STA (/ (+ (+ STA1
+                           (/ L1 2.0)
+                        )
+                        (- STA2
+                           (/ L2 2.0)
+                        )
+                     )
+                     2.0
+                  )
+        )
+        (if (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) 1)
+         (progn
+          (ADDTEXT (strcat (if (> G1 0.0) "+" "") (rtos G1 2 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))) "%")
+                   (list (+ (car (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
+                            (* 1.75
+                               SIDE
+                               (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
+                               (sin (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
+                            )
+                         )
+                         (+ (cadr (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
+                            (* -1.75
+                               SIDE
+                               (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
+                               (cos (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
+                            )
+                         )
+                   )
+                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                   (if (= SIDE 1) "C" "TC")
+                   (if (= DIRECTIONS 1)
+                    (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1))
+                    (angle (RFL:PROFPOINT STA1 Z1) (RFL:PROFPOINT STA2 Z2))
+                   )
+          )
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         )
+        )
+        (setq P (RFL:PROFPOINT STA2 Z2))
+        (if (= (cdr (assoc "LPVI" RFL:LPROFLIST)) 1)
+         (progn
+          (setq TMP (RFL:STATXT STA2))
+          (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
+           (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
+          )
+          (ADDTEXT (strcat "STA  " TMP)
+                   (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                         (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                   )
+                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                   MLMRT
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+          )
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+          (setq TMP (RFL:ROUND Z2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+          (ADDTEXT (strcat "PIVC  "
+                           (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                           " "
+                           (cdr (assoc "UNITS" RFL:LPROFLIST))
+                   )
+                   (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                         (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                   )
+                   (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                   MLMRB
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+          )
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         )
+        )
+        (if (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
+         (progn
+          (command "._CIRCLE" (RFL:PROFPOINT STA2 Z2) (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+          (command "._LINE"
+                   (list (nth 0 (RFL:PROFPOINT STA2 Z2)) (+ (nth 1 (RFL:PROFPOINT STA2 Z2)) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
+                   (list (nth 0 (RFL:PROFPOINT STA2 Z2)) (+ (nth 1 (RFL:PROFPOINT STA2 Z2)) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
+                   ""
+          )
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         )
+        )
+        (if (> L2 0.0)
+         (progn
+          (setq K (abs (/ L2
+                          (- G2 G1)
+                       )
+                  )
+          )
+          (if (= (cdr (assoc "LL" RFL:LPROFLIST)) 1)
+           (progn
+            (setq TMP (RFL:ROUND L2 (cdr (assoc "LPREC" RFL:LPROFLIST))))
+            (ADDTEXT (strcat (rtos TMP 2 (cdr (assoc "LPREC" RFL:LPROFLIST))) " VC")
+                     (list (nth 0 P) (- (nth 1 P) (* SIDE 50.0)))
+                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                     "TC"
+                    0.0
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (if (= (cdr (assoc "LK" RFL:LPROFLIST)) 1)
+           (progn
+            (setq TMP (RFL:ROUND K (cdr (assoc "KPREC" RFL:LPROFLIST))))
+            (ADDTEXT (strcat "K = " (rtos TMP 2 (cdr (assoc "KPREC" RFL:LPROFLIST))))
+                     (list (nth 0 P) (- (nth 1 P) (* SIDE 50.0) 5.25))
+                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                     "TC"
+                    0.0
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (if (= (cdr (assoc "DPVI" RFL:LPROFLIST)) 1)
+           (progn
+            (setq ANG (angle P (RFL:PROFPOINT STA1 Z1)))
+            (command "._LINE"
+                     (list (+ (nth 0 P)
+                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
+                                 (cos ANG)
+                              )
+                           )
+                           (+ (nth 1 P)
+                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
+                                 (sin ANG)
+                              )
+                           )
+                     )
+                     (list (+ (nth 0 P)
+                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
+                                 (cos ANG)
+                              )
+                           )
+                           (+ (nth 1 P)
+                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
+                                 (sin ANG)
+                              )
+                           )
+                     )
+                     ""
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+            (setq ANG (angle P (RFL:PROFPOINT STA3 Z3)))
+            (command "._LINE"
+                     (list (+ (nth 0 P)
+                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
+                                 (cos ANG)
+                              )
+                           )
+                           (+ (nth 1 P)
+                              (* (cdr (assoc "CNODERAD" RFL:LPROFLIST))
+                                 (sin ANG)
+                              )
+                           )
+                     )
+                     (list (+ (nth 0 P)
+                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
+                                 (cos ANG)
+                              )
+                           )
+                           (+ (nth 1 P)
+                              (* (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)))
+                                 (sin ANG)
+                              )
+                           )
+                     )
+                     ""
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (setq P (RFL:PROFPOINT (- STA2 (/ L2 2.0)) (RFL:ELEVATION (- STA2 (/ L2 2.0)))))
+          (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
+           (progn
+            (setq TMP (RFL:ROUND (RFL:ELEVATION (- STA2 (/ L2 2.0))) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+            (ADDTEXT (strcat "BVC  "
+                             (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                             " "
+                             (cdr (assoc "UNITS" RFL:LPROFLIST))
+                     )
+                     (list (nth 0 P)
+                           (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                     )
+                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                     MLMR
+                     (if (= DIRECTIONT 1)
+                      (/ pi -2.0)
+                      (/ pi 2.0)
+                     )
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
+           (progn
+            (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+            (command "._LINE"
+                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
+                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
+                     ""
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (setq P (RFL:PROFPOINT (+ STA2 (/ L2 2.0)) (RFL:ELEVATION (+ STA2 (/ L2 2.0)))))
+          (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
+           (progn
+            (setq TMP (RFL:ROUND (RFL:ELEVATION (+ STA2 (/ L2 2.0))) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+            (ADDTEXT (strcat "EVC  "
+                             (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                             " "
+                             (cdr (assoc "UNITS" RFL:LPROFLIST))
+                     )
+                     (list (nth 0 P)
+                           (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                     )
+                     (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                     MLMR
+                     (if (= DIRECTIONT 1)
+                      (/ pi -2.0)
+                      (/ pi 2.0)
+                     )
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
+           (progn
+            (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+            (command "._LINE"
+                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
+                     (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
+                     ""
+            )
+            (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+           )
+          )
+          (if (= (cdr (assoc "LELEVATIONSC" RFL:LPROFLIST)) 1)
+           (progn
+            (setq STA (float (* (+ (fix (/ (- STA2 (/ L2 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
+            (while (< STA (+ STA2 (/ L2 2.0)))
+             (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+             (setq P (list (car P)
+                           (+ (cadr P)
+                              (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
+                           )
+                     )
+             )
+             (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+             (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                      P
+                      (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
+                      MLMR
+                      (if (= DIRECTIONT 1)
+                       (/ pi -2.0)
+                       (/ pi 2.0)
+                      )
+             )
+             (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+             (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
+            )
+           )
+          )
+          (if (= (cdr (assoc "LELEVATIONST" RFL:LPROFLIST)) 1)
+           (progn
+            (setq STA (float (* (+ (fix (/ (+ STA1 (/ L1 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
+            (while (< STA (- STA2 (/ L2 2.0)))
+             (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+             (setq P (list (car P)
+                           (+ (cadr P)
+                              (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
+                           )
+                     )
+             )
+             (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+             (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                      P
+                      (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
+                      MLMR
+                      (if (= DIRECTIONT 1)
+                       (/ pi -2.0)
+                       (/ pi 2.0)
+                      )
+             )
+             (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+             (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
+            )
+           )
+          )
+         )
+        )
+        (setq C (+ C 1))
+       )
+       (setq STA (/ (+ (+ STA2
+                          (/ L2 2.0)
+                       )
+                       (- STA3
+                          (/ L3 2.0)
+                       )
+                    )
+                    2.0
+                 )
+       )
+       (if (= (cdr (assoc "LSLOPE" RFL:LPROFLIST)) )
+        (progn
+         (ADDTEXT (strcat (if (> G2 0.0) "+" "") (rtos G2 2 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))) "%")
+                  (list (+ (car (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
+                           (* 1.75
+                              SIDE
+                              (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
+                              (sin (angle (RFL:PROFPOINT STA3 Z3) (RFL:PROFPOINT STA2 Z2)))
+                           )
+                        )
+                        (+ (cadr (RFL:PROFPOINT STA (RFL:ELEVATION STA)))
+                           (* -1.75
+                              SIDE
+                              (if (= (cdr (assoc "DIRECTION" RFL:PROFDEFLIST)) -1) -1 1)
+                              (cos (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA1 Z1)))
+                           )
+                        )
+                  )
+                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                  (if (= SIDE 1) "C" "TC")
+                  (if (= DIRECTIONS 1)
+                   (angle (RFL:PROFPOINT STA3 Z3) (RFL:PROFPOINT STA2 Z2))
+                   (angle (RFL:PROFPOINT STA2 Z2) (RFL:PROFPOINT STA3 Z3))
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+       )
+       (setq P (RFL:PROFPOINT STA3 Z3))
+       (if (= (cdr (assoc "CNODES" RFL:LPROFLIST)) 1)
+        (progn
+         (command "._CIRCLE" P (cdr (assoc "CNODERAD" RFL:LPROFLIST)))
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         (command "._LINE"
+                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (cdr (assoc "CNODERAD" RFL:LPROFLIST)))))
+                  (list (nth 0 P) (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST))))))
+                  ""
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+       )
+       (if (= (cdr (assoc "LBVC" RFL:LPROFLIST)) 1)
+        (progn
+         (setq TMP (RFL:STATXT STA3))
+         (if (= (cdr (assoc "LHIGH" RFL:LPROFLIST)) 0)
+          (setq TMP (substr TMP (1+ (vl-string-search "+" TMP))))
+         )
+         (ADDTEXT (strcat "STA  " TMP)
+                  (list (+ (nth 0 P) (* DIRECTIONT (* 1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                  )
+                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                  MLMRT
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+         (setq TMP (RFL:ROUND Z3 (cdr (assoc "SLOPEPREC" RFL:LPROFLIST))))
+         (ADDTEXT (strcat "PIVC  "
+                          (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                          " "
+                          (cdr (assoc "UNITS" RFL:LPROFLIST))
+                  )
+                  (list (+ (nth 0 P) (* DIRECTIONT (* -1.0 (cdr (assoc "CNODEHOFFSET" RFL:LPROFLIST)))))
+                        (+ (nth 1 P) (* SIDE (+ (cdr (assoc "CNODERAD" RFL:LPROFLIST)) (cdr (assoc "CNODELENGTH" RFL:LPROFLIST)) (cdr (assoc "CNODEVOFFSET" RFL:LPROFLIST)))))
+                  )
+                  (cdr (assoc "TEXTHEIGHT" RFL:LPROFLIST))
+                  MLMRB
+                  (if (= DIRECTIONT 1)
+                   (/ pi -2.0)
+                   (/ pi 2.0)
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+       )
+       (if (= (cdr (assoc "LELEVATIONSC" RFL:LPROFLIST)) 1)
+        (progn
+         (setq STA (float (* (+ (fix (/ (+ STA2 (/ L2 2.0)) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))) 1) (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST)))))
+         (while (< STA (- STA3 (/ L3 2.0)))
+          (setq P (RFL:PROFPOINT STA (cdr (assoc "ELEV" RFL:PROFDEFLIST))))
+          (setq P (list (car P)
+                        (+ (cadr P)
+                           (cdr (assoc "ELEVTEXTOS" RFL:LPROFLIST))
+                        )
+                  )
+          )
+          (setq TMP (RFL:ROUND (RFL:ELEVATION STA) (cdr (assoc "ELEVPREC" RFL:LPROFLIST))))
+          (ADDTEXT (rtos TMP 2 (cdr (assoc "ELEVPREC" RFL:LPROFLIST)))
+                   P
+                   (cdr (assoc "ELEVTEXTHEIGHT" RFL:LPROFLIST))
+                   MLMR
+                   (if (= DIRECTIONT 1)
+                    (/ pi -2.0)
+                    (/ pi 2.0)
+                   )
+          )
+          (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+          (setq STA (+ STA (cdr (assoc "ELEVTEXTINC" RFL:LPROFLIST))))
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "REGENMODE" REGENMODE)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "DIMZIN" DIMZIN)
+ (setvar "LUPREC" LUPREC)
+ (setvar "CLAYER" CLAYER)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+ (setvar "SPLINETYPE" SPLINETYPE)
+ (setvar "SPLINESEGS" SPLINESEGS)
+ (setvar "PLINETYPE" PLINETYPE)
+ (setvar "TEXTSTYLE" TEXTSTYLE)
+);
+;
+;     Program written by Robert Livingston, 2018/10/01
+;
+;     LSPACE is a utility for labelling spaces
+;
+;
+(setq RFL:LSPACELAYER "")
+(setq RFL:LSPACETHEIGHT 0.75)
+(setq RFL:LSPACESUFFIX "m")
+(setq RFL:LSPACEPREC 2)
+(defun C:LSPACESETUP (/ CMDECHO TMP)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq RFL:LSPACELAYER (getstring "\nEnter layer of new entities (<return> for current layer) : "))
+ (setq RFL:LSPACETHEIGHT (getdist "\nLabel text height <0.75> : "))
+ (if (or (= RFL:LSPACETHEIGHT nil) (= RFL:LSPACETHEIGHT 0.0)) (setq RFL:LSPACETHEIGHT 0.75))
+ (setq RFL:LSPACESUFFIX (getstring "\nEnter suffix for label text : "))
+ (setq RFL:LSPACEPREC (getint "\nLabel text precision <2> : "))
+ (if (or (= RFL:LSPACEPREC nil) (<= RFL:LSPACEPREC 0)) (setq RFL:LSPACEPREC 2))
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun C:LSPACE (/ *error* ACTIVEDOC ACTIVESPC ANG P P1 P2 VT)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 640)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 0)
+
+ (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
+ (setq ACTIVESPC
+       (vlax-get-property ACTIVEDOC
+        (if (or (eq acmodelspace (vla-get-activespace ACTIVEDOC)) (eq :vlax-true (vla-get-mspace ACTIVEDOC)))
+         'modelspace
+         'paperspace
+        )
+       )
+ )
+
+ (command "._UNDO" "M")
+ 
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CLAYER" CLAYER)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "DIMZIN" DIMZIN)
+  ;(setq *error* nil)
+  (princ msg)
+ )
+
+ (command "._UNDO" "M")
+
+ (command "._UCS" "W")
+
+ (if (/= "" RFL:LSPACELAYER)
+  (progn
+   (if (= nil (tblsearch "LAYER" RFL:LSPACELAYER))
+    (command "._LAYER" "M" RFL:LSPACELAYER)
+    (setvar "CLAYER" RFL:LSPACELAYER)
+   )
+  )
+ )
+
+ (setq VT (getvar "VIEWTWIST"))
+ (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
+ (setq P1 (getpoint "\nFirst point : "))
+ (setq P1 (list (car P1) (cadr P1)))
+ (setq P2 (getpoint P1 "\nSecond point : "))
+ (setq P2 (list (car P2) (cadr P2)))
+ (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+ (if (and (> (angle P P2) (- 0.0 VT)) (< (angle P P2) (- pi VT)))
+  (setq ANG (- (angle P P2) (/ pi 2)))
+  (setq ANG (+ (angle P P2) (/ pi 2)))
+ )
+ (setq TEXTSTRING (strcat (rtos (distance P1 P2) 2 RFL:LSPACEPREC) RFL:LSPACESUFFIX))
+ (if (setq TEXTOBJ (vla-addtext ACTIVESPC
+                                TEXTSTRING
+                                (vlax-3D-point P)
+                                RFL:LSPACETHEIGHT
+                   )
+     )
+  (progn
+   (vla-put-Alignment textObj acAlignmentMiddle)
+   (vla-put-Rotation textObj ANG)
+   (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CLAYER" CLAYER)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "DIMZIN" DIMZIN)
+)
+(princ "\n*****  Use LSPACESETUP to change defaults *****\n");
+;
+;     Program written by Robert Livingston, 04-12-08
+;
+;     LVCURVE is a utility for labelling Vertical Profile entities
+;
+;
+(defun C:LVCURVE (/ *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G1 G2 K L P P1 P2 P3 STR TMP VEXAG)
+ (command "._UNDO" "M")
+
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+
+ (defun *error* (msg)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (print msg)
+  ;(setq *error* nil)
+ )
+
+ (setq H nil)
+ (setq ENTLIST (tblsearch "STYLE" (getvar "TEXTSTYLE")))
+ (setq H (cdr (assoc 40 ENTLIST)))
+
+ (setq VEXAG (getreal "\nEnter vertical exageration <10.000> : "))
+ (if (= VEXAG nil) (setq VEXAG 10.0))
+
+ (while (/= nil (setq ENT (car (entsel "\nSelect profile entity : "))))
+  (setq ENTLIST (entget ENT))
+  (if (= "LINE" (cdr (assoc 0 ENTLIST)))
+   (progn
+    (setq P1 (cdr (assoc 10 ENTLIST)))
+    (setq P2 (cdr (assoc 11 ENTLIST)))
+    (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+    (if (< (car P2) (car P1))
+     (progn
+      (setq TMP P1)
+      (setq P1 P2)
+      (setq P2 TMP)
+     )
+    )
+    (setq TMP (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1)) VEXAG 0.01))
+    (if (= H 0.0)
+     (command "._TEXT" "BC" P 5.0 P2 (strcat (if (< TMP 0.0) "-" "+") (rtos (abs TMP)) "%"))
+     (command "._TEXT" "BC" P P2 (strcat (if (< TMP 0.0) "-" "+") (rtos (abs TMP)) "%"))
+    )
+   )
+   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+      (progn
+       (setq P (list (car P2) (/ (+ (cadr P1) (cadr P2) (cadr P3)) 3.0)))
+       (setq L (abs (- (nth 0 P3) (nth 0 P1))))
+       (setq G1 (/ (- (nth 1 P2) (nth 1 P1))
+                   (- (nth 0 P2) (nth 0 P1))
+                   VEXAG
+                )
+       )
+       (setq G2 (/ (- (nth 1 P3) (nth 1 P2))
+                   (- (nth 0 P3) (nth 0 P2))
+                   VEXAG
+                )
+       )
+       (setq K (abs (/ L (- G2 G1) 100.0)))
+       (if (= H 0.0)
+        (progn
+         (command "._TEXT" "M" P 5.0 0.0 (strcat "K = " (rtos (abs K))))
+         (command "._TEXT" "" (strcat "L = " (rtos (abs L))))
+        )
+        (progn
+         (command "._TEXT" "M" P 0.0 (strcat "K = " (rtos (abs K))))
+         (command "._TEXT" "" (strcat "L = " (rtos (abs L))))
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 2017-02-18
+;
+;     C:MAKESUPER is a utility for generating Superelevations along an alignment.
+;
+;
+(defun C:MAKESUPER (/ C GETSUPER L NODE REP R R1 R2 RUNOUT S S1 S2 STA TABLE VDES)
+ (defun GETSUPER (TABLE R VDES)
+  (apply (read TABLE) (list R VDES))
+ )
+ (initget "Bc Tac")
+ (if (setq REP (getkword "\n6% BC Sup or 6% TAC (BC/TAC) <TAC> : "))
+  (setq TABLE REP)
+  (setq TABLE "TAC")
+ )
+ (if (= TABLE "TAC")
+  (setq TABLE "RFL:GETTACSUPER")
+  (setq TABLE "RFL:GETBCSUPER")
+ )
+ (if (setq REP (getdist "\nDesign speed (must be table column value) <60>: "))
+  (setq VDES REP)
+  (setq VDES 60.0)
+ )
+ (if (setq REP (getdist "\nEnter spiral runout distance <60.0> : "))
+  (setq RUNOUT REP)
+  (setq RUNOUT 60.0)
+ )
+ (setq RFL:SUPERLIST nil)
+ (foreach NODE RFL:ALIGNLIST
+  (cond ((listp (last NODE))
+         (progn ; Spiral
+          (print "SPIRAL")
+          (setq S nil S1 nil S2 nil)
+          (setq STA (car NODE))
+          (setq L (- (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE)) (last (nth 3 NODE))))
+          (setq R1 (RFL:GETRADIUS STA))
+          (if (> (abs R1) 10000.0) (setq R1 0.0))
+          (setq R2 (RFL:GETRADIUS (+ STA L)))
+          (if (> (abs R2) 10000.0) (setq R2 0.0))
+          (if (< (abs R1) RFL:TOL)
+           (setq S1 (list -2.0 0.0))
+           (setq S1 (GETSUPER TABLE (abs R1) VDES))
+          )
+          (if (or (< R1 0.0) (< R2 0.0)) (setq S1 (reverse S1)))
+          (if (< (abs R2) RFL:TOL)
+           (setq S2 (list -2.0 0.0))
+           (setq S2 (GETSUPER TABLE (abs R2) VDES))
+          )
+          (if (or (< R1 0.0) (< R2 0.0)) (setq S2 (reverse S2)))
+          (cond ((= 0.0 (car S1))
+                 (setq S (list (+ STA (* L (/ 2.0 (car S2)))) 2.0 -2.0))
+                )
+                ((= 0.0 (cadr S1))
+                 (setq S (list (+ STA (* L (/ 2.0 (cadr S2)))) -2.0 2.0))
+                )
+                ((= 0.0 (car S2))
+                 (setq S (list (- (+ STA L) (* L (/ 2.0 (car S1)))) 2.0 -2.0))
+                )
+                ((= 0.0 (cadr S2))
+                 (setq S (list (- (+ STA L) (* L (/ 2.0 (cadr S1)))) -2.0 2.0))
+                )
+          )
+          (if (/= S nil)
+           (progn
+            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA (car S1) (cadr S1)))))
+            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list S)))
+            (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ STA L) (car S2) (cadr S2)))))
+           )
+          )
+         )
+        )
+        ((< (abs (last NODE)) RFL:TOL)
+         (progn ; Line
+          (print "LINE")
+          (if (> (distance (nth 1 NODE) (nth 2 NODE)) (* 2.0 RUNOUT))
+           (progn
+            (if (= (car NODE) (car (car RFL:ALIGNLIST)))
+             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (nth 0 NODE) -2.0 -2.0))))
+             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) RUNOUT) -2.0 -2.0))))
+            )
+            (if (= (car NODE) (car (last RFL:ALIGNLIST)))
+             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) (distance (nth 1 NODE) (nth 2 NODE))) -2.0 -2.0))))
+             (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (- (+ (nth 0 NODE) (distance (nth 1 NODE) (nth 2 NODE))) RUNOUT) -2.0 -2.0))))
+            )
+           )
+          )
+         )
+        )
+        (T
+         (progn ; Arc
+          (print "ARC")
+          (setq S (GETSUPER TABLE (RFL:RADIUS (nth 1 NODE) (nth 2 NODE) (abs (nth 3 NODE))) VDES))
+          (if (< (nth 3 NODE) 0.0)
+           (setq S (reverse S))
+          )
+          (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (nth 0 NODE) (car S) (cadr S)))))
+          (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (+ (nth 0 NODE) (RFL:ARCLENGTH (nth 1 NODE) (nth 2 NODE) (nth 3 NODE))) (car S) (cadr S)))))
+         )
+        )
+  )
+ )
+ (setq S RFL:SUPERLIST)
+ (setq RFL:SUPERLIST (list (car S)))
+ (setq C 1)
+ (while (< C (length S))
+  (if (> (abs (- (car (nth C S)) (car (nth (1- C) S)))) RFL:TOL)
+   (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (nth C S))))
+   (if (and (or (= (cadr (nth C S)) 0.0) (= (cadr (nth C S)) -2.0))
+            (or (= (caddr (nth C S)) 0.0) (= (caddr (nth C S)) -2.0))
+       )
+    (progn
+     (setq RFL:SUPERLIST (reverse (cdr (reverse RFL:SUPERLIST))))
+     (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list (car (nth C S)) 0.0 0.0))))
+    )
+   )
+  )
+  (setq C (1+ C))
+ )
 );
 ;
 ;     Program written by Robert Livingston, 2015-02-20
@@ -21595,223 +17984,727 @@
  nil
 );
 ;
-;     Program written by Robert Livingston, 2018-04-18
+;     Program written by Robert Livingston, 2015-02-20
 ;
-;     C:XYP is a loader for RFL:XYP
-;
-;
-(defun C:XYP ()
- (RFL:XYP)
-)
+;     C:PGRADE is a routine for finding a polyline with constant grade along a surface between two selected points
 ;
 ;
-;   Program written by Robert Livingston, 2018/06/06
-;
-;   C:GEXSUPER Estimates existing superelevation based on an alignment and surface
-;
-;
-(defun C:GEXSUPER (/ C CMDECHO INC GETSUPERNODE GETBESTPARABOLA NODE NSAMPLES OBSURFACE OS OSL OSR P PBLIST PL PR SL SLIST SR STA STAEND TMP)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (defun GETSUPERNODE (OBSURFACE STA OSL OS OSR / NODE SL SR Z ZL ZR)
-  (setq NODE nil
-        SL nil
-        SR nil
-        Z nil
-        ZL nil
-        ZR nil
-  )
-  (if (setq PL (RFL:XY (list STA OSL)))
-   (if (= (setq ZL (RFL:GETSURFACEPOINT PL OBSURFACE)) nil)
-    (setq ZL nil)
-   )
-  )
-  (if (setq PR (RFL:XY (list STA OSR)))
-   (if (= (setq ZR (RFL:GETSURFACEPOINT PR OBSURFACE)) nil)
-    (setq ZR nil)
-   )
-  )
-  (if OS
-   (progn
-    (if (setq P (RFL:XY (list STA OS)))
-     (if (= (setq Z (RFL:GETSURFACEPOINT P OBSURFACE)) nil)
-      (setq Z nil)
-     )
-    )
-    (if (and ZL Z ZR)
-     (progn
-      (setq SL (* (/ (- Z ZL) (- OS OSL)) -100.0))
-      (setq SR (* (/ (- ZR Z) (- OSR OS)) 100.0))
-      (setq NODE (list STA SL SR))
-     )
-    )
-   )
-   (progn
-    (if (and ZL ZR)
-     (progn
-      (setq SL (* (/ (- ZR ZL) (- OSR OSL)) -100.0))
-      (setq SR (* SL -1.0))
-      (setq NODE (list STA SL SR))
-     )
-    )
-   )
-  )
-  NODE
- )
- ; LR : "L" or "R"
- (defun GETBESTPARABOLA (SLIST LR / A B C G1 G2 NODE P1 P2 P3 PLIST TMP)
-  (setq PLIST nil)
-  (foreach NODE SLIST
-   (if NODE
-    (if (= LR "L")
-     (setq PLIST (append PLIST (list (list (car NODE) (cadr NODE)))))
-     (setq PLIST (append PLIST (list (list (car NODE) (caddr NODE)))))
-    )
-   )
-  )
-  (cond ((= (length PLIST) 0)
-         nil
-        )
-        ((= (length PLIST) 1)
-         (list (setq A 0.0) (setq B 0.0) (setq C (cadar PLIST)))
-        )
-        ((= (length PLIST) 2)
-         (list (setq A 0.0)
-               (setq B (/ (- (cadadr PLIST) (cadar PLIST)) (- (caadr PLIST) (caar PLIST))))
-               (setq C (- (cadar PLIST) (* B (caar PLIST))))
-         )
-        )
-        (T
-         (progn
-          (if (setq TMP (RFL:BESTVCURVE PLIST))
-           (progn
-            (setq P1 (car TMP))
-            (setq P2 (cadr TMP))
-            (setq P3 (caddr TMP))
-            (setq G1 (/ (- (cadr P2) (cadr P1)) (- (car P2) (car P1))))
-            (setq G2 (/ (- (cadr P3) (cadr P2)) (- (car P3) (car P2))))
-            (list (setq A (/ (- G2 G1) (* 2.0 (- (car P3) (car P1)))))
-                  (setq B (- G1 (* 2.0 A (car P1))))
-                  (setq C (- (cadr P1) (* A (car P1) (car P1)) (* B (car P1))))
-            )
-           )
-           nil
-          )
-         )
-        )
-  )
- )
- (if (/= RFL:ALIGNLIST nil)
-  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
-   (progn
-    (setq RFL:SUPERLIST nil)
-    (setq INC 0.0)
-    (while (= INC 0.0)
-     (setq INC (getdist "\nStation increment <10.0> : "))
-     (if (= INC nil) (setq INC 10.0))
-    )
-    (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
-    (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
-    (if (= nil STA) (setq STA TMP))
-    (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
-    (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
-    (if (= nil STAEND) (setq STAEND TMP))
-    (setq NSAMPLES 0)
-    (while (< NSAMPLES 1)
-     (setq NSAMPLES (getint (strcat "\nNumber of samples (use odd number) <9> : ")))
-     (if (= NSAMPLES nil)
-      (setq NSAMPLES 9)
-      (if (/= (rem NSAMPLES 2) 1)
-       (setq NSAMPLES 0)
-      )
-     )
-    )
-    (setq TMP -3.0)
-    (setq OSL (getreal (strcat "\nLeft offset <" (rtos TMP 2 3) "> : ")))
-    (if (= OSL nil) (setq OSL TMP))
-    (setq TMP 3.0)
-    (setq OSR (getreal (strcat "\nRight offset <" (rtos TMP 2 3) "> : ")))
-    (if (= OSR nil) (setq OSR TMP))
-    (setq TMP 0.0)
-    (setq OS (getreal (strcat "\nCenter offset (<return> for single carriageway) <nil> : ")))
-    (setq SLIST nil)
-    (setq C (/ NSAMPLES -2))
-    (while (<= C (/ NSAMPLES 2))
-     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* C INC)) OSL OS OSR))
-     (setq SLIST (append SLIST (list NODE)))
-     (setq C (1+ C))
-    )
-    (while (<= STA STAEND)
-     (print (RFL:STATXT STA))
-     (if (setq PBLIST (GETBESTPARABOLA SLIST "L"))
-      (progn
-       (setq SL (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
-       (if (setq PBLIST (GETBESTPARABOLA SLIST "R"))
-        (progn
-         (setq SR (+ (* (car PBLIST) STA STA) (* (cadr PBLIST) STA) (caddr PBLIST)))
-         (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA SL SR))))
-        )
-       )
-      )
-     )
-     (setq STA (+ STA INC))
-     (setq SLIST (cdr SLIST))
-     (setq NODE (GETSUPERNODE OBSURFACE (+ STA (* (/ NSAMPLES 2) INC)) OSL OS OSR))
-     (setq SLIST (append SLIST (list NODE)))
-    )
-   )
-   (princ "\n!!!!! Surface Not Set !!!!!\n")
-  )
-  (princ "\n!!!!! Horizontal Alignment Not Set !!!!!\n")
- )
- (setvar "CMDECHO" CMDECHO)
- nil
-)
-;
-;
-;     Program written by Robert Livingston, 01/02/14
-;
-;     LARC is a small utility for labelling arc and spiral entities
-;
-;
-(setq RFL:LARCSCALE 0.1 RFL:LARCLAYER "")
-(setq RFL:LARCCIRCLES "Yes")
-(setq RFL:LARCSPIRALS "B")
-(setq RFL:LARCTHEIGHT 0.75)
-(defun C:LARCSETUP (/ CMDECHO TMP)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq TMP (getreal (strcat "\nEnter scale for blocks <" (rtos RFL:LARCSCALE) "> : " )))
- (if (/= nil TMP) (setq RFL:LARCSCALE TMP))
- (setq RFL:LARCLAYER (getstring "\nEnter layer of new entities (<return> for current layer) : "))
- (initget "Yes No")
- (setq RFL:LARCCIRCLES (getkword "\nDraw circles at entity ends (<Yes>/No) : "))
- (initget "Yes No")
- (if (= RFL:LARCCIRCLES nil) (setq RFL:LARCCIRCLES "Yes"))
- (setq LARCEQUALS (getkword "\nInclude equals '=' (Yes/<No>) : "))
- (if (= LARCEQUALS nil) (setq LARCEQUALS "No"))
- (initget "A L B")
- (setq RFL:LARCSPIRALS (getkword "\nLabel spiral A, Ls or Both (A/L/<B>) : "))
- (if (= RFL:LARCSPIRALS nil) (setq RFL:LARCSPIRALS "B"))
- (setq RFL:LARCTHEIGHT (getdist "\nLabel text height <0.75> :"))
- (if (or (= RFL:LARCTHEIGHT nil) (= RFL:LARCTHEIGHT 0.0)) (setq RFL:LARCTHEIGHT 0.75))
-
- (setvar "CMDECHO" CMDECHO)
-)
-(defun C:LARC (/ *error* A ACTIVEDOC ACTIVESPC ANG ANG1 ANG2 ANGBASE ANGDIR CHECKDUPLICATE CLAYER CMDECHO DIMZIN ENT ENTLIST LO LS OS OSMODE P P1 P2 PC R RL SPIRALDATA TEXTOBJ TEXTSTRING VT)
- (setq CLAYER (getvar "CLAYER"))
+(defun C:PGRADE (/ *error* ANG ANGBASE ANGDIR CMDECHO CONTINUE D DIST2D GETOS GRADE GRSECTION NODE OBSURFACE OGLIST OS OSMODE P P0 P1 P2 PL PR REP STEP SWATH TMP Z0 Z1 Z2)
+;(defun C:PGRADE ()
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
  (setq ANGBASE (getvar "ANGBASE"))
  (setvar "ANGBASE" 0.0)
  (setq ANGDIR (getvar "ANGDIR"))
  (setvar "ANGDIR" 0)
- (setq DIMZIN (getvar "DIMZIN"))
- (setvar "DIMZIN" 8)
+ (setq ALSAVE RFL:ALIGNLIST)
 
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  (setq RFL:ALIGNLIST ALSAVE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (defun GETOS (/ C OSBEST L P1 P2 P3 P4 TMP ZBEST)
+  (setq OSBEST nil ZBEST nil)
+  (setq C 0)
+  (while (< (+ C 1) (length OGLIST))
+   (setq P1 (nth C OGLIST))
+   (setq L (sqrt (+ (expt (car P1) 2) (expt D 2))))
+   (setq P3 (list (car P1) (+ Z0 (* L GRADE))))
+   (setq P2 (nth (+ C 1) OGLIST))
+   (setq L (sqrt (+ (expt (car P2) 2) (expt D 2))))
+   (setq P4 (list (car P2) (+ Z0 (* L GRADE))))
+   (setq TMP (inters P1 P2 P3 P4))
+   (if (/= nil TMP)
+    (if (= nil OSBEST)
+     (setq OSBEST (car TMP) ZBEST (cadr TMP))
+     (if (< (abs (car TMP)) (abs OSBEST))
+      (setq OSBEST (car TMP) ZBEST (cadr TMP))
+     )
+    )
+   )
+   (setq C (+ C 1))
+  )
+  (list OSBEST ZBEST)
+ )
+ 
+ (defun GRSECTION (/ C H NODE P1 P2 PC PB SCALE)
+  (setq PC (getvar "VIEWCTR"))
+  (setq H (getvar "VIEWSIZE"))
+  (setq PB (list (+ (car PC) (/ H 3.0)) (- (cadr PC) (/ H 4.0))))
+  (setq SCALE (/ (/ H 2.0) SWATH))
+  (setq C 0)
+  (setq P1 (nth C OGLIST))
+  (setq P1 (list (+ (car PB) (* SCALE (car P1))) (+ (cadr PB) (* SCALE (- (cadr P1) Z2)))))
+  (while (< (+ C 1) (length OGLIST))
+   (progn
+    (setq P2 (nth (+ C 1) OGLIST))
+    (setq P2 (list (+ (car PB) (* SCALE (car P2))) (+ (cadr PB) (* SCALE (- (cadr P2) Z2)))))
+    (grdraw P1 P2 -1)
+    (setq P1 P2)
+    (setq C (+ C 1))
+   )
+  )
+  (setq P1 (list (+ (car PB) (* SCALE (car OS))) (+ (cadr PB) (* SCALE (- (cadr OS) Z2)))))
+  (grdraw (list (+ (car P1) (/ H -25.0)) (cadr P1))
+          (list (+ (car P1) (/ H 25.0)) (cadr P1)) -1)
+  (grdraw (list (car P1) (+ (cadr P1) (/ H -25.0)))
+          (list (car P1) (+ (cadr P1) (/ H 25.0))) -1)
+ )
+ 
+ (defun DIST2D (P1 P2)
+  (distance (list (car P1) (cadr P1)) (list (car P2) (cadr P2)))
+ )
+ 
+ (if (/= nil (setq OBSURFACE (RFL:GETC3DSURFACE)))
+  (if (/= nil (setq P0 (getpoint "\nStart Point : ")))
+   (if (/= nil (setq Z0 (RFL:GETSURFACEPOINT P0 OBSURFACE)))
+    (progn
+     (setq P0 (list (car P0) (cadr P0)))
+     (princ (strcat "\nElevation at start point = " (rtos Z0)))
+     (setq P2 (getpoint "\nPick second point for grade reference : "))
+     (if (/= nil (setq Z2 (RFL:GETSURFACEPOINT P2 OBSURFACE)))
+      (progn
+       (setq GRADE (* 100.0 (/ (- Z2 Z0) (DIST2D P0 P2))))
+       (setq REP (getreal (strcat "\nEnter desired grade (%) <" (rtos GRADE) "> : ")))
+       (if (/= nil REP) (setq GRADE REP))
+       (setq GRADE (/ GRADE 100.0))
+       (setq SWATH 500.0)
+       (setq REP (getreal (strcat "\nEnter swath width <" (rtos SWATH) "> : ")))
+       (if (/= nil REP) (setq SWATH REP))
+       ;(setq STEP 100.0)
+       ;(setq REP (getreal (strcat "\nEnter step size <" (rtos STEP) "> : ")))
+       ;(if (/= nil REP) (setq STEP REP))
+        (setq CONTINUE T)
+       (setvar "OSMODE" 0)
+       (command "._PLINE" P0)
+       (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
+       (while (and (or (= 5 (car (setq P1 (grread T))))
+                       (= 3 (car P1))
+                       (= 2 (car P1))
+                   )
+                   CONTINUE
+              )
+        (if (= 2 (car P1))
+         (if (= 43 (cadr P1))
+          (progn
+           (setq GRADE (+ GRADE 0.001))
+           (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
+          )
+          (if (= 45 (cadr P1))
+           (progn
+            (setq GRADE (- GRADE 0.001))
+            (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
+           )
+           (if (= 13 (cadr P1))
+            (setq CONTINUE nil)
+            (if (= 32 (cadr P1))
+             (setq CONTINUE nil)
+            )
+           )
+          )
+         )
+         (progn
+          (setq P (list (caadr P1) (cadadr P1)))
+          (setq ANG (angle P0 P))
+          (setq D (DIST2D P0 P))
+          (setq P2 nil)
+          (setq RFL:ALIGNLIST (list (list 0.0 P0 (list (+ (car P0) (* 2.0 D (cos ANG))) (+ (cadr P0) (* 2.0 D (sin ANG)))) 0.0)))
+          (setq PL (RFL:XY (list D (/ SWATH -2.0))))
+          (setq PR (RFL:XY (list D (/ SWATH 2.0))))
+          (setq OGLIST nil)
+          (if (and (/= nil PL) (/= nil PR))
+           (progn
+            (setq TMP (RFL:GETSURFACELINE PL P OBSURFACE))
+            (foreach NODE TMP
+             (setq OGLIST (append OGLIST (list (list (* -1.0 (DIST2D NODE P)) (last NODE)))))
+            )
+            (setq TMP (cdr (RFL:GETSURFACELINE P PR OBSURFACE)))
+            (foreach NODE TMP
+             (setq OGLIST (append OGLIST (list (list (DIST2D NODE P) (last NODE)))))
+            )
+           )
+          )
+          (if (/= nil OGLIST)
+           (if (/= nil (car (setq OS (GETOS))))
+            (progn
+             (command "'REDRAW")
+             (if (and (/= nil PL) (/= nil PR)) (grdraw PL PR -1))
+             (GRSECTION)
+             (setq P2 (RFL:XY (list D (car OS))))
+             (setq Z2 (cadr OS))
+             (grdraw P0 P2 -1)
+            )
+           )
+          )
+          (if (= 3 (car P1))
+           (if (/= nil P2)
+            (progn
+             (command "'REDRAW")
+             (setq P0 P2 Z0 Z2)
+             (command P0)
+             (princ (strcat "\n" (rtos (* GRADE 100.0)) "%, Point : "))
+            )
+           )
+          )
+         )
+        )
+       )
+       (command "")
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ (command "'REDRAW")
+ nil
+);
+;
+;     Program written by Robert Livingston, 2015-10-09
+;
+;     PL2SUPER estimates superelevations based on selected 3D polylines
+;
+;
+(defun C:PL2SUPER (/ *error* ALPLALPLLIST ALSAVE C ENT ENTLIST INC MP:Echo NODE ORTHOMODE OS OSMODE P P1 P2 P3 PC PL PR PLISTCENTER PLISTLEFT PLISTRIGHT PLIST PVIPL PVIPLLIST PVISAVE S STA STAEND SWATH TMP TOL Z Z1 Z2 ZLIST ZMAX)
+;(defun C:PL2SUPER ()
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ 
+ (setq TOL 0.00001)
+ 
+ (defun *error* (msg)
+  (setq RFL:ALIGNLIST ALSAVE)
+  (setq PVISAVE RFL:PVILIST)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (print msg)
+  ;(setq *error* nil)
+ )
+
+ (defun MP:Echo ( x / cmdecho millisecs ceiling )
+
+     (cond
+         (   (null (setq ceiling 2000 millisecs (getvar 'millisecs)))
+         )
+         (   (/= 'int (type *MP:Echo:MilliSecs*))
+             (setq *MP:Echo:MilliSecs* millisecs)
+         )
+         (   (< ceiling (- millisecs *MP:Echo:MilliSecs*))
+             (setq cmdecho (getvar 'cmdecho))
+             (setvar 'cmdecho 0)
+             (vl-cmdf ".delay" 0)
+             (setvar 'cmdecho cmdecho)
+             (setq *MP:Echo:MilliSecs* millisecs)
+         )
+     )
+
+     (if (eq 'str (type x)) 
+         (setvar 'modemacro (vl-string-trim "\n\r\t" x))
+     )
+
+     (princ x)
+
+     (princ)
+
+ ) 
+
+ 
+ (setq ALSAVE RFL:ALIGNLIST)
+ (setq PVISAVE RFL:PVILIST)
+ (if (= nil RFL:ALIGNLIST)
+  (princ "\n!!! NO ALIGNMENT DEFINED !!!\n")
+  (progn
+   (setq INC 0.0)
+   (while (= INC 0.0)
+    (setq INC (getdist "\nStation increment <10.0> : "))
+    (if (= INC nil) (setq INC 10.0))
+   )
+   (setq TMP (+ INC (* INC (fix (/ (caar RFL:ALIGNLIST) INC)))))
+   (setq STA (getreal (strcat "\nStart Station <" (rtos TMP 2 3) "> : ")))
+   (if (= nil STA) (setq STA TMP))
+   (setq TMP (* INC (fix (/ (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) INC))))
+   (setq STAEND (getreal (strcat "\nEnd Station <" (rtos TMP 2 3) "> : ")))
+   (if (= nil STAEND) (setq STAEND TMP))
+   (setq ALPLLIST nil)
+   (setq PVIPLLIST nil)
+   (while (/= nil (setq ENT (car (entsel "\nSelect Polyline : "))))
+    (setq ENTLIST (entget ENT))
+    (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
+     (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
+                    (/ (cdr (assoc 70 ENTLIST)) 16.0))
+      (progn
+       (setq ALPL nil)
+       (setq PVIPL nil)
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P1 nil)
+       (setq Z1 nil)
+       (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+        (setq P2 (cdr (assoc 10 ENTLIST)))
+        (setq Z2 (caddr P2))
+        (if (= Z2 nil) (setq Z2 0.0))
+        (setq P2 (list (car P2) (cadr P2)))
+        (if (/= P1 nil)
+         (if (= nil ALPL)
+          (setq ALPL (list (list 0.0 P1 P2 0.0)))
+          (setq ALPL (append ALPL (list (list (+ (car (last ALPL)) (distance (cadr (last ALPL)) (caddr (last ALPL)))) P1 P2 0.0))))
+         )
+        )
+        (if (= nil PVIPL)
+         (setq PVIPL (list (list 0.0 Z2 "L" 0.0)))
+         (setq PVIPL (append PVIPL (list (list (+ (car (last ALPL)) (distance P1 P2)) Z2 "L" 0.0))))
+        )
+        (setq P1 P2)
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+       )
+       (setq ALPLLIST (append ALPLLIST (list ALPL)))
+       (setq PVIPLLIST (append PVIPLLIST (list PVIPL)))
+      )
+      (princ "\n!!! NOT a 3D POLYLINE !!!\n")
+     )
+    )
+   )
+   (if (/= nil ALPLLIST)
+    (progn
+     (setq SWATH (getdist "\nSwath with <100.0> : "))
+     (if (= nil SWATH) (setq SWATH 100.0))
+     (setq RFL:SUPERLIST nil)
+     (while (<= STA STAEND)
+      (setq RFL:ALIGNLIST ALSAVE)
+      (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+      (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
+      (setq PLIST nil)
+      (setq ZLIST nil)
+      (setq C 0)
+      (while (< C (length ALPLLIST))
+       (setq RFL:ALIGNLIST (nth C ALPLLIST))
+       (setq RFL:PVILIST (nth C PVIPLLIST))
+       (setq P (RFL:ALINTERS P1 P2 RFL:ALIGNLIST))
+       (if (/= nil P)
+        (progn
+         (setq Z (RFL:ELEVATION (car (RFL:STAOFF P))))
+         (if (/= nil Z)
+          (progn
+           (setq PLIST (append PLIST (list P)))
+           (setq ZLIST (append ZLIST (list Z)))
+          )
+         )
+        )
+       )
+       (setq C (+ C 1))
+      )
+      (setq RFL:ALIGNLIST ALSAVE)
+      (if (and (= 3 (length PLIST)) (= 3 (length ZLIST)))
+       (progn
+        (setq PL (append (RFL:STAOFF (nth 0 PLIST)) (list (nth 0 ZLIST))))
+        (setq PC (append (RFL:STAOFF (nth 1 PLIST)) (list (nth 1 ZLIST))))
+        (setq PR (append (RFL:STAOFF (nth 2 PLIST)) (list (nth 2 ZLIST))))
+        (setq RFL:SUPERLIST (append RFL:SUPERLIST (list (list STA
+                                                              (* -100.0 (/ (- (caddr PC) (caddr PL)) (- (cadr PC) (cadr PL))))
+                                                              (* 100.0 (/ (- (caddr PC) (caddr PR)) (- (cadr PC) (cadr PR))))
+                                                        )
+                                                  )
+                            )
+        )
+       )
+      )
+      (MP:Echo (strcat "\nSta : " (RFL:STATXT STA)))
+      ;(princ (strcat "\nSta : " (RFL:STATXT STA)))
+      (setq STA (+ STA INC))
+     )
+    )
+   )
+  )
+ )
+ (setq RFL:ALIGNLIST ALSAVE)
+ (setq PVISAVE RFL:PVILIST)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ T
+);
+;
+;     Program written by Robert Livingston - 2015-07-29
+;
+;     C:PL2TANGENT is a routine for fitting an alignment to a selected polyline
+;
+;
+(defun C:PL2TANGENT (/ ENT ENTLIST MINTANCOUNT MINTANOS ORTHOMODE OSMODE PLIST PLISTALL PLISTPART PREVENT SUBLINE SUBLINEBEST)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (defun PLISTPART (PLIST C1 C2 / TEMPLIST)
+  (setq TEMPLIST nil)
+  (if (and (< C1 (length PLIST)) (< C2 (length PLIST)) (<= C1 C2))
+   (while (<= C1 C2)
+    (setq TEMPLIST (append TEMPLIST (list (nth C1 PLIST))))
+    (setq C1 (1+ C1))
+   )
+  )
+  TEMPLIST
+ )
+ (setq PLISTALL nil)
+ (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
+ (setq ENTLIST (entget ENT))
+ (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
+  (while (/= nil ENTLIST)
+   (if (= 10 (caar ENTLIST))
+    (setq PLISTALL (append PLISTALL (list (cdar ENTLIST))))
+   )
+   (setq ENTLIST (cdr ENTLIST))
+  )
+  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+   (progn
+    (setq ENT (entnext ENT))
+    (setq ENTLIST (entget ENT))
+    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
+     (setq P (cdr (assoc 10 ENTLIST)))
+     (setq PLISTALL (append PLISTALL (list (list (car P) (cadr P)))))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+    )
+   )
+   (princ "\n*** Not a polyline!")
+  )
+ )
+ (if (= nil PLISTALL)
+  (princ "\n!!! Problem finding vertexes !!!")
+  (progn
+   (setq PREVENT nil)
+   (setq MINTANCOUNT (getint "\nEnter minimum number of tangent vertexes <5> : "))
+   (if (= nil MINTANCOUNT) (setq MINTANCOUNT 5))
+   (setq MINTANOS (getdist "\nEnter minimum tangent offset <0.5> : "))
+   (if (= nil MINTANOS) (setq MINTANOS 0.5))
+   (setq C1 0)
+   (while (< C1 (- (length PLISTALL) MINTANCOUNT))
+    (setq C2 (+ C1 MINTANCOUNT -1))
+    (setq SUBLINEBEST nil)
+    (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
+    (while (and (/= nil SUBLINE) (< C2 (length PLISTALL)) (<= (last SUBLINE) MINTANOS))
+     (setq SUBLINEBEST SUBLINE)
+     (setq C2 (1+ C2))
+     (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
+    )
+    (princ (strcat "\nC1 = " (itoa C1) ", C2 = " (itoa C2) ", OS = " (if (/= nil SUBLINE) (rtos (last SUBLINE)) "nil")))
+    (if (/= nil SUBLINEBEST)
+     (progn
+      (entmake (list (cons 0 "LINE")
+                     (list 10 (car (nth 0 SUBLINEBEST)) (cadr (nth 0 SUBLINEBEST)) 0.0)
+                     (list 11 (car (nth 1 SUBLINEBEST)) (cadr (nth 1 SUBLINEBEST)) 0.0)
+               )
+      )
+      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+     )
+    )
+    (if (= nil SUBLINEBEST)
+     (setq C1 (1+ C1))
+     (setq C1 C2)
+    )
+   )
+  )
+ )
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ T
+);
+;
+;   Program written by Robert Livingston, 99/07/14
+;
+;   C:POFFSET offsets an arc a calculated spiral 'P' distance
+;   Modified 02/04/18 - presets the offset distance and starts the offset command
+;                     - works for compound spirals
+;
+;
+(defun C:POFFSET (/ A AL CMDECHO ENT ENTLIST LS1 LS2 P PCEN1 PCEN2 R1 R2 THETA1 THETA2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq R1 nil)
+ (if (/= (setq ENT (car (entsel "\nSelect first arc or circle (<return> to enter radius) :"))) nil)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (or (= (cdr (assoc 0 ENTLIST)) "ARC")
+           (= (cdr (assoc 0 ENTLIST)) "CIRCLE"))
+    (progn
+     (setq R1 (cdr (assoc 40 ENTLIST)))
+    )
+   )
+  )
+ )
+ (if (= R1 nil)
+  (progn
+   (setq R1 (getdist "\nEnter radius : "))
+  )
+ )
+ (setq R2 nil)
+ (if (/= (setq ENT (car (entsel "\nSelect second arc or circle (<return> to enter radius) :"))) nil)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (or (= (cdr (assoc 0 ENTLIST)) "ARC")
+           (= (cdr (assoc 0 ENTLIST)) "CIRCLE"))
+    (progn
+     (setq R2 (cdr (assoc 40 ENTLIST)))
+    )
+   )
+  )
+ )
+ (if (= R2 nil)
+  (progn
+   (setq R2 (getdist "\nEnter radius (<return> for simple spiral) : "))
+  )
+ )
+ (if (= R2 nil)
+  (progn
+   (setq LS nil)
+   (setq AL "L")
+   (while (= LS nil)
+    (if (= AL "L")
+     (progn
+      (setq LS (getreal "\nEnter spiral length <return for A>:"))
+      (if (= LS nil)
+       (progn
+        (setq AL "A")
+       )
+      )
+     )
+     (progn
+      (setq LS (getreal "\nEnter spiral A <return for length>:"))
+      (if (= LS nil)
+       (progn
+        (setq AL "L")
+       )
+       (progn
+        (setq LS (/ (* LS LS) R1))
+       )
+      )
+     )
+    )
+   )
+   (setq THETA1 (/ LS R1 2.0))
+   (setq P (* R1 (RFL:SPIRALPR THETA1)))
+   (command "_OFFSET" P)
+  )
+  (progn
+   (setq LS nil)
+   (setq AL "L")
+   (setq A nil)
+   (while (= LS nil)
+    (if (= AL "L")
+     (progn
+      (setq LS (getreal "\nEnter spiral length <return for A>:"))
+      (if (= LS nil)
+       (progn
+        (setq AL "A")
+       )
+       (progn
+        (setq A (sqrt (abs (/ (* LS R1 R2) (- R2 R1)))))
+       )
+      )
+     )
+     (progn
+      (setq LS (getreal "\nEnter spiral A <return for length>:"))
+      (if (= LS nil)
+       (progn
+        (setq AL "L")
+       )
+       (progn
+        (setq A LS)
+        (setq LS (abs (* (* LS LS) (/ (- R2 R1) (* R1 R2)))))
+       )
+      )
+     )
+    )
+   )
+   (setq THETA1 (/ (* A A) (* 2 R1 R1)))
+   (setq PCEN1 (list (* R1 (- (RFL:SPIRALFXR THETA1) (sin THETA1)))
+                     (* R1 (+ (RFL:SPIRALFYR THETA1) (cos THETA1)))))
+   (setq THETA2 (/ (* A A) (* 2 R2 R2)))
+   (setq PCEN2 (list (* R2 (- (RFL:SPIRALFXR THETA2) (sin THETA2)))
+                     (* R2 (+ (RFL:SPIRALFYR THETA2) (cos THETA2)))))
+   (setq P (- (abs (- R1 R2)) (distance PCEN1 PCEN2)))
+   (command "_OFFSET" P)
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+) ;
+;
+;     Program written by Robert Livingston, 2015-02-20
+;
+;     C:PPGRADE is a routine for finding a polyline with constant grade along a surface between two selected points
+;
+;
+(defun C:PPGRADE (/ *error* ALSAVE ANG ANGBASE ANGDIR C CMDECHO D GETL GETOS INC L NODE NSEGS OBSURFACE OGLIST OS OSLIST OSMAX OSMODE P1 P2 REP SLOPE SWATH TMP TOL Z Z1 Z2)
+;(defun C:PPGRADE ()
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq ALSAVE RFL:ALIGNLIST)
+
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  (setq RFL:ALIGNLIST ALSAVE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (defun GETOS (Z PLIST OS / C OSBEST P1 P2 TMP)
+  (setq OSBEST nil)
+  (setq P1 (list (/ SWATH -2.0) Z))
+  (setq P2 (list (/ SWATH 2.0) Z))
+  (setq C 0)
+  (while (< (+ C 1) (length PLIST))
+   (setq TMP (inters P1 P2 (nth C PLIST) (nth (+ C 1) PLIST)))
+   (if (/= nil TMP)
+    (if (= nil OSBEST)
+     (setq OSBEST (car TMP))
+     (if (< (abs (- (car TMP) OS)) (abs OSBEST))
+      (setq OSBEST (car TMP))
+     )
+    )
+   )
+   (setq C (+ C 1))
+  )
+  (eval OSBEST)
+ )
+ 
+ (defun GETL (/ C L)
+  (setq L 0.0)
+  (setq C 1)
+  (while (< C (length OSLIST))
+   (setq L (+ L (sqrt (+ (expt INC 2) (expt (- (nth C OSLIST) (nth (- C 1) OSLIST)) 2)))))
+   (setq C (+ C 1))
+  )
+  (setq L (+ L (sqrt (+ (expt INC 2) (expt (nth (- C 1) OSLIST) 2)))))
+ )
+ 
+ (setq TOL 0.1)
+ (setq MAXOS (* 2.0 TOL))
+ 
+ (if (/= nil (setq P1 (getpoint "\nFirst point : ")))
+  (if (/= nil (setq P2 (getpoint "\nSecond point : ")))
+   (if (/= nil (setq OBSURFACE (RFL:GETC3DSURFACE)))
+    (progn
+     (setq P1 (list (car P1) (cadr P1)))
+     (setq Z1 (RFL:GETSURFACEPOINT P1 OBSURFACE))
+     (setq P2 (list (car P2) (cadr P2)))
+     (setq Z2 (RFL:GETSURFACEPOINT P2 OBSURFACE))
+     (setvar "OSMODE" 0)
+     (setq D (distance P1 P2))
+     (setq NSEGS 0)
+     (while (< NSEGS 2)
+      (setq NSEGS (getint "\nNumber of segments (2 minimum) <10> : "))
+      (if (= nil NSEGS) (setq NSEGS 10))
+     )
+     (setq INC (/ D NSEGS))
+     (setq NSEGS (- NSEGS 1))
+     (setq SWATH (float (fix (/ D NSEGS))))
+     (setq SWATH 500.0)
+     (setq REP (getdist (strcat "\nEnter swath width : <" (rtos SWATH) "> : ")))
+     (if (/= nil REP) (setq SWATH REP))
+     (setq RFL:ALIGNLIST (list (list 0.0 P1 P2 0.0)))
+     (setq TMP (RFL:GETSECTIONSET INC
+                                  (* INC NSEGS)
+                                  SWATH
+                                  INC
+                                  OBSURFACE
+                                  RFL:ALIGNLIST
+               )
+     )
+     (setq OSLIST (list 0.0))
+     (setq OGLIST nil)
+     (setq C 0)
+     (while (< C NSEGS)
+      (setq OGLIST (append OGLIST (list (cadr (nth C TMP)))))
+      (setq OSLIST (append OSLIST (list 0.0)))
+      (setq C (+ C 1))
+     )
+     (while (> MAXOS TOL)
+      (setq MAXOS nil)
+      (setq TMP (list 0.0))
+      (setq SLOPE (/ (- Z2 Z1) (GETL)))
+      (setq L 0.0)
+      (setq Z Z1)
+      (setq C 1)
+      (while (< C (length OSLIST))
+       (setq L (sqrt (+ (expt INC 2) (expt (- (nth C OSLIST) (nth (- C 1) OSLIST)) 2))))
+       (setq Z (+ Z (* SLOPE L)))
+       (setq OS (GETOS Z (nth (- C 1) OGLIST) (nth C OSLIST)))
+       (setq TMP (append TMP (list OS)))
+       (if (= nil MAXOS)
+        (setq MAXOS (abs (- OS (nth C OSLIST))))
+        (if (> (abs (- OS (nth C OSLIST))) MAXOS)
+         (setq MAXOS (abs (- OS (nth C OSLIST))))
+        )
+       )
+       (setq C (+ C 1))
+      )
+      (setq OSLIST TMP)
+     )
+     (princ (strcat "\nFinal slope = " (rtos (* SLOPE 100.0)) "%"))
+     (command "._PLINE" P1)
+     (setq C 1)
+     (while (< C (length OSLIST))
+      (command (RFL:XY (list (* C INC) (nth C OSLIST))))
+      (setq C (+ C 1))
+     )
+     (command P2 "")
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ (eval nil)
+)
+;
+;
+;     Program written by Robert Livingston, 2016/07/11
+;
+;     C:PVI0 draws a pviblock with 0.0 for K and L at the selected point
+(defun C:PVI0 (/ ACTIVEDOC ACTIVESPACE P)
+ (vl-load-com)
  (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
  (setq ACTIVESPC
        (vlax-get-property ACTIVEDOC
@@ -21821,288 +18714,1585 @@
         )
        )
  )
-
- (command "._UNDO" "M")
- 
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
+ (if (setq P (getpoint "\nSelect point : "))
+  (progn
+   (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
+   (vla-insertblock ACTIVESPC
+                    (vlax-3D-point P)
+                    "PVI2"
+                    25.4
+                    25.4
+                    25.4
+                    0.0
+   )
+   (entlast)
   )
-  (setvar "CLAYER" CLAYER)
+  nil
+ )
+)
+;
+;
+;     Program written by Robert Livingston, 2008-11-04
+;
+;     RAB loads hor/vrt/E/OG from a selected RFLALign block
+;
+;
+(defun C:RAB (/ BLKENT BLKENTLIST CMDECHO)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (progn
+   (RFL:RALIGNB BLKENT)
+   (RFL:RPROFB BLKENT)
+   (RFL:RSUPERB BLKENT)
+   (RFL:RPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2008-11-04
+;
+;     RABKILL removes alignment definition lists from RFLALIGN blocks
+;
+;
+(defun C:RABKILL (/ ENT)
+ (command "._UNDO" "M")
+ (setq ENT (car (entsel "\nSelect Alignment Block : ")))
+ (RFL:RABKILL ENT "HOR")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "VRT")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "OG")
+ (setq ENT (entlast))
+ (RFL:RABKILL ENT "E")
+)
+;
+;
+;     Program written by Robert Livingston, 2008-11-04
+;
+;     RAB loads hor/vrt/E/OG from a selected nested RFLALign block
+;
+;
+(defun C:RABN (/ BLKENT BLKENTLIST CMDECHO)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (progn
+   (RFL:RALIGNB BLKENT)
+   (RFL:RPROFB BLKENT)
+   (RFL:RSUPERB BLKENT)
+   (RFL:RPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   RALIGN reads a horizontal alignment from file
+;
+;
+(defun C:RALIGN (/ ANGBASE ANGDIR CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 2))
+ (RFL:RALIGN INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   RALIGNB reads a horizontal alignment from a RFLAlign Block
+;
+;
+(defun C:RALIGNB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RALIGNB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   RALIGNBN reads a horizontal alignment from a nested RFLAlign Block
+;
+;
+(defun C:RALIGNBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RALIGNB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 10-04-30
+;
+;     RALIGNC3D reads the alignment from a selected C3D alignment
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;     NOTE - Works for type 1, type 2, type 3 and type 4 alignment entities
+;
+;
+(defun C:RALIGNC3D (/ *error* ALSAVE C CMAX CMDECHO E1 E2 ENT ENTITY ENTLIST NODE
+                      OBALIGNMENT OBENTITIES SETARC SETSPIRAL SETTANGENT SPIRALENTITY STA STALIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= nil vlax-create-object) (vl-load-com))
+
+ (defun *error* (msg)
   (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "DIMZIN" DIMZIN)
   ;(setq *error* nil)
   (princ msg)
  )
 
- (defun CHECKDUPLICATE (/ ENT ENTLIST ENTSET)
-  (setq ENT (entlast))
-  (setq ENTLIST (entget ENT))
-  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST))) (= "CIRC" (cdr (assoc 2 ENTLIST))))
-   (progn
-    (setq ENTSET (ssget "X" (list (cons 0 "INSERT")
-                                  (cons 2 "CIRC")
-                                  (assoc 8 ENTLIST)
-                                  (assoc 10 ENTLIST)
-                                  (assoc 41 ENTLIST)
-                                  (assoc 42 ENTLIST)
-                                  (assoc 43 ENTLIST)
-                                  (assoc 50 ENTLIST)
-                            )
-                 )
-    )
-    (if (> (sslength ENTSET) 1) (command "._ERASE" ENT ""))
-   )
-  )
- )
- (command "._UNDO" "M")
-
- (command "._UCS" "W")
-
- (if (/= "" RFL:LARCLAYER)
-  (progn
-   (if (= nil (tblsearch "LAYER" RFL:LARCLAYER))
-    (command "._LAYER" "M" RFL:LARCLAYER)
-    (setvar "CLAYER" RFL:LARCLAYER)
-   )
-  )
- )
-
- (setq VT (getvar "VIEWTWIST"))
- (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
- (if (and (= RFL:LARCCIRCLES "Yes") (not (tblsearch "BLOCK" "CIRC"))) (RFL:MAKEENT "CIRC"))
- (if (/= nil (setq ENT (car (entsel "Select arc or LDD spiral : "))))
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "ARC" (cdr (assoc 0 ENTLIST)))
-    (if (= (setq SPIRALDATA (RFL:GETSPIRALDATA ENT)) nil)
-     (if (/= "LINE" (cdr (assoc 0 ENTLIST)))
-      (princ "\n***** NOT AN ARC OR LDD SPIRAL *****")
-      (progn
-       (setq P1 (cdr (assoc 10 ENTLIST)))
-       (setq P2 (cdr (assoc 11 ENTLIST)))
-       (if (= RFL:LARCCIRCLES "Yes")
-        (progn
-         (vla-insertblock ACTIVESPC
-                          (vlax-3D-point P1)
-                          "CIRC"
-                          RFL:LARCSCALE
-                          RFL:LARCSCALE
-                          RFL:LARCSCALE
-                          0.0
-         )
-         (CHECKDUPLICATE)
-         (vla-insertblock ACTIVESPC
-                          (vlax-3D-point P2)
-                          "CIRC"
-                          RFL:LARCSCALE
-                          RFL:LARCSCALE
-                          RFL:LARCSCALE
-                          0.0
-         )
-         (CHECKDUPLICATE)
-        )
-       )
-
-       (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
-       (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
-        (setq ANG (- (angle P P2) pi))
-        (setq ANG (angle P P2))
-       )
-       (setq TEXTSTRING "TAN")
-       (if (setq TEXTOBJ (vla-addtext ACTIVESPC
-                                      TEXTSTRING
-                                      (vlax-3D-point P)
-                                      RFL:LARCTHEIGHT
-                         )
+ (defun SETTANGENT (ENTITY / P1 P2)
+  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                 (vlax-get-property ENTITY "StartNorthing")
            )
-        (progn
-         (vla-put-Alignment textObj acAlignmentMiddle)
-         (vla-put-Rotation textObj ANG)
-         (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
-        )
-       )
+  )
+  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                 (vlax-get-property ENTITY "EndNorthing")
+           )
+  )
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 0.0))))
+ )
+
+ (defun SETARC (ENTITY / P1 P2 PC CCW R ANG BULGE)
+  (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                 (vlax-get-property ENTITY "StartNorthing")
+           )
+  )
+  (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                 (vlax-get-property ENTITY "EndNorthing")
+           )
+  )
+  (setq PC (list (vlax-get-property ENTITY "CenterEasting")
+                 (vlax-get-property ENTITY "CenterNorthing")
+           )
+  )
+  (setq CCW (vlax-get-property ENTITY "Clockwise"))
+  (setq R (vlax-get-property ENTITY "Radius"))
+  (setq ANG (vlax-get-property ENTITY "Delta"))
+  (setq BULGE (RFL:TAN (/ ANG 4.0)))
+  (if (= :vlax-true CCW) (setq BULGE (* -1.0 BULGE)))
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+ )
+
+ (defun SETSPIRAL (ENTITY / A ANG BULGE L0 LT P1 P2 PLTST PINT PST RIN ROUT ST THETA TMP X Y)
+  (setq RIN (vlax-get-property ENTITY "RadiusIn"))
+  (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
+  (setq TMP (/ 1.0 (max RIN ROUT)))
+  ;(setq TMP (vlax-get-property ENTITY "Compound"))
+  ;(if (= TMP :vlax-false)
+  (if (< TMP RFL:TOL)
+   (progn
+    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                   (vlax-get-property ENTITY "StartNorthing")
+             )
+    )
+    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                   (vlax-get-property ENTITY "EndNorthing")
+             )
+    )
+    (setq PLTST (list (vlax-get-property ENTITY "SPIEasting")
+                      (vlax-get-property ENTITY "SPINorthing")
+                )
+    )
+    (setq LO 0.0)
+    (if (< (distance P2 PLTST) (distance P1 PLTST))
+     (setq PLT P1 PST P2)
+     (setq PLT P2 PST P1)
+    )
+    (setq BULGE (list PLT PLTST PST LO))
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+   )
+   (progn
+    (setq P1 (list (vlax-get-property ENTITY "StartEasting")
+                   (vlax-get-property ENTITY "StartNorthing")
+             )
+    )
+    (setq P2 (list (vlax-get-property ENTITY "EndEasting")
+                   (vlax-get-property ENTITY "EndNorthing")
+             )
+    )
+    (setq PINT (list (vlax-get-property ENTITY "SPIEasting")
+                     (vlax-get-property ENTITY "SPINorthing")
+               )
+    )
+    (setq RIN (vlax-get-property ENTITY "RadiusIn"))
+    (setq ROUT (vlax-get-property ENTITY "RadiusOut"))
+    (setq A (vlax-get-property ENTITY "A"))
+    (if (< RIN ROUT)
+     (progn
+      (setq THETA (/ (* A A) (* 2.0 RIN RIN)))
+      (setq PST P1)
+      ;(setq LO (- (/ (* A A) RIN) (vlax-get-property ENTITY "Length")))
+      (setq LO (/ (* A A) ROUT))
+      (setq ANG (angle PST PINT))
+      (setq X (* RIN (SPIRALFXR THETA)))
+      (setq Y (* RIN (SPIRALFYR THETA)))
+      (setq ST (/ Y (sin THETA)))
+      (setq LT (- X (/ Y (RFL:TAN THETA))))
+      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
+                        (+ (cadr PST) (* ST (sin ANG)))))
+      (if (> (sin (- (angle PINT P2) (angle P1 PINT))) 0.0)
+       (setq ANG (+ ANG THETA))
+       (setq ANG (- ANG THETA))
       )
+      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
+                      (+ (cadr PLTST) (* LT (sin ANG)))))
      )
      (progn
-      (setq LS (RFL:GETSPIRALLS ENT))
-      (setq A (RFL:GETSPIRALA ENT))
+      (setq THETA (/ (* A A) (* 2.0 ROUT ROUT)))
+      (setq PST P2)
+      ;(setq LO (- (/ (* A A) ROUT) (vlax-get-property ENTITY "Length")))
+      (setq LO (/ (* A A) RIN))
+      (setq ANG (angle PST PINT))
+      (setq X (* ROUT (SPIRALFXR THETA)))
+      (setq Y (* ROUT (SPIRALFYR THETA)))
+      (setq ST (/ Y (sin THETA)))
+      (setq LT (- X (/ Y (RFL:TAN THETA))))
+      (setq PLTST (list (+ (car PST) (* ST (cos ANG)))
+                        (+ (cadr PST) (* ST (sin ANG)))))
+      (if (> (sin (- (angle PINT P1) (angle P2 PINT))) 0.0)
+       (setq ANG (+ ANG THETA))
+       (setq ANG (- ANG THETA))
+      )
+      (setq PLT (list (+ (car PLTST) (* LT (cos ANG)))
+                      (+ (cadr PLTST) (* LT (sin ANG)))))
+     )
+    )
+    (setq BULGE (list PLT PLTST PST LO))
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (vlax-get-property ENTITY "StartingStation") P1 P2 BULGE))))
+   )
+  )
+ )
 
-      (if (listp (last SPIRALDATA))
-       (setq LO 0.0)
-       (setq LO (last SPIRALDATA))
+ (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
+ (if (/= OBALIGNMENT nil) 
+  (progn
+   (setq RFL:ALIGNLIST nil)
+   (setq OBENTITIES (vlax-get-property OBALIGNMENT "Entities"))
+   (setq CMAX (vlax-get-property OBENTITIES "Count"))
+   (setq C 0)
+   (while (< C CMAX)
+(print C)
+    (setq ENTITY (vlax-invoke-method OBENTITIES "Item" C))
+    (cond
+     ((= 1 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETTANGENT ENTITY)
       )
-      (setq LS (- LS LO))
-
-      (setq OS (RFL:SPIRALOFFSET ENT))
-      (if (< (abs OS) RFL:TOL) (setq OS 0.0))
-
-      (if (/= 0.0 OS)
-       (progn
-        (setq R (RFL:GETSPIRALR ENT))
-        (if (= LO 0.0)
-         (setq RL 0.0)
-         (setq RL (/ (* A A) LO))
-        )
-        (setq LS (+ LS (* OS (* A A 0.5 (- (/ 1.0 (* R R))
-                                         (if (= LO 0.0) 0.0 (/ 1.0 (* RL RL)))
-                                      )
-                             )
-                       )
-                 )
-        )
-       )
+     )
+     ((= 2 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETARC ENTITY)
       )
-
-      (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-       (progn
-        (setq P1 (cdr (assoc 10 ENTLIST)))
-        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
-        (setq P2 (cdr (assoc 10 (reverse ENTLIST))))
-        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
-       )
-       (progn
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-        (setq P1 (cdr (assoc 10 ENTLIST)))
-        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-         (setq P2 (cdr (assoc 10 ENTLIST)))
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-        )
-       )
+     )
+     ((= 3 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL ENTITY)
       )
-      (if (= RFL:LARCCIRCLES "Yes")
-       (progn
-        (vla-insertblock ACTIVESPC
-                         (vlax-3D-point P1)
-                         "CIRC"
-                         RFL:LARCSCALE
-                         RFL:LARCSCALE
-                         RFL:LARCSCALE
-                         0.0
-        )
-        (CHECKDUPLICATE)
-        (vla-insertblock ACTIVESPC
-                         (vlax-3D-point P2)
-                         "CIRC"
-                         RFL:LARCSCALE
-                         RFL:LARCSCALE
-                         RFL:LARCSCALE
-                         0.0
-        )
-        (CHECKDUPLICATE)
-       )
+     )
+     ((= 4 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
+       (SETARC (vlax-get-property ENTITY "Arc"))
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
       )
-
-      (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
-      (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
-       (setq ANG (- (angle P P2) pi))
-       (setq ANG (angle P P2))
+     )
+     ((= 8 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralIn"))
+       (SETARC (vlax-get-property ENTITY "ArcOut"))
       )
-      (if (or (= RFL:LARCSPIRALS "L") (= RFL:LARCSPIRALS "B"))
-       (progn
-        (setq TEXTSTRING (strcat (if (> (abs OS) 0.0) "os-" "") (if (> LO 0.0) "c" "") (if (= LARCEQUALS "Yes") "Ls=" "Ls") (rtos LS 2 1)))
-        (if (= RFL:LARCSPIRALS "B")
-         (progn
-          (setq TEXTSTRING (strcat TEXTSTRING " / " (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
-         )
-        )
-       )
-       (progn
-        (if (= RFL:LARCSPIRALS "A")
-         (progn
-          (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "A=" "A") (rtos A 2 1)))
-         )
-        )
-       )
+     )
+     ((= 9 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETARC (vlax-get-property ENTITY "ArcIn"))
+       (SETSPIRAL (vlax-get-property ENTITY "SpiralOut"))
       )
-      (if (setq TEXTOBJ (vla-addtext ACTIVESPC
-                                     TEXTSTRING
-                                     (vlax-3D-point P)
-                                     RFL:LARCTHEIGHT
-                        )
-          )
-       (progn
-        (vla-put-Alignment textObj acAlignmentMiddle)
-        (vla-put-Rotation textObj ANG)
-        (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
-       )
+     )
+     ((= 12 (vlax-get-property ENTITY "Type"))
+      (progn
+       (SETSPIRAL (vlax-get-property ENTITY "Spiral1"))
+       (SETARC (vlax-get-property ENTITY "Arc1"))
+       (SETSPIRAL (vlax-get-property ENTITY "Spiral2"))
+       (SETARC (vlax-get-property ENTITY "Arc2"))
+       (SETSPIRAL (vlax-get-property ENTITY "Spiral3"))
       )
      )
     )
-    (progn
-     (setq PC (cdr (assoc 10 ENTLIST)))
-     (setq R (cdr (assoc 40 ENTLIST)))
-     (setq ANG1 (cdr (assoc 50 ENTLIST)))
-     (setq ANG2 (cdr (assoc 51 ENTLIST)))
-     (setq P1 (list (+ (nth 0 PC) (* R (cos ANG1)))
-                    (+ (nth 1 PC) (* R (sin ANG1)))
-              )
-     )
-     (setq P2 (list (+ (nth 0 PC) (* R (cos ANG2)))
-                    (+ (nth 1 PC) (* R (sin ANG2)))
-              )
-     )
-     (if (= RFL:LARCCIRCLES "Yes")
-      (progn
-       (vla-insertblock ACTIVESPC
-                        (vlax-3D-point P1)
-                        "CIRC"
-                        RFL:LARCSCALE
-                        RFL:LARCSCALE
-                        RFL:LARCSCALE
-                        0.0
-       )
-       (CHECKDUPLICATE)
-       (vla-insertblock ACTIVESPC
-                        (vlax-3D-point P2)
-                        "CIRC"
-                        RFL:LARCSCALE
-                        RFL:LARCSCALE
-                        RFL:LARCSCALE
-                        0.0
-       )
-       (CHECKDUPLICATE)
-      )
-     )
+    (setq C (1+ C))
+   )
+  )
+ )
 
-     (setq P (list (/ (+ (nth 0 P1) (nth 0 P2)) 2.0) (/ (+ (nth 1 P1) (nth 1 P2)) 2.0)))
-     (if (and (> (angle P P2) (- (* pi 0.5) VT)) (< (angle P P2) (- (* pi 1.5) VT)))
-      (setq ANG (- (angle P P2) pi))
-      (setq ANG (angle P P2))
+ (setq ALSAVE RFL:ALIGNLIST RFL:ALIGNLIST nil)
+ (if (/= nil ALSAVE)
+  (progn
+   (setq STALIST nil)
+   (foreach NODE ALSAVE
+    (setq STALIST (append STALIST (list (car NODE))))
+   )
+   (setq STALIST (vl-sort STALIST '<))
+   (foreach STA STALIST
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (assoc STA ALSAVE))))
+   )
+  )
+ )
+ 
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;     Program written by Robert Livingston, 03-06-11
+;     Modified 2014-11-07 to store ramp details into nose and add functionality
+;
+;     C:RAMP is a utility for drawing exit and entrance ramp tapers
+;
+;     C:RAMPTAPERLABEL : Toggles labelling of taper
+;     C:MOVENOSE       : Moves the nose to a new location
+;     C:UPDATENODE     : Updates the nose to it's current location
+;     C:SETNOSE        : Sets nos to it's current location
+;     C:ERASENOSE      : Erases the nose
+;     RFL:RAMPPUTXDATA : Adds extended data to entity
+;     RFL:RAMPGETXDATA : Reads extended data from entity
+;
+(setq RFL:RAMPTAPERLABEL T)
+(defun C:RAMPTAPERLABEL ()
+ (if RFL:RAMPTAPERLABEL (setq RFL:RAMPTAPERLABEL nil) (setq RFL:RAMPTAPERLABEL T))
+)
+(setq RFL:RAMPLIST (list (cons "LANEOFFSET" 0.0)
+                         (cons "RAMPTAPER" 20.0)
+                         (cons "RAMPTAPERENTRANCE" 40.0)
+                         (cons "RAMPTAPEREXIT" 20.0)
+                         (cons "RAMPVERTICIES" 50)
+                         (cons "WEAVEOFFSET" 8.5)
+                         (cons "WEAVEOFFSETENTRANCESINGLE" 5.3)
+                         (cons "WEAVEOFFSETENTRANCEDUAL" 7.9)
+                         (cons "WEAVEOFFSETEXITSINGLE" 8.5)
+                         (cons "WEAVEOFFSETEXITDUAL" 11.1)
+                         (cons "GOREWIDTH" 5.5)
+                         (cons "GOREWIDTHENTRANCESINGLE" 5.3)
+                         (cons "GOREWIDTHENTRANCEDUAL" 7.9)
+                         (cons "GOREWIDTHEXITSINGLE" 5.5)
+                         (cons "GOREWIDTHEXITDUAL" 8.1)
+                         (cons "TAPEROFFSET" 0.5)
+                         (cons "TAPEROFFSETENTRANCE" 0.0)
+                         (cons "TAPEROFFSETEXIT" 0.5)
+                         (cons "INSIDEVERTICIES" 25)
+                         (cons "NOSESTATION" 0.0)
+                         (cons "NOSEOFFSET" 3.0)
+                         (cons "NOSERADIUS" 1.1)
+                         (cons "NOSERADIUSENTRANCE" 0.6)
+                         (cons "NOSERADIUSEXIT" 1.1)
+                         (cons "INSIDESHOULDER" 1.0)
+                         (cons "INSIDESHOULDERSINGLE" 1.0)
+                         (cons "INSIDESHOULDERDUAL" 2.0)
+                         (cons "LANEWIDTH" 4.8)
+                         (cons "LANEWIDTHSINGLE" 4.8)
+                         (cons "LANEWIDTHDUAL" 7.4)
+                         (cons "RETURNTAPER" 20.0)
+                         (cons "RETURNOFFSET" 3.0)
+                         (cons "RETURNVERTICIES" 10)
+                         (cons "SINGLELANE" "1")
+                         (cons "DUALLANE" "0")
+                         (cons "UPCHAINAGE" "1")
+                         (cons "DOWNCHAINAGE" "0")
+                         (cons "RIGHTSIDE" "1")
+                         (cons "LEFTSIDE" "0")
+                         (cons "EXITTERMINAL" "1")
+                         (cons "ENTRANCETERMINAL" "0")))
+(defun C:RAMP (/ *error* ACCEPTRAMP ALSAVE ANGBASE ANGDIR C CANCEL CANCELRAMP CLAYER
+                 CMDECHO D1 D2 DCL_ID DIMZIN ENTNOSE ENTNOSELIST FIXNUMBER
+                 INITIATE ORTHOMODE OSMODE RERUN SETDUALLANE SETENTRANCE SETEXIT
+                 SETSINGLELANE TEMPRAMPLIST)
+
+ (command "._UNDO" "M")
+
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq PLINETYPE (getvar "PLINETYPE"))
+ (setvar "PLINETYPE" 2)
+ (setq ALSAVE RFL:ALIGNLIST)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CLAYER" CLAYER)
+  (setvar "DIMZIN" DIMZIN)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setvar "PLINETYPE" PLINETYPE)
+  (setq RFL:ALIGNLIST ALSAVE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (defun INITIATE (RFL:RAMPLIST)
+  (start_image "IMAGE1")
+  (slide_image 0 0 (- (dimx_tile "IMAGE1") 1) (- (dimy_tile "IMAGE1") 1) (strcat RFLALIGNSLBNAME "(Tapered Single Exit)"))
+  (end_image)
+  (set_tile "LANEOFFSET" (rtos (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))))
+  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))))
+  (set_tile "RAMPVERTICIES" (itoa (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
+  (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))))
+  (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTH" RFL:RAMPLIST))))
+  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))))
+  (set_tile "INSIDEVERTICIES" (itoa (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
+  (set_tile "NOSESTATION" (rtos (cdr (assoc "NOSESTATION" RFL:RAMPLIST))))
+  (set_tile "NOSEOFFSET" (rtos (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))))
+  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))))
+  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))))
+  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))))
+  (set_tile "RETURNTAPER" (rtos (cdr (assoc "RETURNTAPER" RFL:RAMPLIST))))
+  (set_tile "RETURNOFFSET" (rtos (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))))
+  (set_tile "RETURNVERTICIES" (itoa (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
+  (set_tile "SINGLELANE" (cdr (assoc "SINGLELANE" RFL:RAMPLIST)))
+  (set_tile "DUALLANE" (cdr (assoc "DUALLANE" RFL:RAMPLIST)))
+  (set_tile "UPCHAINAGE" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
+  (set_tile "DOWNCHAINAGE" (cdr (assoc "DOWNCHAINAGE" RFL:RAMPLIST)))
+  (set_tile "RIGHTSIDE" (cdr (assoc "RIGHTSIDE" RFL:RAMPLIST)))
+  (set_tile "LEFTSIDE" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
+  (set_tile "EXITTERMINAL" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
+  (set_tile "ENTRANCETERMINAL" (cdr (assoc "ENTRANCETERMINAL" RFL:RAMPLIST)))
+ )
+
+ (defun CANCELRAMP ()
+  (setq CANCEL 1)
+  (done_dialog)
+  (unload_dialog DCL_ID)
+ )
+
+ (defun ACCEPTRAMP ()
+  (setq CANCEL 0)
+  (setq RFL:RAMPLIST (list (cons "LANEOFFSET" (atof (get_tile "LANEOFFSET")))
+                           (cons "RAMPTAPER" (atof (get_tile "RAMPTAPER")))
+                           (cons "RAMPTAPERENTRANCE" (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST)))
+                           (cons "RAMPTAPEREXIT" (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST)))
+                           (cons "RAMPVERTICIES" (atoi (get_tile "RAMPVERTICIES")))
+                           (cons "WEAVEOFFSET" (atof (get_tile "WEAVEOFFSET")))
+                           (cons "WEAVEOFFSETENTRANCESINGLE" (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST)))
+                           (cons "WEAVEOFFSETENTRANCEDUAL" (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST)))
+                           (cons "WEAVEOFFSETEXITSINGLE" (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST)))
+                           (cons "WEAVEOFFSETEXITDUAL" (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST)))
+                           (cons "GOREWIDTH" (atof (get_tile "GOREWIDTH")))
+                           (cons "GOREWIDTHENTRANCESINGLE" (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST)))
+                           (cons "GOREWIDTHENTRANCEDUAL" (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
+                           (cons "GOREWIDTHEXITSINGLE" (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST)))
+                           (cons "GOREWIDTHEXITDUAL" (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST)))
+                           (cons "TAPEROFFSET" (atof (get_tile "TAPEROFFSET")))
+                           (cons "TAPEROFFSETENTRANCE" (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST)))
+                           (cons "TAPEROFFSETEXIT" (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST)))
+                           (cons "INSIDEVERTICIES" (atoi (get_tile "INSIDEVERTICIES")))
+                           (cons "NOSESTATION" (atof (get_tile "NOSESTATION")))
+                           (cons "NOSEOFFSET" (atof (get_tile "NOSEOFFSET")))
+                           (cons "NOSERADIUS" (atof (get_tile "NOSERADIUS")))
+                           (cons "NOSERADIUSENTRANCE" (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST)))
+                           (cons "NOSERADIUSEXIT" (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST)))
+                           (cons "INSIDESHOULDER" (atof (get_tile "INSIDESHOULDER")))
+                           (cons "INSIDESHOULDERSINGLE" (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST)))
+                           (cons "INSIDESHOULDERDUAL" (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST)))
+                           (cons "LANEWIDTH" (atof (get_tile "LANEWIDTH")))
+                           (cons "LANEWIDTHSINGLE" (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST)))
+                           (cons "LANEWIDTHDUAL" (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST)))
+                           (cons "RETURNTAPER" (atof (get_tile "RETURNTAPER")))
+                           (cons "RETURNOFFSET" (atof (get_tile "RETURNOFFSET")))
+                           (cons "RETURNVERTICIES" (atoi (get_tile "RETURNVERTICIES")))
+                           (cons "SINGLELANE" (get_tile "SINGLELANE"))
+                           (cons "DUALLANE" (get_tile "DUALLANE"))
+                           (cons "UPCHAINAGE" (get_tile "UPCHAINAGE"))
+                           (cons "DOWNCHAINAGE" (get_tile "DOWNCHAINAGE"))
+                           (cons "RIGHTSIDE" (get_tile "RIGHTSIDE"))
+                           (cons "LEFTSIDE" (get_tile "LEFTSIDE"))
+                           (cons "EXITTERMINAL" (get_tile "EXITTERMINAL"))
+                           (cons "ENTRANCETERMINAL" (get_tile "ENTRANCETERMINAL"))))
+  (done_dialog)
+  (unload_dialog DCL_ID)
+ )
+
+ (defun FIXNUMBER (TYPE TILE)
+  (if (= TYPE 1)
+   (set_tile TILE (rtos (atof (get_tile TILE))))
+   (set_tile TILE (itoa (atoi (get_tile TILE))))
+  )
+ )
+
+ (defun SETSINGLELANE ()
+  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST))))
+  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST))))
+  (if (= "1" (get_tile "EXITTERMINAL"))
+   (SETEXIT)
+   (SETENTRANCE)
+  )
+ )
+
+ (defun SETDUALLANE ()
+  (set_tile "LANEWIDTH" (rtos (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST))))
+  (set_tile "INSIDESHOULDER" (rtos (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST))))
+  (if (= "1" (get_tile "EXITTERMINAL"))
+   (SETEXIT)
+   (SETENTRANCE)
+  )
+ )
+
+ (defun SETEXIT ()
+  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST))))
+  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST))))
+  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST))))
+  (if (= "1" (get_tile "SINGLELANE"))
+   (progn
+    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST))))
+    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST))))
+   )
+   (progn
+    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST))))
+    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST))))
+   )
+  )
+ )
+
+ (defun SETENTRANCE ()
+  (set_tile "RAMPTAPER" (rtos (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST))))
+  (set_tile "NOSERADIUS" (rtos (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST))))
+  (set_tile "TAPEROFFSET" (rtos (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST))))
+  (if (= "1" (get_tile "SINGLELANE"))
+   (progn
+    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST))))
+    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST))))
+   )
+   (progn
+    (set_tile "GOREWIDTH" (rtos (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST))))
+    (set_tile "WEAVEOFFSET" (rtos (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST))))
+   )
+  )
+ )
+
+ (defun PICK ()
+  (setq RERUN 1)
+  (setq TEMPRAMPLIST RFL:RAMPLIST)
+  (ACCEPTRAMP)
+  (setq CANCEL "PICK")
+ )
+
+ (if (or (= nil RFL:ALIGNLIST) (= nil RFL:STAOFF))
+  (alert "\n!!!!!  Alignment and/or alignment utilities not loaded !!!!!")
+  (progn
+   (setq RERUN 1)
+   (setq PICKSTA nil)
+   (setq TEMPRAMPLIST RFL:RAMPLIST)
+   (while (= RERUN 1)
+    (setq RERUN 0)
+
+
+    (if (= RAMPDCLNAME nil)
+     (progn
+      (setq RAMPDCLNAME (vl-filename-mktemp "rfl.dcl"))
+      (RFL:MAKEDCL RAMPDCLNAME "RAMP")
      )
-     (setq TEXTSTRING (strcat (if (= LARCEQUALS "Yes") "R=" "R") (rtos R 2 1)))
-     (if (setq TEXTOBJ (vla-addtext ACTIVESPC
-                                    TEXTSTRING
-                                    (vlax-3D-point P)
-                                    RFL:LARCTHEIGHT
-                       )
-         )
+     (if (= nil (findfile RAMPDCLNAME))
       (progn
-       (vla-put-Alignment textObj acAlignmentMiddle)
-       (vla-put-Rotation textObj ANG)
-       (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+       (setq RAMPDCLNAME (vl-filename-mktemp "rfl.dcl"))
+       (RFL:MAKEDCL RAMPDCLNAME "RAMP")
       )
      )
+    )
+    (setq RFLALIGNSLBNAME "rflAlign.slb")
+    (if (= nil (findfile RFLALIGNSLBNAME))
+     (progn
+      (setq RFLALIGNSLBNAME (vl-filename-mktemp "rfl.slb"))
+      (RFL:MAKERFLSLB RFLALIGNSLBNAME)
+     )
+    )
+    (setq DCL_ID (load_dialog RAMPDCLNAME))
+    (if (not (new_dialog "RAMP" DCL_ID)) (exit))
+
+    (INITIATE RFL:RAMPLIST)
+
+    (if (/= nil PICKSTA)
+     (progn
+      (set_tile "NOSESTATION" (rtos PICKSTA))
+      (setq RFL:RAMPLIST TEMPRAMPLIST)
+      (setq PICKSTA nil)
+     )
+    )
+
+    (action_tile "LANEOFFSET" "(FIXNUMBER 1 \"LANEOFFSET\")")
+    (action_tile "RAMPTAPER" "(FIXNUMBER 1 \"RAMPTAPER\")")
+    (action_tile "RAMPVERTICIES" "(FIXNUMBER 2 \"RAMPVERTICIES\")")
+    (action_tile "WEAVEOFFSET" "(FIXNUMBER 1 \"WEAVEOFFSET\")")
+    (action_tile "GOREWIDTH" "(FIXNUMBER 1 \"GOREWIDTH\")")
+    (action_tile "TAPEROFFSET" "(FIXNUMBER 1 \"TAPEROFFSET\")")
+    (action_tile "INSIDEVERTICIES" "(FIXNUMBER 2 \"INSIDEVERTICIES\")")
+    (action_tile "NOSESTATION" "(FIXNUMBER 1 \"NOSESTATION\")")
+    (action_tile "NOSERADIUS" "(FIXNUMBER 1 \"NOSERADIUS\")")
+    (action_tile "INSIDESHOULDER" "(FIXNUMBER 1 \"INSIDESHOULDER\")")
+    (action_tile "LANEWIDTH" "(FIXNUMBER 1 \"LANEWIDTH\")")
+    (action_tile "RETURNTAPER" "(FIXNUMBER 1 \"RETURNTAPER\")")
+    (action_tile "RETURNOFFSET" "(FIXNUMBER 1 \"RETURNOFFSET\")")
+    (action_tile "RETURNVERTICIES" "(FIXNUMBER 2 \"RETURNVERTICIES\")")
+    (action_tile "SINGLELANE" "(SETSINGLELANE)")
+    (action_tile "DUALLANE" "(SETDUALLANE)")
+    (action_tile "EXITTERMINAL" "(SETEXIT)")
+    (action_tile "ENTRANCETERMINAL" "(SETENTRANCE)")
+    (action_tile "PICK" "(PICK)")
+    (action_tile "OK" "(ACCEPTRAMP)")
+    (action_tile "CANCEL" "(CANCELRAMP)")
+
+    (start_dialog)
+
+    (if (= CANCEL "PICK")
+     (setq PICKSTA (car (RFL:STAOFF (getpoint "\nPick point :"))))
+    )
+   )
+
+   (if (= CANCEL 0)
+    (progn
+     (vl-load-com)
+     (regapp "RFLTOOLS_XENT")
+     (if (= "1" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
+      (setq D1 1.0)
+      (setq D1 -1.0)
+     )
+     (if (= "1" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
+      (setq D2 1.0)
+      (setq D2 -1.0)
+     )
+     (if (= "1" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
+      (setq D1 (* D1 -1.0) D2 (* D2 -1.0))
+     )
+     (entmake)
+     (entmake (list (cons 0 "CIRCLE")
+                    (append (list 10) (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                                                    (* D1
+                                                       (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                                          (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                                                          (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                                                       )
+                                                    )
+                                              )
+                                      )
+                    )
+                    (cons 40 (cdr (assoc "NOSERADIUS" RFL:RAMPLIST)))
+              )
+     )
+;     (command "._CIRCLE"
+;              (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+;                            (* D1
+;                               (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+;                                  (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+;                                  (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+;                               )
+;                            )
+;                      )
+;              )
+;              (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+;     )
+     (setq ENTNOSE (entlast))
+     (RFL:RAMPPUTXDATA ENTNOSE nil)
+     (RFL:RAMPDRAW ENTNOSE 0)
     )
    )
   )
  )
 
- (command "._UCS" "P")
- (setvar "CLAYER" CLAYER)
+
  (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
+ (setvar "CLAYER" CLAYER)
  (setvar "DIMZIN" DIMZIN)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "PLINETYPE" PLINETYPE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ nil
 )
-(princ "\n*****  Use LARCSETUP to change defaults *****\n");
+(defun RFL:RAMPDRAW (ENTNOSE MODE / ALSAVE ANG ANG2 ANGBASE ANGDIR C CMDECHO D1 D2 DIMZIN DOFFSET DSTA ENTDELSET ENTLISTNEW ENTNOSELIST
+                                    ENTNOSEP ENTSET NOSEALIGNRADIUS NOSEOFFSET NOSERADIUS NOSESTATION OFFSET OFFSET1 OFFSET2
+                                    ORTHOMODE OSMODE RLSAVE P P1 P2 PL1 PL2
+                                    PICK PICKSTA PLINETYPE RAMPENTLIST RLSAVE STA STA1 STA2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq CLAYER (getvar "CLAYER"))
+ (setq DIMZIN (getvar "DIMZIN"))
+ (setvar "DIMZIN" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (setq PLINETYPE (getvar "PLINETYPE"))
+ (setvar "PLINETYPE" 2)
+ (setq ALSAVE RFL:ALIGNLIST)
+ (setq RLSAVE RFL:RAMPLIST)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CLAYER" CLAYER)
+  (setvar "DIMZIN" DIMZIN)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (setvar "PLINETYPE" PLINETYPE)
+  (setq RFL:ALIGNLIST ALSAVE)
+  (setq RFL:RAMPLIST RLSAVE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+ 
+ (defun GETBIT (N B)
+  (while (> B 0)
+   (setq N (/ N 2))
+   (setq B (- B 1))
+  )
+  (rem N 2)
+ )
+
+ (setq ALSAVE RFL:ALIGNLIST)
+ (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
+ (setq ENTNOSELIST (entget ENTNOSE))
+ (setq NOSESTATION (RFL:STAOFF (cdr (assoc 10 ENTNOSELIST))))
+ (setq NOSERADIUS (cdr (assoc 40 ENTNOSELIST)))
+ (if (= nil NOSESTATION)
+  (princ "!!! NOSE NOT ON ALIGNMENT !!!")
+  (progn
+   (setq NOSEOFFSET (cadr NOSESTATION))
+   (setq NOSESTATION (car NOSESTATION))
+   (setq NOSEALIGNRADIUS (RFL:GETRADIUS NOSESTATION))
+   (setq RLSAVE RFL:RAMPLIST)
+   (setq RFL:RAMPLIST (RFL:RAMPGETRAMP ENTNOSE))
+   (if (= nil RFL:RAMPLIST)
+    (princ "\n*** NO NOSE DATA FOUND ***")
+    (progn
+     (setq ENTSET (ssadd))
+     (if (= 1 (GETBIT MODE 0))
+      (progn
+       (setq RFL:RAMPLIST (subst (cons "NOSESTATION" NOSESTATION) (assoc "NOSESTATION" RFL:RAMPLIST) RFL:RAMPLIST))
+      )
+     )
+     (if (= 1 (GETBIT MODE 1))
+      (progn
+      )
+     )
+     (if (= 1 (GETBIT MODE 2))
+      (progn
+       (setq ENTDELSET (RFL:RAMPGETENT ENTNOSE))
+       (setq C 0)
+       (while (< C (sslength ENTDELSET))
+        (entdel (ssname ENTDELSET C))
+        (setq C (+ C 1))
+       )
+;       (command "._ERASE" (RFL:RAMPGETENT ENTNOSE) "")
+      )
+     )
+     (if (= "1" (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
+      (setq D1 1.0)
+      (setq D1 -1.0)
+     )
+     (if (= "1" (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
+      (setq D2 1.0)
+      (setq D2 -1.0)
+     )
+     (if (= "1" (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
+      (setq D1 (* D1 -1.0) D2 (* D2 -1.0))
+     )
+
+     (setq ENTNOSEP (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                                  (* D1
+                                     (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                                     )
+                                  )
+                            )
+                    )
+     )
+     (entmod (subst (list 10 (car ENTNOSEP) (cadr ENTNOSEP) 0.0) (assoc 10 (entget ENTNOSE)) (entget ENTNOSE)))
+
+     (setq ANG (atan (/ 1.0 (cdr (assoc "RAMPTAPER" RFL:RAMPLIST)))))
+     (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                   (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                         (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
+                         (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))
+                      )
+                      -1.0
+                      D1
+                      D2
+                      (sin ANG)
+                   )
+                )
+     )
+     (setq OFFSET2 (+ (* D1
+                         (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                            (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                            (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                         )
+                            )
+                      (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                            (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
+                            (cdr (assoc "LANEWIDTH" RFL:RAMPLIST))
+                         )
+                         D1
+                         (cos ANG)
+                      )
+                   )
+     )
+     (setq OFFSET1 (* D1
+                      (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                   )
+     )
+     (setq STA1 (+ STA2
+                   (* -1.0
+                      D1
+                      D2
+                      (abs (- OFFSET2 OFFSET1))
+                      (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
+                   )
+                )
+     )
+     (if (or (= nil (RFL:XY (list STA1 0.0)))
+             (= nil (RFL:XY (list STA2 0.0)))
+             (= nil (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST)) 0.0)))
+         )
+      (progn
+;       (alert "!!!!!  Point not on alignment  !!!!!")
+      )
+      (progn
+       (setq PL1 (RFL:XY (list STA2 OFFSET2)))
+       (setq STA STA1)
+       (setq OFFSET OFFSET1)
+       (setq DSTA (/ (- STA2 STA1) (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
+       (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST))))
+       (setq C 0)
+;       (setq ENTLISTNEW (list (cons 0 "LWPOLYLINE")))
+;       (setq ENTLISTNEW (append ENTLISTNEW (list (cons 90 (+ (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)) 1)))))
+;       (while (<= C (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
+;        (setq ENTLISTNEW (append ENTLISTNEW (list (append (list 10) (RFL:XY (list (+ STA1 (* C DSTA))
+;                                                                                  (+ OFFSET1 (* C DOFFSET))))))))
+;        (setq C (+ C 1))
+;       )
+;(setq xxx ENTLISTNEW)
+;(exit)
+;       (entmake)
+;       (entmake ENTLISTNEW)
+       (command "._PLINE")
+       (while (<= C (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
+        (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
+                                  (+ OFFSET1 (* C DOFFSET)))))
+         (command P)
+        )
+        (setq C (+ C 1))
+       )
+       (command "")
+       (ssadd (entlast) ENTSET)
+       (setq STA (+ STA1
+                    (* (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                       (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
+                       D1
+                       D2
+                    )
+                 )
+       )
+       (command "._LINE"
+                (RFL:XY (list STA
+                              (* D1 (+ (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                       (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                    )
+                              )
+                        )
+                )
+                (RFL:XY (list STA
+                              (* D1 (+ 20.0
+                                       (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                       (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                    )
+                              )
+                        )
+                )
+                ""
+       )
+       (ssadd (entlast) ENTSET)
+       (setvar "DIMZIN" 8)
+       (if (= (cdr (assoc 40 (tblsearch "STYLE" (getvar "TEXTSTYLE")))) 0.0)
+        (command "._TEXT"
+                 "ML"
+                 (RFL:XY (list STA
+                               (* D1 (+ 20.0
+                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                     )
+                               )
+                         )
+                 )
+                 5.0
+                 (RFL:XY (list STA
+                               (* D1 (+ 50.0
+                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                     )
+                               )
+                         )
+                 )
+                 (if RFL:RAMPTAPERLABEL
+                  (strcat "Weave (" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))) ":1 TAPER)")
+                  (strcat "Weave: " (RFL:STATXT STA))
+                 )
+                 ;""
+        )
+        (command "._TEXT"
+                 "ML"
+                 (RFL:XY (list STA
+                               (* D1 (+ 20.0
+                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                     )
+                               )
+                         )
+                 )
+                 (RFL:XY (list STA
+                               (* D1 (+ 50.0
+                                        (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST))
+                                        (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                     )
+                               )
+                         )
+                 )
+                 (if RFL:RAMPTAPERLABEL
+                  (strcat "Weave (" (rtos (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))) ":1 TAPER)")
+                  (strcat "Weave: " (RFL:STATXT STA))
+                 )
+                 ;""
+        )
+       )
+       (ssadd (entlast) ENTSET)
+       (setvar "DIMZIN" 0)
+       (setq STA1 (+ STA1
+                     (* (+ (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))
+                           (cdr (assoc "GOREWIDTH" RFL:RAMPLIST))
+                        )
+                        (cdr (assoc "RAMPTAPER" RFL:RAMPLIST))
+                        D1
+                        D2
+                     )
+                  )
+       )
+       (setq OFFSET1 (* D1
+                        (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                           (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST))
+                        )
+                     )
+       )
+       (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                     (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                           (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
+                        )
+                        -1.0
+                        D1
+                        D2
+                        (sin ANG)
+                     )
+                  )
+       )
+       (setq OFFSET2 (+ (* D1
+                           (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                              (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                              (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                           )
+                        )
+                        (* (+ (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                              (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST))
+                           )
+                           D1
+                           (cos ANG)
+                        )
+                     )
+       )
+       (setq STA STA1)
+       (setq OFFSET OFFSET1)
+       (setq DSTA (/ (- STA2 STA1) (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
+       (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST))))
+       (setq C 0)
+       (command "._PLINE")
+       (if (> (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST)) 0.0)
+        (if (setq P (RFL:XY (list STA1
+                                  (* D1 (cdr (assoc "LANEOFFSET" RFL:RAMPLIST)))
+                            )
+                    )
+            )
+         (command P)
+        )
+       )
+       (while (<= C (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST)))
+        (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
+                                  (+ OFFSET1 (* C DOFFSET)))))
+         (command P)
+        )
+        (setq C (+ C 1))
+       )
+       (command "")
+       (ssadd (entlast) ENTSET)
+       (setq PL2 (RFL:XY (list (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                               (* D1
+                                  (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                                     (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                                     (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                                  )
+                               )
+                         )
+                 )
+       )
+       (setq ANG2 (+ (angle PL1 PL2)
+                     (* D2
+                        (/ pi 2.0)
+                     )
+                  )
+       )
+       (setq PL2 (list (+ (car PL1)
+                          (* 50.0
+                             (cos ANG2)
+                          )
+                       )
+                       (+ (cadr PL1)
+                          (* 50.0
+                             (sin ANG2)
+                          )
+                       )
+                 )
+       )
+       (command "._LINE" PL1 PL2 "")
+       (ssadd (entlast) ENTSET)
+       (setvar "DIMZIN" 8)
+       (if (= (cdr (assoc 40 (tblsearch "STYLE" (getvar "TEXTSTYLE")))) 0.0)
+        (command "._TEXT"
+                 "MR"
+                 PL2
+                 5.0
+                 PL1
+                 (strcat "R=" (rtos (abs NOSEALIGNRADIUS)))
+                 ;""
+        )
+        (command "._TEXT"
+                 "MR"
+                 PL2
+                 PL1
+                 (strcat "R=" (rtos (abs NOSEALIGNRADIUS)))
+                 ;""
+        )
+       )
+       (ssadd (entlast) ENTSET)
+       (setvar "DIMZIN" 0)
+      )
+     )      
+     (if (> (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
+            (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+         )
+      (alert "!!!!!  Return offset greater than nose offset  !!!!!")
+      (if (/= (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
+              (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+          )
+       (progn
+        (setq ANG (atan (/ 1.0 (cdr (assoc "RETURNTAPER" RFL:RAMPLIST)))))
+        (setq STA2 (+ (cdr (assoc "NOSESTATION" RFL:RAMPLIST))
+                      (* (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                         -1.0
+                         D1
+                         D2
+                         (sin ANG)
+                      )
+                   )
+        )
+        (setq OFFSET2 (- (* D1
+                            (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                               (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST))
+                               (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                            )
+                         )
+                         (* (cdr (assoc "NOSERADIUS" RFL:RAMPLIST))
+                            D1
+                            (cos ANG)
+                         )
+                      )
+        )
+        (setq OFFSET1 (* D1
+                         (+ (cdr (assoc "LANEOFFSET" RFL:RAMPLIST))
+                            (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST))
+                         )
+                      )
+        )
+        (setq STA1 (+ STA2
+                      (* D1
+                         D2
+                         (abs (- OFFSET2 OFFSET1))
+                         (cdr (assoc "RETURNTAPER" RFL:RAMPLIST))
+                      )
+                   )
+        )
+        (if (or (= nil (RFL:XY (list STA1 0.0)))
+                (= nil (RFL:XY (list STA2 0.0)))
+            )
+         (alert "!!!!!  Point not on alignment  !!!!!")
+         (progn
+          (setq STA STA1)
+          (setq OFFSET OFFSET1)
+          (setq DSTA (/ (- STA2 STA1) (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
+          (setq DOFFSET (/ (- OFFSET2 OFFSET1) (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST))))
+          (setq C 0)
+          (command "._PLINE")
+          (while (<= C (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST)))
+           (if (setq P (RFL:XY (list (+ STA1 (* C DSTA))
+                                     (+ OFFSET1 (* C DOFFSET)))))
+            (command P)
+           )
+           (setq C (+ C 1))
+          )
+          (command "")
+          (ssadd (entlast) ENTSET)
+         )
+        )
+       )
+      )
+     )
+     (RFL:RAMPPUTXDATA ENTNOSE ENTSET)
+    )
+   )
+  )
+ )
+ 
+ (setq RFL:RAMPLIST ALSAVE)
+ 
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CLAYER" CLAYER)
+ (setvar "DIMZIN" DIMZIN)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "PLINETYPE" PLINETYPE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ (setq RFL:RAMPLIST RLSAVE)
+ nil
+)
+(defun RFL:RAMPPUTXDATA (ENT ENTSET / ALIGNDATALIST C CMIN CMAX ENTLIST ENTDATALIST MAXNODES RAMPDATALIST STA)
+ (setq MAXNODES 100)
+ (vl-load-com)
+ (regapp "RFLTOOLS_XENT")
+ (setq RAMPDATALIST (list (cons 1000 "RFLTOOLS_RAMP_NOSE")
+                          (cons 1040 (cdr (assoc "LANEOFFSET" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "RAMPTAPER" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "RAMPTAPERENTRANCE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "RAMPTAPEREXIT" RFL:RAMPLIST)))
+                          (cons 1070 (cdr (assoc "RAMPVERTICIES" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "WEAVEOFFSET" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "WEAVEOFFSETENTRANCESINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "WEAVEOFFSETENTRANCEDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "WEAVEOFFSETEXITSINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "WEAVEOFFSETEXITDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "GOREWIDTH" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "GOREWIDTHENTRANCESINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "GOREWIDTHENTRANCEDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "GOREWIDTHEXITSINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "GOREWIDTHEXITDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "TAPEROFFSET" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "TAPEROFFSETENTRANCE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "TAPEROFFSETEXIT" RFL:RAMPLIST)))
+                          (cons 1070 (cdr (assoc "INSIDEVERTICIES" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "NOSESTATION" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "NOSEOFFSET" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "NOSERADIUS" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "NOSERADIUSENTRANCE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "NOSERADIUSEXIT" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "INSIDESHOULDER" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "INSIDESHOULDERSINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "INSIDESHOULDERDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "LANEWIDTH" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "LANEWIDTHSINGLE" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "LANEWIDTHDUAL" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "RETURNTAPER" RFL:RAMPLIST)))
+                          (cons 1040 (cdr (assoc "RETURNOFFSET" RFL:RAMPLIST)))
+                          (cons 1070 (cdr (assoc "RETURNVERTICIES" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "SINGLELANE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "DUALLANE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "UPCHAINAGE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "DOWNCHAINAGE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "RIGHTSIDE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "LEFTSIDE" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "EXITTERMINAL" RFL:RAMPLIST)))
+                          (cons 1000 (cdr (assoc "ENTRANCETERMINAL" RFL:RAMPLIST)))
+                    )
+ )
+ (setq STA (cdr (assoc "NOSESTATION" RFL:RAMPLIST)))
+ (if (> MAXNODES (length RFL:ALIGNLIST))
+  (progn
+   (setq CMIN 0)
+   (setq CMAX (length RFL:ALIGNLIST))
+  )
+  (progn
+   (setq C 0)
+   (while (> STA (car (nth C RFL:ALIGNLIST)))
+    (setq C (+ C 1))
+   )
+   (setq CMIN (max (- C (/ MAXNODES 2)) 0))
+   (setq CMAX (min (+ C (/ MAXNODES 2)) (length RFL:ALIGNLIST)))
+   (if (= CMIN 0)
+    (setq CMAX (+ CMIN MAXNODES))
+    (if (= CMAX (length RFL:ALIGNLIST))
+     (setq CMIN (- CMAX MAXNODES))
+    )
+   )
+  )
+ )
+ (setq ALIGNDATALIST (list (cons 1000 "#RFL HORIZONTAL ALIGNMENT FILE")))
+ (setq C CMIN)
+ (while (< C CMAX)
+  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth C RFL:ALIGNLIST))))))
+  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 1 (nth C RFL:ALIGNLIST)))))))
+  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 1 (nth C RFL:ALIGNLIST)))))))
+  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 2 (nth C RFL:ALIGNLIST)))))))
+  (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 2 (nth C RFL:ALIGNLIST)))))))
+  (if (listp (nth 3 (nth C RFL:ALIGNLIST)))
+   (progn
+    (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1000 "SPIRAL"))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 0 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 0 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 1 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 1 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 0 (nth 2 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 1 (nth 2 (nth 3 (nth C RFL:ALIGNLIST))))))))
+	(setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 3 (nth 3 (nth C RFL:ALIGNLIST)))))))
+   )
+   (progn
+    (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1040 (nth 3 (nth C RFL:ALIGNLIST))))))
+   )
+  )
+  (setq C (+ C 1))
+ )
+ (setq ALIGNDATALIST (append ALIGNDATALIST (list (cons 1000 "#END DEFINITION"))))
+ (setq ENTDATALIST (list (cons 1000 "RFLTOOLS_RAMP_ENTITIES")))
+ (if (/= nil ENTSET)
+  (progn
+   (setq C 0)
+   (while (< C (sslength ENTSET))
+    (setq ENTDATALIST (append ENTDATALIST (list (cons 1005 (cdr (assoc 5 (entget (ssname ENTSET C))))))))
+    (setq C (+ C 1))
+   )
+  )
+ )
+ (setq ENTLIST (append (entget ENT)
+                       (list
+                             (list -3
+                                   (append (list "RFLTOOLS_XENT")
+                                           RAMPDATALIST
+                                           ALIGNDATALIST
+                                           ENTDATALIST
+                                   )
+                             )
+                       )
+               )
+ )
+ (entmod ENTLIST)
+)
+(defun RFL:RAMPGETENT (ENT / ENT2 ENTLIST ENTSET NODE)
+ (setq ENTSET (ssadd))
+ (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
+ (foreach NODE ENTLIST
+  (progn
+   (if (= 1005 (car NODE))
+    (if (/= nil (setq ENT2 (handent (cdr NODE))))
+     (ssadd ENT2 ENTSET)
+    )
+   )
+  )
+ )
+ (setq ENTSET ENTSET)
+)
+(defun RFL:RAMPGETRAMP (ENT / ENTLIST ENTSET RFL:RAMPLIST)
+ (setq RFL:RAMPLIST nil)
+ (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
+ (if (/= (cdar ENTLIST) "RFLTOOLS_RAMP_NOSE")
+  (princ "\n*** NO NOSE DATA FOUND ***")
+  (progn
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEOFFSET" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPER" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPERENTRANCE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPTAPEREXIT" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RAMPVERTICIES" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSET" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETENTRANCESINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETENTRANCEDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETEXITSINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "WEAVEOFFSETEXITDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTH" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHENTRANCESINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHENTRANCEDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHEXITSINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "GOREWIDTHEXITDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSET" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSETENTRANCE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "TAPEROFFSETEXIT" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDEVERTICIES" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSESTATION" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSEOFFSET" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUS" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUSENTRANCE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "NOSERADIUSEXIT" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDER" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDERSINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "INSIDESHOULDERDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTH" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTHSINGLE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LANEWIDTHDUAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNTAPER" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNOFFSET" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RETURNVERTICIES" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "SINGLELANE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "DUALLANE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "UPCHAINAGE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "DOWNCHAINAGE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "RIGHTSIDE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "LEFTSIDE" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "EXITTERMINAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RFL:RAMPLIST (append RFL:RAMPLIST (list (cons "ENTRANCETERMINAL" (cdar ENTLIST)))))
+   (setq ENTLIST (cdr ENTLIST))
+   (setq RAMPENTLIST nil)
+   (while (/= ENTLIST nil)
+    (setq RAMPENTLIST (append RAMPENTLIST (list (cdar ENTLIST))))
+    (setq ENTLIST (cdr ENTLIST))
+   )
+  )
+ )
+ RFL:RAMPLIST
+)
+(defun RFL:RAMPGETALIGN (ENT / RFL:ALIGNLIST BULGE ENTLIST LO P1X P1Y P2X P2Y PLTX PLTY PLTSTX PLTSTY PSTX PSTY STA)
+ (setq RFL:ALIGNLIST nil)
+ (setq ENTLIST (cdadr (assoc -3 (entget ENT (list "RFLTOOLS_XENT")))))
+ (while (and (/= ENTLIST nil) (/= (cdar ENTLIST) "#RFL HORIZONTAL ALIGNMENT FILE"))
+  (setq ENTLIST (cdr ENTLIST))
+ )
+ (setq ENTLIST (cdr ENTLIST))
+ (while (and (/= ENTLIST nil) (/= (cdar ENTLIST) "#END DEFINITION"))
+  (setq STA (cdar ENTLIST))
+  (setq ENTLIST (cdr ENTLIST))
+  (setq P1X (cdar ENTLIST))
+  (setq ENTLIST (cdr ENTLIST))
+  (setq P1Y (cdar ENTLIST))
+  (setq ENTLIST (cdr ENTLIST))
+  (setq P2X (cdar ENTLIST))
+  (setq ENTLIST (cdr ENTLIST))
+  (setq P2Y (cdar ENTLIST))
+  (setq ENTLIST (cdr ENTLIST))
+  (if (= (cdar ENTLIST) "SPIRAL")
+   (progn
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PLTX (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PLTY (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PLTSTX (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PLTSTY (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PSTX (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq PSTY (cdar ENTLIST))
+    (setq ENTLIST (cdr ENTLIST))
+    (setq LO (cdar ENTLIST))
+    (setq BULGE (list (list PLTX PLTY) (list PLTSTX PLTSTY) (list PSTX PSTY) LO))
+   )
+   (progn
+    (setq BULGE (cdar ENTLIST))
+   )
+  )
+  (setq ENTLIST (cdr ENTLIST))
+  (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list STA (list P1X P1Y) (list P2X P2Y) BULGE))))
+ )
+ RFL:ALIGNLIST
+)
+(defun C:MOVENOSE (/ *error* ALSAVE ENTNOSE ENTNOSELIST ENTSET GRCODE P P1 RLSAVE REP)
+ (setq RLSAVE RFL:RAMPLIST)
+ (setq ALSAVE RFL:ALIGNLIST)
+
+ (defun *error* (msg)
+  (setq RFL:ALIGNLIST ALSAVE)
+  (setq RFL:RAMPLIST RLSAVE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
+ (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
+  (princ "\n*** Entity does not contain RAMP information ***")
+  (progn
+   (setq ENTNOSELIST (entget ENTNOSE))
+   (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
+   (setq REP "")
+   (while (or (= (car (setq GRCODE (grread t 15 0))) 5) (= (car GRCODE) 2))
+    (cond ((= (car GRCODE) 2)
+           (progn
+            (princ (chr (cadr GRCODE)))
+           )
+          )
+          ((= (car GRCODE) 5)
+           (progn
+            (setq P (cadr GRCODE))
+            (setq P1 (RFL:STAOFF P))
+            (if (/= nil P1)
+             (progn
+              (setq P1 (RFL:XY (list (car P1) 0.0)))
+;              (grdraw P1 P -1)
+              (setq ENTNOSELIST (subst (append (list 10) P1) (assoc 10 ENTNOSELIST) ENTNOSELIST))
+              (entmod ENTNOSELIST)
+              (entupd ENTNOSE)
+              (RFL:RAMPDRAW ENTNOSE 7)
+             )
+            )
+           )
+          )
+    )
+   )
+  )
+ )
+ (setq RFL:RAMPLIST RLSAVE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ nil
+)
+(defun C:UPDATENOSE (/ ALSAVE ENTNOSE RLSAVE)
+ (command "._UNDO" "M")
+ (setq RLSAVE RFL:RAMPLIST)
+ (setq ALSAVE RFL:ALIGNLIST)
+ (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
+ (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
+  (princ "\n*** Entity does not contain RAMP information ***")
+  (progn
+   (RFL:RAMPDRAW ENTNOSE 7)
+  )
+ )
+ (setq RFL:RAMPLIST RLSAVE)
+ (setq RFL:ALIGNLIST ALSAVE)
+ nil
+)
+(defun C:SETNOSE (/ ENTNOSE)
+ (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
+ (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
+  (princ "\n*** Entity does not contain RAMP information ***")
+  (progn
+   (setq RFL:ALIGNLIST (RFL:RAMPGETALIGN ENTNOSE))
+   (setq RFL:RAMPLIST (RFL:RAMPGETRAMP ENTNOSE))
+   nil
+  )
+ )
+)
+(defun C:ERASENOSE (/ ENTNOSE RAMPENTSET)
+ (command "._UNDO" "M")
+ (setq ENTNOSE (car (entsel "\nSelect Nose : ")))
+ (if (= nil (RFL:RAMPGETRAMP ENTNOSE))
+  (princ "\n*** Entity does not contain RAMP information ***")
+  (progn
+   (setq RAMPENTSET (RFL:RAMPGETENT ENTNOSE))
+   (ssadd ENTNOSE RAMPENTSET)
+   (command "._ERASE" RAMPENTSET "")
+   nil
+  )
+ )
+);
 ;
 ;     Program written by Robert Livingston, 2018-06-12
 ;
@@ -22161,6 +20351,313 @@
  )
  T
 );
+;
+;    Program written by Robert Livingston, 95/04/25
+;                                 Revised, 98/05/12
+;
+;    RNE labels the Northing and Easting
+;
+;
+(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                        (cons "SO" 1)   ;  Label Station and Offset
+                        (cons "Z" 1)    ;  Label Control Elevations
+                        (cons "G" 1)    ;  Label Control Grades
+                        (cons "SE" 1)   ;  Label Superelevations
+                 )
+)
+(defun C:RNE (/ P1 P2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq P1 (getpoint "\nEnter point :"))
+ (setq P2 (getpoint P1 "Second point for leader :"))
+ (RFL:RNE P1 P2)
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun RFL:RNE (P1 P2 / *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G OFFSET P3
+                        S STA STR STRLIST TMP Z)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (alert msg)
+  ;(setq *error* nil)
+ )
+
+ (setq STRLIST nil
+       STA nil
+       OFFSET nil
+       G nil
+       Z nil
+ )
+ (if (setq STA (RFL:STAOFF P1))
+  (setq OFFSET (cadr STA)
+        STA (car STA)
+        Z (RFL:ELEVATION STA)
+        G (RFL:SLOPE STA)
+        S (RFL:SUPER STA)
+  )
+ )
+ (if (and (= (cdr (assoc "NE" RFL:RNELIST)) 1)
+          P1
+     )
+  (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
+ )
+ (if (and (= (cdr (assoc "SO" RFL:RNELIST)) 1)
+          STA
+          OFFSET
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
+ )
+ (if (and (= (cdr (assoc "Z" RFL:RNELIST)) 1)
+          Z
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
+ )
+ (if (and (= (cdr (assoc "G" RFL:RNELIST)) 1)
+          G
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
+ )
+ (if (and (= (cdr (assoc "SE" RFL:RNELIST)) 1)
+          S
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
+                                              (rtos (abs (nth 0 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 0 S)) 1) " up" " down")
+                                              ", R:"
+                                              (rtos (abs (nth 1 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 1 S)) 1) " up" " down")
+                                      )
+                                )
+                )
+  )
+ )
+ (if STRLIST
+  (progn
+   (command "LEADER" "_NON" P1 "_NON" P2 "")
+   (foreach STR STRLIST
+    (command STR)
+   )
+   (command "")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROF reads a vertical alignment from file
+;
+;
+(defun C:RPROF (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 2))
+ (RFL:RPROF INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFB reads a vertical profile from a RFLAlign Block
+;
+;
+(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFBN reads a vertical profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 11-03-09
+;
+;     RPROF3D reads the profile from a selected C3D profile
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;     NOTE - Works for type 1 and type 3 vertical curves
+;
+;
+(defun C:RPROFC3D (/ *error* ENT)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  ;(setq *error* nil)
+  (princ msg)
+ )
+
+ (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
+  (RFL:RPROFC3D ENT)
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ T
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable RFL:OGLIST
+;
+;
+(defun C:RPROFOG (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq INFILENAME (getfiled "Select an OG Vertical Alignment File" "" "vrt" 2))
+ (RFL:RPROFOG INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
+;
+;
+(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RSUPER reads the Superelevation from file
+;
+;
+(defun C:RSUPER (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 2))
+ (RFL:RSUPER INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RSUPERB reads the Superelevation from a RFLAlign Block
+;
+;
+(defun C:RSUPERB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RSUPERB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RSUPERBN reads the Superelevation from a nested RFLAlign Block
+;
+;
+(defun C:RSUPERBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RSUPERB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
 ;
 ;     Program written by Robert Livingston, 2001/01/02
 ;
@@ -22269,41 +20766,1137 @@
  (setvar "SNAPANG" SNAPANG)
 );
 ;
-;     Program written by Robert Livingston, 2018/10/01
+;   Program written by Robert Livingston, 2000/08/01
 ;
-;     LSPACE is a utility for labelling spaces
+;   C:TPROF is a utility for drawing drawing one alignments profile onto another
 ;
 ;
-(setq RFL:LSPACELAYER "")
-(setq RFL:LSPACETHEIGHT 0.75)
-(setq RFL:LSPACESUFFIX "m")
-(setq RFL:LSPACEPREC 2)
-(defun C:LSPACESETUP (/ CMDECHO TMP)
+(defun C:TPROF (/ ALIGNLISTFROM ALIGNLISTTO CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
 
- (setq RFL:LSPACELAYER (getstring "\nEnter layer of new entities (<return> for current layer) : "))
- (setq RFL:LSPACETHEIGHT (getdist "\nLabel text height <0.75> : "))
- (if (or (= RFL:LSPACETHEIGHT nil) (= RFL:LSPACETHEIGHT 0.0)) (setq RFL:LSPACETHEIGHT 0.75))
- (setq RFL:LSPACESUFFIX (getstring "\nEnter suffix for label text : "))
- (setq RFL:LSPACEPREC (getint "\nLabel text precision <2> : "))
- (if (or (= RFL:LSPACEPREC nil) (<= RFL:LSPACEPREC 0)) (setq RFL:LSPACEPREC 2))
+ (command "._UNDO" "M")
 
+ (princ "\nSelect 'FROM' alignment :\n")
+ (C:RALIGN)
+ (if (/= RFL:ALIGNLIST nil)
+  (progn
+   (setq ALIGNLISTFROM RFL:ALIGNLIST)
+   (princ "\nSelect 'FROM' profile :\n")
+   (C:RPROF)
+   (if (/= RFL:PVILIST nil)
+    (progn
+     (setq PVILISTFROM RFL:PVILIST)
+     (princ "\nSelect 'TO' alignment :\n")
+     (C:RALIGN)
+     (if (/= RFL:ALIGNLIST nil)
+      (progn
+       (setq ALIGNLISTTO RFL:ALIGNLIST)
+       (princ "\nSelect 'TO' profile :\n")
+       (RFL:PROFDEF)
+       (if (/= RFL:PROFDEFLIST nil)
+        (progn
+         (setq PROFDEFTO RFL:PROFDEFLIST)
+         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
+         (if (= STAFROM nil)
+          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
+         )
+         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
+         (if (= STATO nil)
+          (progn
+           (setq RFL:ALIGNLIST ALIGNLISTFROM)
+           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
+          )
+         )
+         (setq INC (getreal "\nEnter incrament :"))
+         (setq STA STAFROM)
+         (command "._PLINE")
+         (while (<= STA STATO)
+          (setq RFL:ALIGNLIST ALIGNLISTFROM)
+          (setq P (RFL:XY (list STA 0.0)))
+          (if (/= P nil)
+           (progn
+            (setq RFL:PVILIST PVILISTFROM)
+            (setq Z (RFL:ELEVATION STA))
+            (if (/= Z nil)
+             (progn
+              (setq RFL:ALIGNLIST ALIGNLISTTO)
+              (setq P (RFL:STAOFF P))
+              (if (/= P nil)
+               (progn
+                (setq RFL:PROFDEFLIST PROFDEFTO)
+                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
+               )
+              )
+             )
+            )
+           )
+          )
+          (setq STA (+ STA INC))
+         )
+         (command "")
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
  (setvar "CMDECHO" CMDECHO)
-)
-(defun C:LSPACE (/ *error* ACTIVEDOC ACTIVESPC ANG P P1 P2 VT)
- (setq CLAYER (getvar "CLAYER"))
+);
+;
+;   Program written by Robert Livingston, 2009/05/20
+;
+;   C:TPROFB is a utility for drawing drawing one alignments profile onto another
+;
+;
+(defun C:TPROFB (/ ALIGNLISTFROM ALIGNLISTTO ENT CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
+;(defun C:TPROF ()
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (command "._UNDO" "M")
+
+ (princ "\nSelect 'FROM' alignment block :\n")
+ (setq ENT (car (entsel)))
+ (RFL:RALIGNB ENT)
+ (if (/= RFL:ALIGNLIST nil)
+  (progn
+   (setq ALIGNLISTFROM RFL:ALIGNLIST)
+   (RFL:RPROFB ENT)
+   (if (/= RFL:PVILIST nil)
+    (progn
+     (setq PVILISTFROM RFL:PVILIST)
+     (princ "\nSelect 'TO' alignment block :\n")
+     (setq ENT (car (entsel)))
+     (RFL:RALIGNB ENT)
+     (if (/= RFL:ALIGNLIST nil)
+      (progn
+       (setq ALIGNLISTTO RFL:ALIGNLIST)
+       (princ "\nSelect 'TO' profile :\n")
+       (RFL:PROFDEF)
+       (if (/= RFL:PROFDEFLIST nil)
+        (progn
+         (setq PROFDEFTO RFL:PROFDEFLIST)
+         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
+         (if (= STAFROM nil)
+          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
+         )
+         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
+         (if (= STATO nil)
+          (progn
+           (setq RFL:ALIGNLIST ALIGNLISTFROM)
+           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
+          )
+         )
+         (setq INC (getreal "\nEnter incrament :"))
+         (setq STA STAFROM)
+         (command "._PLINE")
+         (while (<= STA STATO)
+          (setq RFL:ALIGNLIST ALIGNLISTFROM)
+          (setq P (RFL:XY (list STA 0.0)))
+          (if (/= P nil)
+           (progn
+            (setq RFL:PVILIST PVILISTFROM)
+            (setq Z (RFL:ELEVATION STA))
+            (if (/= Z nil)
+             (progn
+              (setq RFL:ALIGNLIST ALIGNLISTTO)
+              (setq P (RFL:STAOFF P))
+              (if (/= P nil)
+               (progn
+                (setq RFL:PROFDEFLIST PROFDEFTO)
+                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
+               )
+              )
+             )
+            )
+           )
+          )
+          (setq STA (+ STA INC))
+         )
+         (command "")
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;   Program written by Robert Livingston, 2009/05/20
+;
+;   C:TPROFB is a utility for drawing drawing one alignments profile onto another
+;          Modified to TPROFBN 2012/06/13 to work with nested RAB blocks
+;
+;
+(defun C:TPROFBN (/ ALIGNLISTFROM ALIGNLISTTO ENT CMDECHO INC P PROFDEFTO PVILISTFROM STA STAFROM STATO Z)
+;(defun C:TPROFN ()
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (command "._UNDO" "M")
+
+ (setq ENT (car (nentsel "\nSelect 'FROM' nested alignment block :\n")))
+ (setq ENT (cdr (assoc 330 (entget ENT))))
+ (RFL:RALIGNBN ENT)
+ (if (/= RFL:ALIGNLIST nil)
+  (progn
+   (setq ALIGNLISTFROM RFL:ALIGNLIST)
+   (RFL:RPROFBN ENT)
+   (if (/= RFL:PVILIST nil)
+    (progn
+     (setq PVILISTFROM RFL:PVILIST)
+     (setq ENT (car (nentsel "\nSelect 'TO' nested alignment block :\n")))
+     (setq ENT (cdr (assoc 330 (entget ENT))))
+     (RFL:RALIGNB ENT)
+     (if (/= RFL:ALIGNLIST nil)
+      (progn
+       (setq ALIGNLISTTO RFL:ALIGNLIST)
+       (princ "\nSelect 'TO' profile :\n")
+       (RFL:PROFDEF)
+       (if (/= RFL:PROFDEFLIST nil)
+        (progn
+         (setq PROFDEFTO RFL:PROFDEFLIST)
+         (setq STAFROM (getreal "\nEnter start station ('FROM' alignment, <return> for alignment start) :"))
+         (if (= STAFROM nil)
+          (setq STAFROM (max (car (car ALIGNLISTFROM)) (car (car PVILISTFROM))))
+         )
+         (setq STATO (getreal "\nEnter end station ('FROM' alignment, <return> for alignment end) :"))
+         (if (= STATO nil)
+          (progn
+           (setq RFL:ALIGNLIST ALIGNLISTFROM)
+           (setq STATO (min (+ (car (car ALIGNLISTFROM)) (RFL:GETALIGNLENGTH)) (car (last PVILISTFROM))))
+          )
+         )
+         (setq INC (getreal "\nEnter incrament :"))
+         (setq STA STAFROM)
+         (command "._PLINE")
+         (while (<= STA STATO)
+          (setq RFL:ALIGNLIST ALIGNLISTFROM)
+          (setq P (RFL:XY (list STA 0.0)))
+          (if (/= P nil)
+           (progn
+            (setq RFL:PVILIST PVILISTFROM)
+            (setq Z (RFL:ELEVATION STA))
+            (if (/= Z nil)
+             (progn
+              (setq RFL:ALIGNLIST ALIGNLISTTO)
+              (setq P (RFL:STAOFF P))
+              (if (/= P nil)
+               (progn
+                (setq RFL:PROFDEFLIST PROFDEFTO)
+                (command "_NON" (RFL:PROFPOINT (nth 0 P) Z))
+               )
+              )
+             )
+            )
+           )
+          )
+          (setq STA (+ STA INC))
+         )
+         (command "")
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+);
+;
+;     Program written by Robert Livingston, 0/12/18
+;
+;     VC2TAN draws a line tangent to two vertical curves
+;
+(defun C:VC2TAN (/ A1 A2 B1 B2 C1 C2 ENT ENTLIST F G GA GB G1 G2 P P1 P2 P3 SIGN V VA VB X XA XB X1 X2 Y YA YB Y1 Y2 TMP)
+
+ (defun SIGN (X)
+  (if (< X 0.0)
+   (eval -1)
+   (eval 1)
+  )
+ )
+
+ (defun F (X Y / SA SB SC X1A X1B Y1A Y1B)
+  (setq SA A2)
+  (setq SB (* -2.0 A2 X))
+  (setq SC (- Y C2 (* B2 X)))
+  (setq X1A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+  (setq Y1A (+ (* A2 X1A X1A) (* B2 X1A) C2))
+  (setq X1B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+  (setq Y1B (+ (* A2 X1B X1B) (* B2 X1B) C2))
+  (if (> X1A X1B)
+   (list X1A Y1A)
+   (list X1B Y1B)
+  )
+ )
+
+ (setq ENT (car (entsel "\nSelect 'from' vertical curve :")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+      (progn
+       (setq X1 (nth 0 P1))
+       (setq Y1 (nth 1 P1))
+       (setq X2 (nth 0 P2))
+       (setq Y2 (nth 1 P2))
+       (setq X3 (nth 0 P3))
+       (setq Y3 (nth 1 P3))
+       (setq XA (min X1 X3))
+       (setq XB (max X1 X3))
+       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+       (setq A1 (/ (- G2 G1) (- X3 X1) 2.0))
+       (setq B1 (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+       (setq C1 (- Y1 (+ (* A1 X1 X1) (* B1 X1))))
+       (setq ENT (car (entsel "\nSelect 'to' vertical curve :")))
+       (if (/= nil ENT)
+        (progn
+         (setq ENTLIST (entget ENT))
+         (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+          (progn
+           (setq ENT (entnext ENT))
+           (setq ENTLIST (entget ENT))
+           (setq P1 (cdr (assoc 10 ENTLIST)))
+           (setq ENT (entnext ENT))
+           (setq ENTLIST (entget ENT))
+           (setq P2 (cdr (assoc 10 ENTLIST)))
+           (if (/= nil P2)
+            (progn
+             (setq ENT (entnext ENT))
+             (setq ENTLIST (entget ENT))
+             (setq P3 (cdr (assoc 10 ENTLIST)))
+             (if (/= nil P3)
+              (progn
+               (setq ENT (entnext ENT))
+               (setq ENTLIST (entget ENT))
+               (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+                (setq P2 P3)
+                (setq P3 (cdr (assoc 10 ENTLIST)))
+                (setq ENT (entnext ENT))
+                (setq ENTLIST (entget ENT))
+               )
+              )
+             )
+            )
+           )
+           (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+            (progn
+             (setq X1 (nth 0 P1))
+             (setq Y1 (nth 1 P1))
+             (setq X2 (nth 0 P2))
+             (setq Y2 (nth 1 P2))
+             (setq X3 (nth 0 P3))
+             (setq Y3 (nth 1 P3))
+             (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+             (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+             (setq A2 (/ (- G2 G1) (- X3 X1) 2.0))
+             (setq B2 (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+             (setq C2 (- Y1 (+ (* A2 X1 X1) (* B2 X1))))
+             (setq YA (+ (* A1 XA XA) (* B1 XA) C1))
+             (setq GA (+ (* 2.0 A1 XA) B1))
+             (setq VA (F XA YA))
+             (setq VA (- GA (/ (- (nth 1 VA) YA) (- (nth 0 VA) XA))))
+             (setq TMP (/ (- XB XA) 25.0))
+             (setq X (+ XB TMP))
+             (setq XB (+ XA TMP))
+             (setq YB (+ (* A1 XB XB) (* B1 XB) C1))
+             (setq GB (+ (* 2.0 A1 XB) B1))
+             (setq VB (F XB YB))
+             (setq VB (- GB (/ (- (nth 1 VB) YB) (- (nth 0 VB) XB))))
+             (while (and (= (SIGN VA) (SIGN VB)) (< XB X))
+              (setq XA XB)
+              (setq YA YB)
+              (setq GA GB)
+              (setq VA VB)
+              (setq XB (+ XB TMP))
+              (setq YB (+ (* A1 XB XB) (* B1 XB) C1))
+              (setq GB (+ (* 2.0 A1 XB) B1))
+              (setq VB (F XB YB))
+              (setq VB (- GB (/ (- (nth 1 VB) YB) (- (nth 0 VB) XB))))
+             )
+             (setq X (/ (+ XA XB) 2.0))
+             (setq Y (+ (* A1 X X) (* B1 X) C1))
+             (setq G (+ (* 2.0 A1 X) B1))
+             (setq V (F X Y))
+             (setq V (- G (/ (- (nth 1 V) Y) (- (nth 0 V) X))))
+             (if (= (SIGN VA) (SIGN VB))
+              (princ "\n*** No solution found ***")
+              (progn
+               (setq TMP 0)
+               (while (and (/= XA XB) (< TMP 1000))
+                (if (< (* (SIGN V) (SIGN VB)) 0.0)
+                 (progn
+                  (setq XA X)
+                  (setq YA Y)
+                  (setq VA V)
+                 )
+                 (progn
+                  (setq XB X)
+                  (setq YB Y)
+                  (setq VB V)
+                 )
+                )
+                (setq X (/ (+ XA XB) 2.0))
+                (setq Y (+ (* A1 X X) (* B1 X) C1))
+                (setq G (+ (* 2.0 A1 X) B1))
+                (setq V (F X Y))
+                (setq V (- G (/ (- (nth 1 V) Y) (- (nth 0 V) X))))
+                (setq TMP (+ TMP 1))
+               )
+               (command "._LINE" "_NON" (list X Y) "_NON" (F X Y) "")
+              )
+             )
+            )
+           )
+          )
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+);
+;
+;   Program written by Robert Livingston, 00/09/18
+;
+;   VC3P is a utility for drawing vertical curves through 3 points
+;
+;
+(defun C:VC3P (/ A B CMDECHO ENT1 ENT2 G1 G2 L OSMODE P1 P2 P3 P1 VCURVE VEXAG X1 X2 Y1 Y2 TMP Z1 Z2 Z3)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 640)
+
+ (defun VCURVE (ENT1 ENT2 VEXAG L / ATTREQ ENT ENTLIST G1 G2 K P P1 P2 P3 P4 SPLINETYPE SPLINESEGS TMP)
+  (setq ATTREQ (getvar "ATTREQ"))
+  (setvar "ATTREQ" 1)
+  (setq SPLINETYPE (getvar "SPLINETYPE"))
+  (setvar "SPLINETYPE" 5)
+  (setq SPLINESEGS (getvar "SPLINESEGS"))
+  (setvar "SPLINESEGS" 65)
+
+  (setq ENTLIST (entget ENT1))
+  (setq P1 (cdr (assoc 10 ENTLIST)))
+  (setq P2 (cdr (assoc 11 ENTLIST)))
+  (setq ENTLIST (entget ENT2))
+  (setq P3 (cdr (assoc 10 ENTLIST)))
+  (setq P4 (cdr (assoc 11 ENTLIST)))
+  (setq P (inters P1 P2 P3 P4 nil))
+  (if (/= nil P)
+   (progn
+    (if (> (distance P2 P) (distance P1 P))
+     (setq P1 P2)
+    )
+    (if (> (distance P3 P) (distance P4 P))
+     (setq P4 P3)
+    )
+    (setq G1 (/ (- (nth 1 P) (nth 1 P1))
+                (- (nth 0 P) (nth 0 P1))
+                VEXAG
+             )
+    )
+    (setq G2 (/ (- (nth 1 P4) (nth 1 P))
+                (- (nth 0 P4) (nth 0 P))
+                VEXAG
+             )
+    )
+    (setq K (abs (/ L (- G2 G1) 100.0)))
+    (setvar "ATTREQ" 0)
+    (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
+    (command "._INSERT"
+             "PVI2"
+             P
+             25.4
+             25.4
+             0.0
+    )
+    (setq ENT (entlast))
+    (setq ENTLIST (entget ENT))
+    (if (= (cdr (assoc 66 ENTLIST)) 1)
+     (progn
+      (setq ENT (entnext ENT))
+      (setq ENTLIST (entget ENT))
+      (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+       (if (= (cdr (assoc 2 ENTLIST)) "LENGTH")
+        (progn
+         (setq ENTLIST (subst (cons 1 (rtos L 2 8)) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT)
+        )
+       )
+       (if (= (cdr (assoc 2 ENTLIST)) "K")
+        (progn
+         (setq ENTLIST (subst (cons 1 (rtos K 2 8)) (assoc 1 ENTLIST) ENTLIST))
+         (entmod ENTLIST)
+         (entupd ENT)
+        )
+       )
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+      )
+     )
+    )
+    (setvar "ATTREQ" 1)
+    (setq P2 (list (- (nth 0 P) (/ L 2.0))
+                   (- (nth 1 P) (* (/ L 2.0) G1 VEXAG))
+             )
+    )
+    (setq P3 (list (+ (nth 0 P) (/ L 2.0))
+                   (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
+             )
+    )
+    (command "._PLINE" P2 P P3 "")
+    (setq ENT (entlast))
+    (command "._PEDIT" ENT "S" "")
+   )
+  )
+  (setvar "ATTREQ" ATTREQ)
+  (setvar "SPLINETYPE" SPLINETYPE)
+  (setvar "SPLINESEGS" SPLINESEGS)
+ )
+
+ (setq VEXAG (getreal "Vertical exageration <10.000> :"))
+ (if (= nil VEXAG) (setq VEXAG 10.0))
+ (setq P1 (getpoint "\nFirst point :"))
+ (setq P2 (getpoint "\nSecond point :"))
+ (setq P3 nil K nil)
+ (while (or (= P3 nil) (= K nil))
+  (if (= P3 nil)
+   (progn
+    (setq P3 (getpoint "\nThird point (<Return> to enter K) :"))
+    (if (= P3 nil)
+     (setq P3 1)
+     (setq K 1)
+    )
+   )
+   (progn
+    (setq K (getreal "\nK (<Return> to enter third point) :"))
+    (if (= K nil)
+     (setq P3 nil)
+     (progn
+      (setq L (/ (- (nth 0 P2) (nth 0 P1)) 2.0))
+      (setq Z1 (/ (nth 1 P1) VEXAG))
+      (setq Z3 (/ (nth 1 P2) VEXAG))
+      (setq Z2 (* (/ (+ Z1 Z3 (/ (* L L) (* 100.0 K))) 2.0) VEXAG))
+      (setq P3 (list (+ (nth 0 P1) L) Z2 0.0))
+     )
+    )
+   )
+  )
+ )
+ (setvar "OSMODE" 0)
+ (if (< (nth 0 P2) (nth 0 P1))
+  (progn
+   (setq TMP P1)
+   (setq P1 P2)
+   (setq P2 TMP)
+  )
+ )
+ (if (< (nth 0 P3) (nth 0 P1))
+  (progn
+   (setq TMP P1)
+   (setq P1 P3)
+   (setq P3 TMP)
+  )
+ )
+ (if (< (nth 0 P3) (nth 0 P2))
+  (progn
+   (setq TMP P2)
+   (setq P2 P3)
+   (setq P3 TMP)
+  )
+ )
+ (setq X1 (- (nth 0 P2) (nth 0 P1)))
+ (setq Y1 (/ (- (nth 1 P2) (nth 1 P1)) VEXAG))
+ (setq X2 (- (nth 0 P3) (nth 0 P1)))
+ (setq Y2 (/ (- (nth 1 P3) (nth 1 P1)) VEXAG))
+
+ (setq A (/ (- (/ Y2 X2)
+               (/ Y1 X1)
+            )
+            (- X2 X1)
+         )
+ )
+ (setq B (/ (- (/ Y2 (* X2 X2))
+               (/ Y1 (* X1 X1))
+            )
+            (- (/ 1.0 X2)
+               (/ 1.0 X1)
+            )
+         )
+ )
+
+ (setq G1 (* B 100.0))
+ (setq G2 (* (+ (* 2.0 A X2) B) 100.0))
+
+ (setq TMP nil)
+ (setq TMP (getreal (strcat "G1 = " (rtos G1) ", desired (<return> to accept) : ")))
+ (if (/= TMP nil)
+  (setq G1 TMP)
+ )
+ (setq TMP nil)
+ (setq TMP (getreal (strcat "G2 = " (rtos G2) ", desired (<return> to accept) : ")))
+ (if (/= TMP nil)
+  (setq G2 TMP)
+ )
+
+ (setq X1 (/ (- (/ G1 100.0)
+                B
+             )
+             (* 2.0 A)
+          )
+ )
+ (setq Y1 (+ (* A X1 X1)
+             (* B X1)
+          )
+ )
+ (setq X2 (/ (- (/ G2 100.0)
+                B
+             )
+             (* 2.0 A)
+          )
+ )
+ (setq Y2 (+ (* A X2 X2)
+             (* B X2)
+          )
+ )
+ (setq P2 (list (+ (nth 0 P1) X2)
+                (+ (nth 1 P1)
+                   (* VEXAG Y2)
+                )
+          )
+ )
+ (setq P1 (list (+ (nth 0 P1) X1)
+                (+ (nth 1 P1)
+                   (* VEXAG Y1)
+                )
+          )
+ )
+ (setq P3 (list (+ (nth 0 P1)
+                   (/ (- (nth 0 P2) (nth 0 P1))
+                      2.0
+                   )
+                )
+                (+ (nth 1 P1)
+                   (* (/ (- (nth 0 P2) (nth 0 P1))
+                         2.0
+                      )
+                      (/ G1 100.0)
+                      VEXAG
+                   )
+                )
+          )
+ )
+ (command "._LINE" P1 P3 "")
+ (setq ENT1 (entlast))
+ (command "._LINE" P3 P2 "")
+ (setq ENT2 (entlast))
+ (VCURVE ENT1 ENT2 VEXAG (- X2 X1))
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 2009-11-25
+;
+;     VCDTAN is a routine for drawing tangents off of vertical curves.
+;
+;
+(defun C:VCDTAN (/ A B C D ENT ENTLIST G1 G2 ORTHOMODE OSMODE P P1 P2 P3 ROUNDSLOPE S SA SB SC X X0A X0B X1 X2 X3 XB Y Y0A Y0B Y1 Y2 Y3 YB TMP VEXAG)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setvar "ORTHOMODE" 0)
+ (command "._UNDO" "M")
+ (if (= nil VCURVEVEXAG) (setq VCURVEVEXAG 10.0))
+ (setq VEXAG (getdist (strcat "\nVertical exaggeration <" (rtos VCURVEVEXAG) "> : ")))
+ (if (= nil VEXAG)
+  (setq VEXAG VCURVEVEXAG)
+  (setq VCURVEVEXAG VEXAG)
+ )
+ (if (= nil VCURVETANROUND) (setq VCURVETANROUND 0.1))
+ (setq ROUNDSLOPE (getdist (strcat "\nRound slope to nearest <" (rtos VCURVETANROUND) "> : ")))
+ (if (= nil ROUNDSLOPE)
+  (setq ROUNDSLOPE VCURVETANROUND)
+  (setq VCURVETANROUND ROUNDSLOPE)
+ )
+ (setq ROUNDSLOPE (* ROUNDSLOPE VEXAG 0.01))
+ (setq ENT (car (entsel "\nSelect vertical curve : ")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+      (progn
+       (setq X1 (nth 0 P1))
+       (setq Y1 (nth 1 P1))
+       (setq X2 (nth 0 P2))
+       (setq Y2 (nth 1 P2))
+       (setq X3 (nth 0 P3))
+       (setq Y3 (nth 1 P3))
+       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+       (setq A (/ (- G2 G1) (- X3 X1) 2.0))
+       (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+       (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
+       (while (= (car (setq TMP (grread nil 1))) 5)
+        (setq X (caadr TMP))
+        (setq Y (cadadr TMP))
+        (command "._REDRAW")
+        (setq SA A)
+        (setq SB (* -2.0 A X))
+        (setq SC (- Y C (* B X)))
+        (if (> (- (* SB SB) (* 4.0 SA SC)) 0.0)
+         (progn
+          (setq X0A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+          (setq Y0A (+ (* A X0A X0A) (* B X0A) C))
+          (setq X0B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+          (setq Y0B (+ (* A X0B X0B) (* B X0B) C))
+          (if (> X0A X0B)
+           (progn
+            (setq TMP X0A)
+            (setq X0A X0B)
+            (setq X0B TMP)
+            (setq TMP Y0A)
+            (setq Y0A Y0B)
+            (setq Y0B TMP)
+           )
+          )
+          (if (< (nth 0 P2) X)
+           (progn
+            (setq XB X0A YB Y0A)
+           )
+           (progn
+            (setq XB X0B YB Y0B)
+           )
+          )
+          (setq D (distance (list XB YB) (list X Y)))
+          (setq S (/ (- Y YB) (- X XB)))
+          (if (> S 0.0) (setq TMP 1.0) (setq TMP -1.0))
+          (setq S (abs S))
+          (setq S (* TMP (* (float (fix (+ 0.5 (/ S ROUNDSLOPE)))) ROUNDSLOPE)))
+          (setq XB (/ (- S B) (* 2.0 A)))
+          (setq YB (+ (* A XB XB) (* B XB) C))
+          (if (< (nth 0 P2) X)
+           (progn
+            (setq X (+ XB (* D (cos (atan S)))))
+            (setq Y (+ YB (* D (sin (atan S)))))
+           )
+           (progn
+            (setq X (- XB (* D (cos (atan S)))))
+            (setq Y (- YB (* D (sin (atan S)))))
+           )
+          )
+          (grdraw (list XB YB) (list X Y) 7)
+         )
+        )
+       )
+       (command "._REDRAW")
+       (if (> (- (* SB SB) (* 4.0 SA SC)) 0.0)
+        (command "._LINE" (list XB YB) (list X Y) "")
+        (princ "\nBad Point!")
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+);
+;
+;     Program written by Robert Livingston, 02/05/08
+;
+;     VCPTAN draws a tangent at the specified point on a vertical curve
+;
+(defun C:VCPTAN (/ *error* ANGBASE ANGDIR A B C CMDECHO ENT ENTLIST G G1 G2 L OSMODE P P1 P2 P3 S X X1 X2 X3 Y Y1 Y2 Y3)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
  (setq ANGBASE (getvar "ANGBASE"))
  (setvar "ANGBASE" 0.0)
  (setq ANGDIR (getvar "ANGDIR"))
  (setvar "ANGDIR" 0)
- (setq DIMZIN (getvar "DIMZIN"))
- (setvar "DIMZIN" 0)
 
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (command "._UCS" "W")
+
+ (command "._UNDO" "M")
+
+ (setq ENT (car (entsel "\nSelect vertical curve :")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (princ "\n*** Entity not a polyline ***")
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+      (progn
+       (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
+       (if (= nil VEXAG) (setq VEXAG 10.0))
+       (setq X1 (nth 0 P1))
+       (setq Y1 (/ (nth 1 P1) VEXAG))
+       (setq X2 (nth 0 P2))
+       (setq Y2 (/ (nth 1 P2) VEXAG))
+       (setq X3 (nth 0 P3))
+       (setq Y3 (/ (nth 1 P3) VEXAG))
+       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+       (setq P (getpoint (strcat "\nG1 = " (rtos (* G1 100.0)) ", G2 = " (rtos (* G2 100.0)) ", enter point : ")))
+       (if (/= P nil)
+        (progn
+         (setq A (/ (- G2 G1) (- X3 X1) 2.0))
+         (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+         (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
+         (setq X (nth 0 P))
+         (setq Y (+ (* A X X) (* B X) C))
+         (setq G (+ (* 2.0 A X) B))
+         (setq L (getdist (strcat "\nEnter length (" (rtos (abs (- X3 X1))) ") : ")))
+         (if (= nil L) (setq L (abs (- X3 X1))))
+         (setq P1 (list (- X (/ L 2.0))
+                        (* (- Y (* (/ L 2.0) G)) VEXAG)))
+         (setq P2 (list (+ X (/ L 2.0))
+                        (* (+ Y (* (/ L 2.0) G)) VEXAG)))
+         (command "._LINE" P1 P2 "")
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 02/05/08
+;
+;     VCSTAN draws a tangent at the specified slope on a vertical curve
+;
+(defun C:VCSTAN (/ *error* ANGBASE ANGDIR A B C CMDECHO ENT ENTLIST G G1 G2 L OSMODE P P1 P2 P3 S X X1 X2 X3 Y Y1 Y2 Y3)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (command "._UCS" "W")
+
+ (command "._UNDO" "M")
+
+ (setq ENT (car (entsel "\nSelect vertical curve :")))
+ (if (/= nil ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (princ "\n*** Entity not a polyline ***")
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+     (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+      (progn
+       (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
+       (if (= nil VEXAG) (setq VEXAG 10.0))
+       (setq X1 (nth 0 P1))
+       (setq Y1 (/ (nth 1 P1) VEXAG))
+       (setq X2 (nth 0 P2))
+       (setq Y2 (/ (nth 1 P2) VEXAG))
+       (setq X3 (nth 0 P3))
+       (setq Y3 (/ (nth 1 P3) VEXAG))
+       (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+       (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+       (setq G (getreal (strcat "\nG1 = " (rtos (* G1 100.0)) ", G2 = " (rtos (* G2 100.0)) ", enter slope (%) : ")))
+       (if (/= G nil)
+        (progn
+         (setq G (/ G 100.0))
+         (setq A (/ (- G2 G1) (- X3 X1) 2.0))
+         (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+         (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
+         (setq X (+ X1 (* (/ (- G G1) (- G2 G1)) (- X3 X1))))
+         (setq Y (+ (* A X X) (* B X) C))
+         (setq L (getdist (strcat "\nEnter length (" (rtos (abs (- X3 X1))) ") : ")))
+         (if (= nil L) (setq L (abs (- X3 X1))))
+         (setq P1 (list (- X (/ L 2.0))
+                        (* (- Y (* (/ L 2.0) G)) VEXAG)))
+         (setq P2 (list (+ X (/ L 2.0))
+                        (* (+ Y (* (/ L 2.0) G)) VEXAG)))
+         (command "._LINE" P1 P2 "")
+        )
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (command "._UCS" "P")
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 0/12/18
+;
+;     VCTAN returns the tangent from a point to a vertical curve
+;
+(defun C:VCTAN (/ A B C ENT ENTLIST G1 G2 P P1 P2 P3 PE RFL:PVILIST SA SB SC X X0A X0B X1 X2 X3 Y Y0A Y0B Y1 Y2 Y3 TMP)
+ (setq P (getvar "LASTPOINT"))
+ (setq X (nth 0 P))
+ (setq Y (nth 1 P))
+ (setq ENT (entsel "\nSelect vertical curve :"))
+ (setq PE (cadr ENT))
+ (setq ENT (car ENT))
+ (if (and (/= nil ENT) (/= nil P))
+  (progn
+   (setq P1 nil P2 nil P3 nil)
+   (setq ENTLIST (entget ENT))
+   (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P2 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P2)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (setq P3 (cdr (assoc 10 ENTLIST)))
+       (if (/= nil P3)
+        (progn
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+         (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+          (setq P2 P3)
+          (setq P3 (cdr (assoc 10 ENTLIST)))
+          (setq ENT (entnext ENT))
+          (setq ENTLIST (entget ENT))
+         )
+        )
+       )
+      )
+     )
+    )
+   )
+   (if (= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq RFL:PVILIST nil)
+     (RFL:RPROFC3D ENT)
+     (if (/= RFL:PVILIST nil)
+      (progn
+       (setq C 0)
+       (while (< C (length RFL:PVILIST))
+        
+        
+        (setq C (1+ C))
+       )
+      )
+     )
+    )
+   )
+   (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+    (progn
+     (setq X1 (nth 0 P1))
+     (setq Y1 (nth 1 P1))
+     (setq X2 (nth 0 P2))
+     (setq Y2 (nth 1 P2))
+     (setq X3 (nth 0 P3))
+     (setq Y3 (nth 1 P3))
+     (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+     (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+     (setq A (/ (- G2 G1) (- X3 X1) 2.0))
+     (setq B (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
+     (setq C (- Y1 (+ (* A X1 X1) (* B X1))))
+     (setq SA A)
+     (setq SB (* -2.0 A X))
+     (setq SC (- Y C (* B X)))
+     (setq X0A (/ (+ (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+     (setq Y0A (+ (* A X0A X0A) (* B X0A) C))
+     (setq X0B (/ (- (* -1.0 SB) (sqrt (- (* SB SB) (* 4.0 SA SC)))) (* 2.0 SA)))
+     (setq Y0B (+ (* A X0B X0B) (* B X0B) C))
+     (if (> X0A X0B)
+      (progn
+       (setq TMP X0A)
+       (setq X0A X0B)
+       (setq X0B TMP)
+       (setq TMP Y0A)
+       (setq Y0A Y0B)
+       (setq Y0B TMP)
+      )
+     )
+     (princ "\nPick side :")
+     (while (= (car (setq TMP (grread nil 1))) 5)
+     )
+     (if (= (car TMP) 3)
+      (if (< (nth 0 (car (cdr TMP))) X)
+       (list X0A Y0A)
+       (list X0B Y0B)
+      )
+      nil
+     )
+    )
+    nil
+   )
+  )
+ )
+)(defun C:VCURVE (/ A ACTIVEDOC ACTIVESPACE B C CMDECHO D ENT ENTLIST G G1 G2 P P1 P2 P3 P4 PP
+                   OSMODE TMP VEXAG X Y Z)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+
+ (vl-load-com)
  (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
  (setq ACTIVESPC
        (vlax-get-property ACTIVEDOC
@@ -22313,71 +21906,478 @@
         )
        )
  )
-
- (command "._UNDO" "M")
  
- (defun *error* (msg)
-  (if (>= (atof (getvar "ACADVER")) 18.2)
-   (command-s "._UCS" "P")
-   (command "._UCS" "P")
-  )
-  (setvar "CLAYER" CLAYER)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "DIMZIN" DIMZIN)
-  ;(setq *error* nil)
-  (princ msg)
- )
-
- (command "._UNDO" "M")
-
- (command "._UCS" "W")
-
- (if (/= "" RFL:LSPACELAYER)
+ (setq ENT (car (entsel "\nSelect first tangent :")))
+ (if (/= nil ENT)
   (progn
-   (if (= nil (tblsearch "LAYER" RFL:LSPACELAYER))
-    (command "._LAYER" "M" RFL:LSPACELAYER)
-    (setvar "CLAYER" RFL:LSPACELAYER)
+   (setq ENTLIST (entget ENT))
+   (if (= (cdr (assoc 0 ENTLIST)) "LINE")
+    (progn
+     (command "._LIST" ENT)
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq P2 (cdr (assoc 11 ENTLIST)))
+     (setq ENT (car (entsel "\nSelect second tangent :")))
+     (if (/= nil ENT)
+      (progn
+       (setq ENTLIST (entget ENT))
+       (if (= (cdr (assoc 0 ENTLIST)) "LINE")
+        (progn
+         (command ENT)
+         (setq P3 (cdr (assoc 10 ENTLIST)))
+         (setq P4 (cdr (assoc 11 ENTLIST)))
+         (setq P (inters P1 P2 P3 P4 nil))
+         (if (/= nil P)
+          (progn
+           (setq VEXAG (getreal (strcat "\nEnter vertical exageration <" (rtos (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)) "> :")))
+           (if (= VEXAG nil) (setq VEXAG (if RFL:PROFDEFLIST (cdr (assoc "VEXAG" RFL:PROFDEFLIST)) 10.0)))
+           (if (/= VEXAG nil)
+            (progn
+             (if (> VEXAG 0.0)
+              (progn
+               (if (> (distance P2 P) (distance P1 P))
+                (setq P1 P2)
+               )
+               (if (> (distance P3 P) (distance P4 P))
+                (setq P4 P3)
+               )
+               (setq K nil)
+               (setq L nil)
+               (setq PP nil)
+               (setq G1 (/ (- (nth 1 P) (nth 1 P1))
+                           (- (nth 0 P) (nth 0 P1))
+                           VEXAG
+                        )
+               )
+               (setq G2 (/ (- (nth 1 P4) (nth 1 P))
+                           (- (nth 0 P4) (nth 0 P))
+                           VEXAG
+                        )
+               )
+               (while (or (= K nil) (= L nil) (= PP nil))
+                (if (= L nil)
+                 (progn
+                  (setq L (getdist "\nEnter vertical curve 'L' (<return> for 'K') :"))
+                  (if (= L nil)
+                   (progn
+                    (setq L -1.0)
+                    (setq K nil)
+                    (setq PP -1.0)
+                   )
+                   (progn
+                    (setq K (abs (/ L (- G2 G1) 100.0)))
+                    (setq PP -1.0)
+                   )
+                  )
+                 )
+                 (progn
+                  (if (= K nil)
+                   (progn
+                    (setq K (getreal "\nEnter vertical curve 'K' (<return> for 'P') :"))
+                    (if (= K nil)
+                     (progn
+                      (setq L -1.0)
+                      (setq K -1.0)
+                      (setq PP nil)
+                     )
+                     (progn
+                      (setq L (abs (* K (- G2 G1) 100.0)))
+                      (setq REP (getreal (strcat "\nL = " (rtos L) ", enter new value or <return> to accept :")))
+                      (if (/= nil REP)
+                       (progn
+                        (setq L REP)
+                        (setq K (abs (/ L (- G2 G1) 100.0)))
+                       )
+                      )
+                      (setq PP -1.0)
+                     )
+                    )
+                   )
+                   (progn
+                    (setq PP (getpoint "\nEnter through point (<return> for 'L') :"))
+                    (if (= PP nil)
+                     (progn
+                      (setq L nil)
+                      (setq K -1.0)
+                      (setq PP -1.0)
+                     )
+                     (progn
+                      (setq D (- (nth 0 P) (nth 0 PP)))
+                      (setq G (- G2 G1))
+                      (setq Z (- (/ (nth 1 PP) VEXAG)
+                                 (- (/ (nth 1 P) VEXAG)
+                                    (* G1 D)
+                                 )
+                              )
+                      )
+                      (setq A 0.25)
+                      (setq B (* -1.0
+                                 (+ D
+                                    (/ (* 2.0 Z)
+                                       G
+                                    )
+                                 )
+                              )
+                      )
+                      (setq C (* D D))
+                      (setq TMP (- (* B B) (* 4.0 A C)))
+                      (if (< TMP 0.0)
+                       (progn
+                        (princ "\n*** No solution ***")
+                        (setq L -1.0)
+                        (setq K -1.0)
+                        (setq PP nil)
+                       )
+                       (progn
+                        (setq L (/ (- (sqrt TMP) B) (* 2.0 A)))
+                        (if (< L 0.0)
+                         (progn
+                          (princ "\n*** No solution ***")
+                          (setq L -1.0)
+                          (setq K -1.0)
+                          (setq PP nil)
+                         )
+                         (progn
+                          (setq REP (getreal (strcat "\nL = " (rtos L) ", enter new value or <return> to accept :")))
+                          (if (/= nil REP)
+                           (progn
+                            (setq L REP)
+                           )
+                          )
+                          (setq K (abs (/ L (- G2 G1) 100.0)))
+                         )
+                        )
+                       )
+                      )
+                     )
+                    )
+                   )
+                  )
+                 )
+                )
+               )
+               (command)
+               (setvar "OSMODE" 0)
+               (setvar "ATTREQ" 0)
+               (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
+               (vla-insertblock ACTIVESPC
+                                (vlax-3D-point P)
+                                "PVI2"
+                                25.4
+                                25.4
+                                25.4
+                                0.0
+               )
+               (setq ENT (entlast))
+               (setq ENTLIST (entget ENT))
+               (if (= (cdr (assoc 66 ENTLIST)) 1)
+                (progn
+                 (setq ENT (entnext ENT))
+                 (setq ENTLIST (entget ENT))
+                 (while (/= (cdr (assoc 0 ENTLIST)) "SEQEND")
+                  (if (= (cdr (assoc 2 ENTLIST)) "LENGTH")
+                   (progn
+                    (setq ENTLIST (subst (cons 1 (rtos L 2 8)) (assoc 1 ENTLIST) ENTLIST))
+                    (entmod ENTLIST)
+                    (entupd ENT)
+                   )
+                  )
+                  (if (= (cdr (assoc 2 ENTLIST)) "K")
+                   (progn
+                    (setq ENTLIST (subst (cons 1 (rtos K 2 8)) (assoc 1 ENTLIST) ENTLIST))
+                    (entmod ENTLIST)
+                    (entupd ENT)
+                   )
+                  )
+                  (setq ENT (entnext ENT))
+                  (setq ENTLIST (entget ENT))
+                 )
+                )
+               )
+               (setvar "ATTREQ" 1)
+               (setq P2 (list (- (nth 0 P) (/ L 2.0))
+                              (- (nth 1 P) (* (/ L 2.0) G1 VEXAG))
+                        )
+               )
+               (setq P3 (list (+ (nth 0 P) (/ L 2.0))
+                              (+ (nth 1 P) (* (/ L 2.0) G2 VEXAG))
+                        )
+               )
+               (RFL:DRAWPARABOLICVCURVE P2 P P3)
+               (setvar "OSMODE" OSMODE)
+              )
+              (princ "\n**** NOT VALID ****")
+             )
+            )
+           )
+          )
+          (princ "\n**** NO INTERSECTION FOUND ****")
+         )
+        )
+        (princ "\n**** NOT A LINE ****")
+       )
+      )
+     )
+    )
+    (princ "\n**** NOT A LINE ****")
    )
   )
  )
-
- (setq VT (getvar "VIEWTWIST"))
- (if (> VT pi) (setq VT (- VT (* 2.0 pi))))
- (setq P1 (getpoint "\nFirst point : "))
- (setq P1 (list (car P1) (cadr P1)))
- (setq P2 (getpoint P1 "\nSecond point : "))
- (setq P2 (list (car P2) (cadr P2)))
- (setq P (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
- (if (and (> (angle P P2) (- 0.0 VT)) (< (angle P P2) (- pi VT)))
-  (setq ANG (- (angle P P2) (/ pi 2)))
-  (setq ANG (+ (angle P P2) (/ pi 2)))
+)
+;
+;
+;   Program written by Robert Livingston, 99/12/03
+;
+;   C:VPL labels a selected point's station and elevation
+;
+(defun C:VPL (/ ANGBASE ANGDIR CMDECHO ENT ENTLIST OFFSET P1 P2 P3 SIGN STA STR STR2 STR3 STR4 *error* TMP Z)
+ (defun *error* (msg)
+  (terpri)
+  ;(setq *error* nil)
  )
- (setq TEXTSTRING (strcat (rtos (distance P1 P2) 2 RFL:LSPACEPREC) RFL:LSPACESUFFIX))
- (if (setq TEXTOBJ (vla-addtext ACTIVESPC
-                                TEXTSTRING
-                                (vlax-3D-point P)
-                                RFL:LSPACETHEIGHT
-                   )
-     )
-  (progn
-   (vla-put-Alignment textObj acAlignmentMiddle)
-   (vla-put-Rotation textObj ANG)
-   (vla-put-TextAlignmentPoint textObj (vlax-3D-point P))
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun SIGN (X)
+  (if (< X 0)
+   (eval -1)
+   (eval 1)
   )
  )
 
- (command "._UCS" "P")
- (setvar "CLAYER" CLAYER)
+ (if (= RFL:ELEVATION nil)
+  (progn
+   (princ "\n*****   Alignment utilities not loaded   *****")
+  )
+  (progn
+   (if (= RFL:PROFDEFLIST nil) (RFL:PROFDEF))
+   (setq P1 (getpoint "\nEnter point :"))
+   (setq P2 (getpoint P1 "Second point for leader :"))
+   (setq TMP (RFL:VPP P1))
+   (setq STA (car TMP))
+   (setq Z (cadr TMP))
+   (setq STR (strcat "Sta.: " (RFL:STATXT STA)))
+   (setq STR2 (strcat "Elev.: " (rtos Z)))
+   (setq TMP (RFL:ELEVATION STA))
+   (if (/= TMP nil)
+    (setq STR3 (strcat "Ctrl.Elev.: " (rtos TMP)))
+    (setq STR3 nil)
+   )
+   (setq TMP (RFL:SLOPE STA))
+   (if (/= TMP nil)
+    (setq STR4 (strcat "Ctrl.Grade: " (rtos (* 100.0 TMP)) "%"))
+    (setq STR4 nil)
+   )
+
+   (command "LEADER" "_NON" P1 "_NON" P2 "" STR)
+   (if (/= nil STR2) (command  STR2))
+   (if (/= nil STR3) (command  STR3))
+   (if (/= nil STR4) (command  STR4))
+   (command "")
+  )
+ )
+
  (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
- (setvar "DIMZIN" DIMZIN)
 )
-(princ "\n*****  Use LSPACESETUP to change defaults *****\n");
+;
+;
+;   Program written by Robert Livingston, 98/06/11
+;
+;   WALIGN writes a horizontal alignment to file
+;
+;
+(defun C:WALIGN (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= RFL:ALIGNLIST nil)
+  (princ "\n*** NO ALIGNMENT EXISTS - USE RALIGN OR GALIGN ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Horizontal Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "hor" 1))
+   (RFL:WALIGN OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WALIGNB writes a horizontal alignment to a RFLALIGN Block
+;
+;
+(defun C:WALIGNB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:ALIGNLIST)
+   (RFL:RABKILL BLKENT "HOR")
+   (RFL:WALIGNB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:WPROF writes a vertical alignment to file
+;
+;
+(defun C:WPROF (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= RFL:PVILIST nil)
+  (princ "\n*** NO VERTICAL EXISTS - USE RPROF OR GPROF ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 1))
+   (RFL:WPROF OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WPROFB writes a vertical alinment to a RFLALIGN Block
+;
+;
+(defun C:WPROFB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:PVILIST)
+   (RFL:RABKILL BLKENT "VRT")
+   (RFL:WPROFB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:WPROFOG writes a vertical alignment to file
+;
+;
+(defun C:WPROFOG (/ C CMDECHO OUTFILE OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= RFL:OGLIST nil)
+  (princ "\n*** NO OG EXISTS - USE GPROFOG ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Vertical OG File" "" "vrt" 1))
+   (RFL:WPROFOG OUTFILENAME)
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WPROFOGB writes a OG vertical alinment to a RFLALIGN Block
+;
+;
+(defun C:WPROFOGB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:OGLIST)
+   (RFL:RABKILL BLKENT "OG")
+   (RFL:WPROFOGB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   WSUPER writes the superelevation to file
+;
+;
+(defun C:WSUPER (/ CMDECHO OUTFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (if (= RFL:SUPERLIST nil)
+  (princ "\n*** NO SUPERELEVATION EXISTS - USE RSUPER OR GSUPER ***\n")
+  (progn
+   (setq OUTFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 1))
+   (RFL:WSUPER OUTFILENAME)
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 2008/11/04
+;
+;   WSUPERB writes the superelevation to a RFLALIGN Block
+;
+;
+(defun C:WSUPERB (/ CMDECHO BLKENT BLKENTLIST ENT ENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (if (= nil RFL:SUPERLIST)
+   (RFL:RABKILL BLKENT "E")
+   (RFL:WSUPERB BLKENT)
+  )
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 2018-04-18
+;
+;     C:XYP is a loader for RFL:XYP
+;
+;
+(defun C:XYP ()
+ (RFL:XYP)
+)
+;
 ;
 ;     Program written by Robert Livingston, 2017-09-18
 ;
@@ -23104,6 +23104,194 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (setvar "OSMODE" OSMODE)
  T
+);
+;
+;     Program written by Robert Livingston, 2018-03-12
+;
+;     C:QSADD adds a surface to a selected cross section
+;
+;
+(defun C:QSADD (/ *error* ANGBASE ANGDIR C CMDECHO ENT ENTLIST ENTSET GRIDLIST OBSURFACE ORTHOMODE OSMODE P P1 P2 STA)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ 
+ (defun *error* (msg)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ORTHOMODE" ORTHOMODE)
+  (print msg)
+ )
+ 
+ (if RFL:ALIGNLIST
+  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
+   (progn
+    (setq C 0)
+    (setq ENTSET (ssget '((0 . "INSERT"))))
+    (while (< C (sslength ENTSET))
+     (setq ENT (ssname ENTSET C)
+           C (1+ C)
+     )
+     (if (setq GRIDLIST (RFL:GETGRID ENT))
+      (progn
+       (setq STA (atof (vl-string-subst "" "+" (vl-string-left-trim "Sta: " (cdr (assoc "TITLE" GRIDLIST))))))
+       (if (and (>= STA (caar RFL:ALIGNLIST))
+                (<= STA (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
+           )
+        (progn
+         (setq P1 (RFL:XY (list STA (cdr (assoc "BX" GRIDLIST)))))
+         (setq P2 (RFL:XY (list STA (+ (cdr (assoc "BX" GRIDLIST)) (cdr (assoc "W" GRIDLIST))))))
+         (if (and P1 P2)
+          (progn
+           (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))
+           (setq OSLIST nil)
+           (foreach P PLIST
+            (setq OSLIST (append OSLIST (list (list (+ (distance (list (car P) (cadr P)) P1) (cdr (assoc "BX" GRIDLIST))) (caddr P)))))
+           )
+           (if OSLIST
+            (progn
+             (command "._PLINE")
+             (foreach P OSLIST
+              (progn
+               (command (list (+ (- (car (cdr (assoc "BP" GRIDLIST))) (cdr (assoc "BX" GRIDLIST))) (car P))
+                              (+ (cadr (cdr (assoc "BP" GRIDLIST))) (* (cdr (assoc "VEXAG" GRIDLIST)) (- (cadr P) (cdr (assoc "BY" GRIDLIST)))))
+                        )
+               )
+              )
+             )
+             (command "")
+            )
+           )
+          )
+         )
+        )
+        (princ "\n!!! STATION NOT WITHIN ALIGNMENT !!!")
+       )
+      )
+     )
+    )
+   )
+  )
+  (princ "\n!!! No Alignment Defined !!!")
+ )
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ORTHOMODE" ORTHOMODE)
+ T
+);
+;
+;     Program written by Robert Livingston, 2016-09-22
+;
+;     C:QSDAYLIGHT is a utility for extracting and drawing daylight polylines on the plan
+;
+;
+(defun C:QSDAYLIGHT (/ C C1 C2 DLIST1 DLIST2 ENT ENT1 ENT2 ENTLIST ENTSET NODE OSLIST ORTHOMODE OSMODE P PBASE PLIST1 PLIST2 REP STA TMP)
+;(defun C:QSDAYLIGHT ()
+ (setq OSMODE (getvar "OSMODE"))
+ (setq ORTHOMODE (getvar "ORTHOMODE"))
+ (setq DLIST1 nil DLIST2 nil)
+ (princ (strcat "\nMin alignment = " (RFL:STATXT (caar RFL:ALIGNLIST)) ", min profile = " (RFL:STATXT (caar RFL:PVILIST))))
+ (C:QSECTION)
+ (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
+ (while STA
+  (setq OSLIST nil PLIST1 nil PLIST2 nil TMP T)
+  (setq PBASE (cadr (assoc "PBASE" RFL:QSECTIONLIST)))
+  (setq ENTSET (cadr (assoc "ENTITIES" RFL:QSECTIONLIST)))
+  (foreach NODE ENTSET
+   (if (or (= "LWPOLYLINE" (cdr (assoc 0 (setq ENTLIST (entget (setq ENT (handent NODE)))))))
+           (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+       )
+    (if (= nil PLIST1)
+     (setq PLIST1 (RFL:GETPLIST ENT))
+     (if (= nil PLIST2)
+      (setq PLIST2 (RFL:GETPLIST ENT))
+      (setq TMP nil)
+     )
+    )
+   )
+  )
+  (if (and TMP PLIST1 PLIST2)
+   (progn
+    (setq C1 1)
+    (while (< C1 (length PLIST1))
+     (setq C2 1)
+     (while (< C2 (length PLIST2))
+      (command "._DELAY" 0)
+      (if (setq P (inters (nth (1- C1) PLIST1) (nth C1 PLIST1)
+                          (nth (1- C2) PLIST2) (nth C2 PLIST2)
+                  )
+          )
+       (setq OSLIST (append OSLIST (list (- (car P) (car PBASE)))))
+      )
+      (setq C2 (1+ C2))
+     )
+     (setq C1 (1+ C1))
+    )
+    (if OSLIST
+     (progn
+      (setq OSLIST (vl-sort OSLIST '<))
+      (if (< (car OSLIST) 0.0)
+       (if (setq P (RFL:XY (list STA (car OSLIST))))
+        (progn
+         (princ (strcat "\n  Left Offset = " (rtos (car OSLIST))))
+         (setq DLIST1 (append DLIST1 (list P)))
+        )
+       )
+      )
+      (if (> (last OSLIST) 0.0)
+       (if (setq P (RFL:XY (list STA (last OSLIST))))
+        (progn
+         (princ (strcat "\n  Right Offset = " (rtos (last OSLIST))))
+         (setq DLIST2 (append DLIST2 (list P)))
+        )
+       )
+      )
+      (initget "Yes No")
+      (if (= "No" (getkword "\nAdd another (<Yes>/No) ? "))
+       (setq STA nil)
+       (progn
+        (C:QS+)
+        (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
+       )
+      )
+     )
+    )
+   )
+   (setq STA nil)
+  )
+ )
+ (setvar "ORTHOMODE" 0)
+ (setvar "OSMODE" 0)
+ (if (> (length DLIST1) 1)
+  (progn
+   (command "._PLINE")
+   (foreach P DLIST1
+    (command P)
+   )
+   (command "")
+  )
+ )
+ (if (> (length DLIST2) 1)
+  (progn
+   (command "._PLINE")
+   (foreach P DLIST2
+    (command P)
+   )
+   (command "")
+  )
+ )
+ (setvar "ORTHOMODE" ORTHOMODE)
+ (setvar "OSMODE" OSMODE)
+ nil
 );
 ;
 ;     Program written by Robert Livingston, 2015-01-29
@@ -24154,194 +24342,6 @@
  (setvar "OSMODE" OSMODE)
  (setvar "ORTHOMODE" ORTHOMODE)
  (eval nil)
-);
-;
-;     Program written by Robert Livingston, 2016-09-22
-;
-;     C:QSDAYLIGHT is a utility for extracting and drawing daylight polylines on the plan
-;
-;
-(defun C:QSDAYLIGHT (/ C C1 C2 DLIST1 DLIST2 ENT ENT1 ENT2 ENTLIST ENTSET NODE OSLIST ORTHOMODE OSMODE P PBASE PLIST1 PLIST2 REP STA TMP)
-;(defun C:QSDAYLIGHT ()
- (setq OSMODE (getvar "OSMODE"))
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setq DLIST1 nil DLIST2 nil)
- (princ (strcat "\nMin alignment = " (RFL:STATXT (caar RFL:ALIGNLIST)) ", min profile = " (RFL:STATXT (caar RFL:PVILIST))))
- (C:QSECTION)
- (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
- (while STA
-  (setq OSLIST nil PLIST1 nil PLIST2 nil TMP T)
-  (setq PBASE (cadr (assoc "PBASE" RFL:QSECTIONLIST)))
-  (setq ENTSET (cadr (assoc "ENTITIES" RFL:QSECTIONLIST)))
-  (foreach NODE ENTSET
-   (if (or (= "LWPOLYLINE" (cdr (assoc 0 (setq ENTLIST (entget (setq ENT (handent NODE)))))))
-           (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-       )
-    (if (= nil PLIST1)
-     (setq PLIST1 (RFL:GETPLIST ENT))
-     (if (= nil PLIST2)
-      (setq PLIST2 (RFL:GETPLIST ENT))
-      (setq TMP nil)
-     )
-    )
-   )
-  )
-  (if (and TMP PLIST1 PLIST2)
-   (progn
-    (setq C1 1)
-    (while (< C1 (length PLIST1))
-     (setq C2 1)
-     (while (< C2 (length PLIST2))
-      (command "._DELAY" 0)
-      (if (setq P (inters (nth (1- C1) PLIST1) (nth C1 PLIST1)
-                          (nth (1- C2) PLIST2) (nth C2 PLIST2)
-                  )
-          )
-       (setq OSLIST (append OSLIST (list (- (car P) (car PBASE)))))
-      )
-      (setq C2 (1+ C2))
-     )
-     (setq C1 (1+ C1))
-    )
-    (if OSLIST
-     (progn
-      (setq OSLIST (vl-sort OSLIST '<))
-      (if (< (car OSLIST) 0.0)
-       (if (setq P (RFL:XY (list STA (car OSLIST))))
-        (progn
-         (princ (strcat "\n  Left Offset = " (rtos (car OSLIST))))
-         (setq DLIST1 (append DLIST1 (list P)))
-        )
-       )
-      )
-      (if (> (last OSLIST) 0.0)
-       (if (setq P (RFL:XY (list STA (last OSLIST))))
-        (progn
-         (princ (strcat "\n  Right Offset = " (rtos (last OSLIST))))
-         (setq DLIST2 (append DLIST2 (list P)))
-        )
-       )
-      )
-      (initget "Yes No")
-      (if (= "No" (getkword "\nAdd another (<Yes>/No) ? "))
-       (setq STA nil)
-       (progn
-        (C:QS+)
-        (setq STA (cdr (assoc "STA" RFL:QSECTIONLIST)))
-       )
-      )
-     )
-    )
-   )
-   (setq STA nil)
-  )
- )
- (setvar "ORTHOMODE" 0)
- (setvar "OSMODE" 0)
- (if (> (length DLIST1) 1)
-  (progn
-   (command "._PLINE")
-   (foreach P DLIST1
-    (command P)
-   )
-   (command "")
-  )
- )
- (if (> (length DLIST2) 1)
-  (progn
-   (command "._PLINE")
-   (foreach P DLIST2
-    (command P)
-   )
-   (command "")
-  )
- )
- (setvar "ORTHOMODE" ORTHOMODE)
- (setvar "OSMODE" OSMODE)
- nil
-);
-;
-;     Program written by Robert Livingston, 2018-03-12
-;
-;     C:QSADD adds a surface to a selected cross section
-;
-;
-(defun C:QSADD (/ *error* ANGBASE ANGDIR C CMDECHO ENT ENTLIST ENTSET GRIDLIST OBSURFACE ORTHOMODE OSMODE P P1 P2 STA)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- 
- (defun *error* (msg)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "OSMODE" OSMODE)
-  (setvar "ORTHOMODE" ORTHOMODE)
-  (print msg)
- )
- 
- (if RFL:ALIGNLIST
-  (if (setq OBSURFACE (RFL:GETC3DSURFACE))
-   (progn
-    (setq C 0)
-    (setq ENTSET (ssget '((0 . "INSERT"))))
-    (while (< C (sslength ENTSET))
-     (setq ENT (ssname ENTSET C)
-           C (1+ C)
-     )
-     (if (setq GRIDLIST (RFL:GETGRID ENT))
-      (progn
-       (setq STA (atof (vl-string-subst "" "+" (vl-string-left-trim "Sta: " (cdr (assoc "TITLE" GRIDLIST))))))
-       (if (and (>= STA (caar RFL:ALIGNLIST))
-                (<= STA (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)))
-           )
-        (progn
-         (setq P1 (RFL:XY (list STA (cdr (assoc "BX" GRIDLIST)))))
-         (setq P2 (RFL:XY (list STA (+ (cdr (assoc "BX" GRIDLIST)) (cdr (assoc "W" GRIDLIST))))))
-         (if (and P1 P2)
-          (progn
-           (setq PLIST (RFL:GETSURFACELINE P1 P2 OBSURFACE))
-           (setq OSLIST nil)
-           (foreach P PLIST
-            (setq OSLIST (append OSLIST (list (list (+ (distance (list (car P) (cadr P)) P1) (cdr (assoc "BX" GRIDLIST))) (caddr P)))))
-           )
-           (if OSLIST
-            (progn
-             (command "._PLINE")
-             (foreach P OSLIST
-              (progn
-               (command (list (+ (- (car (cdr (assoc "BP" GRIDLIST))) (cdr (assoc "BX" GRIDLIST))) (car P))
-                              (+ (cadr (cdr (assoc "BP" GRIDLIST))) (* (cdr (assoc "VEXAG" GRIDLIST)) (- (cadr P) (cdr (assoc "BY" GRIDLIST)))))
-                        )
-               )
-              )
-             )
-             (command "")
-            )
-           )
-          )
-         )
-        )
-        (princ "\n!!! STATION NOT WITHIN ALIGNMENT !!!")
-       )
-      )
-     )
-    )
-   )
-  )
-  (princ "\n!!! No Alignment Defined !!!")
- )
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- T
 );
 ;
 ;     Program written by Robert Livingston, 2015-10-02
