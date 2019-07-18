@@ -31,8 +31,8 @@
     (princ "\n*****  Entity not a polyline!  *****")
     (progn
      (if (and (/= (cdr (assoc 0 ENTLIST1)) "LINE")
-	      (= (float (/ (cdr (assoc 70 ENTLIST1)) 2 2 2 2))
-                 (/ (cdr (assoc 70 ENTLIST1)) 16.0)))
+	          (= 0 (logand (cdr (assoc 70 ENTLIST1)) 8))
+         )
       (princ "\n*****  Entity not a 3d polyline or line!  *****")
       (progn
        (setq ENT2 (car (entsel "\nSelect second 3D polyline : ")))
@@ -45,8 +45,8 @@
           (princ "\n*****  Entity not a polyline!  *****")
           (progn
            (if (and (/= (cdr (assoc 0 ENTLIST2)) "LINE")
-		    (= (float (/ (cdr (assoc 70 ENTLIST2)) 2 2 2 2))
-                       (/ (cdr (assoc 70 ENTLIST2)) 16.0)))
+		            (= 0 (logand (cdr (assoc 70 ENTLIST2)) 8))
+               )
             (princ "\n*****  Entity not a 3d polyline or line!  *****")
             (progn
 	     (if (= (cdr (assoc 0 ENTLIST1)) "LINE")

@@ -44,8 +44,8 @@
   )
  )
  (if PLISTM
-  (if (or (= (float (/ (cdr (assoc 70 ENTLIST1)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST1)) 16.0))
-          (= (float (/ (cdr (assoc 70 ENTLIST2)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST2)) 16.0))
+  (if (or (= 0 (logand (cdr (assoc 70 ENTLIST1)) 8))
+          (= 0 (logand (cdr (assoc 70 ENTLIST2)) 8))
       )
    (princ "\nSelected rail polylines not 3D!\n")
    (if (setq ENT (car (entsel "\nSelect RAB alignment block : ")))

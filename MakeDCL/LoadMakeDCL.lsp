@@ -552,7 +552,7 @@
                         "                                     : popup_list {\n" 
                         "                                                    key = \"STANDARD\";\n" 
                         "                                                    label = \"\";\n" 
-                        "                                                    list = \"Last\n440 - 50 - 15 (calc) - 50\n50 - 15 (calc) - 50 - 440\n36 - 12 (calc) - 36\n50 - 15 (calc) - 50\n55 - 18 (calc) - 55\";\n" 
+                        "                                                    list = \"Last\\n440 - 50 - 15 (calc) - 50\\n50 - 15 (calc) - 50 - 440\\n36 - 12 (calc) - 36\\n50 - 15 (calc) - 50\\n55 - 18 (calc) - 55\";\n" 
                         "                                                    value = \"0\";\n" 
                         "                                                    width = 50;\n" 
                         "                                                  }\n" 

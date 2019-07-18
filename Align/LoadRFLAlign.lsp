@@ -12,8 +12,7 @@
    (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
     (princ "\n*****  Not a polyline!  *****")
     (progn
-     (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-            (/ (cdr (assoc 70 ENTLIST)) 16.0))
+     (if (= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
       (princ "\n*****  Not a 3d polyline!  *****")
       (progn
        (setq ENT (entnext ENT))
@@ -8576,8 +8575,7 @@
    (while (/= nil (setq ENT (car (entsel "\nSelect Polyline : "))))
     (setq ENTLIST (entget ENT))
     (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
-     (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-                    (/ (cdr (assoc 70 ENTLIST)) 16.0))
+     (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
       (progn
        (setq ALPL nil)
        (setq PVIPL nil)
@@ -12107,8 +12105,8 @@
    (setq ENTLIST1 (entget ENT1)
          ENTLIST2 (entget ENT2)
    )
-   (if (or (= (float (/ (cdr (assoc 70 ENTLIST1)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST1)) 16.0))
-           (= (float (/ (cdr (assoc 70 ENTLIST2)) 2 2 2 2)) (/ (cdr (assoc 70 ENTLIST2)) 16.0))
+   (if (or (= 0 (logand (cdr (assoc 70 ENTLIST1)) 8))
+           (= 0 (logand (cdr (assoc 70 ENTLIST2)) 8))
        )
     (command "._PLINE")
     (command "._3DPOLY")
@@ -17267,8 +17265,7 @@
    (while (/= nil (setq ENT (car (entsel "\nSelect Polyline : "))))
     (setq ENTLIST (entget ENT))
     (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
-     (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-                    (/ (cdr (assoc 70 ENTLIST)) 16.0))
+     (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
       (progn
        (setq ALPL nil)
        (setq PVIPL nil)
@@ -17539,8 +17536,7 @@
      (setq ENTLIST (entget ENT))
      (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
       (progn
-       (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-              (/ (cdr (assoc 70 ENTLIST)) 16.0))
+       (if (= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
         (princ "\n***** NOT A 3D POLYLINE *****")
         (progn
 
@@ -17889,8 +17885,7 @@
     (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
      (princ "\n***** Not a polyline! *****\n")
      (progn
-      (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-             (/ (cdr (assoc 70 ENTLIST)) 16.0))
+      (if (= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
        (princ "\n***** Not a 3D polyline! *****\n")
        (progn
         (command "._PLINE")
@@ -22379,6 +22374,129 @@
 )
 (princ "\n*****  Use LSPACESETUP to change defaults *****\n");
 ;
+;   Program written by Robert Livingston, 99/10/21
+;
+;   CPI returns the PI point for a selected curve
+;
+;
+(defun C:CPI (/ ANG ANG1 ANG2 GSPIRALPI D ENT ENTLIST P PC R THETA)
+ (defun GSPIRALPI (ENT / ENTLIST ENTLIST2 SPI)
+  (setq ENTLIST2 (cdr (assoc -3 (entget ENT '("*")))))
+  (setq ENTLIST (cdr (assoc "DCA_FIGURE_XENT" ENTLIST2)))
+  (if (or (= ENTLIST nil) (= (assoc 1011 ENTLIST) nil))
+   (progn
+    (setq SPIRALLIST nil)
+   )
+   (progn
+    (while (/= (car (car ENTLIST)) 1011)
+     (setq ENTLIST (cdr ENTLIST))
+    )
+    (setq ENTLIST (cdr ENTLIST))
+    (while (/= (car (car ENTLIST)) 1011)
+     (setq ENTLIST (cdr ENTLIST))
+    )
+    (setq SPI (cdr (car ENTLIST)))
+   )
+  )
+  (setq SPI SPI)
+ )
+ (setq P nil)
+ (if (/= nil (setq ENT (car (entsel "\nSelect arc or LDD spiral : "))))
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (/= (cdr (assoc 0 ENTLIST)) "ARC")
+    (progn
+     (setq P (GSPIRALPI ENT))
+     (if (/= nil P)
+      (command "_NON" P)
+     )
+    )
+    (progn
+     (setq PC (cdr (assoc 10 ENTLIST)))
+     (setq ANG1 (cdr (assoc 50 ENTLIST)))
+     (setq ANG2 (cdr (assoc 51 ENTLIST)))
+     (setq ANG (/ (+ ANG1 ANG2) 2.0))
+     (setq THETA (- ANG2 ANG1))
+     (if (or (= THETA pi) (= THETA (* 2.0 pi)))
+      (princ "\n*** No PI exists ***")
+      (progn
+       (setq R (cdr (assoc 40 ENTLIST)))
+       (setq D (/ R (cos (/ THETA 2.0))))
+       (setq P (list (+ (nth 0 PC) (* D (cos ANG)))
+                     (+ (nth 1 PC) (* D (sin ANG)))))
+      )
+     )
+    )
+   )
+  )
+ )
+(command "_NON" P));
+;
+;     Program written by Robert LIvingston, 02/02/28
+;
+;     ROTATE2ALIGN changes the rotation of selected block entities to match the current alignment
+;
+;
+(defun C:ROTATE2ALIGN (/ *error* ANGBASE ANGDIR ANG C CMDECHO DIRECTION ENT ENTLIST ENTSET OSMODE P STA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (if (>= (atof (getvar "ACADVER")) 18.2)
+   (command-s "._UCS" "P")
+   (command "._UCS" "P")
+  )
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "OSMODE" OSMODE)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (princ msg)
+  ;(setq *error* nil)
+ )
+
+ (command "._UNDO" "M")
+ (command "._UCS" "W")
+
+ (initget "Forward Reverse")
+ (setq DIRECTION (getkword "\n<Forward> or Reverse ? ")) 
+ (if (= DIRECTION nil) (setq DIRECTION "Forward"))
+ (setq ENTSET (ssget))
+ (setq C 0)
+ (while (< C (sslength ENTSET))
+  (setq ENT (ssname ENTSET C))
+  (setq ENTLIST (entget ENT))
+  (if (= (cdr (assoc 0 ENTLIST)) "INSERT")
+   (progn
+    (setq P (cdr (assoc 10 ENTLIST)))
+    (setq STA (RFL:STAOFF P))
+    (if (/= STA nil)
+     (progn
+      (setq ANG (angle (RFL:XY (list (nth 0 STA) (nth 1 STA))) (RFL:XY (list (nth 0 STA) (+ (nth 1 STA) 100.0)))))
+      (if (= DIRECTION "Reverse")
+       (setq ANG (- ANG (/ pi 2.0)))
+       (setq ANG (+ ANG (/ pi 2.0)))
+      )
+      (command "._ROTATE" ENT "" P (* (/ 180.0 pi) (- ANG (cdr (assoc 50 ENTLIST)))))
+     )
+    )
+   )
+  )
+  (setq C (+ C 1))
+ )
+
+ (command "._UCS" "P")
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+);
+;
 ;     Program written by Robert Livingston, 2017-09-18
 ;
 ;     ROUNDABOUT is a collection of utilities for grading roundabouts
@@ -25015,8 +25133,7 @@
    (setq ENTLIST (entget ENT))
    (setq 3DPFLAG nil)
    (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-            (/ (cdr (assoc 70 ENTLIST)) 16.0))
+    (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
      (progn
       (initget "Yes No")
       (if (= "Yes" (getkword "\nA 3D POLYLINE has been selected would you like to use it for horizontal and vertical control (Y/N) : "))

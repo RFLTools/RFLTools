@@ -48,8 +48,7 @@
        )
        ((= (cdr (assoc 0 ENTLIST)) "POLYLINE")
         (progn
-         (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-                 (/ (cdr (assoc 70 ENTLIST)) 16.0))
+         (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
           (progn
            (setq ENT2 (entnext ENT))
            (setq ENTLIST (entget ENT2))

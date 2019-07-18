@@ -72,8 +72,7 @@
    (while (/= nil (setq ENT (car (entsel "\nSelect Polyline : "))))
     (setq ENTLIST (entget ENT))
     (if (= (cdr (assoc 0 ENTLIST)) "POLYLINE")
-     (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-                    (/ (cdr (assoc 70 ENTLIST)) 16.0))
+     (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
       (progn
        (setq ALPL nil)
        (setq PVIPL nil)

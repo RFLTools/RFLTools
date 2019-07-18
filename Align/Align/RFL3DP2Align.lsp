@@ -12,8 +12,7 @@
    (if (/= (cdr (assoc 0 ENTLIST)) "POLYLINE")
     (princ "\n*****  Not a polyline!  *****")
     (progn
-     (if (= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-            (/ (cdr (assoc 70 ENTLIST)) 16.0))
+     (if (= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
       (princ "\n*****  Not a 3d polyline!  *****")
       (progn
        (setq ENT (entnext ENT))

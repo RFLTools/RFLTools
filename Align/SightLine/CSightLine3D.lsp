@@ -326,8 +326,7 @@
    (setq ENTLIST (entget ENT))
    (setq 3DPFLAG nil)
    (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-    (if (/= (float (/ (cdr (assoc 70 ENTLIST)) 2 2 2 2))
-            (/ (cdr (assoc 70 ENTLIST)) 16.0))
+    (if (/= 0 (logand (cdr (assoc 70 ENTLIST)) 8))
      (progn
       (initget "Yes No")
       (if (= "Yes" (getkword "\nA 3D POLYLINE has been selected would you like to use it for horizontal and vertical control (Y/N) : "))

@@ -30,6 +30,8 @@ set QUOTE="
 set QUOTEREPSTR=\"
 set BACKQUOTE=\"
 set BACKQUOTEREPSTR=\\"
+set NEWLINE=\n
+set NEWLINEREPSTR=\\n
 echo.  ((= (strcase DCLNAME) (strcase "%~n1")) >> LoadMakeDCL.lsp
 echo.   (progn >> LoadMakeDCL.lsp
 echo.    (setq DCLLIST (list >> LoadMakeDCL.lsp
@@ -37,6 +39,7 @@ for /f "delims=" %%a in (./DCL/%1) do (
 set MYSTR=%%a
 set MYSTR=!MYSTR:%BACKQUOTE%=%BACKQUOTEREPSTR%!
 set MYSTR=!MYSTR:%QUOTE%=%QUOTEREPSTR%!
+set MYSTR=!MYSTR:%NEWLINE%=%NEWLINEREPSTR%!
 echo.                        !QUOTE!!MYSTR!\n!QUOTE! >> LoadMakeDCL.lsp
 )
 echo.                  ) >> LoadMakeDCL.lsp
