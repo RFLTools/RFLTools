@@ -11,7 +11,11 @@
  (setq ORTHOMODE (getvar "ORTHOMODE"))
  (setvar "ORTHOMODE" 0)
  (setq PLIST nil)
- (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
+; (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
+ (setq ENT (car (nentsel "\nSelect polyline to fit line : ")))
+ (if (= "VERTEX" (cdr (assoc 0 (entget ENT))))
+  (setq ENT (cdr (assoc 330 (entget ENT))))
+ )
  (if (/= (setq PLIST (RFL:GETPLIST ENT)) nil)
   (progn
    (setq P1 (getpoint "\nPick point near desired start vertex (<return> for entire polyline) : "))

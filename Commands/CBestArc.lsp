@@ -31,7 +31,11 @@
 
  (setq PLIST nil)
  (setq E nil)
- (setq ENT (car (entsel "\nSelect polyline : ")))
+ ;(setq ENT (car (entsel "\nSelect polyline : ")))
+ (setq ENT (car (nentsel "\nSelect polyline to fit arc : ")))
+ (if (= "VERTEX" (cdr (assoc 0 (entget ENT))))
+  (setq ENT (cdr (assoc 330 (entget ENT))))
+ )
  (if (/= (setq PLIST (RFL:GETPLIST2D ENT)) nil)
   (progn
    (setq P1 (getpoint "\nPick point near desired start vertex (<return> for entire polyline) : "))
