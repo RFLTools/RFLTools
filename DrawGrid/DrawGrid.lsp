@@ -443,7 +443,6 @@
               )
              )
        )
-       (entdel ENT)
        (RFL:DRAWGRID TITLE                                                       ; Title Text
                      TITLEHEIGHT                                                 ; Title Height
                      TITLEOFFSET                                                 ; Title OFFSET
@@ -468,6 +467,8 @@
                      MASTER                                                      ; Master Scale
                      DIRECTION                                                   ; Direction (1 = Left to Right, -1 = Right to Left)
        )
+       (command "._DRAWORDER" (entlast) "" "U" ENT "")
+       (entdel ENT)
       )
      )
     )
@@ -819,7 +820,7 @@
 )
 (defun RFL:DRAWGRID (TITLE TITLEHEIGHT TITLEOFFSET BP BX BY W H VEXAG THEIGHT TOFFSET HINC HINCFINE HINCTEXT VINC VINCFINE VINCTEXT LAY LAYFINE LAYTEXT TFLAG MASTER DIRECTION
                      /
-                     BPX BPY CFIX+ DIMZIN ENTLIST ENTLISTALL MOD NODE STA TMP TOL X X1 X2 Y Y1 Y2 Z
+                     BPX BPY CFIX+ DIMZIN ENT ENTLIST ENTLISTALL MOD NODE STA TMP TOL X X1 X2 Y Y1 Y2 Z
                     )
  (vl-load-com)
  (regapp "RFLTOOLS_XENT")
