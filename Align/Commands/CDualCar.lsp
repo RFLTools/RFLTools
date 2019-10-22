@@ -1127,7 +1127,7 @@
        )
        (setq STA STASTART)
        (if (= "1" (cdr (assoc "FROMTOEND" RFL:DUALCARLIST)))
-        (setq STAEND (min (+ (caar RFL:ALIGNLIST) (GETALIGNLENGTH))
+        (setq STAEND (min (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH))
 			  (car (last RFL:PVILIST))
 			  (car (last RFL:SUPERLIST))
 		     )
