@@ -89,7 +89,12 @@
   (progn
    (if (= nil (setq SWATH (getdist "\nEnter swath width (30.0) : "))) (setq SWATH 30.0))
    (if (= nil (setq DSTA (getdist "\nEnter delta station length (0.01) : "))) (setq DSTA 0.01))
-   (while (setq STA (getreal "\nEnter Station : "))
+;   (while (setq STA (getreal "\nEnter Station : "))
+   (while (= "" (setq STA (getstring "\nStation ('P' to pick point) : ")))
+    (if (= "P" (strcase (substr STA 1 1)))
+     (setq STA (car (RFL:STAOFF (getpoint "\nPick point for section : "))))
+     (setq STA (atof STA))
+    )
     (if (and (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
              (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
         )

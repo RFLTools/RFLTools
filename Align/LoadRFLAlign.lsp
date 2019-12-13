@@ -23599,7 +23599,7 @@
   (princ "\n!!! No Alignment Defined !!!")
   (progn
    (if (= nil RFL:QSECTIONLIST) (GETQSECTIONLIST))
-   (while (= "" (setq STA (getstring "\nStation (<return> to pick point, 'P' to pick point, 'M' multiple stations) : ")))
+   (while (= "" (setq STA (getstring "\nStation ('P' to pick point, 'M' multiple stations) : ")))
     (GETQSECTIONLIST)
    )
    (if (= "P" (strcase (substr STA 1 1)))
@@ -23941,6 +23941,9 @@
                        ((= "DSL" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 3))) ; DSL = Left depth super
                         (setq DY (+ (* DX -0.01 (if SLIST (car SLIST) (car SLISTDEFAULT))) (atof (substr (RFL:COLUMN NODE 3 ",") 4))))
                        )
+                       ((= "SP" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 2))) ; SP = Super P
+                        (setq DY (* DX -0.01 (atof (substr (RFL:COLUMN NODE 3 ",") 3))))
+                       )
                        ((= "S-L" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 3))) ; S-L = Left super * -1.0
                         (setq DY (* DX 0.01 (if SLIST (car SLIST) (car SLISTDEFAULT))))
                        )
@@ -24150,6 +24153,9 @@
                        )
                        ((= "DSL" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 3))) ; DSL = Left depth super
                         (setq DY (+ (* DX 0.01 (if SLIST (car SLIST) (car SLISTDEFAULT))) (atof (substr (RFL:COLUMN NODE 3 ",") 4))))
+                       )
+                       ((= "SP" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 2))) ; SP = Super P
+                        (setq DY (* DX 0.01 (atof (substr (RFL:COLUMN NODE 3 ",") 3))))
                        )
                        ((= "S-L" (strcase (substr (RFL:COLUMN NODE 3 ",") 1 3))) ; S-L = Left super * -1.0
                         (setq DY (* DX -0.01 (if SLIST (car SLIST) (car SLISTDEFAULT))))
@@ -26592,7 +26598,12 @@
   (progn
    (if (= nil (setq SWATH (getdist "\nEnter swath width (30.0) : "))) (setq SWATH 30.0))
    (if (= nil (setq DSTA (getdist "\nEnter delta station length (0.01) : "))) (setq DSTA 0.01))
-   (while (setq STA (getreal "\nEnter Station : "))
+;   (while (setq STA (getreal "\nEnter Station : "))
+   (while (= "" (setq STA (getstring "\nStation ('P' to pick point) : ")))
+    (if (= "P" (strcase (substr STA 1 1)))
+     (setq STA (car (RFL:STAOFF (getpoint "\nPick point for section : "))))
+     (setq STA (atof STA))
+    )
     (if (and (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
              (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
         )
