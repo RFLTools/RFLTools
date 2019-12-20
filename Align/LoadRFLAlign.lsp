@@ -26657,14 +26657,14 @@
          (progn
           (princ (strcat "\n" (itoa (length PLIST)) " points found..."))
           (setq PBASE (getpoint "\nBase point for section : "))
-          (setq ZBASE ZMIN)
+          (setq ZBASE (float (fix ZMIN)))
           (setq ZHEIGHT (- ZMAX ZMIN))
           (RFL:DRAWGRID (strcat "Sta: " (RFL:STATXT STA))                           ; Title Text
                         0.5                                                         ; Title Height
                         0.5                                                         ; Title OFFSET
                         (list (- (car PBASE) (/ SWATH 2.0)) (cadr PBASE))           ; Basepoint
                         (/ SWATH -2.0)                                              ; Base Station
-                        (float (fix ZBASE))                                         ; Base Elevation
+                        ZBASE                                                       ; Base Elevation
                         SWATH                                                       ; Grid Width
                         (float (+ (fix ZHEIGHT) 1))                                 ; Grid Height
                         1.0                                                         ; Vertical Exageration
@@ -26694,7 +26694,7 @@
           (foreach P PLIST
            (progn
             (setq ENTLIST (list (cons 0 "POINT")
-                                (list 10 (car P) (- (cadr P) ZMIN) 0.0)
+                                (list 10 (car P) (- (cadr P) ZBASE) 0.0)
                     )
             )
             (setq ENTLISTALL (append ENTLISTALL (list ENTLIST)))
