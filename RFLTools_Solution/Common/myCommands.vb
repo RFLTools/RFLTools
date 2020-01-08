@@ -848,6 +848,131 @@ Namespace RFLToolsApplication
         End Function
 
         ' ------------------------------------------------------------------------------------------------------
+        ' SQLite Commands below 2020-01-03
+
+        <LispFunction("RFL:CreateDataBase", "CreateDataBaseLocal")>
+        Public Function CreateDataBase(ByVal Args As ResultBuffer)
+            Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+            Dim ed As Editor = doc.Editor
+            If Args Is Nothing Then
+                ed.WriteMessage("Wrong number of arguments" & vbLf)
+                Return Nothing
+            Else
+                Dim RFLSQLite As New RFLSQLite
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                If InputArgs.Length = 1 Then
+                    If InputArgs(0).TypeCode = LispDataType.Text Then
+                        Dim FullPath As String = InputArgs(0).Value
+                        If RFLSQLite.CreateDataBase(FullPath) Then
+                            ed.WriteMessage("Database created: " & FullPath & vbLf)
+                            Return True
+                        Else
+                            ed.WriteMessage("Problem creating database or database already exists!" & vbLf)
+                            Return False
+                        End If
+                        ed.WriteMessage("Not a string" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:AddDataBasePoints", "AddDataBasePointsLocal")>
+        Public Function AddDataBasePoints(ByVal Args As ResultBuffer)
+            Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+            Dim ed As Editor = doc.Editor
+            If Args Is Nothing Then
+                ed.WriteMessage("Wrong number of arguments" & vbLf)
+                Return Nothing
+            Else
+                Dim RFLSQLite As New RFLSQLite
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                If InputArgs.Length = 3 Then
+                    If InputArgs(0).TypeCode = LispDataType.Text And
+                        InputArgs(1).TypeCode = LispDataType.Text And
+                        InputArgs(2).TypeCode = LispDataType.Int16 Then
+                        Dim DbFullPath As String = InputArgs(0).Value
+                        Dim PointsFullPath As String = InputArgs(1).Value
+                        Dim NoLines As Int16 = InputArgs(2).Value
+                        If RFLSQLite.AddDataBasePoints(DbFullPath, PointsFullPath, NoLines) Then
+                            ed.WriteMessage("Points added: " & DbFullPath & vbLf)
+                            Return True
+                        Else
+                            ed.WriteMessage("Problem Adding points!" & vbLf)
+                            Return False
+                        End If
+                        ed.WriteMessage("Arguments wrong type" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+            End If
+        End Function
+
+        <LispFunction("RFL:GetPlistDb", "GetPlistDbLocal")>
+        Public Function GetPlistDb(ByVal Args As ResultBuffer)
+            Dim doc As Document = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument
+            Dim ed As Editor = doc.Editor
+            If Args Is Nothing Then
+                ed.WriteMessage("Wrong number of arguments" & vbLf)
+                Return Nothing
+            Else
+                Dim RFLSQLite As New RFLSQLite
+                Dim InputArgs As TypedValue() = Args.AsArray()
+                Dim P1, P2, P3, P4 As DataTypes.Point3d
+                Dim DSta, Swath As Double
+                Dim DbFullPath As String
+                Dim PListRb As New ResultBuffer
+
+                If InputArgs.Length = 7 Then
+                    If (InputArgs(0).TypeCode = LispDataType.Point3d Or InputArgs(0).TypeCode = LispDataType.Point2d) And
+                       (InputArgs(1).TypeCode = LispDataType.Point3d Or InputArgs(1).TypeCode = LispDataType.Point2d) And
+                       (InputArgs(2).TypeCode = LispDataType.Point3d Or InputArgs(2).TypeCode = LispDataType.Point2d) And
+                       (InputArgs(3).TypeCode = LispDataType.Point3d Or InputArgs(3).TypeCode = LispDataType.Point2d) And
+                       InputArgs(4).TypeCode = LispDataType.Double And
+                       InputArgs(5).TypeCode = LispDataType.Double And
+                       InputArgs(6).TypeCode = LispDataType.Text Then
+
+                        P1.X = InputArgs(0).Value.X
+                        P1.Y = InputArgs(0).Value.Y
+                        P1.Z = 0.0
+                        P2.X = InputArgs(1).Value.X
+                        P2.Y = InputArgs(1).Value.Y
+                        P2.Z = 0.0
+                        P3.X = InputArgs(2).Value.X
+                        P3.Y = InputArgs(2).Value.Y
+                        P3.Z = 0.0
+                        P4.X = InputArgs(3).Value.X
+                        P4.Y = InputArgs(3).Value.Y
+                        P4.Z = 0.0
+                        DSta = Convert.ToDouble(InputArgs(4).Value)
+                        Swath = Convert.ToDouble(InputArgs(5).Value)
+                        DbFullPath = InputArgs(6).Value
+
+                        If RFLSQLite.GetPlistDb(P1, P2, P3, P4, DSta, Swath, DbFullPath, PListRb) Then
+                            Return PListRb
+                        Else
+                            ed.WriteMessage("Problem with database query" & vbLf)
+                            Return Nothing
+                        End If
+                    Else
+                        ed.WriteMessage("Wrong data types" & vbLf)
+                        Return Nothing
+                    End If
+                Else
+                    ed.WriteMessage("Wrong number of arguments" & vbLf)
+                    Return Nothing
+                End If
+
+            End If
+        End Function
+
+        ' ------------------------------------------------------------------------------------------------------
 
     End Class
 
