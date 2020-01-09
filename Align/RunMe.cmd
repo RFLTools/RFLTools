@@ -18,5 +18,5 @@ COPY /B ".\Align\RFL*.lsp" + ^
         ".\QSection\C*.lsp" + ^
         ".\SightLine\*.lsp" + ^
         ".\BarrierWarrant\*.lsp" + ^
-        ".\QLSection\QLSectionDB.lsp" ^
+        ".\QLSection\QLSection.lsp" ^
         ".\LoadRFLAlign.lsp"
