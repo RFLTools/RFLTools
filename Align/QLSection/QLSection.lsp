@@ -132,6 +132,7 @@
                                  )
                            )
           )
+          (setq RFL:QLSECTIONPLIST nil)
           (foreach P PLIST
            (progn
             (setq ENTLIST (list (cons 0 "POINT")
@@ -139,7 +140,12 @@
                     )
             )
             (setq ENTLISTALL (append ENTLISTALL (list ENTLIST)))
-            
+            (setq RFL:QLSECTIONPLIST (append RFL:QLSECTIONPLIST (list (list (+ (car PBASE) (car P))
+                                                                            (+ (cadr PBASE) (- (cadr P) ZBASE))
+                                                                      )
+                                                                )
+                                     )
+            )
            )
           )
           (setq ENTLISTALL (append ENTLISTALL (list (list (cons 0 "ENDBLK")))))

@@ -5,7 +5,7 @@
 ;     C:BESTBLKLINE is a routine for finding best lines withing QLSection point blocks
 ;
 ;
-(defun C:BESTBLKLINE (/ BESTLINE BLKENT BLKLIST GETBOXPOINT P P0 P1 P2 P3 P4 PLIST SWATH)
+(defun C:BESTBLKLINE (/ BESTLINE BLKLIST GETBOXPOINT P P0 P1 P2 P3 P4 PLIST SWATH)
  (defun GETPLIST (P1 P2 SWATH BLKLIST / ANG D P P3 P4 PLIST)
   (setq PLIST nil)
   (setq D (distance P1 P2))
@@ -94,26 +94,24 @@
   (grdraw P3 P1 -1)
   P
  )
- (if (setq BLKENT (car (entsel "\nSelect point block : ")))
-  (if (setq BLKLIST (RFL:GETBLKPLIST BLKENT))
-   (progn
-    (princ (strcat "\n" (itoa (length BLKLIST))))
-    (setq SWATH (getdist "\nEnter swath width <0.25> : "))
-    (if (= nil SWATH) (setq SWATH 0.5))
-    (while (setq P0 (getpoint "\nStart point : "))
-     (while (setq P (GETBOXPOINT P0 SWATH))
-      (if (setq PLIST (GETPLIST P0 P SWATH BLKLIST))
-       (progn
-        (setq BESTLINE (RFL:BESTLINE PLIST))
-        (entmake (list (cons 0 "LINE")
-                       (cons 10 (car BESTLINE))
-                       (cons 11 (cadr BESTLINE))
-                 )
-        )
+ (if (setq BLKLIST (RFL:GETBLKPLIST (car (entsel "\nSelect point block (<return> to use last point set) : "))))
+  (progn
+   (princ (strcat "\n" (itoa (length BLKLIST))))
+   (setq SWATH (getdist "\nEnter swath width <0.25> : "))
+   (if (= nil SWATH) (setq SWATH 0.5))
+   (while (setq P0 (getpoint "\nStart point : "))
+    (while (setq P (GETBOXPOINT P0 SWATH))
+     (if (setq PLIST (GETPLIST P0 P SWATH BLKLIST))
+      (progn
+       (setq BESTLINE (RFL:BESTLINE PLIST))
+       (entmake (list (cons 0 "LINE")
+                      (cons 10 (car BESTLINE))
+                      (cons 11 (cadr BESTLINE))
+                )
        )
       )
-      (setq P0 P)
      )
+     (setq P0 P)
     )
    )
   )
