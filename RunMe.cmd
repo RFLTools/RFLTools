@@ -47,6 +47,7 @@ COPY /B ".\LoadDLL\RFLLoadRFLDLL.lsp" + ^
         ".\File2Binary\RFLMakeRFLSLB.lsp" + ^
         ".\MakeEnt\LoadMakeEnt.lsp" + ^
         ".\MakeDCL\LoadMakeDCL.lsp" + ^
+        ".\QuickProf\*.lsp" + ^
         ".\QuickTurn\LoadQuickTurn.lsp" + ^
         ".\QuickTrain\*.lsp" + ^
         ".\DrawGrid\DrawGrid.lsp" + ^
