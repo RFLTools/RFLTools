@@ -17,8 +17,8 @@
 ;            Blocks drawn from left to right
 ;
 ;
-;(defun C:QUICKPROF (/ *error* ANG ANGBASE ANGDIR BLOCKENTLIST BLOCKENTLISTSIM C CMDECHO DIMLIST DIRFLAG D DX DY ENT ENTLIST GETDIMS HX HY INC N0 N1 N2 NODE OSMODE P P0 PLIST PVILISTSAVE REP TMP VENTLIST)
-(defun C:QUICKPROF ()
+(defun C:QUICKPROF (/ *error* ANG ANGBASE ANGDIR BLOCKENTLIST BLOCKENTLISTSIM C CMDECHO D DIMLIST DIRFLAG DRAWLOADLINE DX DY ENT ENTLIST GETDIMS HX HY INC N0 N1 N2 NODE OSMODE P P0 PLIST PVILISTSAVE REP TMP VENTLIST)
+;(defun C:QUICKPROF ()
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq OSMODE (getvar "OSMODE"))
@@ -38,6 +38,48 @@
   (foreach ENT BLOCKENTLISTSIM (entdel ENT))
   (print msg)
   nil
+ )
+ 
+ (defun DRAWLOADLINE (PLIST / ANG C D ENT H P1 P2 PREVENT S)
+  (setq PREVENT nil)
+  (if (setq D (getdist "\nEnter load length : "))
+   (if (setq H (getdist "\nEnter load height : "))
+    (if (setq S (getdist "\nEnter step size : "))
+     (progn
+      (while PLIST
+       (setq C 0)
+       (while (and (< C (length PLIST)) (< (distance (car PLIST) (nth C PLIST)) D))
+        (setq C (1+ C))
+       )
+       (if (< C (length PLIST))
+        (progn
+         (setq ANG (angle (car PLIST) (nth C PLIST)))
+         (setq P1 (list (- (car (car PLIST)) (* H (sin ANG)))
+                        (+ (cadr (car PLIST)) (* H (cos ANG)))
+                  )
+         )
+         (setq P2 (list (- (car (nth C PLIST))(* H (sin ANG)))
+                        (+ (cadr (nth C PLIST))(* H (cos ANG)))
+                  )
+         )
+         (entmake (list (cons 0 "LINE")
+                        (cons 10 P1)
+                        (cons 11 P2)
+                  )
+         )
+         (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+        )
+        (setq PLIST nil)
+       )
+       (setq P1 (car PLIST))
+       (while (and PLIST (< (distance P1 (car PLIST)) S))
+        (setq PLIST (cdr PLIST))
+       )
+      )
+     )
+    )
+   )
+  )
  )
  
  (defun GETDIMS (ENT / ENT2 ENTLIST)
@@ -165,8 +207,8 @@
         (setq N1 N2)
         (setq C (1+ C))
        )
-       (initget "Next Prev Copy Exit eXit")
-       (setq REP (getkword (strcat "\nNext / Prev / Copy / Exit <" TMP "> : ")))
+       (initget "Draw Next Prev Copy Exit eXit")
+       (setq REP (getkword (strcat "\nNext / Prev / Copy / Exit / Drawloadlines <" TMP "> : ")))
        (if (= REP nil) (setq REP TMP))
        (cond ((= REP "Next") (setq N0 (min (1+ N0) (1- (length PLIST)))
                                    TMP "Next"
@@ -177,6 +219,7 @@
                              )
              )
              ((= REP "Copy") (foreach NODE BLOCKENTLISTSIM (RFL:MAKETEMPBLOCK NODE)))
+             ((= REP "Draw") (DRAWLOADLINE PLIST))
        )
        
       )
