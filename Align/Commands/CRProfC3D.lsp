@@ -17,9 +17,10 @@
   (princ msg)
  )
 
- (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
-  (RFL:RPROFC3D ENT)
- )
+; (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
+;  (RFL:RPROFC3D ENT)
+; )
+ (RFL:RPROFC3D (car (entsel "\nSelect C3D profile (<return> for list) : ")))
 
  (setvar "CMDECHO" CMDECHO)
  T

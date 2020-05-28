@@ -7,7 +7,7 @@
 ;     NOTE - Works for type 1 and type 3 vertical curves
 ;
 ;
-(defun RFL:RPROFC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTITY ENTITYNEXT ENTLIST N1 N2 OBPROFILE OBENTITIES
+(defun RFL:RPROFC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTITY ENTITYNEXT ENTLIST N1 N2 OBALIGNMENT OBPROFILE OBPROFILES OBENTITIES
                            PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE TMP)
  (if (= nil vlax-create-object) (vl-load-com))
  
@@ -17,12 +17,21 @@
  
  (setq RFL:PVILIST nil)
  
- (setq ENTLIST (entget ENT))
- 
- (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
-  (princ "\n*** Not a C3D Profile ***")
+ (setq OBPROFILE nil)
+ (if ENT
   (progn
-   (setq OBPROFILE (vlax-ename->vla-object ENT))
+   (setq ENTLIST (entget ENT))
+   (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
+    (princ "\n*** Not a C3D Profile ***")
+    (progn
+     (setq OBPROFILE (vlax-ename->vla-object ENT))
+    )
+   )
+  )
+  (setq OBPROFILE (RFL:GETC3DPROFILE))
+ )
+ (if OBPROFILE
+  (progn
    (setq STARTSTATION (vlax-get-property OBPROFILE "StartingStation"))
    (setq STARTELEVATION (vlax-invoke-method OBPROFILE "ElevationAt" STARTSTATION))
    (setq RFL:PVILIST (list (list STARTSTATION STARTELEVATION "L" 0.0)))
@@ -60,10 +69,11 @@
     )
     (setq C (1+ C))
    )
-   
    (setq RFL:PVILIST (append RFL:PVILIST (list (list ENDSTATION ENDELEVATION "L" 0.0))))
   )
  )
+ 
+ 
  (if RFL:PVILIST
   (progn
    ; Sorting
