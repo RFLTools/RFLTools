@@ -8354,6 +8354,11 @@
        ((vl-string-search "\\R23.0\\" ACADPROD)
         "13.0"
        )
+
+       ;;2020
+       ((vl-string-search "\\R23.1\\" ACADPROD)
+        "13.2"
+       )
        
  )
 )
