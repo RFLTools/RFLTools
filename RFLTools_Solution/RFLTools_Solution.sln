@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_ACAD2016", "RFLTools_Acad2016\RFLTools_ACAD2016.vbproj", "{AB4383FE-67EF-483C-8DF0-FF67CA55FF5C}"
 EndProject
@@ -20,6 +20,10 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_ACAD2020", "RFLTools_Acad2020\RFLTools_ACAD2020.vbproj", "{F9D5FC7D-31F6-4C49-97F6-C2202EA33484}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupRFLTools", "Setup\SetupRFLTools\SetupRFLTools.vdproj", "{CFB6DC96-D2DB-4899-ADBB-CEBCE469D097}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_ACAD2021", "RFLTools_Acad2021\RFLTools_ACAD2021.vbproj", "{4549474A-F062-4768-9E4C-0C621AB2F2F3}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_ACAD2022", "RFLTools_Acad2022\RFLTools_ACAD2022.vbproj", "{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +137,30 @@ Global
 		{CFB6DC96-D2DB-4899-ADBB-CEBCE469D097}.Release|Any CPU.ActiveCfg = Release
 		{CFB6DC96-D2DB-4899-ADBB-CEBCE469D097}.Release|x64.ActiveCfg = Release
 		{CFB6DC96-D2DB-4899-ADBB-CEBCE469D097}.Release|x86.ActiveCfg = Release
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|x64.ActiveCfg = Debug|x64
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|x64.Build.0 = Debug|x64
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|x86.ActiveCfg = Debug|x86
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Debug|x86.Build.0 = Debug|x86
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|x64.ActiveCfg = Release|x64
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|x64.Build.0 = Release|x64
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|x86.ActiveCfg = Release|x86
+		{4549474A-F062-4768-9E4C-0C621AB2F2F3}.Release|x86.Build.0 = Release|x86
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|x64.ActiveCfg = Debug|x64
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|x64.Build.0 = Debug|x64
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|x86.ActiveCfg = Debug|x86
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Debug|x86.Build.0 = Debug|x86
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|x64.ActiveCfg = Release|x64
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|x64.Build.0 = Release|x64
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|x86.ActiveCfg = Release|x86
+		{1F88ABC9-D9B1-4CE8-AF7E-3A479A00B7E4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

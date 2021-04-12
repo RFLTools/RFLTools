@@ -58,79 +58,7 @@
    )
   )
  )
-)(defun RFL:AXY (AL STA SWATH / ALSAVE ENTLIST OFFSET1 OFFSET2 OFFSET3 P1 P2 P3)
- (setq ENTLIST (entget ENT))
- (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
-  (progn
-   (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
-   (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
-   (if (and (/= P1 nil) (/= P2 nil))
-    (progn
-     (setq ALSAVE RFL:ALIGNLIST)
-     (setq RFL:ALIGNLIST AL)
-     (if (= nil RFL:ALIGNLIST)
-      (progn
-       (setq RFL:ALIGNLIST ALSAVE)
-       (eval nil)
-      )
-      (progn
-       (setq OFFSET1 (RFL:STAOFF P1))
-       (setq OFFSET2 (RFL:STAOFF P2))
-       (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-       (setq OFFSET3 (RFL:STAOFF P3))
-       (if (= OFFSET1 nil)
-        (progn
-         (setq P1 P3)
-         (setq OFFSET1 OFFSET3)
-        )
-       )
-       (if (= OFFSET2 nil)
-        (progn
-         (setq P2 P3)
-         (setq OFFSET2 OFFSET3)
-        )
-       )
-       (if (and (/= OFFSET1 nil) (/= OFFSET2 nil))
-        (progn
-         (setq OFFSET1 (cadr OFFSET1))
-         (setq OFFSET2 (cadr OFFSET2))
-         (if (> (* OFFSET1 OFFSET2) 0.0)
-          (progn
-           (setq RFL:ALIGNLIST ALSAVE)
-           (eval nil)
-          )
-          (progn
-           (while (> (distance P1 P2) RFL:TOL)
-            (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
-            (setq OFFSET3 (cadr (RFL:STAOFF P3)))
-            (if (> (* OFFSET1 OFFSET3) 0.0)
-             (setq P1 P3)
-             (setq P2 P3)
-            )
-           )
-           (setq RFL:ALIGNLIST ALSAVE)
-           (setq P3 P3)
-          )
-         )
-        )
-        (progn
-         nil
-        )
-       )
-      )
-     )
-    )
-    (progn
-     nil
-    )
-   )
-  )
-  (progn
-   nil
-  )
- )
-)
-;
+);
 ;
 ;   Program written by Robert Livingston, 98/06/12
 ;
@@ -368,6 +296,78 @@
      (* R ATOTAL)
     )
    )
+  )
+ )
+)
+(defun RFL:AXY (AL STA SWATH / ALSAVE ENTLIST OFFSET1 OFFSET2 OFFSET3 P1 P2 P3)
+ (setq ENTLIST (entget ENT))
+ (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
+  (progn
+   (setq P1 (RFL:XY (list STA (/ SWATH -2.0))))
+   (setq P2 (RFL:XY (list STA (/ SWATH 2.0))))
+   (if (and (/= P1 nil) (/= P2 nil))
+    (progn
+     (setq ALSAVE RFL:ALIGNLIST)
+     (setq RFL:ALIGNLIST AL)
+     (if (= nil RFL:ALIGNLIST)
+      (progn
+       (setq RFL:ALIGNLIST ALSAVE)
+       (eval nil)
+      )
+      (progn
+       (setq OFFSET1 (RFL:STAOFF P1))
+       (setq OFFSET2 (RFL:STAOFF P2))
+       (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+       (setq OFFSET3 (RFL:STAOFF P3))
+       (if (= OFFSET1 nil)
+        (progn
+         (setq P1 P3)
+         (setq OFFSET1 OFFSET3)
+        )
+       )
+       (if (= OFFSET2 nil)
+        (progn
+         (setq P2 P3)
+         (setq OFFSET2 OFFSET3)
+        )
+       )
+       (if (and (/= OFFSET1 nil) (/= OFFSET2 nil))
+        (progn
+         (setq OFFSET1 (cadr OFFSET1))
+         (setq OFFSET2 (cadr OFFSET2))
+         (if (> (* OFFSET1 OFFSET2) 0.0)
+          (progn
+           (setq RFL:ALIGNLIST ALSAVE)
+           (eval nil)
+          )
+          (progn
+           (while (> (distance P1 P2) RFL:TOL)
+            (setq P3 (list (/ (+ (car P1) (car P2)) 2.0) (/ (+ (cadr P1) (cadr P2)) 2.0)))
+            (setq OFFSET3 (cadr (RFL:STAOFF P3)))
+            (if (> (* OFFSET1 OFFSET3) 0.0)
+             (setq P1 P3)
+             (setq P2 P3)
+            )
+           )
+           (setq RFL:ALIGNLIST ALSAVE)
+           (setq P3 P3)
+          )
+         )
+        )
+        (progn
+         nil
+        )
+       )
+      )
+     )
+    )
+    (progn
+     nil
+    )
+   )
+  )
+  (progn
+   nil
   )
  )
 )
@@ -4633,17 +4633,6 @@
 ;
 ;
 ;    Program Written by Robert Livingston, 99/07/14
-;    RFL:SPIRALPR returns (R * spiral 'P') for a given deflection
-;
-;
-(if RFL:SPIRALPR (princ "\nRFL:SPIRALPR already loaded...")
-(defun RFL:SPIRALPR (THETA)
- (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA)))
-)
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:SPIRALPOINTON Checks is the entered point is within the spiral limits
 ;
 ;
@@ -4682,6 +4671,17 @@
   0
   1
  )
+)
+;
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    RFL:SPIRALPR returns (R * spiral 'P') for a given deflection
+;
+;
+(if RFL:SPIRALPR (princ "\nRFL:SPIRALPR already loaded...")
+(defun RFL:SPIRALPR (THETA)
+ (- (RFL:SPIRALFYR THETA) (- 1.0 (cos THETA)))
+)
 )
 ;
 ;
@@ -8359,6 +8359,16 @@
        ((vl-string-search "\\R23.1\\" ACADPROD)
         "13.2"
        )
+
+       ;;2021
+       ((vl-string-search "\\R24.0\\" ACADPROD)
+        "13.2"
+       )
+
+       ;;2022
+       ((vl-string-search "\\R24.1\\" ACADPROD)
+        "13.2"
+       )
        
  )
 )
@@ -8402,6 +8412,46 @@
   )
  )
  OBALIGNMENT
+)
+;
+;
+;     Program written by Robert Livingston 2020-05-28
+;
+;
+(defun RFL:GETC3DPROFILE (/ ENT ENTLIST GETFROMLIST OBALIGNMENT OBPROFILE)
+ (setq OBPROFILE nil)
+ (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DPROFILE C3DPROFILES C CMAX C3DALIGN)
+  (textscr)
+  (princ "\n")
+;  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
+;  (setq *acad* (vlax-get-acad-object))
+;  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
+;  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
+;  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
+  (setq C3DPROFILES (vlax-get-property OBALIGNMENT "Profiles"))
+  (if (= (setq CMAX (vlax-get-property C3DPROFILES "Count")) 0)
+   (princ "\nNo profiles exist for alignment.")
+   (progn
+    (setq C 0)
+    (while (< C CMAX)
+     (setq C3DPROFILE (vlax-invoke-method C3DPROFILES "Item" C))
+     (setq C (+ C 1))
+     (princ (strcat (itoa C) " - " (vlax-get-property C3DPROFILE "DisplayName") "\n"))
+    )
+    (if (setq C (getint "Enter profile number : "))
+     (setq OBPROFILE (vlax-invoke-method C3DPROFILES "Item" (- C 1)))
+     nil
+    )
+    (graphscr)
+   )
+  )
+ )
+ (if (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
+  (progn
+   (GETFROMLIST)
+  )
+ )
+ OBPROFILE
 )
 ;
 ;
@@ -8518,46 +8568,6 @@
   nil
   Z
  )
-)
-;
-;
-;     Program written by Robert Livingston 2020-05-28
-;
-;
-(defun RFL:GETC3DPROFILE (/ ENT ENTLIST GETFROMLIST OBALIGNMENT OBPROFILE)
- (setq OBPROFILE nil)
- (defun GETFROMLIST (/ *acad* ACADACTIVEDOCUMENT ACADPROD ACADVER C3DOBJECT C3DDOC C3DPROFILE C3DPROFILES C CMAX C3DALIGN)
-  (textscr)
-  (princ "\n")
-;  (setq ACADPROD (strcat "AeccXUiLand.AeccApplication." (RFL:ACADVER)))
-;  (setq *acad* (vlax-get-acad-object))
-;  (setq C3DOBJECT (vla-getinterfaceobject *acad* ACADPROD))
-;  (setq C3DDOC (vla-get-activedocument C3DOBJECT))
-;  (setq C3DALIGNS (vlax-get C3DDOC 'alignmentssiteless))
-  (setq C3DPROFILES (vlax-get-property OBALIGNMENT "Profiles"))
-  (if (= (setq CMAX (vlax-get-property C3DPROFILES "Count")) 0)
-   (princ "\nNo profiles exist for alignment.")
-   (progn
-    (setq C 0)
-    (while (< C CMAX)
-     (setq C3DPROFILE (vlax-invoke-method C3DPROFILES "Item" C))
-     (setq C (+ C 1))
-     (princ (strcat (itoa C) " - " (vlax-get-property C3DPROFILE "DisplayName") "\n"))
-    )
-    (if (setq C (getint "Enter profile number : "))
-     (setq OBPROFILE (vlax-invoke-method C3DPROFILES "Item" (- C 1)))
-     nil
-    )
-    (graphscr)
-   )
-  )
- )
- (if (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
-  (progn
-   (GETFROMLIST)
-  )
- )
- OBPROFILE
 )
 ;
 ;
@@ -9988,6 +9998,298 @@
  (setvar "TEXTSTYLE" TEXTSTYLE)
 );
 ;
+;     Program written by Robert Livingston, 05-09-15
+;
+;     C:ALIGN23DP creats a 3D polyline based on an alignment and profile
+;
+;
+(defun C:ALIGN23DP (/ *error* ANGDIR ANGBASE CMDECHO OSMODE P OS REGENMODE S STEP STA STA1 STA2 STAMIN STAMAX Z1 Z2)
+ (setq REGENMODE (getvar "REGENMODE"))
+ (setvar "REGENMODE" 1)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0.0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ 
+ (command "._UNDO" "M")
+
+ (defun *error* (msg)
+  (setvar "REGENMODE" REGENMODE)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (setvar "OSMODE" OSMODE)
+  ;(setq *error* nil)
+  (print msg)
+ )
+
+ (if (and (/= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
+  (progn
+   (princ "\nNo vertical alignment exists - setting up interpretation...")
+   (setq STA1 (car (RFL:STAOFF (setq Z1 (getpoint "\nSelect point near start of alignment : ")))))
+   (if (= nil STA1)
+    (princ "Problem computing station...")
+    (progn
+     (setq Z1 (caddr Z1))
+     (if (= Z1 0.0)
+      (progn
+       (setq Z1 (getreal "\n0.000 elevation found for start point, press <return> to accept or enter another value : "))
+       (if (= nil Z1) (setq Z1 0.0))
+      )
+     )
+     (setq STA2 (car (RFL:STAOFF (setq Z2 (getpoint "\nSelect point near end of alignment : ")))))
+     (if (= nil STA2)
+      (princ "Problem computing station...")
+      (progn
+       (setq Z2 (caddr Z2))
+       (if (= Z2 0.0)
+        (progn
+         (setq Z2 (getreal "\n0.000 elevation found for end point, press <return> to accept or enter another value : "))
+         (if (= nil Z2) (setq Z2 0.0))
+        )
+       )
+       (setq RFL:PVILIST (list (list STA1 Z1 "L" 0.0) (list STA2 Z2 "L" 0.0)))
+      )
+     )
+    )
+   )
+  )
+ )
+
+ (if (or (= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
+  (alert "Profile and/or Alignment not defined")
+  (progn
+   (setq STEP 0.0)
+   (while (= 0.0 STEP) (setq STEP (getdist "Enter step size (> zero) : ")))
+   (setq OS (getreal "O/S (<return> = 0.0) : "))
+   (if (= OS nil) (setq OS 0.0))
+   (setq STAMIN (max (caar RFL:ALIGNLIST) (caar RFL:PVILIST)))
+   (setq STAMAX (min (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) (caar (reverse RFL:PVILIST))))
+   (setq STA STAMIN)
+   (command "._3DPOLY")
+   (while (< STA STAMAX)
+    (setq P (append (RFL:XY (list STA OS)) (list (RFL:ELEVATION STA))))
+    (if (/= OS 0.0)
+     (progn
+      (setq S (RFL:SUPER STA))
+      (if (= nil S) (setq S (list 0.0 0.0)))
+      (if (< OS 0.0)
+       (setq S (car S))
+       (setq S (cadr S))
+      )
+      (setq P (list (car P)
+                    (cadr P)
+                    (+ (caddr P) (* (abs OS) S 0.01))
+              )
+      )
+     )
+    )
+    (command P)
+    (setq STA (+ STA STEP))
+   )
+   (if (/= STAEND (+ STA STEP))
+    (progn
+     (setq P (append (RFL:XY (list STAEND 0.0)) (list (RFL:ELEVATION STAEND))))
+     (command P)
+    )
+   )
+   (command "")
+  )
+ )
+
+ (setvar "REGENMODE" REGENMODE)
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 99/06/21
+;
+;     C:ALIGN2PROF utilizes the (RFL:PROFPOINT) command to creat a profile from points along an alignment
+;
+;
+(defun C:ALIGN2PROF (/ ATTREQ CMDECHO ELEV ENT ENTLIST OSMODE P1 P2 PPICK PT STATION)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+
+ (command "LINE")
+ (princ "\nSelect spot elevation block :")
+ (setq ENT (entsel))
+ (setq PPICK (car (cdr ENT)))
+ (setq PPICK (list (nth 0 PPICK) (nth 1 PPICK) 0.0))
+ (setq ENT (car ENT))
+ (while (/= ENT nil)
+  (setq ENTLIST (entget ENT))
+  (if (or (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
+          (and (= 1 (cdr (assoc 66 ENTLIST)))
+               (= "INSERT" (cdr (assoc 0 ENTLIST)))
+          )
+          (= "LINE" (cdr (assoc 0 ENTLIST)))
+      )
+   (progn
+    (if (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
+     (progn
+      (setq PT (cdr (assoc 11 ENTLIST)))
+      (setq ELEV (nth 2 PT))
+     )
+     (progn
+      (if (= "LINE" (cdr (assoc 0 ENTLIST)))
+       (progn
+        (setq P1 (cdr (assoc 10 ENTLIST)))
+        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
+        (setq P2 (cdr (assoc 11 ENTLIST)))
+        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
+        (if (< (distance P1 PPICK) (distance P2 PPICK))
+         (progn
+          (setq PT P1)
+          (setq ELEV (last (cdr (assoc 10 ENTLIST))))
+         )
+         (progn
+          (setq PT P2)
+          (setq ELEV (last (cdr (assoc 11 ENTLIST))))
+         )
+        )
+       )
+       (progn
+        (setq PT (cdr (assoc 10 ENTLIST)))
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+        (setq ELEV nil)
+        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+         (if (or (= "ELEV" (cdr (assoc 2 ENTLIST))) (= "ELEVATION" (cdr (assoc 2 ENTLIST))))
+          (setq ELEV (atof (if (= (substr (cdr (assoc 1 ENTLIST)) 1 1) "(")
+                            (substr (cdr (assoc 1 ENTLIST)) 2)
+                            (cdr (assoc 1 ENTLIST))
+                           )
+                     )
+          )
+         )
+         (setq ENT (entnext ENT))
+         (setq ENTLIST (entget ENT))
+        )
+       )
+      )
+     )
+    )
+    (if (= ELEV nil)
+     (princ "\n*** NO ELEVATION FOR THIS BLOCK ***")
+     (progn
+      (setq STATION nil)
+      (setq STATION (car (RFL:STAOFF PT)))
+      (if (= STATION nil)
+       (princ "\n*** POINT NOT ON ALIGNMENT ***")
+       (progn
+        (command (RFL:PROFPOINT STATION ELEV))
+       )
+      )
+     )
+    )
+   )
+   (princ "\n*** NOT A VALID BLOCK ***")
+  )
+  (princ "\nSelect spot elevation block :")
+  (setq ENT (car (entsel)))
+ )
+ (command "")
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "OSMODE" OSMODE)
+);
+;
+;     Program written by Robert Livingston, 2020-05-22
+;
+;     ALIGNGRID2GROUND converts an alignment from grid to ground by scaling the stations, curve lengths and coordinates the inverse of the combined factor
+;
+;
+(defun C:ALIGNGRID2GROUND (/ ALIGNLIST FACTOR STARTSTA)
+ (if RFL:ALIGNLIST
+  (progn
+   (setq FACTOR (getreal "\nEnter scale factor : "))
+   (setq STASTART (caar RFL:ALIGNLIST))
+   (setq ALIGNLIST RFL:ALIGNLIST)
+   (setq RFL:ALIGNLIST nil)
+   (while ALIGNLIST
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (+ STASTART (/ (- (car (car ALIGNLIST)) STASTART) FACTOR))
+                                                          (list (/ (car (cadr (car ALIGNLIST))) FACTOR)
+                                                                (/ (cadr (cadr (car ALIGNLIST))) FACTOR)
+                                                          )
+                                                          (list (/ (car (caddr (car ALIGNLIST))) FACTOR)
+                                                                (/ (cadr (caddr (car ALIGNLIST))) FACTOR)
+                                                          )
+                                                          (if (listp (cadddr (car ALIGNLIST)))
+                                                           (list (list (/ (car (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (/ (cadr (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (list (/ (car (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (/ (cadr (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (list (/ (car (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (/ (cadr (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (/ (nth 3 (cadddr (car ALIGNLIST))) FACTOR)
+                                                           )
+                                                           (cadddr (car ALIGNLIST))
+                                                          )
+                                                    )
+                                              )
+                        )
+    )
+    (setq ALIGNLIST (cdr ALIGNLIST))
+   )
+  )
+ )
+);
+;
+;     Program written by Robert Livingston, 2020-05-26
+;
+;     ALIGNGRID2GROUND converts an alignment from ground to grid by scaling the stations, curve lengths and coordinates the inverse of the combined factor
+;
+;
+(defun C:ALIGNGROUND2GRID (/ ALIGNLIST FACTOR STARTSTA)
+ (if RFL:ALIGNLIST
+  (progn
+   (setq FACTOR (getreal "\nEnter scale factor : "))
+   (setq STASTART (caar RFL:ALIGNLIST))
+   (setq ALIGNLIST RFL:ALIGNLIST)
+   (setq RFL:ALIGNLIST nil)
+   (while ALIGNLIST
+    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (+ STASTART (* (- (car (car ALIGNLIST)) STASTART) FACTOR))
+                                                          (list (* (car (cadr (car ALIGNLIST))) FACTOR)
+                                                                (* (cadr (cadr (car ALIGNLIST))) FACTOR)
+                                                          )
+                                                          (list (* (car (caddr (car ALIGNLIST))) FACTOR)
+                                                                (* (cadr (caddr (car ALIGNLIST))) FACTOR)
+                                                          )
+                                                          (if (listp (cadddr (car ALIGNLIST)))
+                                                           (list (list (* (car (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (* (cadr (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (list (* (car (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (* (cadr (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (list (* (car (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                       (* (cadr (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
+                                                                 )
+                                                                 (* (nth 3 (cadddr (car ALIGNLIST))) FACTOR)
+                                                           )
+                                                           (cadddr (car ALIGNLIST))
+                                                          )
+                                                    )
+                                              )
+                        )
+    )
+    (setq ALIGNLIST (cdr ALIGNLIST))
+   )
+  )
+ )
+);
+;
 ;    Program Written by Robert Livingston 00/03/07
 ;
 ;    ALINE is a utility for attaching a line to the end of a line or arc
@@ -10394,210 +10696,6 @@
  (setvar "OSMODE" OSMODE)
 )
 ;
-;
-;     Program written by Robert Livingston, 05-09-15
-;
-;     C:ALIGN23DP creats a 3D polyline based on an alignment and profile
-;
-;
-(defun C:ALIGN23DP (/ *error* ANGDIR ANGBASE CMDECHO OSMODE P OS REGENMODE S STEP STA STA1 STA2 STAMIN STAMAX Z1 Z2)
- (setq REGENMODE (getvar "REGENMODE"))
- (setvar "REGENMODE" 1)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0.0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- 
- (command "._UNDO" "M")
-
- (defun *error* (msg)
-  (setvar "REGENMODE" REGENMODE)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (setvar "OSMODE" OSMODE)
-  ;(setq *error* nil)
-  (print msg)
- )
-
- (if (and (/= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
-  (progn
-   (princ "\nNo vertical alignment exists - setting up interpretation...")
-   (setq STA1 (car (RFL:STAOFF (setq Z1 (getpoint "\nSelect point near start of alignment : ")))))
-   (if (= nil STA1)
-    (princ "Problem computing station...")
-    (progn
-     (setq Z1 (caddr Z1))
-     (if (= Z1 0.0)
-      (progn
-       (setq Z1 (getreal "\n0.000 elevation found for start point, press <return> to accept or enter another value : "))
-       (if (= nil Z1) (setq Z1 0.0))
-      )
-     )
-     (setq STA2 (car (RFL:STAOFF (setq Z2 (getpoint "\nSelect point near end of alignment : ")))))
-     (if (= nil STA2)
-      (princ "Problem computing station...")
-      (progn
-       (setq Z2 (caddr Z2))
-       (if (= Z2 0.0)
-        (progn
-         (setq Z2 (getreal "\n0.000 elevation found for end point, press <return> to accept or enter another value : "))
-         (if (= nil Z2) (setq Z2 0.0))
-        )
-       )
-       (setq RFL:PVILIST (list (list STA1 Z1 "L" 0.0) (list STA2 Z2 "L" 0.0)))
-      )
-     )
-    )
-   )
-  )
- )
-
- (if (or (= nil RFL:ALIGNLIST) (= nil RFL:PVILIST))
-  (alert "Profile and/or Alignment not defined")
-  (progn
-   (setq STEP 0.0)
-   (while (= 0.0 STEP) (setq STEP (getdist "Enter step size (> zero) : ")))
-   (setq OS (getreal "O/S (<return> = 0.0) : "))
-   (if (= OS nil) (setq OS 0.0))
-   (setq STAMIN (max (caar RFL:ALIGNLIST) (caar RFL:PVILIST)))
-   (setq STAMAX (min (+ (caar RFL:ALIGNLIST) (RFL:GETALIGNLENGTH)) (caar (reverse RFL:PVILIST))))
-   (setq STA STAMIN)
-   (command "._3DPOLY")
-   (while (< STA STAMAX)
-    (setq P (append (RFL:XY (list STA OS)) (list (RFL:ELEVATION STA))))
-    (if (/= OS 0.0)
-     (progn
-      (setq S (RFL:SUPER STA))
-      (if (= nil S) (setq S (list 0.0 0.0)))
-      (if (< OS 0.0)
-       (setq S (car S))
-       (setq S (cadr S))
-      )
-      (setq P (list (car P)
-                    (cadr P)
-                    (+ (caddr P) (* (abs OS) S 0.01))
-              )
-      )
-     )
-    )
-    (command P)
-    (setq STA (+ STA STEP))
-   )
-   (if (/= STAEND (+ STA STEP))
-    (progn
-     (setq P (append (RFL:XY (list STAEND 0.0)) (list (RFL:ELEVATION STAEND))))
-     (command P)
-    )
-   )
-   (command "")
-  )
- )
-
- (setvar "REGENMODE" REGENMODE)
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
- (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 99/06/21
-;
-;     C:ALIGN2PROF utilizes the (RFL:PROFPOINT) command to creat a profile from points along an alignment
-;
-;
-(defun C:ALIGN2PROF (/ ATTREQ CMDECHO ELEV ENT ENTLIST OSMODE P1 P2 PPICK PT STATION)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
-
- (command "LINE")
- (princ "\nSelect spot elevation block :")
- (setq ENT (entsel))
- (setq PPICK (car (cdr ENT)))
- (setq PPICK (list (nth 0 PPICK) (nth 1 PPICK) 0.0))
- (setq ENT (car ENT))
- (while (/= ENT nil)
-  (setq ENTLIST (entget ENT))
-  (if (or (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
-          (and (= 1 (cdr (assoc 66 ENTLIST)))
-               (= "INSERT" (cdr (assoc 0 ENTLIST)))
-          )
-          (= "LINE" (cdr (assoc 0 ENTLIST)))
-      )
-   (progn
-    (if (= "AECC_POINT" (cdr (assoc 0 ENTLIST)))
-     (progn
-      (setq PT (cdr (assoc 11 ENTLIST)))
-      (setq ELEV (nth 2 PT))
-     )
-     (progn
-      (if (= "LINE" (cdr (assoc 0 ENTLIST)))
-       (progn
-        (setq P1 (cdr (assoc 10 ENTLIST)))
-        (setq P1 (list (nth 0 P1) (nth 1 P1) 0.0))
-        (setq P2 (cdr (assoc 11 ENTLIST)))
-        (setq P2 (list (nth 0 P2) (nth 1 P2) 0.0))
-        (if (< (distance P1 PPICK) (distance P2 PPICK))
-         (progn
-          (setq PT P1)
-          (setq ELEV (last (cdr (assoc 10 ENTLIST))))
-         )
-         (progn
-          (setq PT P2)
-          (setq ELEV (last (cdr (assoc 11 ENTLIST))))
-         )
-        )
-       )
-       (progn
-        (setq PT (cdr (assoc 10 ENTLIST)))
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-        (setq ELEV nil)
-        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-         (if (or (= "ELEV" (cdr (assoc 2 ENTLIST))) (= "ELEVATION" (cdr (assoc 2 ENTLIST))))
-          (setq ELEV (atof (if (= (substr (cdr (assoc 1 ENTLIST)) 1 1) "(")
-                            (substr (cdr (assoc 1 ENTLIST)) 2)
-                            (cdr (assoc 1 ENTLIST))
-                           )
-                     )
-          )
-         )
-         (setq ENT (entnext ENT))
-         (setq ENTLIST (entget ENT))
-        )
-       )
-      )
-     )
-    )
-    (if (= ELEV nil)
-     (princ "\n*** NO ELEVATION FOR THIS BLOCK ***")
-     (progn
-      (setq STATION nil)
-      (setq STATION (car (RFL:STAOFF PT)))
-      (if (= STATION nil)
-       (princ "\n*** POINT NOT ON ALIGNMENT ***")
-       (progn
-        (command (RFL:PROFPOINT STATION ELEV))
-       )
-      )
-     )
-    )
-   )
-   (princ "\n*** NOT A VALID BLOCK ***")
-  )
-  (princ "\nSelect spot elevation block :")
-  (setq ENT (car (entsel)))
- )
- (command "")
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "OSMODE" OSMODE)
-);
 ;
 ;   Program written by Robert Livingston, 15-02-03
 ;
@@ -12089,160 +12187,6 @@
 )
 ;
 ;
-;   Program written by Robert Livingston, 99/11/15
-;
-;   DPROF draws the current profile
-;
-;
-(defun C:DPROF (/ ANGBASE ANGDIR CMDECHO OSMODE REP STEP STEPSTA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (/= nil RFL:PVILIST)
-  (progn
-   (RFL:PROFDEF)
-   (initget "Yes No")
-   (setq REP (getkword "\nDraw profile (<Yes>/No) :"))
-   (if (= REP nil) (setq REP "Yes"))
-   (if (= REP "Yes")
-    (progn
-     (initget "Yes No")
-     (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
-     (if (= REP nil) (setq REP "No"))
-     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
-     (RFL:DRAWPROF RFL:PVILIST)
-    )
-   )
-   (initget "Yes No")
-   (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
-   (if (= REP nil) (setq REP "No"))
-   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
-  )
-  (progn
-   (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 99/11/15
-;
-;   DPROFOG draws on the current layer the current OG profile defined in RFL:OGLIST
-;
-;
-(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (if (/= nil RFL:OGLIST)
-  (progn
-   (RFL:PROFDEF)
-   (setq C 0)
-   (command "._PLINE")
-   (while (< C (length RFL:OGLIST))
-    (command (RFL:PROFPOINT (nth 0 (nth C RFL:OGLIST)) (nth 1 (nth C RFL:OGLIST))))
-    (setq C (+ C 1))
-   )
-   (command "")
-  )
-  (progn
-   (princ "\n*** OG PROFILE NOT SET ***\n")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;    Program Written by Robert Livingston, 99/07/14
-;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
-;
-;
-(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq ENT (entsel "\nSelect line : "))
- (if (/= ENT nil) 
-  (progn
-   (setq P (car (cdr ENT)))
-   (setq P (list (car P) (cadr P)))
-   (setq ENT (car ENT))
-   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
-    (progn
-     (setq P1 (cdr (assoc 10 ENTLIST)))
-     (setq P1 (list (car P1) (cadr P1)))
-     (setq P2 (cdr (assoc 11 ENTLIST)))
-     (setq P2 (list (car P2) (cadr P2)))
-     (if (< (distance P P1) (distance P P2))
-      (progn
-       (setq TMP P1)
-       (setq P1 P2)
-       (setq P2 TMP)
-      )
-     )
-     (setq ANG (angle P1 P2))
-     (if (/= (setq R (getreal "Radius : ")) nil)
-      (if (/= (setq L (getreal "Length : ")) nil)
-       (progn
-        (initget 1 "Left Right")
-        (setq LR (getkword "\n Left or Right : "))
-        (if (= LR "Left")
-         (setq DIR 1.0)
-         (setq DIR -1.0)
-        )
-        (setq THETA (/ L (* 2.0 R)))
-        (setq FX (* R (RFL:SPIRALFXR THETA)))
-        (setq FY (* R (RFL:SPIRALFYR THETA)))
-        (setq PLT P2)
-        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
-                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
-        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
-                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
-        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
-       )
-      )
-     )
-    )
-   )
-  )
- )
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   DSUPER inserts SUPER blocks along the current alignment
-;
-;
-(defun C:DSUPER (/ AL DIMZIN CMDECHO REP SFLAG STEP STEPSTA)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (RFL:DSUPER)
-
- (setvar "CMDECHO" CMDECHO)
-);
-;
 ;     Program written by Robert Livingston, 03/05/12
 ;
 ;     DAYLIGHT is a utility for 'Daylighting' 3D Polylines
@@ -12852,6 +12796,144 @@
  T
 );
 ;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   DPROF draws the current profile
+;
+;
+(defun C:DPROF (/ ANGBASE ANGDIR CMDECHO OSMODE REP STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (/= nil RFL:PVILIST)
+  (progn
+   (RFL:PROFDEF)
+   (initget "Yes No")
+   (setq REP (getkword "\nDraw profile (<Yes>/No) :"))
+   (if (= REP nil) (setq REP "Yes"))
+   (if (= REP "Yes")
+    (progn
+     (initget "Yes No")
+     (setq REP (getkword "\nErase current profile entities (Yes/<No>) :"))
+     (if (= REP nil) (setq REP "No"))
+     (if (= REP "Yes") (command "._ERASE" (ssget "X" (list (cons 8 (cdr (assoc "PLAYER" RFL:PROFDEFLIST))))) ""))
+     (RFL:DRAWPROF RFL:PVILIST)
+    )
+   )
+   (initget "Yes No")
+   (setq REP (getkword "\nCircle high/low points (Yes/<No>) :"))
+   (if (= REP nil) (setq REP "No"))
+   (if (= REP "Yes") (RFL:PROFHIGHLOW 1.0))
+  )
+  (progn
+   (princ "\n*** PROFILE NOT SET - RUN GPROF OR RPROF ***\n")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;   Program written by Robert Livingston, 99/11/15
+;
+;   DPROFOG draws on the current layer the current OG profile defined in RFL:OGLIST
+;
+;
+(defun C:DPROFOG (/ ANGBASE ANGDIR CMDECHO OSMODE C)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq OSMODE (getvar "OSMODE"))
+ (setvar "OSMODE" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (if (/= nil RFL:OGLIST)
+  (progn
+   (RFL:PROFDEF)
+   (setq C 0)
+   (command "._PLINE")
+   (while (< C (length RFL:OGLIST))
+    (command (RFL:PROFPOINT (nth 0 (nth C RFL:OGLIST)) (nth 1 (nth C RFL:OGLIST))))
+    (setq C (+ C 1))
+   )
+   (command "")
+  )
+  (progn
+   (princ "\n*** OG PROFILE NOT SET ***\n")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
+;     Program written by Robert Livingston, 2016-03-30
+;
+;     DRAWBARRIER is a utility for drawing a polyline from one sta/os to another os at a specified length
+;
+;
+(setq RFL:DRAWBARRIERSEGS 20)
+(setq RFL:DRAWBARRIERLENGTH 24.2)
+(setq RFL:DRAWBARRIEROS 6.45)
+(defun C:DRAWBARRIER (/ D D1 D2 DOS DSEG OS OS1 OS2 P STA STA1 STA2 STAM TMP TOL)
+ (setq TOL 0.00001)
+ (if (= nil (setq P (getpoint "\nStart point (<return> to enter Sta/OS) : ")))
+  (progn
+   (setq STA (getreal "\nStart Sta : "))
+   (setq OS1 (getreal "\nStart OS : "))
+  )
+  (progn
+   (setq P (RFL:STAOFF P))
+   (if (= nil (setq STA (getreal (strcat "\nStart Sta <" (rtos (car P)) "> : "))))
+    (setq STA (car P))
+   )
+   (if (= nil (setq OS1 (getreal (strcat "\nStart OS <" (rtos (cadr P)) ">: "))))
+    (setq OS1 (cadr P))
+   )
+  )
+ )
+ (setq TMP (getreal (strcat "\nLength (+ve = upchainage, -ve = downchainage) <" (rtos RFL:DRAWBARRIERLENGTH) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERLENGTH TMP))
+ (setq TMP (getreal (strcat "\nEnd OS (+ve = right, -ve = left) <" (rtos RFL:DRAWBARRIEROS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIEROS TMP))
+ (setq TMP (getint (strcat "\nNumber of pline segments <" (itoa RFL:DRAWBARRIERSEGS) "> : ")))
+ (if (/= nil TMP) (setq RFL:DRAWBARRIERSEGS TMP))
+ (setq OS2 RFL:DRAWBARRIEROS)
+ (setq DOS (/ (- OS2 OS1) RFL:DRAWBARRIERSEGS))
+ (setq DSEG (/ RFL:DRAWBARRIERLENGTH RFL:DRAWBARRIERSEGS))
+ (command "._PLINE" "_NON" (setq P (RFL:XY (list STA OS1))))
+ (repeat RFL:DRAWBARRIERSEGS
+  (setq STA1 STA)
+  (setq STA2 (+ STA DSEG DSEG))
+  (setq STAM (/ (+ STA1 STA2) 2.0))
+  (setq OS1 (+ OS1 DOS))
+  (while (> (abs (- STA1 STA2)) TOL)
+   (if (> (distance P (RFL:XY (list STAM OS1))) (abs DSEG))
+    (setq STA2 STAM)
+    (setq STA1 STAM)
+   )
+   (setq STAM (/ (+ STA1 STA2) 2.0))
+  )
+  (setq STA STAM)
+  (command "_NON" (setq P (RFL:XY (list STA OS1))))
+ )
+ (command "")
+ nil
+)
+;
+;
 ;     Program written by Robert Livingston, 2017-04-10
 ;
 ;     C:DRAWMID draws a polyline midpoint between two selected polylines
@@ -12894,6 +12976,77 @@
  (setvar "ORTHOMODE" ORTHOMODE)
  (setvar "OSMODE" OSMODE)
  T
+);
+;
+;    Program Written by Robert Livingston, 99/07/14
+;    C:DSPIRAL draws a reverse engineered DCA spiral at the end of a selected line
+;
+;
+(defun C:DSPIRAL (/ ANG CMDECHO DIR ENT ENTLIST FX FY LR P P1 P2 PLT PLTST PST THETA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq ENT (entsel "\nSelect line : "))
+ (if (/= ENT nil) 
+  (progn
+   (setq P (car (cdr ENT)))
+   (setq P (list (car P) (cadr P)))
+   (setq ENT (car ENT))
+   (if (= (cdr (assoc 0 (setq ENTLIST (entget ENT)))) "LINE")
+    (progn
+     (setq P1 (cdr (assoc 10 ENTLIST)))
+     (setq P1 (list (car P1) (cadr P1)))
+     (setq P2 (cdr (assoc 11 ENTLIST)))
+     (setq P2 (list (car P2) (cadr P2)))
+     (if (< (distance P P1) (distance P P2))
+      (progn
+       (setq TMP P1)
+       (setq P1 P2)
+       (setq P2 TMP)
+      )
+     )
+     (setq ANG (angle P1 P2))
+     (if (/= (setq R (getreal "Radius : ")) nil)
+      (if (/= (setq L (getreal "Length : ")) nil)
+       (progn
+        (initget 1 "Left Right")
+        (setq LR (getkword "\n Left or Right : "))
+        (if (= LR "Left")
+         (setq DIR 1.0)
+         (setq DIR -1.0)
+        )
+        (setq THETA (/ L (* 2.0 R)))
+        (setq FX (* R (RFL:SPIRALFXR THETA)))
+        (setq FY (* R (RFL:SPIRALFYR THETA)))
+        (setq PLT P2)
+        (setq PST (list (+ (car PLT) (* FX (cos ANG)) (* DIR -1.0 FY (sin ANG)))
+                        (+ (cadr PLT) (* FX (sin ANG)) (* DIR FY (cos ANG)))))
+        (setq PLTST (list (+ (car PLT) (* (- FX (/ FY (RFL:TAN THETA))) (cos ANG)))
+                          (+ (cadr PLT) (* (- FX (/ FY (RFL:TAN THETA))) (sin ANG))))) 
+        (RFL:DRAWSPIRAL PLT PLTST PST 0.0 0.0)
+       )
+      )
+     )
+    )
+   )
+  )
+ )
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   DSUPER inserts SUPER blocks along the current alignment
+;
+;
+(defun C:DSUPER (/ AL DIMZIN CMDECHO REP SFLAG STEP STEPSTA)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (RFL:DSUPER)
+
+ (setvar "CMDECHO" CMDECHO)
 );
 ;
 ;     Program Written by Robert LIvingston, 03/03/17
@@ -16504,6 +16657,68 @@
 )
 (princ "\n*****  Use LARCSETUP to change defaults *****\n");
 ;
+;     Program written by Robert Livingston, 2019-08-16
+;
+;     C:LISTK is a simple routine for displaying the K value for a selected vertical curve
+;
+;
+(defun C:LISTK (/ ENT ENTLIST G1 G2 K L P1 P2 P3 X1 X2 X3 Y1 Y2 Y3)
+ (setq K nil)
+ (setq ENT (car (entsel "\nSelect Vertical curve : ")))
+ (setq ENTLIST (entget ENT))
+ (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
+  (princ "\n*** Entity not a polyline ***")
+  (progn
+   (setq ENT (entnext ENT))
+   (setq ENTLIST (entget ENT))
+   (setq P1 (cdr (assoc 10 ENTLIST)))
+   (setq ENT (entnext ENT))
+   (setq ENTLIST (entget ENT))
+   (setq P2 (cdr (assoc 10 ENTLIST)))
+   (if (/= nil P2)
+    (progn
+     (setq ENT (entnext ENT))
+     (setq ENTLIST (entget ENT))
+     (setq P3 (cdr (assoc 10 ENTLIST)))
+     (if (/= nil P3)
+      (progn
+       (setq ENT (entnext ENT))
+       (setq ENTLIST (entget ENT))
+       (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+        (setq P2 P3)
+        (setq P3 (cdr (assoc 10 ENTLIST)))
+        (setq ENT (entnext ENT))
+        (setq ENTLIST (entget ENT))
+       )
+      )
+     )
+    )
+   )
+   (if (and (/= nil P1) (/= nil P2) (/= nil P3))
+    (progn
+     (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
+     (if (= nil VEXAG) (setq VEXAG 10.0))
+     (setq X1 (nth 0 P1))
+     (setq Y1 (/ (nth 1 P1) VEXAG))
+     (setq X2 (nth 0 P2))
+     (setq Y2 (/ (nth 1 P2) VEXAG))
+     (setq X3 (nth 0 P3))
+     (setq Y3 (/ (nth 1 P3) VEXAG))
+     (setq G1 (/ (- Y2 Y1) (- X2 X1)))
+     (setq G2 (/ (- Y3 Y2) (- X3 X2)))
+     (setq L (- X3 X1))
+     (setq K (abs (/ L (- G2 G1) 100.0)))
+    )
+   )
+  )
+ )
+ (princ "\n")
+ (if K
+  (rtos K 2 8)
+  nil
+ )
+);
+;
 ;     Program written by Robert Livingston, 2016/07/11
 ;
 ;     C:LPROF is a utility for labelling profiles
@@ -17561,68 +17776,6 @@
  (setvar "ANGDIR" ANGDIR)
  (setvar "CMDECHO" CMDECHO)
  (setvar "OSMODE" OSMODE)
-);
-;
-;     Program written by Robert Livingston, 2019-08-16
-;
-;     C:LISTK is a simple routine for displaying the K value for a selected vertical curve
-;
-;
-(defun C:LISTK (/ ENT ENTLIST G1 G2 K L P1 P2 P3 X1 X2 X3 Y1 Y2 Y3)
- (setq K nil)
- (setq ENT (car (entsel "\nSelect Vertical curve : ")))
- (setq ENTLIST (entget ENT))
- (if (/= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-  (princ "\n*** Entity not a polyline ***")
-  (progn
-   (setq ENT (entnext ENT))
-   (setq ENTLIST (entget ENT))
-   (setq P1 (cdr (assoc 10 ENTLIST)))
-   (setq ENT (entnext ENT))
-   (setq ENTLIST (entget ENT))
-   (setq P2 (cdr (assoc 10 ENTLIST)))
-   (if (/= nil P2)
-    (progn
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-     (setq P3 (cdr (assoc 10 ENTLIST)))
-     (if (/= nil P3)
-      (progn
-       (setq ENT (entnext ENT))
-       (setq ENTLIST (entget ENT))
-       (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-        (setq P2 P3)
-        (setq P3 (cdr (assoc 10 ENTLIST)))
-        (setq ENT (entnext ENT))
-        (setq ENTLIST (entget ENT))
-       )
-      )
-     )
-    )
-   )
-   (if (and (/= nil P1) (/= nil P2) (/= nil P3))
-    (progn
-     (setq VEXAG (getreal (strcat "\nEnter vertical exageration (" (rtos 10.0) ") : ")))
-     (if (= nil VEXAG) (setq VEXAG 10.0))
-     (setq X1 (nth 0 P1))
-     (setq Y1 (/ (nth 1 P1) VEXAG))
-     (setq X2 (nth 0 P2))
-     (setq Y2 (/ (nth 1 P2) VEXAG))
-     (setq X3 (nth 0 P3))
-     (setq Y3 (/ (nth 1 P3) VEXAG))
-     (setq G1 (/ (- Y2 Y1) (- X2 X1)))
-     (setq G2 (/ (- Y3 Y2) (- X3 X2)))
-     (setq L (- X3 X1))
-     (setq K (abs (/ L (- G2 G1) 100.0)))
-    )
-   )
-  )
- )
- (princ "\n")
- (if K
-  (rtos K 2 8)
-  nil
- )
 );
 ;
 ;     Program written by Robert Livingston, 2017-02-18
@@ -18799,6 +18952,60 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2020-05-22
+;
+;     PROFILEGRID2GROUND converts a vertical profile from grid to ground by scaling the stations and curve lengths the invers of the combined factor
+;
+;
+(defun C:PROFILEGRID2GROUND (/ FACTOR PVILIST STARTSTA)
+ (if RFL:PVILIST
+  (progn
+   (setq FACTOR (getreal "\nEnter scale factor : "))
+   (setq STASTART (caar RFL:PVILIST))
+   (setq PVILIST RFL:PVILIST)
+   (setq RFL:PVILIST nil)
+   (while PVILIST
+    (setq RFL:PVILIST (append RFL:PVILIST (list (list (+ STASTART (/ (- (car (car PVILIST)) STASTART) FACTOR))
+                                                      (cadr (car PVILIST))
+                                                      (caddr (car PVILIST))
+                                                      (/ (cadddr (car PVILIST)) FACTOR)
+                                                )
+                                          )
+                      )
+    )
+    (setq PVILIST (cdr PVILIST))
+   )
+  )
+ )
+);
+;
+;     Program written by Robert Livingston, 2020-05-22
+;
+;     PROFILEGRID2GROUND converts a vertical profile from grid to ground by scaling the stations and curve lengths the invers of the combined factor
+;
+;
+(defun C:PROFILEGRID2GROUND (/ FACTOR PVILIST STARTSTA)
+ (if RFL:PVILIST
+  (progn
+   (setq FACTOR (getreal "\nEnter scale factor : "))
+   (setq STASTART (caar RFL:PVILIST))
+   (setq PVILIST RFL:PVILIST)
+   (setq RFL:PVILIST nil)
+   (while PVILIST
+    (setq RFL:PVILIST (append RFL:PVILIST (list (list (+ STASTART (* (- (car (car PVILIST)) STASTART) FACTOR))
+                                                      (cadr (car PVILIST))
+                                                      (caddr (car PVILIST))
+                                                      (* (cadddr (car PVILIST)) FACTOR)
+                                                )
+                                          )
+                      )
+    )
+    (setq PVILIST (cdr PVILIST))
+   )
+  )
+ )
+);
+;
 ;     Program written by Robert Livingston, 2016/07/11
 ;
 ;     C:PVI0 draws a pviblock with 0.0 for K and L at the selected point
@@ -19183,314 +19390,6 @@
  
  (setvar "CMDECHO" CMDECHO)
 );
-;
-;    Program written by Robert Livingston, 95/04/25
-;                                 Revised, 98/05/12
-;
-;    RNE labels the Northing and Easting
-;
-;
-(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
-                        (cons "SO" 1)   ;  Label Station and Offset
-                        (cons "Z" 1)    ;  Label Control Elevations
-                        (cons "G" 1)    ;  Label Control Grades
-                        (cons "SE" 1)   ;  Label Superelevations
-                 )
-)
-(defun C:RNE (/ P1 P2)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq P1 (getpoint "\nEnter point :"))
- (setq P2 (getpoint P1 "Second point for leader :"))
- (RFL:RNE P1 P2)
-
- (setvar "CMDECHO" CMDECHO)
-)
-(defun RFL:RNE (P1 P2 / *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G OFFSET P3
-                        S STA STR STRLIST TMP Z)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
- (setq ANGBASE (getvar "ANGBASE"))
- (setvar "ANGBASE" 0)
- (setq ANGDIR (getvar "ANGDIR"))
- (setvar "ANGDIR" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  (setvar "ANGBASE" ANGBASE)
-  (setvar "ANGDIR" ANGDIR)
-  (alert msg)
-  ;(setq *error* nil)
- )
-
- (setq STRLIST nil
-       STA nil
-       OFFSET nil
-       G nil
-       Z nil
- )
- (if (setq STA (RFL:STAOFF P1))
-  (setq OFFSET (cadr STA)
-        STA (car STA)
-        Z (RFL:ELEVATION STA)
-        G (RFL:SLOPE STA)
-        S (RFL:SUPER STA)
-  )
- )
- (if (and (= (cdr (assoc "NE" RFL:RNELIST)) 1)
-          P1
-     )
-  (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
- )
- (if (and (= (cdr (assoc "SO" RFL:RNELIST)) 1)
-          STA
-          OFFSET
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
- )
- (if (and (= (cdr (assoc "Z" RFL:RNELIST)) 1)
-          Z
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
- )
- (if (and (= (cdr (assoc "G" RFL:RNELIST)) 1)
-          G
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
- )
- (if (and (= (cdr (assoc "SE" RFL:RNELIST)) 1)
-          S
-     )
-  (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
-                                              (rtos (abs (nth 0 S)))
-                                              "%"
-                                              (if (= (RFL:SIGN (nth 0 S)) 1) " up" " down")
-                                              ", R:"
-                                              (rtos (abs (nth 1 S)))
-                                              "%"
-                                              (if (= (RFL:SIGN (nth 1 S)) 1) " up" " down")
-                                      )
-                                )
-                )
-  )
- )
- (if STRLIST
-  (progn
-   (command "LEADER" "_NON" P1 "_NON" P2 "")
-   (foreach STR STRLIST
-    (command STR)
-   )
-   (command "")
-  )
- )
-
- (setvar "CMDECHO" CMDECHO)
- (setvar "ANGBASE" ANGBASE)
- (setvar "ANGDIR" ANGDIR)
-)
-;
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:RPROF reads a vertical alignment from file
-;
-;
-(defun C:RPROF (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (setq INFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 2))
- (RFL:RPROF INFILENAME)
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFB reads a vertical profile from a RFLAlign Block
-;
-;
-(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFBN reads a vertical profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;     Program written by Robert Livingston, 11-03-09
-;
-;     RPROF3D reads the profile from a selected C3D profile
-;     NOTE - Must be using C3D, will not work in straight AutoCAD
-;     NOTE - Works for type 1 and type 3 vertical curves
-;
-;
-(defun C:RPROFC3D (/ *error* ENT)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (defun *error* (msg)
-  (setvar "CMDECHO" CMDECHO)
-  ;(setq *error* nil)
-  (princ msg)
- )
-
-; (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
-;  (RFL:RPROFC3D ENT)
-; )
- (RFL:RPROFC3D (car (entsel "\nSelect C3D profile (<return> for list) : ")))
-
- (setvar "CMDECHO" CMDECHO)
- T
-);
-;
-;   Program written by Robert Livingston, 98/05/13
-;
-;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable RFL:OGLIST
-;
-;
-(defun C:RPROFOG (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq INFILENAME (getfiled "Select an OG Vertical Alignment File" "" "vrt" 2))
- (RFL:RPROFOG INFILENAME)
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
-;
-;
-(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
-;
-;
-(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RPROFOGB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 99/10/08
-;
-;   RSUPER reads the Superelevation from file
-;
-;
-(defun C:RSUPER (/ CMDECHO INFILENAME)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
-  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
- )
- (setq INFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 2))
- (RFL:RSUPER INFILENAME)
- (setvar "CMDECHO" CMDECHO)
- nil
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RSUPERB reads the Superelevation from a RFLAlign Block
-;
-;
-(defun C:RSUPERB (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
-  (RFL:RSUPERB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
-;
-;   Program written by Robert Livingston, 2008-11-04
-;
-;   RSUPERBN reads the Superelevation from a nested RFLAlign Block
-;
-;
-(defun C:RSUPERBN (/ CMDECHO BLKENT BLKENTLIST)
- (setq CMDECHO (getvar "CMDECHO"))
- (setvar "CMDECHO" 0)
-
- (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
- (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
- (setq BLKENTLIST (entget BLKENT))
- (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
-  (RFL:RSUPERB BLKENT)
-  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
- )
-
- (setvar "CMDECHO" CMDECHO)
-)
-;
 ;
 ;     Program written by Robert Livingston, 03-06-11
 ;     Modified 2014-11-07 to store ramp details into nose and add functionality
@@ -20758,6 +20657,113 @@
  T
 );
 ;
+;    Program written by Robert Livingston, 95/04/25
+;                                 Revised, 98/05/12
+;
+;    RNE labels the Northing and Easting
+;
+;
+(setq RFL:RNELIST (list (cons "NE" 1)   ;  Label Northing and Easting
+                        (cons "SO" 1)   ;  Label Station and Offset
+                        (cons "Z" 1)    ;  Label Control Elevations
+                        (cons "G" 1)    ;  Label Control Grades
+                        (cons "SE" 1)   ;  Label Superelevations
+                 )
+)
+(defun C:RNE (/ P1 P2)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq P1 (getpoint "\nEnter point :"))
+ (setq P2 (getpoint P1 "Second point for leader :"))
+ (RFL:RNE P1 P2)
+
+ (setvar "CMDECHO" CMDECHO)
+)
+(defun RFL:RNE (P1 P2 / *error* ANGBASE ANGDIR CMDECHO ENT ENTLIST G OFFSET P3
+                        S STA STR STRLIST TMP Z)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+ (setq ANGBASE (getvar "ANGBASE"))
+ (setvar "ANGBASE" 0)
+ (setq ANGDIR (getvar "ANGDIR"))
+ (setvar "ANGDIR" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  (setvar "ANGBASE" ANGBASE)
+  (setvar "ANGDIR" ANGDIR)
+  (alert msg)
+  ;(setq *error* nil)
+ )
+
+ (setq STRLIST nil
+       STA nil
+       OFFSET nil
+       G nil
+       Z nil
+ )
+ (if (setq STA (RFL:STAOFF P1))
+  (setq OFFSET (cadr STA)
+        STA (car STA)
+        Z (RFL:ELEVATION STA)
+        G (RFL:SLOPE STA)
+        S (RFL:SUPER STA)
+  )
+ )
+ (if (and (= (cdr (assoc "NE" RFL:RNELIST)) 1)
+          P1
+     )
+  (setq STRLIST (append STRLIST (list (strcat "N " (rtos (cadr P1)) ", E " (rtos (car P1))))))
+ )
+ (if (and (= (cdr (assoc "SO" RFL:RNELIST)) 1)
+          STA
+          OFFSET
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Sta." (RFL:STATXT STA) ", O/S " (rtos OFFSET)))))
+ )
+ (if (and (= (cdr (assoc "Z" RFL:RNELIST)) 1)
+          Z
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Elev " (rtos Z)))))
+ )
+ (if (and (= (cdr (assoc "G" RFL:RNELIST)) 1)
+          G
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl grade " (rtos (* 100.0 G)) "%"))))
+ )
+ (if (and (= (cdr (assoc "SE" RFL:RNELIST)) 1)
+          S
+     )
+  (setq STRLIST (append STRLIST (list (strcat "Ctrl Super: L:"
+                                              (rtos (abs (nth 0 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 0 S)) 1) " up" " down")
+                                              ", R:"
+                                              (rtos (abs (nth 1 S)))
+                                              "%"
+                                              (if (= (RFL:SIGN (nth 1 S)) 1) " up" " down")
+                                      )
+                                )
+                )
+  )
+ )
+ (if STRLIST
+  (progn
+   (command "LEADER" "_NON" P1 "_NON" P2 "")
+   (foreach STR STRLIST
+    (command STR)
+   )
+   (command "")
+  )
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+ (setvar "ANGBASE" ANGBASE)
+ (setvar "ANGDIR" ANGDIR)
+)
+;
+;
 ;     Program written by Robert LIvingston, 02/02/28
 ;
 ;     ROTATE2ALIGN changes the rotation of selected block entities to match the current alignment
@@ -20822,6 +20828,207 @@
  (setvar "ANGBASE" ANGBASE)
  (setvar "ANGDIR" ANGDIR)
 );
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROF reads a vertical alignment from file
+;
+;
+(defun C:RPROF (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Vertical Alignment File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "vrt" 2))
+ (RFL:RPROF INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFB reads a vertical profile from a RFLAlign Block
+;
+;
+(defun C:RPROFB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFBN reads a vertical profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;     Program written by Robert Livingston, 11-03-09
+;
+;     RPROF3D reads the profile from a selected C3D profile
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;     NOTE - Works for type 1 and type 3 vertical curves
+;
+;
+(defun C:RPROFC3D (/ *error* ENT)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (defun *error* (msg)
+  (setvar "CMDECHO" CMDECHO)
+  ;(setq *error* nil)
+  (princ msg)
+ )
+
+; (if (setq ENT (car (entsel "\nSelect C3D profile : ")))
+;  (RFL:RPROFC3D ENT)
+; )
+ (RFL:RPROFC3D (car (entsel "\nSelect C3D profile (<return> for list) : ")))
+
+ (setvar "CMDECHO" CMDECHO)
+ T
+);
+;
+;   Program written by Robert Livingston, 98/05/13
+;
+;   C:RPROFOG reads an OG vertical alignment from file and sets the global variable RFL:OGLIST
+;
+;
+(defun C:RPROFOG (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq INFILENAME (getfiled "Select an OG Vertical Alignment File" "" "vrt" 2))
+ (RFL:RPROFOG INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGB reads a vertical OG profile from a RFLAlign Block
+;
+;
+(defun C:RPROFOGB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RPROFOGBN reads a vertical OG profile from a nested RFLAlign Block
+;
+;
+(defun C:RPROFOGBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RPROFOGB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 99/10/08
+;
+;   RSUPER reads the Superelevation from file
+;
+;
+(defun C:RSUPER (/ CMDECHO INFILENAME)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (if (= (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") nil)
+  (vl-registry-write "HKEY_CURRENT_USER\\rflAlignDirectory" "" "")
+ )
+ (setq INFILENAME (getfiled "Select a Superelevation File" (vl-registry-read "HKEY_CURRENT_USER\\rflAlignDirectory") "e" 2))
+ (RFL:RSUPER INFILENAME)
+ (setvar "CMDECHO" CMDECHO)
+ nil
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RSUPERB reads the Superelevation from a RFLAlign Block
+;
+;
+(defun C:RSUPERB (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (entsel "\nSelect RFL Alignment Block : ")))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (= "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST)))))
+  (RFL:RSUPERB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
+;
+;   Program written by Robert Livingston, 2008-11-04
+;
+;   RSUPERBN reads the Superelevation from a nested RFLAlign Block
+;
+;
+(defun C:RSUPERBN (/ CMDECHO BLKENT BLKENTLIST)
+ (setq CMDECHO (getvar "CMDECHO"))
+ (setvar "CMDECHO" 0)
+
+ (setq BLKENT (car (nentsel "\nSelect nested RFL Alignment Block : ")))
+ (setq BLKENT (cdr (assoc 330 (entget BLKENT))))
+ (setq BLKENTLIST (entget BLKENT))
+ (if (and (= "INSERT" (cdr (assoc 0 BLKENTLIST))) (/= nil (vl-string-search "RFLALIGN" (strcase (cdr (assoc 2 BLKENTLIST))))))
+  (RFL:RSUPERB BLKENT)
+  (princ "\n*** NOT AN RFL ALIGNMENT BLOCK ***")
+ )
+
+ (setvar "CMDECHO" CMDECHO)
+)
+;
 ;
 ;     Program written by Robert Livingston, 2001/01/02
 ;
@@ -22540,203 +22747,6 @@
 ;
 (defun C:XYP ()
  (RFL:XYP)
-)
-;
-;
-;     Program written by Robert Livingston, 2020-05-22
-;
-;     ALIGNGRID2GROUND converts an alignment from grid to ground by scaling the stations, curve lengths and coordinates the inverse of the combined factor
-;
-;
-(defun C:ALIGNGRID2GROUND (/ ALIGNLIST FACTOR STARTSTA)
- (if RFL:ALIGNLIST
-  (progn
-   (setq FACTOR (getreal "\nEnter scale factor : "))
-   (setq STASTART (caar RFL:ALIGNLIST))
-   (setq ALIGNLIST RFL:ALIGNLIST)
-   (setq RFL:ALIGNLIST nil)
-   (while ALIGNLIST
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (+ STASTART (/ (- (car (car ALIGNLIST)) STASTART) FACTOR))
-                                                          (list (/ (car (cadr (car ALIGNLIST))) FACTOR)
-                                                                (/ (cadr (cadr (car ALIGNLIST))) FACTOR)
-                                                          )
-                                                          (list (/ (car (caddr (car ALIGNLIST))) FACTOR)
-                                                                (/ (cadr (caddr (car ALIGNLIST))) FACTOR)
-                                                          )
-                                                          (if (listp (cadddr (car ALIGNLIST)))
-                                                           (list (list (/ (car (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (/ (cadr (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (list (/ (car (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (/ (cadr (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (list (/ (car (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (/ (cadr (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (/ (nth 3 (cadddr (car ALIGNLIST))) FACTOR)
-                                                           )
-                                                           (cadddr (car ALIGNLIST))
-                                                          )
-                                                    )
-                                              )
-                        )
-    )
-    (setq ALIGNLIST (cdr ALIGNLIST))
-   )
-  )
- )
-);
-;
-;     Program written by Robert Livingston, 2020-05-26
-;
-;     ALIGNGRID2GROUND converts an alignment from ground to grid by scaling the stations, curve lengths and coordinates the inverse of the combined factor
-;
-;
-(defun C:ALIGNGROUND2GRID (/ ALIGNLIST FACTOR STARTSTA)
- (if RFL:ALIGNLIST
-  (progn
-   (setq FACTOR (getreal "\nEnter scale factor : "))
-   (setq STASTART (caar RFL:ALIGNLIST))
-   (setq ALIGNLIST RFL:ALIGNLIST)
-   (setq RFL:ALIGNLIST nil)
-   (while ALIGNLIST
-    (setq RFL:ALIGNLIST (append RFL:ALIGNLIST (list (list (+ STASTART (* (- (car (car ALIGNLIST)) STASTART) FACTOR))
-                                                          (list (* (car (cadr (car ALIGNLIST))) FACTOR)
-                                                                (* (cadr (cadr (car ALIGNLIST))) FACTOR)
-                                                          )
-                                                          (list (* (car (caddr (car ALIGNLIST))) FACTOR)
-                                                                (* (cadr (caddr (car ALIGNLIST))) FACTOR)
-                                                          )
-                                                          (if (listp (cadddr (car ALIGNLIST)))
-                                                           (list (list (* (car (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (* (cadr (nth 0 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (list (* (car (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (* (cadr (nth 1 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (list (* (car (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                       (* (cadr (nth 2 (cadddr (car ALIGNLIST)))) FACTOR)
-                                                                 )
-                                                                 (* (nth 3 (cadddr (car ALIGNLIST))) FACTOR)
-                                                           )
-                                                           (cadddr (car ALIGNLIST))
-                                                          )
-                                                    )
-                                              )
-                        )
-    )
-    (setq ALIGNLIST (cdr ALIGNLIST))
-   )
-  )
- )
-);
-;
-;     Program written by Robert Livingston, 2020-05-22
-;
-;     PROFILEGRID2GROUND converts a vertical profile from grid to ground by scaling the stations and curve lengths the invers of the combined factor
-;
-;
-(defun C:PROFILEGRID2GROUND (/ FACTOR PVILIST STARTSTA)
- (if RFL:PVILIST
-  (progn
-   (setq FACTOR (getreal "\nEnter scale factor : "))
-   (setq STASTART (caar RFL:PVILIST))
-   (setq PVILIST RFL:PVILIST)
-   (setq RFL:PVILIST nil)
-   (while PVILIST
-    (setq RFL:PVILIST (append RFL:PVILIST (list (list (+ STASTART (/ (- (car (car PVILIST)) STASTART) FACTOR))
-                                                      (cadr (car PVILIST))
-                                                      (caddr (car PVILIST))
-                                                      (/ (cadddr (car PVILIST)) FACTOR)
-                                                )
-                                          )
-                      )
-    )
-    (setq PVILIST (cdr PVILIST))
-   )
-  )
- )
-);
-;
-;     Program written by Robert Livingston, 2020-05-22
-;
-;     PROFILEGRID2GROUND converts a vertical profile from grid to ground by scaling the stations and curve lengths the invers of the combined factor
-;
-;
-(defun C:PROFILEGRID2GROUND (/ FACTOR PVILIST STARTSTA)
- (if RFL:PVILIST
-  (progn
-   (setq FACTOR (getreal "\nEnter scale factor : "))
-   (setq STASTART (caar RFL:PVILIST))
-   (setq PVILIST RFL:PVILIST)
-   (setq RFL:PVILIST nil)
-   (while PVILIST
-    (setq RFL:PVILIST (append RFL:PVILIST (list (list (+ STASTART (* (- (car (car PVILIST)) STASTART) FACTOR))
-                                                      (cadr (car PVILIST))
-                                                      (caddr (car PVILIST))
-                                                      (* (cadddr (car PVILIST)) FACTOR)
-                                                )
-                                          )
-                      )
-    )
-    (setq PVILIST (cdr PVILIST))
-   )
-  )
- )
-);
-;
-;     Program written by Robert Livingston, 2016-03-30
-;
-;     DRAWBARRIER is a utility for drawing a polyline from one sta/os to another os at a specified length
-;
-;
-(setq RFL:DRAWBARRIERSEGS 20)
-(setq RFL:DRAWBARRIERLENGTH 24.2)
-(setq RFL:DRAWBARRIEROS 6.45)
-(defun C:DRAWBARRIER (/ D D1 D2 DOS DSEG OS OS1 OS2 P STA STA1 STA2 STAM TMP TOL)
- (setq TOL 0.00001)
- (if (= nil (setq P (getpoint "\nStart point (<return> to enter Sta/OS) : ")))
-  (progn
-   (setq STA (getreal "\nStart Sta : "))
-   (setq OS1 (getreal "\nStart OS : "))
-  )
-  (progn
-   (setq P (RFL:STAOFF P))
-   (if (= nil (setq STA (getreal (strcat "\nStart Sta <" (rtos (car P)) "> : "))))
-    (setq STA (car P))
-   )
-   (if (= nil (setq OS1 (getreal (strcat "\nStart OS <" (rtos (cadr P)) ">: "))))
-    (setq OS1 (cadr P))
-   )
-  )
- )
- (setq TMP (getreal (strcat "\nLength (+ve = upchainage, -ve = downchainage) <" (rtos RFL:DRAWBARRIERLENGTH) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIERLENGTH TMP))
- (setq TMP (getreal (strcat "\nEnd OS (+ve = right, -ve = left) <" (rtos RFL:DRAWBARRIEROS) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIEROS TMP))
- (setq TMP (getint (strcat "\nNumber of pline segments <" (itoa RFL:DRAWBARRIERSEGS) "> : ")))
- (if (/= nil TMP) (setq RFL:DRAWBARRIERSEGS TMP))
- (setq OS2 RFL:DRAWBARRIEROS)
- (setq DOS (/ (- OS2 OS1) RFL:DRAWBARRIERSEGS))
- (setq DSEG (/ RFL:DRAWBARRIERLENGTH RFL:DRAWBARRIERSEGS))
- (command "._PLINE" "_NON" (setq P (RFL:XY (list STA OS1))))
- (repeat RFL:DRAWBARRIERSEGS
-  (setq STA1 STA)
-  (setq STA2 (+ STA DSEG DSEG))
-  (setq STAM (/ (+ STA1 STA2) 2.0))
-  (setq OS1 (+ OS1 DOS))
-  (while (> (abs (- STA1 STA2)) TOL)
-   (if (> (distance P (RFL:XY (list STAM OS1))) (abs DSEG))
-    (setq STA2 STAM)
-    (setq STA1 STAM)
-   )
-   (setq STAM (/ (+ STA1 STA2) 2.0))
-  )
-  (setq STA STAM)
-  (command "_NON" (setq P (RFL:XY (list STA OS1))))
- )
- (command "")
- nil
 )
 ;
 ;
@@ -26691,57 +26701,6 @@
  (setvar "ORTHOMODE" ORTHOMODE)
 );
 ;
-;     Program written by Robert Livingston, 2020-01-13
-;
-;     RFL:GETBLKPLIST returns a list of points contained in a block
-;
-;
-(defun RFL:GETBLKPLIST (ENT / ANG BLKENT BLKP ENTLIST P PLIST SCALE)
- (setq PLIST nil)
- (if (= ENT nil)
-  (setq PLIST RFL:QLSECTIONPLIST)
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (= "INSERT" (cdr (assoc 0 ENTLIST)))
-    (progn
-     (setq P (cdr (assoc 10 ENTLIST)))
-     (setq ANG (cdr (assoc 50 ENTLIST)))
-     (setq SCALE (cdr (assoc 41 ENTLIST)))
-     (if (and (= SCALE (cdr (assoc 42 ENTLIST)))
-              (= SCALE (cdr (assoc 43 ENTLIST)))
-         )
-      (if (setq BLKENT (tblsearch "BLOCK" (cdr (assoc 2 ENTLIST))))
-       (progn
-        (setq BLKENT (cdr (assoc -2 BLKENT)))
-        (while BLKENT
-         (setq ENTLIST (entget BLKENT))
-         (if (= "POINT" (cdr (assoc 0 ENTLIST)))
-          (progn
-           (setq BLKP (cdr (assoc 10 ENTLIST)))
-           (setq PLIST (append PLIST (list (list (+ (car P) (* SCALE (- (* (car BLKP) (cos ANG)) (* (cadr BLKP) (sin ANG)))))
-                                                 (+ (cadr P) (* SCALE (+ (* (car BLKP) (sin ANG)) (* (cadr BLKP) (cos ANG)))))
-                                           )
-                                     )
-                       )
-           )
-          )
-         )
-         (setq BLKENT (entnext BLKENT))
-        )
-       )
-       (princ "\nBlock not found.")
-      )
-      (princ "\nScales not equal.")
-     )
-    )
-    (princ "\nNot a block.")
-   )
-  )
- )
- (setq RFL:QLSECTIONPLIST PLIST)
- PLIST
-);
-;
 ;     Program written by Robert Livingston, 2020-01-14
 ;
 ;     C:BESTBLKLINE is a routine for finding best lines withing QLSection point blocks
@@ -27322,4 +27281,56 @@
   (princ "\nSo source given!")
  )
  T
+)
+;
+;
+;     Program written by Robert Livingston, 2020-01-13
+;
+;     RFL:GETBLKPLIST returns a list of points contained in a block
+;
+;
+(defun RFL:GETBLKPLIST (ENT / ANG BLKENT BLKP ENTLIST P PLIST SCALE)
+ (setq PLIST nil)
+ (if (= ENT nil)
+  (setq PLIST RFL:QLSECTIONPLIST)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (= "INSERT" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq P (cdr (assoc 10 ENTLIST)))
+     (setq ANG (cdr (assoc 50 ENTLIST)))
+     (setq SCALE (cdr (assoc 41 ENTLIST)))
+     (if (and (= SCALE (cdr (assoc 42 ENTLIST)))
+              (= SCALE (cdr (assoc 43 ENTLIST)))
+         )
+      (if (setq BLKENT (tblsearch "BLOCK" (cdr (assoc 2 ENTLIST))))
+       (progn
+        (setq BLKENT (cdr (assoc -2 BLKENT)))
+        (while BLKENT
+         (setq ENTLIST (entget BLKENT))
+         (if (= "POINT" (cdr (assoc 0 ENTLIST)))
+          (progn
+           (setq BLKP (cdr (assoc 10 ENTLIST)))
+           (setq PLIST (append PLIST (list (list (+ (car P) (* SCALE (- (* (car BLKP) (cos ANG)) (* (cadr BLKP) (sin ANG)))))
+                                                 (+ (cadr P) (* SCALE (+ (* (car BLKP) (sin ANG)) (* (cadr BLKP) (cos ANG)))))
+                                           )
+                                     )
+                       )
+           )
+          )
+         )
+         (setq BLKENT (entnext BLKENT))
+        )
+       )
+       (princ "\nBlock not found.")
+      )
+      (princ "\nScales not equal.")
+     )
+    )
+    (princ "\nNot a block.")
+   )
+  )
+ )
+ (setq RFL:QLSECTIONPLIST PLIST)
+ PLIST
 )

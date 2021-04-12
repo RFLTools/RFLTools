@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0A715938E9DE4EE89E6450204E76A6F6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0D199D7507724ADEA54578D1AC13BC32"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -160,43 +166,19 @@
         "Entry"
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_04BF8A07399A46148476E322E89E3641"
+        "OwnerKey" = "8:_E19BE153C6B94577BCC54D1C8F6962FF"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_2552B7CB36604A0F9A50BC7220F4EC3F"
+        "OwnerKey" = "8:_0A715938E9DE4EE89E6450204E76A6F6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_3FAC01B7A5CB4C448771CDD564894C9D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_58C0BC2148FB47C2B0C6A5B67851583A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_662206E901DC4B6888EC613C5B1F5453"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_6E63A47C0CFC4756A6F89CB3AB559206"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_C381278345384D4BA81CADEE92078C29"
+        "OwnerKey" = "8:_E3EC60838CB840B9AE4BA93A173AD4F1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -208,7 +190,43 @@
         "Entry"
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_E3EC60838CB840B9AE4BA93A173AD4F1"
+        "OwnerKey" = "8:_C381278345384D4BA81CADEE92078C29"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_6E63A47C0CFC4756A6F89CB3AB559206"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_662206E901DC4B6888EC613C5B1F5453"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_58C0BC2148FB47C2B0C6A5B67851583A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_3FAC01B7A5CB4C448771CDD564894C9D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_2552B7CB36604A0F9A50BC7220F4EC3F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_04BF8A07399A46148476E322E89E3641"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -363,6 +381,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E19BE153C6B94577BCC54D1C8F6962FF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E1E850203BBF4D11985D11172E1B0FFE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -412,61 +436,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0063266D69364BC6B7E4A59EAC2BC7BA"
+        "OwnerKey" = "8:_E19BE153C6B94577BCC54D1C8F6962FF"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_0A715938E9DE4EE89E6450204E76A6F6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_04BF8A07399A46148476E322E89E3641"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_2552B7CB36604A0F9A50BC7220F4EC3F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3FAC01B7A5CB4C448771CDD564894C9D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_58C0BC2148FB47C2B0C6A5B67851583A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_662206E901DC4B6888EC613C5B1F5453"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_BDB779793EA507E31DE2C57D1BD781C3"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6E63A47C0CFC4756A6F89CB3AB559206"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C381278345384D4BA81CADEE92078C29"
+        "OwnerKey" = "8:_E3EC60838CB840B9AE4BA93A173AD4F1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -478,7 +460,61 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E3EC60838CB840B9AE4BA93A173AD4F1"
+        "OwnerKey" = "8:_C381278345384D4BA81CADEE92078C29"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6E63A47C0CFC4756A6F89CB3AB559206"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_BDB779793EA507E31DE2C57D1BD781C3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_662206E901DC4B6888EC613C5B1F5453"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_58C0BC2148FB47C2B0C6A5B67851583A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3FAC01B7A5CB4C448771CDD564894C9D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2552B7CB36604A0F9A50BC7220F4EC3F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_04BF8A07399A46148476E322E89E3641"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0063266D69364BC6B7E4A59EAC2BC7BA"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -664,6 +700,37 @@
             "TargetName" = "8:RFLTools - Lesson 2.pdf"
             "Tag" = "8:"
             "Folder" = "8:_BBB400F963574C97ADF3259C2D366B5A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0A715938E9DE4EE89E6450204E76A6F6"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:RFLTools_ACAD2021x64, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_0A715938E9DE4EE89E6450204E76A6F6"
+                    {
+                    "Name" = "8:RFLTools_ACAD2021x64.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\bin\\x64\\Release\\RFLTools_ACAD2021x64.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1098,6 +1165,11 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_6131B952E023DD2D22195366F8FECC68"
+                    {
+                    "Name" = "8:System.Data.SQLite.DLL"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.DLL"
             "TargetName" = "8:"
@@ -1506,6 +1578,11 @@
             "AssemblyAsmDisplayName" = "8:EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_BDB779793EA507E31DE2C57D1BD781C3"
+                    {
+                    "Name" = "8:EntityFramework.DLL"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:EntityFramework.DLL"
             "TargetName" = "8:"
@@ -1662,6 +1739,37 @@
             {
             "SourcePath" = "8:Additional Files\\rfl_logo.ico"
             "TargetName" = "8:rfl_logo.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E19BE153C6B94577BCC54D1C8F6962FF"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:RFLTools_ACAD2022x64, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_E19BE153C6B94577BCC54D1C8F6962FF"
+                    {
+                    "Name" = "8:RFLTools_ACAD2022x64.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\bin\\x64\\Release\\RFLTools_ACAD2022x64.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"
             "Condition" = "8:"
