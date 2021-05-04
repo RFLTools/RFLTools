@@ -18,4 +18,6 @@ Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLT
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLTools_ACAD2013.xml
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLTools_ACAD2013x86.pdb
 Z:\Lisp\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLTools_ACAD2013.vbproj.CoreCompileInputs.cache
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution\bin\x86\Release\RFLTools_ACAD2013x86.dll.config
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLTools_ACAD2013.vbproj.CopyComplete
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2013\obj\x86\Release\RFLTools_ACAD2013.vbprojAssemblyReference.cache
