@@ -5,7 +5,7 @@
 ;     BESTLINE is a utility for finding best fit line along a selected polyline
 ;
 ;
-(defun C:BESTLINE (/ D1 D2 ENT ENTLIST FLAG ORTHOMODE OSMAX OSMODE P P1 P2 P3 PLIST PLISTTMP PT1 PT2)
+(defun C:BESTLINE (/ D1 D2 ENT ENTLIST FLAG ORTHOMODE OSMAX OSMODE P P1 P2 P3 PLIST PLIST2 PLISTTMP PT1 PT2)
  (setq OSMODE (getvar "OSMODE"))
  (setvar "OSMODE" 0)
  (setq ORTHOMODE (getvar "ORTHOMODE"))
@@ -18,6 +18,7 @@
  )
  (if (/= (setq PLIST (RFL:GETPLIST ENT)) nil)
   (progn
+   (setq PLISTTMP nil)
    (setq P1 (getpoint "\nPick point near desired start vertex (<return> for entire polyline) : "))
    (if (/= P1 nil)
     (progn
@@ -33,6 +34,7 @@
        (setq PLIST (vl-sort PLIST '(lambda(PT1 PT2) (< (distance P2 PT1) (distance P2 PT2)))))
        (setq PLISTTMP (cdr PLISTTMP))
        (while (and PLISTTMP (< (last (setq P (RFL:BESTLINE PLIST))) OSMAX))
+        (setq PLIST2 PLIST)
         (princ (strcat (rtos (last P) 2 3) "\n"))
         (setq PLIST (append PLIST (list (car PLISTTMP))))
         (setq PLIST (vl-sort PLIST '(lambda(PT1 PT2) (< (distance P2 PT1) (distance P2 PT2)))))
@@ -43,6 +45,7 @@
      )
     )
    )
+   (if PLISTTMP (setq PLIST PLIST2))
    (if (/= nil (setq P (RFL:BESTLINE PLIST)))
     (progn
      (setq P1 (car P))
