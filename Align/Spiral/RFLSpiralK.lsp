@@ -7,6 +7,6 @@
 (if RFL:SPIRALK (princ "\nRFL:SPIRALK already loaded...")
 (defun RFL:SPIRALK (R LS / THETA)
  (setq THETA (/ LS R 2.0))
- (* R (- (SPIRALFXR THETA) (sin THETA)))
+ (* R (- (RFL:SPIRALFXR THETA) (sin THETA)))
 )
 )
