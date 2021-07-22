@@ -13,9 +13,18 @@
 ;          Scale Factor
 ;          Zone LNG (i.e. "10", Vancouver)
 ;          Zone LAT (i.e. "U", Vancouver)
-(defun RFL:SETSURVEY (/ ENT ENTLIST GRIDEASTING GRIDNORTHING LOCALEASTING LOCALNORTHING SCALEFACTOR ZONELAT ZONELNG)
+(defun RFL:SETSURVEY (/ ENT ENTLIST ENTSET GRIDEASTING GRIDNORTHING LOCALEASTING LOCALNORTHING SCALEFACTOR ZONELAT ZONELNG)
  (setq RFL:SURVEY nil)
- (if (setq ENT (car (entsel "\nSelect RFL Survey blck (or <return> to enter manually) : ")))
+ (setq ENTSET (ssget "X" (list (cons 0 "INSERT") (cons 2 "RFLSURVEY"))))
+ (setq ENT nil)
+ (if (/= (sslength ENTSET) 1)
+  (progn
+   (princ "\nMore than one RFLSURVEY block found (or none found)...  Please select desired.\n")
+   (setq ENT (car (entsel "\nSelect RFL Survey block (<return> to enter manually) : ")))
+  )
+  (setq ENT (ssname ENTSET 0))
+ )
+ (if ENT
   (progn
    (setq ENTLIST (entget ENT))
    (if (and (= (cdr (assoc 0 ENTLIST)) "INSERT") (= (cdr (assoc 66 ENTLIST)) 1))
