@@ -22,16 +22,16 @@
   (reverse RESULT)
  )
  ;;selct the ground section, then the datum section, then the sectionview
- (setq GRND   (VL-SEL "\nSelect ground section: ")
-       SCTNVW (VL-SEL "\nSelect section view: ")
- )
+ (setq SCTNVW (VL-SEL "\nSelect section view: "))
+ (while (setq GRND   (VL-SEL "\nSelect ground section: "))
  ;;get the points, all start from left and go to the right
- (setq GRNDPTS  (RFL:GETSECTIONPOINTLIST GRND SCTNVW))
+  (setq GRNDPTS  (RFL:GETSECTIONPOINTLIST GRND SCTNVW))
 
- (setq DOC    (vla-get-activedocument (vlax-get-acad-object))
-       MSPACE (vla-get-modelspace DOC)
+  (setq DOC    (vla-get-activedocument (vlax-get-acad-object))
+        MSPACE (vla-get-modelspace DOC)
+  )
+  (setq PLIST (vlax-invoke MSPACE 'addlightweightpolyline (FLATTENLIST GRNDPTS)))
+  (vla-put-closed PLIST :vlax-false)
  )
- (setq PLIST (vlax-invoke MSPACE 'addlightweightpolyline (FLATTENLIST GRNDPTS)))
- (vla-put-closed PLIST :vlax-false)
  nil
 )
