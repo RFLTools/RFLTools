@@ -156,6 +156,7 @@
     (setq KM (substr (vl-list->string PLACEMARKLIST) (+ C 11)))
     (setq C (vl-string-search "</tr>" KM))
     (setq KM (substr KM 1 C))
+    (if (= nil (tblsearch "BLOCK" "LKI")) (RFL:MAKEENT "LKI"))
     (vla-insertblock ACTIVESPC
                      (vlax-3D-point P)
                      "LKI"
