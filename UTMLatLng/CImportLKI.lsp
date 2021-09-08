@@ -131,6 +131,7 @@
 ;     C:IMPORTLKI draws points at all the "Placemerk" elements of the inputted kml file
 ;
 (defun C:IMPORTLKI (/ ACTIVEDOC ACTIVESPC ENT ENT2 ENTLIST INFILE INFILENAME KM NAME P PLACEMARKLIST SEGMENT)
+ (command-s "._UNDO" "M")
  (setq ACTIVEDOC (vla-get-activedocument (vlax-get-acad-object)))
  (setq ACTIVESPC
        (vlax-get-property ACTIVEDOC
@@ -145,44 +146,52 @@
  (setq NAME "Placemark")
  
  (while (setq PLACEMARKLIST (RFL:GETNEXTELEMENT INFILE NAME))
-  (if (setq P (RFL:UTM2SURVEY (RFL:LATLNG2UTM (RFL:POINTELEMENT2POINT (RFL:GETELEMENT PLACEMARKLIST "Point")))))
+  (if (setq P (RFL:LATLNG2UTM (RFL:POINTELEMENT2POINT (RFL:GETELEMENT PLACEMARKLIST "Point"))))
    (progn
     (print P)
-    (setq C (vl-string-search "<td>Segment<td>" (vl-list->string PLACEMARKLIST)))
-    (setq SEGMENT (substr (vl-list->string PLACEMARKLIST) (+ C 16)))
-    (setq C (vl-string-search "</tr>" SEGMENT))
-    (setq SEGMENT (substr SEGMENT 1 C))
-    (setq C (vl-string-search "<td>Km<td>" (vl-list->string PLACEMARKLIST)))
-    (setq KM (substr (vl-list->string PLACEMARKLIST) (+ C 11)))
-    (setq C (vl-string-search "</tr>" KM))
-    (setq KM (substr KM 1 C))
-    (if (= nil (tblsearch "BLOCK" "LKI")) (RFL:MAKEENT "LKI"))
-    (vla-insertblock ACTIVESPC
-                     (vlax-3D-point P)
-                     "LKI"
-                     1.0
-                     1.0
-                     1.0
-                     0.0
-    )
-    (setq ENT (entlast))
-    (setq ENTLIST (entget ENT))
-    (if (= 1 (cdr (assoc 66 ENTLIST)))
+    (if (= (car P) (strcat (nth 5 RFL:SURVEY) (nth 6 RFL:SURVEY)))
      (progn
-      (setq ENT2 (entnext ENT))
-      (setq ENTLIST (entget ENT2))
-      (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-       (if (= "SEGMENT" (cdr (assoc 2 ENTLIST)))
-        (setq ENTLIST (subst (cons 1 SEGMENT) (assoc 1 ENTLIST) ENTLIST))
-       )
-       (if (= "KM" (cdr (assoc 2 ENTLIST)))
-        (setq ENTLIST (subst (cons 1 KM) (assoc 1 ENTLIST) ENTLIST))
-       )
-       (entmod ENTLIST)
-       (setq ENT2 (entnext ENT2))
-       (setq ENTLIST (entget ENT2))
+      (setq P (RFL:UTM2SURVEY (cdr P)))
+      (setq C (vl-string-search "<td>Segment<td>" (vl-list->string PLACEMARKLIST)))
+      (setq SEGMENT (substr (vl-list->string PLACEMARKLIST) (+ C 16)))
+      (setq C (vl-string-search "</tr>" SEGMENT))
+      (setq SEGMENT (substr SEGMENT 1 C))
+      (setq C (vl-string-search "<td>Km<td>" (vl-list->string PLACEMARKLIST)))
+      (setq KM (substr (vl-list->string PLACEMARKLIST) (+ C 11)))
+      (setq C (vl-string-search "</tr>" KM))
+      (setq KM (substr KM 1 C))
+      (if (= nil (tblsearch "BLOCK" "LKI")) (RFL:MAKEENT "LKI"))
+      (vla-insertblock ACTIVESPC
+                       (vlax-3D-point P)
+                       "LKI"
+                       1.0
+                       1.0
+                       1.0
+                       0.0
       )
-      (entupd ENT)
+      (setq ENT (entlast))
+      (setq ENTLIST (entget ENT))
+      (if (= 1 (cdr (assoc 66 ENTLIST)))
+       (progn
+        (setq ENT2 (entnext ENT))
+        (setq ENTLIST (entget ENT2))
+        (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+         (if (= "SEGMENT" (cdr (assoc 2 ENTLIST)))
+          (setq ENTLIST (subst (cons 1 SEGMENT) (assoc 1 ENTLIST) ENTLIST))
+         )
+         (if (= "KM" (cdr (assoc 2 ENTLIST)))
+          (setq ENTLIST (subst (cons 1 KM) (assoc 1 ENTLIST) ENTLIST))
+         )
+         (entmod ENTLIST)
+         (setq ENT2 (entnext ENT2))
+         (setq ENTLIST (entget ENT2))
+        )
+        (entupd ENT)
+       )
+      )
+     )
+     (progn
+      (print "Not in correct ZONE!")
      )
     )
    )

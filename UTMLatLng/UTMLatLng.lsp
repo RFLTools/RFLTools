@@ -91,7 +91,7 @@
   )
  )
  (princ (strcat "\nUTM Zone : " (itoa ZONENUMBER) UTMZONE "\n"))
- PUTM
+ (cons (strcat (itoa ZONENUMBER) UTMZONE) PUTM)
 )
 ; PUTM = (list EASTING NORTHING)
 ; ZONENUMBER = string
