@@ -75,12 +75,12 @@
 
        ;;2021
        ((vl-string-search "\\R24.0\\" ACADPROD)
-        "13.2"
+        "13.3"
        )
 
        ;;2022
        ((vl-string-search "\\R24.1\\" ACADPROD)
-        "13.2"
+        "13.4"
        )
        
  )
