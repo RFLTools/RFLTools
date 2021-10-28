@@ -7,7 +7,7 @@
 ;     Modified 2011/09/20 to permitting selecting point entities
 ;
 (if (= nil RFL:PPSLOPESCALE) (setq RFL:PPSLOPESCALE 1.0))
-(defun C:PPSLOPE (/ *error* ACTIVEDOC ACTIVESPACE ANGBASE ANGDIR ATTREQ CMDECHO DIMZIN ELEV1 ELEV2 ENT ENT2 ENTLIST GRADE OSMODE PT PT1 PT2 PTMID)
+(defun C:PPSLOPE (/ *error* ANGBASE ANGDIR ATTREQ CMDECHO DIMZIN ELEV1 ELEV2 ENT ENT2 ENTLIST GRADE OSMODE PT PT1 PT2 PTMID)
 ;(defun C:PPSLOPE ()
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -148,30 +148,24 @@
     (setq GRADE (strcat (rtos (/ 1.0 GRADE) 2 2) ":1"))
    )
    (setvar "DIMZIN" DIMZIN)
-   (if (= nil (tblsearch "BLOCK" RFL:PPSLOPEBLOCKNAME)) (RFL:MAKEENT RFL:PPSLOPEBLOCKNAME))
-   (vla-insertblock ACTIVESPC
-                    (vlax-3D-point PTMID)
-                    RFL:PPSLOPEBLOCKNAME
-                    RFL:PPSLOPESCALE
-                    RFL:PPSLOPESCALE
-                    RFL:PPSLOPESCALE
-                    (angle PTMID PT)
-   )
-   (setq ENT (entlast))
-   (setq ENTLIST (entget ENT))
-   (if (= 1 (cdr (assoc 66 ENTLIST)))
+   (if (setq ENT (RFL:INSERT RFL:PPSLOPEBLOCKNAME PTMID RFL:PPSLOPESCALE RFL:PPSLOPESCALE RFL:PPSLOPESCALE (angle PTMID PT)))
     (progn
-     (setq ENT2 (entnext ENT))
-     (setq ENTLIST (entget ENT2))
-     (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
-      (if (= "SLOPE" (cdr (assoc 2 ENTLIST)))
-       (setq ENTLIST (subst (cons 1 GRADE) (assoc 1 ENTLIST) ENTLIST))
+     (setq ENTLIST (entget ENT))
+     (if (= 1 (cdr (assoc 66 ENTLIST)))
+      (progn
+       (setq ENT2 (entnext ENT))
+       (setq ENTLIST (entget ENT2))
+       (while (/= "SEQEND" (cdr (assoc 0 ENTLIST)))
+        (if (= "SLOPE" (cdr (assoc 2 ENTLIST)))
+         (setq ENTLIST (subst (cons 1 GRADE) (assoc 1 ENTLIST) ENTLIST))
+        )
+        (entmod ENTLIST)
+        (setq ENT2 (entnext ENT2))
+        (setq ENTLIST (entget ENT2))
+       )
+       (entupd ENT)
       )
-      (entmod ENTLIST)
-      (setq ENT2 (entnext ENT2))
-      (setq ENTLIST (entget ENT2))
      )
-     (entupd ENT)
     )
    )
   )
