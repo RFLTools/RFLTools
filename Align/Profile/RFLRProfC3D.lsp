@@ -8,7 +8,7 @@
 ;
 ;
 (defun RFL:RPROFC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTITY ENTITYNEXT ENTLIST N1 N2 OBALIGNMENT OBPROFILE OBPROFILES OBENTITIES
-                           PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TYPE TMP)
+                           PVISTATION PVIELEVATION PVILENGTH STARTELEVATION STARTSTATION TMP)
  (if (= nil vlax-create-object) (vl-load-com))
  
  (defun GETPVISTATION ()
@@ -19,16 +19,22 @@
  
  (setq OBPROFILE nil)
  (if ENT
-  (progn
-   (setq ENTLIST (entget ENT))
-   (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
-    (princ "\n*** Not a C3D Profile ***")
-    (progn
-     (setq OBPROFILE (vlax-ename->vla-object ENT))
+  (if (= (type ENT) 'VLA-OBJECT)
+   (setq OBPROFILE ENT)
+   (progn
+    (setq ENTLIST (entget ENT))
+    (if (/= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
+     (princ "\n*** Not a C3D Profile ***")
+     (progn
+      (setq OBPROFILE (vlax-ename->vla-object ENT))
+     )
     )
    )
   )
-  (setq OBPROFILE (RFL:GETC3DPROFILE))
+  (progn
+   (setq OBALIGNMENT (RFL:GETC3DALIGNMENT))
+   (setq OBPROFILE (RFL:GETC3DPROFILE OBALIGNMENT))
+  )
  )
  (if OBPROFILE
   (progn
