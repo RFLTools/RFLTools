@@ -20,7 +20,8 @@
                             (cons "SP941-03.04.01" 2.0) ; Standard Bridge Parapet Transition 810 mm
                       )
 )
-(defun C:DRAWBARRIER (/ *error* ALSAVE ANGBASE ANGDIRCMDECHO D DIR DOS EH ENT ENTLIST FRATE GETENDPOINT GRADEAL GRADEFACTOR GRADEFLAG LASTPIECE N ORTHOMODE OS OS1 OS2 OSMODE P P1 P2 PLIST PREVENT REP REP2 RFL:ALIGNLIST RFL:PVILIST S S1 S2 SIDE SNAPANG TMP W)
+;(defun C:DRAWBARRIER (/ *error* ALSAVE ANGBASE ANGDIRCMDECHO D DIR DOS EH ENT ENTLIST FRATE GETENDPOINT GRADEAL GRADEFACTOR GRADEFLAG LASTPIECE N ORTHOMODE OS OS1 OS2 OSMODE P P1 P2 PLIST PREVENT REP REP2 RFL:ALIGNLIST RFL:PVILIST S S1 S2 SIDE SNAPANG TMP W)
+(defun C:DRAWBARRIER ()
  (command "._UNDO" "M")
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
@@ -110,6 +111,7 @@
  (if (= (cdr (assoc 0 ENTLIST)) "LWPOLYLINE")
   (progn
    (setq RFL:ALIGNLIST (RFL:ALIGNDEF ENT (cdr (assoc 10 ENTLIST)) 0.0))
+   (setq ALSAVE RFL:ALIGNLIST)
    (setq P1 (getpoint "\nStart point of barrier : "))
    (if (setq S1 (RFL:STAOFF P1))
     (progn
@@ -132,7 +134,6 @@
      (initget "Yes No")
      (if (setq GRADEFLAG (getkword "\nAdjust lengths for grade (Yes/<No>) : "))
       (progn
-       (setq ALSAVE RFL:ALIGNLIST)
        (initget "C3D RFL")
        (if (setq REP (getkword "\nUse C3D or RFL for alignment/profile (<C3D>/RFL) : "))
         (C:RAB)
@@ -144,6 +145,7 @@
         )
        )
        (setq GRADEAL RFL:ALIGNLIST)
+       (setq RFL:ALIGNLIST ALSAVE)
       )
      )
      (if (setq S2 (RFL:STAOFF P2))
