@@ -4,7 +4,7 @@
 ;
 ;     VC2TAN draws a line tangent to two vertical curves
 ;
-(defun C:VC2TAN (/ A1 A2 B1 B2 C1 C2 ENT ENTLIST G1 G2 P1 P2 P3 XA XB X1 X2 Y1 Y2)
+(defun C:VC2TAN (/ A1 A2 B1 B2 C1 C2 ENT ENTLIST G1 G2 P1 P2 P3 PG1 PG2 XA XB X1 X2 Y1 Y2)
  (setq ENT (car (entsel "\nSelect 'from' vertical curve :")))
  (if (/= nil ENT)
   (progn
@@ -17,6 +17,7 @@
      (setq ENT (entnext ENT))
      (setq ENTLIST (entget ENT))
      (setq P2 (cdr (assoc 10 ENTLIST)))
+     (setq PG1 P2)
      (if (/= nil P2)
       (progn
        (setq ENT (entnext ENT))
@@ -63,6 +64,7 @@
            (setq ENT (entnext ENT))
            (setq ENTLIST (entget ENT))
            (setq P2 (cdr (assoc 10 ENTLIST)))
+           (setq PG2 P2)
            (if (/= nil P2)
             (progn
              (setq ENT (entnext ENT))
@@ -95,7 +97,9 @@
              (setq A2 (/ (- G2 G1) (- X3 X1) 2.0))
              (setq B2 (/ (- G2 (* G1 (/ X3 X1))) (- 1.0 (/ X3 X1))))
              (setq C2 (- Y1 (+ (* A2 X1 X1) (* B2 X1))))
-             (setq G1 1.0 G2 0.0 C 0)
+             (setq G1 (/ (- (cadr PG2) (cadr PG1)) (- (car PG2) (car PG1))))
+             (setq G2 (+ G1 1.0))
+             (setq C 0)
              (while (and (> (abs (- G2 G1)) RFL:TOL) (< C 1000))
               (setq G1 G2)
               (setq X1 (/ (- G1 B1) (* 2.0 A1)))
