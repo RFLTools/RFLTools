@@ -2487,6 +2487,52 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2022-06-03
+;
+;     RFL:PL2TANGENT returns (list P1 P2 PLIST1 PLIST2) where:
+;          P1 P2 are the longest line less than the min offset
+;          PLIST1 the list of points before P1
+;
+;
+(setq RFL:PL2TANGENTLIST nil)
+(defun RFL:PL2TANGENT (PLIST D / P PA PB P1 P2 PT1 PT2 PLIST0 PLIST1 PLIST2 PLISTTMP)
+ (setq PLIST0 PLIST)
+ (if (>= (length PLIST) 2)
+  (progn
+   (setq PA (car PLIST))
+   (setq PB (last PLIST))
+   (setq P1 (list (/ (+ (car PA) (car PB)) 2.0) (/ (+ (cadr PA) (cadr PB)) 2.0)))
+   (setq PLISTTMP nil)
+   (setq P2 (car PLIST))
+   (setq PLISTTMP (vl-sort PLIST '(lambda(PT1 PT2) (< (distance P1 PT1) (distance P1 PT2)))))
+   (setq PLIST (list (car PLISTTMP)))
+   (setq PLISTTMP (cdr PLISTTMP))
+   (setq PLIST (append PLIST (list (car PLISTTMP))))
+   (setq PLIST (vl-sort PLIST '(lambda(PT1 PT2) (< (distance P2 PT1) (distance P2 PT2)))))
+   (setq PLISTTMP (cdr PLISTTMP))
+   (while (and PLISTTMP (< (last (setq P (RFL:BESTLINE PLIST))) D))
+    (setq PLIST2 PLIST)
+;    (princ (strcat (rtos (last P) 2 3) "\n"))
+    (setq PLIST (append PLIST (list (car PLISTTMP))))
+    (setq PLIST (vl-sort PLIST '(lambda(PT1 PT2) (< (distance P2 PT1) (distance P2 PT2)))))
+    (setq PLISTTMP (cdr PLISTTMP))
+   )
+   (if (> (last P) D)
+    (progn
+     (setq PLIST (reverse (cdr (reverse PLIST))))
+     (setq P (RFL:BESTLINE PLIST))
+    )
+   )
+   (if (and P PA) (setq PLIST1 (RFL:GETSUBPLIST PLIST0 PA (car P))))
+   (if (and P PB) (setq PLIST2 (RFL:GETSUBPLIST PLIST0 (cadr P) PB)))
+   (if P (setq RFL:PL2TANGENTLIST (append RFL:PL2TANGENTLIST (list (list (car P) (cadr P))))))
+   (if (>= (length PLIST1) 2) (RFL:PL2TANGENT PLIST1 D))
+   (if (>= (length PLIST2) 2) (RFL:PL2TANGENT PLIST2 D))
+  )
+  nil
+ )
+);
+;
 ;   Program written by Robert Livingston, 98/06/11
 ;
 ;   RFL:RALIGN reads a horizontal alignment from the specified file
@@ -19264,89 +19310,34 @@
  T
 );
 ;
-;     Program written by Robert Livingston - 2015-07-29
+;     Program written by Robert Livingston 2022-06-03
 ;
-;     C:PL2TANGENT is a routine for fitting an alignment to a selected polyline
+;     C:PL2TANGENT draws tangents along a polyline that are grater than a minimum length and less than a given offset
 ;
 ;
-(defun C:PL2TANGENT (/ ENT ENTLIST MINTANCOUNT MINTANOS ORTHOMODE OSMODE PLIST PLISTALL PLISTPART PREVENT SUBLINE SUBLINEBEST)
- (setq OSMODE (getvar "OSMODE"))
- (setvar "OSMODE" 0)
- (setq ORTHOMODE (getvar "ORTHOMODE"))
- (setvar "ORTHOMODE" 0)
- (defun PLISTPART (PLIST C1 C2 / TEMPLIST)
-  (setq TEMPLIST nil)
-  (if (and (< C1 (length PLIST)) (< C2 (length PLIST)) (<= C1 C2))
-   (while (<= C1 C2)
-    (setq TEMPLIST (append TEMPLIST (list (nth C1 PLIST))))
-    (setq C1 (1+ C1))
-   )
-  )
-  TEMPLIST
- )
- (setq PLISTALL nil)
- (setq ENT (car (entsel "\nSelect polyline to fit line : ")))
- (setq ENTLIST (entget ENT))
- (if (= "LWPOLYLINE" (cdr (assoc 0 ENTLIST)))
-  (while (/= nil ENTLIST)
-   (if (= 10 (caar ENTLIST))
-    (setq PLISTALL (append PLISTALL (list (cdar ENTLIST))))
-   )
-   (setq ENTLIST (cdr ENTLIST))
-  )
-  (if (= "POLYLINE" (cdr (assoc 0 ENTLIST)))
-   (progn
-    (setq ENT (entnext ENT))
-    (setq ENTLIST (entget ENT))
-    (while (= "VERTEX" (cdr (assoc 0 ENTLIST)))
-     (setq P (cdr (assoc 10 ENTLIST)))
-     (setq PLISTALL (append PLISTALL (list (list (car P) (cadr P)))))
-     (setq ENT (entnext ENT))
-     (setq ENTLIST (entget ENT))
-    )
-   )
-   (princ "\n*** Not a polyline!")
-  )
- )
- (if (= nil PLISTALL)
-  (princ "\n!!! Problem finding vertexes !!!")
+(defun C:PL2TANGENT (/ ENT D L NODE P1 P2 PLIST PREVENT)
+ (setq RFL:PL2TANGENTLIST nil)
+ (if (= nil (setq D (getdist "\nEnter minimum offset <0.1> : "))) (setq D 0.1))
+ (if (= nil (setq L (getdist "\nEnter minimum length <50.0> : "))) (setq L 50.0))
+ (setq PLIST (RFL:GETPLIST (car (entsel "\nSelect polyline : "))))
+ (RFL:PL2TANGENT PLIST D)
+ (foreach NODE RFL:PL2TANGENTLIST
   (progn
-   (setq PREVENT nil)
-   (setq MINTANCOUNT (getint "\nEnter minimum number of tangent vertexes <5> : "))
-   (if (= nil MINTANCOUNT) (setq MINTANCOUNT 5))
-   (setq MINTANOS (getdist "\nEnter minimum tangent offset <0.5> : "))
-   (if (= nil MINTANOS) (setq MINTANOS 0.5))
-   (setq C1 0)
-   (while (< C1 (- (length PLISTALL) MINTANCOUNT))
-    (setq C2 (+ C1 MINTANCOUNT -1))
-    (setq SUBLINEBEST nil)
-    (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
-    (while (and (/= nil SUBLINE) (< C2 (length PLISTALL)) (<= (last SUBLINE) MINTANOS))
-     (setq SUBLINEBEST SUBLINE)
-     (setq C2 (1+ C2))
-     (setq SUBLINE (RFL:BESTLINE (PLISTPART PLISTALL C1 C2)))
-    )
-    (princ (strcat "\nC1 = " (itoa C1) ", C2 = " (itoa C2) ", OS = " (if (/= nil SUBLINE) (rtos (last SUBLINE)) "nil")))
-    (if (/= nil SUBLINEBEST)
-     (progn
-      (entmake (list (cons 0 "LINE")
-                     (list 10 (car (nth 0 SUBLINEBEST)) (cadr (nth 0 SUBLINEBEST)) 0.0)
-                     (list 11 (car (nth 1 SUBLINEBEST)) (cadr (nth 1 SUBLINEBEST)) 0.0)
-               )
-      )
-      (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
+   (setq P1 (car NODE))
+   (setq P2 (cadr NODE))
+   (if (and P1 P2 (>= (distance P1 P2) L))
+    (progn
+     (entmake (list (cons 0 "LINE")
+                    (cons 10 P1)
+                    (cons 11 P2)
+              )
      )
-    )
-    (if (= nil SUBLINEBEST)
-     (setq C1 (1+ C1))
-     (setq C1 C2)
+     (setq ENT (entlast))(RFL:PUTPREVENT ENT PREVENT)(RFL:PUTNEXTENT PREVENT ENT)(setq PREVENT ENT)
     )
    )
   )
  )
- (setvar "OSMODE" OSMODE)
- (setvar "ORTHOMODE" ORTHOMODE)
- T
+ nil
 );
 ;
 ;   Program written by Robert Livingston, 99/07/14
