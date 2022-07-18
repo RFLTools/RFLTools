@@ -132,7 +132,7 @@
      (setvar "OSMODE" OSMODE)
      (princ "\nNote:  Adjusting for grade is a work in progress but may assist with long barrier runs.")
      (initget "Yes No")
-     (if (setq GRADEFLAG (getkword "\nAdjust lengths for grade (Yes/<No>) : "))
+     (if (= "Yes" (setq GRADEFLAG (getkword "\nAdjust lengths for grade (Yes/<No>) : ")))
       (progn
        (initget "C3D RFL")
        (if (setq REP (getkword "\nUse C3D or RFL for alignment/profile (<C3D>/RFL) : "))
