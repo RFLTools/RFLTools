@@ -2,6 +2,7 @@ Z:\LISP\GitHub\RFLTools\RFLTools_Solution\bin\x64\Release\RFLTools_ACAD2022x64.d
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\bin\x64\Release\RFLTools_ACAD2022x64.dll
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\bin\x64\Release\RFLTools_ACAD2022x64.pdb
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\bin\x64\Release\RFLTools_ACAD2022.xml
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022.vbproj.AssemblyReference.cache
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools.RFLToolsApplication.MyCommands.resources
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools.Resources.resources
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022.vbproj.GenerateResource.cache
@@ -10,4 +11,3 @@ Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLT
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022x64.dll
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022.xml
 Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022x64.pdb
-Z:\LISP\GitHub\RFLTools\RFLTools_Solution\RFLTools_Acad2022\obj\x64\Release\RFLTools_ACAD2022.vbproj.AssemblyReference.cache

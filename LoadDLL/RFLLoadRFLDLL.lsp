@@ -201,6 +201,25 @@
         )
        )
        ;;2022 ^^^
+       ((vl-string-search "\\R24.2\\" ACADPROD)
+        (if IS64
+         (if (setq INFILE (findfile "RFLTools_ACAD2023x64.dll"))
+          (progn
+		   (command "NETLOAD" INFILE)
+           (princ "\nRFLTOOLS x64 dll loaded...")
+		  )
+          (princ "\nRFLTOOLS support dll not found...")
+         )
+         (if (setq INFILE (findfile "RFLTools_ACAD2023x86.dll"))
+          (progn
+		   (command "NETLOAD" INFILE)
+           (princ "\nRFLTOOLS x86 dll loaded...")
+		  )
+          (princ "\nRFLTOOLS support dll not found...")
+         )
+        )
+       )
+       ;;2023 ^^^
  )
 )
 (RFL:LOADRFLDLL)
