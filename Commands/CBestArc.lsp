@@ -5,7 +5,7 @@
 ;     BESTARC is a utility for finding best fit arc along a selected polyline
 ;
 ;
-(defun C:BESTARC (/ *error* ANG1 ANG2 ANGBASE ANGDIR ATTREQ C C1 C2 CMDECHO E ENT ENTLIST ORTHOMODE OSMODE P P1 P2 PC PLIST R TMP)
+(defun C:BESTARC (/ *error* ANG1 ANG2 ANGBASE ANGDIR ASKFLAG ATTREQ C C1 C2 CMDECHO E ENT ENTLIST ORTHOMODE OSMODE P P1 P2 PC PLIST R TMP)
  (setq ATTREQ (getvar "ATTREQ"))
  (setvar "ATTREQ" 0)
  (setq ANGBASE (getvar "ANGBASE"))
@@ -18,6 +18,7 @@
  (setvar "OSMODE" 0)
  (setq ORTHOMODE (getvar "ORTHOMODE"))
  (setvar "ORTHOMODE" 0)
+ (setq ASKFLAG nil)
 
  (defun *error* (msg)
   (setvar "ATTREQ" ATTREQ)
@@ -39,7 +40,8 @@
  (if (/= (setq PLIST (RFL:GETPLIST2D ENT)) nil)
   (progn
    (setq P1 (getpoint "\nPick point near desired start vertex (<return> for entire polyline) : "))
-   (if (/= P1 nil)
+   (if (= P1 nil)
+    (setq ASKFLAG T)
     (progn
      (setq P2 (getpoint "\nPick point near desired end vertex : "))
      (if (/= P2 nil)
@@ -52,6 +54,14 @@
      (setq TMP (RFL:BESTARC PLIST nil))
      (setq R (getreal (strcat "\nRadius <" (rtos (RFL:RADIUS (car TMP) (cadr TMP) (caddr TMP))) "> : ")))
      (if (/= nil R) (setq TMP (RFL:BESTARC PLIST R)))
+     (if ASKFLAG
+      (progn
+       (initget "Yes No")
+       (if (= (getkword "\nHold endpoints (Yes/<No>) : ") "Yes")
+        (setq TMP (list (car PLIST) (last PLIST) (* (RFL:SIGN (caddr TMP)) (RFL:BULGE (car PLIST) (last PLIST) R)) (cadddr TMP)))
+       )
+      )
+     )
      (setq E (cadddr TMP))
      (if (> (abs (caddr TMP)) TOL)
       (progn
