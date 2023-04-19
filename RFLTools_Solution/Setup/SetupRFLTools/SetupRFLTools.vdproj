@@ -69,6 +69,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_18CAC9824ED943BABD13EB29BD94A359"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_19D7CE6062B34535ABB978C3E78C0AAC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -178,7 +184,13 @@
         "Entry"
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
-        "OwnerKey" = "8:_8C33C15747624EACB7DCA22093184487"
+        "OwnerKey" = "8:_18CAC9824ED943BABD13EB29BD94A359"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_837458821C274A2BB3D62C4DFE14F93D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -239,6 +251,12 @@
         {
         "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
         "OwnerKey" = "8:_913318BE676F49D19266562C7B664032"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6131B952E023DD2D22195366F8FECC68"
+        "OwnerKey" = "8:_8C33C15747624EACB7DCA22093184487"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -376,6 +394,12 @@
         "Entry"
         {
         "MsmKey" = "8:_81A3D79C7E7F4288A91758B5AAF04D12"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_837458821C274A2BB3D62C4DFE14F93D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -568,7 +592,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8C33C15747624EACB7DCA22093184487"
+        "OwnerKey" = "8:_18CAC9824ED943BABD13EB29BD94A359"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_837458821C274A2BB3D62C4DFE14F93D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -629,6 +659,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_913318BE676F49D19266562C7B664032"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_8C33C15747624EACB7DCA22093184487"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -987,6 +1023,37 @@
             "TargetName" = "8:1-500 Left.lsp"
             "Tag" = "8:"
             "Folder" = "8:_FEE085C8D77442A492F06604EAC0BACD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_18CAC9824ED943BABD13EB29BD94A359"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:RFLTools_ACAD2024x86, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_18CAC9824ED943BABD13EB29BD94A359"
+                    {
+                    "Name" = "8:RFLTools_ACAD2024x86.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\bin\\x86\\Release\\RFLTools_ACAD2024x86.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1705,6 +1772,37 @@
                     }
                 }
             "SourcePath" = "8:..\\..\\bin\\x86\\Release\\RFLTools_ACAD2017x86.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_837458821C274A2BB3D62C4DFE14F93D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:RFLTools_ACAD2024x64, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_837458821C274A2BB3D62C4DFE14F93D"
+                    {
+                    "Name" = "8:RFLTools_ACAD2024x64.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\bin\\x64\\Release\\RFLTools_ACAD2024x64.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_52C755B5833D4B698A0C879186A6F94F"

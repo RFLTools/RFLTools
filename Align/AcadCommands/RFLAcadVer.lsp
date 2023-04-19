@@ -83,5 +83,15 @@
         "13.4"
        )
        
+       ;;2023
+       ((vl-string-search "\\R24.2\\" ACADPROD)
+        "13.5"
+       )
+       
+       ;;2024
+       ((vl-string-search "\\R24.3\\" ACADPROD)
+        "13.6"
+       )
+       
  )
 )
