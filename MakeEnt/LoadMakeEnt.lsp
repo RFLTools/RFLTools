@@ -11,6 +11,7 @@
                                  "LKI" 
                                  "LTESTTRAINSECTION" 
                                  "LTRAINSECTION" 
+                                 "PLACEMARKPOINT" 
                                  "POINT" 
                                  "PPSLOPE" 
                                  "PR-CIRCLE" 
@@ -4114,6 +4115,56 @@
           (cons 100 "AcDbArc")
           (cons 50  1.57076446)
           (cons 51  1.74529651)
+         )
+         (list (cons 0 "ENDBLK"))
+        )
+       )
+       ((= (strcase BLKNAME) "PLACEMARKPOINT")
+        (list
+         (list
+          (cons 0 "BLOCK")
+          (cons 2 "PlacemarkPoint")
+          (cons 70  2)
+          (cons 4 "")
+          (list 10 0.00000000 0.00000000 0.00000000)
+         )
+         (list
+          (cons 0 "POINT")
+          (cons 100 "AcDbEntity")
+          (cons 67 0)
+          (cons 8 "0")
+          (cons 100 "AcDbPoint")
+          (list 10 0.00000000 0.00000000 0.00000000)
+          (list 210 0.00000000 0.00000000 1.00000000)
+          (cons 50  0.00000000)
+         )
+         (list
+          (cons 0 "ATTDEF")
+          (cons 102 "{ACAD_XDICTIONARY")
+          (cons 102 "}")
+          (cons 100 "AcDbEntity")
+          (cons 67 0)
+          (cons 8 "0")
+          (cons 100 "AcDbText")
+          (list 10 0.00000000 0.37894376 0.00000000)
+          (cons 40  1.25000000)
+          (cons 1 "")
+          (cons 50  0.00000000)
+          (cons 41  1.00000000)
+          (cons 51  0.00000000)
+          (cons 7 "Standard")
+          (cons 71 0)
+          (cons 72 1)
+          (list 11 0.00000000 0.00000000 0.00000000)
+          (list 210 0.00000000 0.00000000 1.00000000)
+          (cons 100 "AcDbAttributeDefinition")
+          (cons 280 0)
+          (cons 3 "Name")
+          (cons 2 "NAME")
+          (cons 70 0)
+          (cons 73 0)
+          (cons 74 1)
+          (cons 280 1)
          )
          (list (cons 0 "ENDBLK"))
         )

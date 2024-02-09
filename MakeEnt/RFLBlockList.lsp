@@ -11,6 +11,7 @@
                                  "LKI" 
                                  "LTESTTRAINSECTION" 
                                  "LTRAINSECTION" 
+                                 "PLACEMARKPOINT" 
                                  "POINT" 
                                  "PPSLOPE" 
                                  "PR-CIRCLE" 
