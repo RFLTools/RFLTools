@@ -19,3 +19,6 @@
   nil
  )
 )
+(defun C:SELECTLINKED ()
+ (RFL:SELECTLINKED)
+)

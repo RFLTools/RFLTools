@@ -8264,7 +8264,9 @@
   nil
  )
 )
-;
+(defun C:SELECTLINKED ()
+ (RFL:SELECTLINKED)
+);
 ;
 ;     Program written by Robert Livingston, 2014-11-20
 ;
