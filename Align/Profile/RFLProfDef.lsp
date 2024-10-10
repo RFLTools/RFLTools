@@ -5,8 +5,12 @@
 ;   RFL:PROFDEF locates and defines a global variable RFL:PROFDEFLIST with the profile base point, stationing and elevations
 ;
 ;
-(defun RFL:PROFDEF (/ BPOINT DIRECTION ELEV ELEVMAX ENT ENTLIST FNAME OBPROFILE PLAYER PTLAYER
-                      SCALE STA STAH STAL STAMAX TMP VEXAG X1 X2 Y1 Y2)
+(defun RFL:PROFDEF (/ ENT)
+ (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
+ (RFL:PROFDEFENT ENT)
+)
+(defun RFL:PROFDEFENT (ENT / BPOINT DIRECTION ELEV ELEVMAX ENTLIST FNAME OBPROFILE PLAYER PTLAYER
+                             SCALE STA STAH STAL STAMAX TMP VEXAG X1 X2 Y1 Y2)
  (setq RFL:PROFDEFLIST nil
        BPOINT nil
        DIRECTION nil
@@ -18,7 +22,7 @@
        STA nil
        VEXAG 1.0
  )
- (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
+; (setq ENT (car (entsel "\nSelect profile grid or profile definition block : ")))
  (setq ENTLIST (entget ENT))
  (setq BPOINT (cdr (assoc 10 ENTLIST)))
  (if (and (= "INSERT" (cdr (assoc 0 ENTLIST)))

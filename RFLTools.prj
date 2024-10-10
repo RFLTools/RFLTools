@@ -1,0 +1,16 @@
+;;; VLisp project file [V2.0] RFLTools saved to:[z:\LISP\GitHub\RFLTools] at:[10/10/2024]
+(VLISP-PROJECT-LIST 
+  :NAME
+  RFLTools
+  :OWN-LIST
+  ("LoadRFLTools")
+  :FAS-DIRECTORY
+  nil
+  :TMP-DIRECTORY
+  nil
+  :PROJECT-KEYS
+  (:BUILD (:standard))
+  :CONTEXT-ID
+  :AUTOLISP
+)
+;;; EOF

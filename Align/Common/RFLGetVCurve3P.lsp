@@ -5,7 +5,32 @@
 ;     RFL:GETVCURVE3P returns a list of 3 points (P1 VPI P3) and optional VEXAG for a selected vertical curve entity
 ;
 ;
-(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
+(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE GETPROFDEF P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
+ (defun GETPROFDEF (ENT P / C CMAX ENTVIEW OBALIGNMENT OBPROFILE OBPROFILEVIEW P1 P2 PROFILEVIEWS SA1 SA2)
+  (setq ENTVIEW nil)
+  (setq OBPROFILE (vlax-ename->vla-object ENT))
+  (setq OBALIGNMENT (vlax-get-property OBPROFILE "Alignment"))
+  (setq OBPROFILEVIEWS (vlax-get-property OBALIGNMENT "ProfileViews"))
+  (setq C 0)
+  (setq CMAX (vlax-get-property OBPROFILEVIEWS "Count"))
+  (while (< C CMAX)
+   (setq OBPROFILEVIEW (vlax-invoke-method OBPROFILEVIEWS "Item" C))
+   (vlax-invoke-method OBPROFILEVIEW "GetBoundingBox" 'SA1 'SA2)
+   (setq P1 (vlax-safearray->list SA1))
+   (setq P2 (vlax-safearray->list SA2))
+   (if (and (>= (car P) (car P1))
+            (>= (cadr P) (cadr P1))
+            (<= (car P) (car P2))
+            (<= (cadr P) (cadr P2))
+       )
+    (progn
+     (setq ENTVIEW (vlax-vla-object->ename OBPROFILEVIEW))
+    )
+   )
+   (setq C (1+ C))
+  )
+  ENTVIEW
+ )
  (setq P1 nil P2 nil P3 nil VEXAG nil)
  (setq ENT (entsel "\nSelect vertical curve : "))
  (setq P (cadr ENT))
@@ -44,7 +69,10 @@
     (if (= "AECC_PROFILE" (cdr (assoc 0 (entget ENT))))
      (progn
       (setq RFL:PVILIST (RFL:RPROFC3D ENT))
-      (if (setq RFL:PROFDEFLIST (RFL:PROFDEF))
+      (if (= nil (setq RFL:PROFDEFLIST (RFL:PROFDEFENT (GETPROFDEF ENT P))))
+       (setq RFL:PROFDEFLIST (RFL:PROFDEF))
+      )
+      (if RFL:PROFDEFLIST
        (progn
         (setq VEXAG (cdr (assoc "VEXAG" RFL:PROFDEFLIST)))
         (setq STA (car (RFL:VPP P)))
