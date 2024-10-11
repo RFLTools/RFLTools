@@ -5972,6 +5972,50 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2024-10-11
+;
+;     RFL:RPROFOGC3D is a utility for reading a C3D OG profile and setting RFL:OGLIST
+;     NOTE - Must be using C3D, will not work in straight AutoCAD
+;
+;
+(defun RFL:RPROFOGC3D (ENT / C CMAX CMDECHO ENDELEVATION ENDSTATION ENTLIST OBENTITY OBPROFILE OBENTITIES STARTELEVATION STARTSTATION)
+ (if (= nil vlax-create-object) (vl-load-com))
+ 
+ (setq RFL:OGLIST nil)
+ 
+ (setq OBPROFILE nil)
+ (if (= (type ENT) 'VLA-OBJECT)
+  (setq OBPROFILE ENT)
+  (progn
+   (setq ENTLIST (entget ENT))
+   (if (= "AECC_PROFILE" (cdr (assoc 0 ENTLIST)))
+    (progn
+     (setq OBPROFILE (vlax-ename->vla-object ENT))
+    )
+    (princ "\n*** Not a C3D Profile ***")
+   )
+  )
+ )
+ (if OBPROFILE
+  (progn
+   (setq OBENTITIES (vlax-get-property OBPROFILE "Entities"))
+   (setq CMAX (vlax-get-property OBENTITIES "Count"))
+   (setq C 0)
+   (while (< C CMAX)
+    (setq OBENTITY (vlax-invoke-method OBENTITIES "Item" C))
+    (setq STARTSTATION (vlax-get-property OBENTITY "StartStation"))
+    (setq STARTELEVATION (vlax-get-property OBENTITY "StartElevation"))
+    (setq RFL:OGLIST (append RFL:OGLIST (list (list STARTSTATION STARTELEVATION))))
+    (setq C (1+ C))
+   )
+   (setq ENDSTATION (vlax-get-property OBENTITY "EndStation"))
+   (setq ENDELEVATION (vlax-get-property OBENTITY "EndElevation"))
+   (setq RFL:OGLIST (append RFL:OGLIST (list (list ENDSTATION ENDELEVATION))))
+  )
+ )
+ RFL:OGLIST   
+);
+;
 ;   Program written by Robert Livingston, 98/05/14
 ;
 ;   RFL:SLOPE returns the slope at a specified station for the curretnly defined profile (RFL:PVILIST)
@@ -7326,12 +7370,50 @@
 )
 ;
 ;
+;     Program written by Robert Livingston, 2024-10-11
+;
+;     RFL:GETPROFVIEW returns a profile view entity based on a profile entity and a point within the profile view
+;
+;
+(defun RFL:GETPROFVIEW (ENT P / C CMAX ENTVIEW OBALIGNMENT OBPROFILE OBPROFILEVIEW P1 P2 PROFILEVIEWS SA1 SA2)
+ (setq ENTVIEW nil)
+ (setq OBPROFILE (vlax-ename->vla-object ENT))
+ (setq OBALIGNMENT (vlax-get-property OBPROFILE "Alignment"))
+ (setq OBPROFILEVIEWS (vlax-get-property OBALIGNMENT "ProfileViews"))
+ (setq C 0)
+ (setq CMAX (vlax-get-property OBPROFILEVIEWS "Count"))
+ (if (and (= P nil) (= CMAX 1))
+  (progn
+   (setq OBPROFILEVIEW (vlax-invoke-method OBPROFILEVIEWS "Item" C))
+   (setq ENTVIEW (vlax-vla-object->ename OBPROFILEVIEW))
+  )
+  (while (< C CMAX)
+   (setq OBPROFILEVIEW (vlax-invoke-method OBPROFILEVIEWS "Item" C))
+   (vlax-invoke-method OBPROFILEVIEW "GetBoundingBox" 'SA1 'SA2)
+   (setq P1 (vlax-safearray->list SA1))
+   (setq P2 (vlax-safearray->list SA2))
+   (if (and (>= (car P) (car P1))
+            (>= (cadr P) (cadr P1))
+            (<= (car P) (car P2))
+            (<= (cadr P) (cadr P2))
+       )
+    (progn
+     (setq ENTVIEW (vlax-vla-object->ename OBPROFILEVIEW))
+    )
+   )
+   (setq C (1+ C))
+  )
+ )
+ ENTVIEW
+)
+;
+;
 ;     Program written by Robert Livingston, 2024-10-09
 ;
 ;     RFL:GETVCURVE3P returns a list of 3 points (P1 VPI P3) and optional VEXAG for a selected vertical curve entity
 ;
 ;
-(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE GETPROFDEF P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
+(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
  (defun GETPROFDEF (ENT P / C CMAX ENTVIEW OBALIGNMENT OBPROFILE OBPROFILEVIEW P1 P2 PROFILEVIEWS SA1 SA2)
   (setq ENTVIEW nil)
   (setq OBPROFILE (vlax-ename->vla-object ENT))
@@ -7395,7 +7477,7 @@
     (if (= "AECC_PROFILE" (cdr (assoc 0 (entget ENT))))
      (progn
       (setq RFL:PVILIST (RFL:RPROFC3D ENT))
-      (if (= nil (setq RFL:PROFDEFLIST (RFL:PROFDEFENT (GETPROFDEF ENT P))))
+      (if (= nil (setq RFL:PROFDEFLIST (RFL:PROFDEFENT (RFL:GETPROFVIEW ENT P))))
        (setq RFL:PROFDEFLIST (RFL:PROFDEF))
       )
       (if RFL:PROFDEFLIST

@@ -5,7 +5,7 @@
 ;     RFL:GETVCURVE3P returns a list of 3 points (P1 VPI P3) and optional VEXAG for a selected vertical curve entity
 ;
 ;
-(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE GETPROFDEF P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
+(defun RFL:GETVCURVE3P (/ ENT ENTLIST NODE P P1 P2 P3 PVI RFL:PROFDEFLIST RFL:PVILIST STA)
  (defun GETPROFDEF (ENT P / C CMAX ENTVIEW OBALIGNMENT OBPROFILE OBPROFILEVIEW P1 P2 PROFILEVIEWS SA1 SA2)
   (setq ENTVIEW nil)
   (setq OBPROFILE (vlax-ename->vla-object ENT))
@@ -69,7 +69,7 @@
     (if (= "AECC_PROFILE" (cdr (assoc 0 (entget ENT))))
      (progn
       (setq RFL:PVILIST (RFL:RPROFC3D ENT))
-      (if (= nil (setq RFL:PROFDEFLIST (RFL:PROFDEFENT (GETPROFDEF ENT P))))
+      (if (= nil (setq RFL:PROFDEFLIST (RFL:PROFDEFENT (RFL:GETPROFVIEW ENT P))))
        (setq RFL:PROFDEFLIST (RFL:PROFDEF))
       )
       (if RFL:PROFDEFLIST
