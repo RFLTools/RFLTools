@@ -15,8 +15,8 @@
     <SourceRoot Include="C:\Program Files (x86)\Microsoft\Xamarin\NuGet\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgAutoCAD_NET_Model Condition=" '$(PkgAutoCAD_NET_Model)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net.model\25.0.0</PkgAutoCAD_NET_Model>
-    <PkgAutoCAD_NET_Core Condition=" '$(PkgAutoCAD_NET_Core)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net.core\25.0.0</PkgAutoCAD_NET_Core>
-    <PkgAutoCAD_NET Condition=" '$(PkgAutoCAD_NET)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net\25.0.1</PkgAutoCAD_NET>
+    <PkgAutoCAD_NET_Model Condition=" '$(PkgAutoCAD_NET_Model)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net.model\25.1.0</PkgAutoCAD_NET_Model>
+    <PkgAutoCAD_NET_Core Condition=" '$(PkgAutoCAD_NET_Core)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net.core\25.1.0</PkgAutoCAD_NET_Core>
+    <PkgAutoCAD_NET Condition=" '$(PkgAutoCAD_NET)' == '' ">C:\Users\rob.RFLTOOLS\.nuget\packages\autocad.net\25.1.0</PkgAutoCAD_NET>
   </PropertyGroup>
 </Project>

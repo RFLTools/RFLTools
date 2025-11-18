@@ -27,15 +27,18 @@
     <Compile Include="..\Common\myCommands.Designer.vb" Link="myCommands.Designer.vb" />
     <Compile Include="..\Common\myCommands.vb" Link="myCommands.vb" />
     <Compile Include="..\Common\QuickTrain.vb" Link="QuickTrain.vb" />
+    <Compile Include="..\Common\RFLSQLite.vb" Link="RFLSQLite.vb" />
     <Compile Include="..\Common\SpiralCommands.vb" Link="SpiralCommands.vb" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="..\Common\myCommands.resx" Link="myCommands.resx" />
   </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="AutoCAD.NET" Version="25.0.1" />
-    </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoCAD.NET" Version="25.1.0" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
+  </ItemGroup>
     <ItemGroup>
       <Reference Include="accoremgd">
         <HintPath>..\..\..\Autodesk_Libraries\ObjectARX_for_AutoCAD_2025_Win_64bit_dlm\inc\AcCoreMgd.dll</HintPath>

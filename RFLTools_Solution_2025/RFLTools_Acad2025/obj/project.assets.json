@@ -2,10 +2,10 @@
   "version": 3,
   "targets": {
     "net8.0-windows7.0": {
-      "AutoCAD.NET/25.0.1": {
+      "AutoCAD.NET/25.1.0": {
         "type": "package",
         "dependencies": {
-          "AutoCAD.NET.Core": "[25.0.0]"
+          "AutoCAD.NET.Core": "[25.1.0]"
         },
         "compile": {
           "lib/net8.0/AcCui.dll": {
@@ -72,10 +72,10 @@
           }
         }
       },
-      "AutoCAD.NET.Core/25.0.0": {
+      "AutoCAD.NET.Core/25.1.0": {
         "type": "package",
         "dependencies": {
-          "AutoCAD.NET.Model": "[25.0.0]"
+          "AutoCAD.NET.Model": "[25.1.0]"
         },
         "compile": {
           "lib/net8.0/AcCoreMgd.dll": {
@@ -88,7 +88,7 @@
           }
         }
       },
-      "AutoCAD.NET.Model/25.0.0": {
+      "AutoCAD.NET.Model/25.1.0": {
         "type": "package",
         "compile": {
           "lib/net8.0/AcDbMgd.dll": {
@@ -101,22 +101,31 @@
             "related": ".xml"
           },
           "lib/net8.0/acdbmgdbrep.dll": {}
+        }
+      },
+      "System.Data.SQLite/2.0.2": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/System.Data.SQLite.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.1/System.Data.SQLite.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "AutoCAD.NET/25.0.1": {
-      "sha512": "57MbBZyhQh6nM16w/tF88uXPUascZygGfYBzE9QsuaXjM/baPArjaTnAJmvfnkzgKLsXtZrJAzr2rCtxVygPiQ==",
+    "AutoCAD.NET/25.1.0": {
+      "sha512": "8Uw0ssJ9NLg5aOirscGq5RWvkZOpv35/yZ7nG7lvcIPW79eWmyltgtsV2ZMv+zpIuBQ6Z38064qMcTKRMGdWeQ==",
       "type": "package",
-      "path": "autocad.net/25.0.1",
+      "path": "autocad.net/25.1.0",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.txt",
         "adsk.xml",
-        "autocad.net.25.0.1.nupkg.sha512",
+        "autocad.net.25.1.0.nupkg.sha512",
         "autocad.net.nuspec",
         "lib/net8.0/AcCui.dll",
         "lib/net8.0/AcCui.xml",
@@ -141,34 +150,34 @@
         "tools/install.ps1"
       ]
     },
-    "AutoCAD.NET.Core/25.0.0": {
-      "sha512": "jPwsZgVs+4xqXtMLWJjgb4WSSzbb7YGbgn/BqT7LGPRthQb/93CmRZyuSgfjjSK8EgL+YsfRuRYVvYNGHrw3TA==",
+    "AutoCAD.NET.Core/25.1.0": {
+      "sha512": "dkgyy4kwcR2Wbzls9KF9x0PUj/35y+0ArFL64LhRCsfzSxGgHtY39oFG0QjDGKEIQKFcTUaXxdirLQZP/myxSg==",
       "type": "package",
-      "path": "autocad.net.core/25.0.0",
+      "path": "autocad.net.core/25.1.0",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.txt",
         "adsk.xml",
-        "autocad.net.core.25.0.0.nupkg.sha512",
+        "autocad.net.core.25.1.0.nupkg.sha512",
         "autocad.net.core.nuspec",
         "lib/net8.0/AcCoreMgd.dll",
         "lib/net8.0/AcCoreMgd.xml",
         "tools/install.ps1"
       ]
     },
-    "AutoCAD.NET.Model/25.0.0": {
-      "sha512": "XGKd/R/MZ5oHFEMOtxHh9L307ss6XSnW4S0JSC3UkRjvdgv8rTygXkqz+vGoRoUl8IWU/ooskfVT/qOikFfteA==",
+    "AutoCAD.NET.Model/25.1.0": {
+      "sha512": "lLLkbEsgL2JVwwghHxIM7SVBqux7r7DwAqbOVd6c+3+GGeH8ylpwax1kY41JIR/9dyhpTWgOycjA91dRhZ1Zkg==",
       "type": "package",
-      "path": "autocad.net.model/25.0.0",
+      "path": "autocad.net.model/25.1.0",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.txt",
         "adsk.xml",
-        "autocad.net.model.25.0.0.nupkg.sha512",
+        "autocad.net.model.25.1.0.nupkg.sha512",
         "autocad.net.model.nuspec",
         "lib/net8.0/AcDbMgd.dll",
         "lib/net8.0/AcDbMgd.xml",
@@ -176,11 +185,26 @@
         "lib/net8.0/acdbmgdbrep.dll",
         "tools/install.ps1"
       ]
+    },
+    "System.Data.SQLite/2.0.2": {
+      "sha512": "yAwxkraZf1PazyLg1sqMAlh4KEtaa2L8zieLicd9oWBybrb3SoPph+WVIyUTFWwtTVhNX/jNsDew6tbB8bw2xQ==",
+      "type": "package",
+      "path": "system.data.sqlite/2.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net471/System.Data.SQLite.dll",
+        "lib/netstandard2.0/System.Data.SQLite.dll",
+        "lib/netstandard2.1/System.Data.SQLite.dll",
+        "system.data.sqlite.2.0.2.nupkg.sha512",
+        "system.data.sqlite.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
-      "AutoCAD.NET >= 25.0.1"
+      "AutoCAD.NET >= 25.1.0",
+      "System.Data.SQLite >= 2.0.2"
     ]
   },
   "packageFolders": {
@@ -212,7 +236,8 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {}
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0-windows7.0": {
@@ -238,7 +263,11 @@
         "dependencies": {
           "AutoCAD.NET": {
             "target": "Package",
-            "version": "[25.0.1, )"
+            "version": "[25.1.0, )"
+          },
+          "System.Data.SQLite": {
+            "target": "Package",
+            "version": "[2.0.2, )"
           }
         },
         "imports": [
