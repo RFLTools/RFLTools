@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "7XGIBqlGRhU=",
+  "success": true,
+  "projectFilePath": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2025\\RFLTools_Acad2025.vbproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net\\25.0.1\\autocad.net.25.0.1.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.core\\25.0.0\\autocad.net.core.25.0.0.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.model\\25.0.0\\autocad.net.model.25.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

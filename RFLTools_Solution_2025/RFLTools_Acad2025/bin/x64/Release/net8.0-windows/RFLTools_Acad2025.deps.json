@@ -1,0 +1,117 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "RFLTools_Acad2025/1.0.0": {
+        "dependencies": {
+          "AutoCAD.NET": "25.0.1"
+        },
+        "runtime": {
+          "RFLTools_Acad2025.dll": {}
+        }
+      },
+      "AutoCAD.NET/25.0.1": {
+        "dependencies": {
+          "AutoCAD.NET.Core": "25.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/AcCui.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcDx.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcMgd.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcMr.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcSeamless.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcTcMgd.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AcWindows.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AdUIMgd.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AdUiPalettes.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/AdWindows.dll": {
+            "assemblyVersion": "5.1.1.1",
+            "fileVersion": "5.1.1.1"
+          }
+        }
+      },
+      "AutoCAD.NET.Core/25.0.0": {
+        "dependencies": {
+          "AutoCAD.NET.Model": "25.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/AcCoreMgd.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          }
+        }
+      },
+      "AutoCAD.NET.Model/25.0.0": {
+        "runtime": {
+          "lib/net8.0/AcDbMgd.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          },
+          "lib/net8.0/acdbmgdbrep.dll": {
+            "assemblyVersion": "25.0.0.0",
+            "fileVersion": "25.0.58.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RFLTools_Acad2025/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "AutoCAD.NET/25.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-57MbBZyhQh6nM16w/tF88uXPUascZygGfYBzE9QsuaXjM/baPArjaTnAJmvfnkzgKLsXtZrJAzr2rCtxVygPiQ==",
+      "path": "autocad.net/25.0.1",
+      "hashPath": "autocad.net.25.0.1.nupkg.sha512"
+    },
+    "AutoCAD.NET.Core/25.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jPwsZgVs+4xqXtMLWJjgb4WSSzbb7YGbgn/BqT7LGPRthQb/93CmRZyuSgfjjSK8EgL+YsfRuRYVvYNGHrw3TA==",
+      "path": "autocad.net.core/25.0.0",
+      "hashPath": "autocad.net.core.25.0.0.nupkg.sha512"
+    },
+    "AutoCAD.NET.Model/25.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XGKd/R/MZ5oHFEMOtxHh9L307ss6XSnW4S0JSC3UkRjvdgv8rTygXkqz+vGoRoUl8IWU/ooskfVT/qOikFfteA==",
+      "path": "autocad.net.model/25.0.0",
+      "hashPath": "autocad.net.model.25.0.0.nupkg.sha512"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|z:\\lisp\\github\\rfltools\\rfltools_solution_2025\\common\\getputsymacad.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|solutionrelative:common\\getputsymacad.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|z:\\lisp\\github\\rfltools\\rfltools_solution_2025\\common\\mycommands.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|solutionrelative:common\\mycommands.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GetPutSymACAD.vb",
+              "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\GetPutSymACAD.vb",
+              "RelativeDocumentMoniker": "Common\\GetPutSymACAD.vb",
+              "ToolTip": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\GetPutSymACAD.vb",
+              "RelativeToolTip": "Common\\GetPutSymACAD.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-11-18T07:38:34.998Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "myCommands.vb",
+              "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\myCommands.vb",
+              "RelativeDocumentMoniker": "Common\\myCommands.vb",
+              "ToolTip": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\myCommands.vb",
+              "RelativeToolTip": "Common\\myCommands.vb",
+              "ViewState": "AgIAAO0BAAAAAAAAAAAAAP8BAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2025-11-18T07:32:38.545Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

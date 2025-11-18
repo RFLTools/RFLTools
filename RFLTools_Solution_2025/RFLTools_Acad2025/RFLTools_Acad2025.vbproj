@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RFLToolsApplication</RootNamespace>
+    <TargetFramework>net8.0-windows</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+      <Platforms>x64</Platforms>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <UseWindowsForms>true</UseWindowsForms>
+      <UseWPF>true</UseWPF>
+      <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="myCommands.Designer.vb" />
+    <Compile Remove="myCommands.vb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="myCommands.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Common\DataTypes.vb" Link="DataTypes.vb" />
+    <Compile Include="..\Common\GetPutSymACAD.vb" Link="GetPutSymACAD.vb" />
+    <Compile Include="..\Common\myCommands.Designer.vb" Link="myCommands.Designer.vb" />
+    <Compile Include="..\Common\myCommands.vb" Link="myCommands.vb" />
+    <Compile Include="..\Common\QuickTrain.vb" Link="QuickTrain.vb" />
+    <Compile Include="..\Common\SpiralCommands.vb" Link="SpiralCommands.vb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\Common\myCommands.resx" Link="myCommands.resx" />
+  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoCAD.NET" Version="25.0.1" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="accoremgd">
+        <HintPath>..\..\..\Autodesk_Libraries\ObjectARX_for_AutoCAD_2025_Win_64bit_dlm\inc\AcCoreMgd.dll</HintPath>
+      </Reference>
+      <Reference Include="Acdbmgd">
+        <HintPath>..\..\..\Autodesk_Libraries\ObjectARX_for_AutoCAD_2025_Win_64bit_dlm\inc\AcDbMgd.dll</HintPath>
+      </Reference>
+      <Reference Include="acmgd">
+        <HintPath>..\..\..\Autodesk_Libraries\ObjectARX_for_AutoCAD_2025_Win_64bit_dlm\inc\AcMgd.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
