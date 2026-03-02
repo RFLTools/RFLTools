@@ -1,4 +1,4 @@
-﻿Imports System
+Imports System
 Imports System.Math
 Imports Autodesk.AutoCAD.Runtime
 Imports Autodesk.AutoCAD.ApplicationServices
@@ -901,38 +901,15 @@ Namespace RFLToolsApplication
                 Return (PLTST.DistanceTo(PST) * Sin(Theta())) / SpiralCommands.SpiralFYR(Theta())
             End Function
 
-            Private Function OddEven(ByVal N As Integer) As Integer
-                Dim Remainder As Integer
 
-                Remainder = N Mod 2
-                If Remainder = 1 Then
-                    Return -1
-                Else
-                    Return 1
-                End If
-            End Function
 
             Private Function SpiralFYR() As Double
                 Return SpiralFYR(Theta())
             End Function
 
             Private Function SpiralFYR(ByVal Theta As Double) As Double
-                Dim Ar2, Denominator, Numerator, Sum, Sum2 As Double
-                Dim N As Integer
-
-                Sum = -1.0
-                Sum2 = 0.0
-                Ar2 = 2.0 * Theta
-                N = 1
-                While (Abs(Sum - Sum2) > Tol)
-                    Sum = Sum2
-                    Numerator = OddEven(N + 1) * Pow(Ar2, ((2.0 * N) - 1.0))
-                    Denominator = Pow(2.0, ((2.0 * N) - 1.0)) * ((4.0 * N) - 1.0) * SpiralFact((2.0 * N) - 1.0)
-                    Sum2 = Sum2 + (Numerator / Denominator)
-                    N = N + 1
-                End While
-                Sum = Sum * Ar2
-                Return Sum
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralFYR(Theta)
             End Function
 
             Private Function SpiralFXR() As Double
@@ -940,57 +917,19 @@ Namespace RFLToolsApplication
             End Function
 
             Private Function SpiralFXR(ByVal Theta As Double) As Double
-                Dim Ar2, Denominator, Numerator, Sum, Sum2 As Double
-                Dim N As Integer
-
-                Sum = -1.0
-                Sum2 = 0.0
-                Ar2 = 2.0 * Theta
-                N = 1
-                While (Abs(Sum - Sum2) > Tol)
-                    Sum = Sum2
-                    If Theta > TolFine Then
-                        Numerator = OddEven(N + 1) * Pow(Ar2, (2.0 * (N - 1)))
-                    Else
-                        Numerator = 0.0
-                    End If
-                    Denominator = Pow(2.0, (2.0 * (N - 1.0))) * ((4.0 * N) - 3.0) * SpiralFact(2.0 * (N - 1.0))
-                    Sum2 = Sum2 + (Numerator / Denominator)
-                    N = N + 1
-                End While
-                Sum = Sum * Ar2
-                Return Sum
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralFXR(Theta)
             End Function
 
-            Private Function SpiralFact(ByVal N As Integer) As Double
-                Dim F As Double
-                F = 1.0
-                While (N > 0)
-                    F = F * N
-                    N = N - 1
-                End While
-                SpiralFact = F
-            End Function
 
-            Private Function SpiralFact(ByVal N As Double) As Double
-                Dim F As Double
-                F = 1.0
-                While (N > 0.0)
-                    F = F * N
-                    N = N - 1.0
-                End While
-                SpiralFact = F
-            End Function
 
             Private Function SpiralP() As Double
                 Return SpiralP(R(), SpiralLs())
             End Function
 
             Private Function SpiralP(ByVal R As Double, ByVal LS As Double) As Double
-                Dim Theta As Double
-
-                Theta = LS / (2.0 * R)
-                SpiralP = R * (SpiralFYR(Theta) - (1.0 - Cos(Theta)))
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralP(R, LS)
             End Function
 
             Private Function SpiralPR() As Double
@@ -998,7 +937,8 @@ Namespace RFLToolsApplication
             End Function
 
             Private Function SpiralPR(ByVal Theta As Double) As Double
-                Return SpiralFYR(Theta) - (1.0 - Cos(Theta))
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralPR(Theta)
             End Function
 
             Private Function SpiralK() As Double
@@ -1006,10 +946,8 @@ Namespace RFLToolsApplication
             End Function
 
             Private Function SpiralK(ByVal R As Double, ByVal LS As Double) As Double
-                Dim Theta As Double
-
-                Theta = LS / (2.0 * R)
-                Return R * (SpiralFXR(Theta) - Sin(Theta))
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralK(R, LS)
             End Function
 
             Private Function SpiralKR() As Double
@@ -1017,7 +955,8 @@ Namespace RFLToolsApplication
             End Function
 
             Private Function SpiralKR(ByVal Theta As Double) As Double
-                SpiralKR = SpiralFXR(Theta) - Sin(Theta)
+                ' Delegate to the improved implementation in SpiralCommands
+                Return SpiralCommands.SpiralKR(Theta)
             End Function
 
             Private Function StaOff_Fctn(ByVal Val As Double, ByVal Px As Double, ByVal Py As Double, ByVal A2 As Double, ByVal SpiralDirection As Double) As Double
