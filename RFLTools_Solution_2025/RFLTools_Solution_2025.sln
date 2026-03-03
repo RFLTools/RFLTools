@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36705.20
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11408.102 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_Acad2025", "RFLTools_Acad2025\RFLTools_Acad2025.vbproj", "{815C638E-545C-4DEC-A25B-1C72BC94D270}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RFLTools_Acad2026", "RFLTools_Acad2026\RFLTools_Acad2026.vbproj", "{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{815C638E-545C-4DEC-A25B-1C72BC94D270}.Debug|x64.Build.0 = Debug|x64
 		{815C638E-545C-4DEC-A25B-1C72BC94D270}.Release|x64.ActiveCfg = Release|x64
 		{815C638E-545C-4DEC-A25B-1C72BC94D270}.Release|x64.Build.0 = Release|x64
+		{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}.Debug|x64.ActiveCfg = Debug|x64
+		{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}.Debug|x64.Build.0 = Debug|x64
+		{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}.Release|x64.ActiveCfg = Release|x64
+		{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

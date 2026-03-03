@@ -22,6 +22,99 @@ RFLTools_ACAD2019x64
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.OddEven(System.Int32)">
+ <summary>
+ Returns an alternating sign based on whether N is odd or even.
+ Used in Taylor series expansions for Fresnel integrals to generate alternating signs.
+ </summary>
+ <param name="N">The integer index (typically from series iteration)</param>
+ <returns>Returns -1 if N is odd, +1 if N is even</returns>
+ <remarks>
+ This function generates the pattern: ..., -1, 1, -1, 1, -1, 1, ...
+ Equivalent to (-1)^N for the alternating sign pattern in series.
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralFYR(System.Double)">
+ <summary>
+ Calculates the Y-component of the Fresnel integral (Euler spiral/clothoid) using Taylor series.
+ This function computes: Y(θ) = ∫₀^θ sin(t²) dt
+ Used for transition curve calculations in highway and railroad design.
+ </summary>
+ <param name="Theta">The spiral parameter angle in radians</param>
+ <returns>The Y-coordinate offset value, or NaN for invalid inputs</returns>
+ <remarks>
+ Convergence uses absolute tolerance (Tol = 1e-10) with maximum 1000 iterations.
+ Returns NaN for negative Theta, 0 for Theta ≈ 0.
+ Series: Σ((-1)^(n+1) * (2θ)^(2n-1)) / (2^(2n-1) * (4n-1) * (2n-1)!)
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralFXR(System.Double)">
+ <summary>
+ Calculates the X-component of the Fresnel integral (Euler spiral/clothoid) using Taylor series.
+ This function computes: X(θ) = ∫₀^θ cos(t²) dt
+ Used for transition curve calculations in highway and railroad design.
+ </summary>
+ <param name="Theta">The spiral parameter angle in radians</param>
+ <returns>The X-coordinate offset value, or NaN for invalid inputs</returns>
+ <remarks>
+ Convergence uses absolute tolerance (Tol = 1e-10) with maximum 1000 iterations.
+ Returns NaN for negative Theta, 0 for Theta ≈ 0.
+ Series: Σ((-1)^(n+1) * (2θ)^(2(n-1))) / (2^(2(n-1)) * (4n-3) * (2(n-1))!)
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralFact(System.Int32)">
+ <summary>
+ Calculates factorial of an integer value with caching for performance.
+ Uses memoization to avoid recalculating factorials in iterative loops.
+ </summary>
+ <param name="N">The integer value to calculate factorial for (must be >= 0)</param>
+ <returns>The factorial value as a Double</returns>
+ <remarks>
+ Maximum supported value is 170 due to Double precision limits.
+ Values beyond 170! will cause overflow (Double.PositiveInfinity).
+ Thread-safe implementation using lock on cache access.
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralFact(System.Double)">
+ <summary>
+ Calculates factorial for a Double value.
+ Note: This only works correctly for integer values stored as Double.
+ For true non-integer factorials, use the Gamma function: Gamma(N+1) = N!
+ </summary>
+ <param name="N">The double value (should be an integer value)</param>
+ <returns>The factorial value as a Double</returns>
+ <remarks>
+ This overload delegates to the Integer version for better performance.
+ Non-integer values will be truncated, which may not be mathematically correct.
+ Consider using Math.Gamma(N+1) for true non-integer factorial calculations.
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralPR(System.Double)">
+ <summary>
+ Calculates the P-offset ratio (P/R) for a spiral curve given the spiral parameter angle.
+ This is equivalent to SpiralP with R=1, representing the normalized P-offset.
+ </summary>
+ <param name="Theta">The spiral parameter angle in radians (θ = LS / (2R))</param>
+ <returns>The normalized P-offset ratio (dimensionless), or NaN for invalid inputs</returns>
+ <remarks>
+ Formula: P/R = Y(θ) - (1 - cos(θ))
+ To get actual P-offset: P = R × SpiralPR(θ)
+ Delegates input validation to SpiralFYR function.
+ </remarks>
+</member>
+<member name="M:RFLTools.RFLToolsApplication.SpiralCommands.SpiralKR(System.Double)">
+ <summary>
+ Calculates the K-offset ratio (K/R) for a spiral curve given the spiral parameter angle.
+ This is equivalent to SpiralK with R=1, representing the normalized K-offset.
+ </summary>
+ <param name="Theta">The spiral parameter angle in radians (θ = LS / (2R))</param>
+ <returns>The normalized K-offset ratio (dimensionless), or NaN for invalid inputs</returns>
+ <remarks>
+ Formula: K/R = X(θ) - sin(θ)
+ To get actual K-offset: K = R × SpiralKR(θ)
+ Delegates input validation to SpiralFXR function.
+ </remarks>
+</member>
 <member name="T:RFLTools.myCommands">
 <summary>
   A strongly-typed resource class, for looking up localized strings, etc.

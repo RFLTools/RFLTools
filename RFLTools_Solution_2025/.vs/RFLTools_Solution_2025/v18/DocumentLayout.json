@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|z:\\lisp\\github\\rfltools\\rfltools_solution_2025\\rfltools_acad2025\\rfltools_acad2025.vbproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|solutionrelative:rfltools_acad2025\\rfltools_acad2025.vbproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}|RFLTools_Acad2026\\RFLTools_Acad2026.vbproj|z:\\lisp\\github\\rfltools\\rfltools_solution_2025\\rfltools_acad2026\\rfltools_acad2026.vbproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{448FB9DB-41E2-CC8D-D0A5-329CE35F6084}|RFLTools_Acad2026\\RFLTools_Acad2026.vbproj|solutionrelative:rfltools_acad2026\\rfltools_acad2026.vbproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|z:\\lisp\\github\\rfltools\\rfltools_solution_2025\\common\\spiralcommands.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
       "RelativeMoniker": "D:0:0:{815C638E-545C-4DEC-A25B-1C72BC94D270}|RFLTools_Acad2025\\RFLTools_Acad2025.vbproj|solutionrelative:common\\spiralcommands.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
@@ -23,6 +31,30 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "RFLTools_Acad2025",
+              "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2025\\RFLTools_Acad2025.vbproj",
+              "RelativeDocumentMoniker": "RFLTools_Acad2025\\RFLTools_Acad2025.vbproj",
+              "ToolTip": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2025\\RFLTools_Acad2025.vbproj",
+              "RelativeToolTip": "RFLTools_Acad2025\\RFLTools_Acad2025.vbproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003380|",
+              "WhenOpened": "2026-03-03T04:25:19.952Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RFLTools_Acad2026",
+              "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2026\\RFLTools_Acad2026.vbproj",
+              "RelativeDocumentMoniker": "RFLTools_Acad2026\\RFLTools_Acad2026.vbproj",
+              "ToolTip": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2026\\RFLTools_Acad2026.vbproj",
+              "RelativeToolTip": "RFLTools_Acad2026\\RFLTools_Acad2026.vbproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003380|",
+              "WhenOpened": "2026-03-03T04:24:51.104Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "SpiralCommands.vb",
               "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\SpiralCommands.vb",
               "RelativeDocumentMoniker": "Common\\SpiralCommands.vb",
@@ -35,7 +67,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "DataTypes.vb",
               "DocumentMoniker": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\Common\\DataTypes.vb",
               "RelativeDocumentMoniker": "Common\\DataTypes.vb",
@@ -43,8 +75,7 @@
               "RelativeToolTip": "Common\\DataTypes.vb",
               "ViewState": "AgIAAPgDAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-01-13T20:00:07.845Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-13T20:00:07.845Z"
             }
           ]
         }
