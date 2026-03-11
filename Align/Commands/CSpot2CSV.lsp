@@ -6,8 +6,8 @@
 ;              and writes the set, ordered by station, to "SPOT2CSV.CSV" in the users Documents folder.
 ;
 ;
-;(defun C:SPOT2CSV (/ EASTING ENT ENTLIST ENTSET ELEVDESIGN ELEVOG LAYER N N1 N2 NODE NORTHING OFFSET OUTFILE OUTFILENAME OUTLIST P STA)
-(defun C:SPOT2CSV ()
+(defun C:SPOT2CSV (/ EASTING ENT ENTLIST ENTSET ELEVDESIGN ELEVOG GRADEDESIGN LAYER N N1 N2 NODE NORTHING OFFSET OUTFILE OUTFILENAME OUTLIST P STA)
+;(defun C:SPOT2CSV ()
  (if (or (= RFL:ALIGNLIST nil) (= RFL:PVILIST nil))
   (princ "\n*** ALIGNMENT AND/OR PROFILE NOT LOADED ***\n")
   (progn
@@ -30,15 +30,16 @@
 	  (setq STA (car P))
 	  (setq OFFSET (cadr P))
 	  (setq ELEVDESIGN (RFL:ELEVATION STA))
-	  (setq OUTLIST (append OUTLIST (list (list LAYER NORTHING EASTING STA OFFSET ELEVOG ELEVDESIGN))))
+	  (setq GRADEDESIGN (RFL:SLOPE STA))
+	  (setq OUTLIST (append OUTLIST (list (list LAYER NORTHING EASTING STA OFFSET ELEVOG ELEVDESIGN GRADEDESIGN))))
 	 )
 	)
 	(setq N (1+ N))
    )
    (setq OUTLIST (vl-sort OUTLIST (function (lambda (N1 N2) (< (nth 3 N1) (nth 3 N2))))))
    (setq OUTFILE (open OUTFILENAME "w"))
-   (princ "LAYER,NORTHING,EASTING,STATION,OFFSET,OGELEVATION,DESIGNELEVATION\n" OUTFILE)
-   (princ "LAYER,NORTHING,EASTING,STATION,OFFSET,OGELEVATION,DESIGNELEVATION\n")
+   (princ "LAYER,NORTHING,EASTING,STATION,OFFSET,OGELEVATION,DESIGNELEVATION,GRADEDESIGN\n" OUTFILE)
+   (princ "LAYER,NORTHING,EASTING,STATION,OFFSET,OGELEVATION,DESIGNELEVATION,GRADEDESIGN\n")
    (foreach NODE OUTLIST
     (progn
 	 (princ (strcat (nth 0 NODE) ","
@@ -47,7 +48,8 @@
 					(rtos (nth 3 NODE) 2 3) ","
 					(rtos (nth 4 NODE) 2 3) ","
 					(rtos (nth 5 NODE) 2 3) ","
-					(rtos (nth 6 NODE) 2 3) "\n"
+					(rtos (nth 6 NODE) 2 3) ","
+					(rtos (* 100.0 (nth 7 NODE)) 2 3) "\n"
 		    )
 	        OUTFILE
 	 )
@@ -57,7 +59,8 @@
 					(rtos (nth 3 NODE) 2 3) ","
 					(rtos (nth 4 NODE) 2 3) ","
 					(rtos (nth 5 NODE) 2 3) ","
-					(rtos (nth 6 NODE) 2 3) "\n"
+					(rtos (nth 6 NODE) 2 3) ","
+					(rtos (* 100.0 (nth 7 NODE)) 2 3) "\n"
 		    )
 	 )
 	)
