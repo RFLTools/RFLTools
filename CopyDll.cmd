@@ -1,0 +1,5 @@
+COPY ".\RFLTools_Solution\bin\x64\Release\RFLTools_*.dll" ".\DLL"
+COPY ".\RFLTools_Solution\bin\x64\Release\System.Data.SQLite*.dll" ".\DLL"
+COPY ".\RFLTools_Solution\bin\x86\Release\RFLTools_*.dll" ".\DLL"
+COPY ".\RFLTools_Solution_2025\RFLTools_Acad2025\bin\x64\Release\net8.0-windows\RFLTools_*.dll" ".\DLL"
+COPY ".\RFLTools_Solution_2025\RFLTools_Acad2026\bin\x64\Release\net8.0-windows\RFLTools_*.dll" ".\DLL"
