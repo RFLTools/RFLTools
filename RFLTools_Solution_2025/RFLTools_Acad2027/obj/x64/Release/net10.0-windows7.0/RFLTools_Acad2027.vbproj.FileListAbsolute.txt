@@ -1,0 +1,13 @@
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\bin\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.deps.json
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\bin\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.dll
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\bin\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.pdb
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.vbproj.AssemblyReference.cache
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLToolsApplication.RFLToolsApplication.MyCommands.resources
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.vbproj.GenerateResource.cache
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.GeneratedMSBuildEditorConfig.editorconfig
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.vbproj.CoreCompileInputs.cache
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.sourcelink.json
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.dll
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\refint\RFLTools_Acad2027.dll
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\RFLTools_Acad2027.pdb
+Z:\LISP\GitHub\RFLTools\RFLTools_Solution_2025\RFLTools_Acad2027\obj\x64\Release\net10.0-windows7.0\ref\RFLTools_Acad2027.dll

@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "4Qsx2kOtMGE=",
+  "success": true,
+  "projectFilePath": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2027\\RFLTools_Acad2027.vbproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net\\25.1.0\\autocad.net.25.1.0.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.core\\25.1.0\\autocad.net.core.25.1.0.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.model\\25.1.0\\autocad.net.model.25.1.0.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\system.data.sqlite\\2.0.2\\system.data.sqlite.2.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
