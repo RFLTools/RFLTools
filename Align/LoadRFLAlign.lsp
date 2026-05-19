@@ -9416,7 +9416,7 @@
 ;   3DP2PROF is a routine for drawing 3D polyline control lines on a profile
 ;
 ;
-(defun C:3DP2PROF (/ C CLAYER CMDECHO ENT ENTLIST LAYER LR ORTHOMODE OSMODE P S)
+(defun C:3DP2PROF (/ C CLAYER CMDECHO ENT ENTLIST LAYER LR ORTHOMODE OSMODE P S USESUPER)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq CLAYER (getvar "CLAYER"))
@@ -9428,6 +9428,13 @@
  (if (= nil RFL:ALIGNLIST)
   (princ "\n***** Alignment not set! *****\n")
   (progn
+   (setq USESUPER "No")
+   (if RFL:SUPERLIST
+    (progn
+     (initget "Yes No")
+     (if (= nil (setq USESUPER (getkword "\nUse superelevastion (<Yes>/No) ? "))) (setq USESUPER "Yes"))
+    )
+   )
    (RFL:PROFDEF)
    (while (/= (setq ENT (car (entsel "\nSelect 3D polyline : "))) nil)
     (setq ENTLIST (entget ENT))
@@ -9444,7 +9451,19 @@
          (setq P (cdr (assoc 10 ENTLIST)))
          (setq S (RFL:STAOFF P))
          (if (/= S nil)
-          (command (RFL:PROFPOINT (nth 0 S) (nth 2 P)))
+          (if (= "No" USESUPER)
+           (command (RFL:PROFPOINT (car S) (caddr P)))
+           (if (< (cadr S) 0.0)
+            (command (RFL:PROFPOINT (car S)
+                                    (+ (caddr P) (* (cadr S) (car (RFL:SUPER (car S))) 0.01))
+                     )
+            )
+            (command (RFL:PROFPOINT (car S)
+                                    (- (caddr P) (* (cadr S) (cadr (RFL:SUPER (car S))) 0.01))
+                     )
+            )
+           )
+          )
          )
          (setq ENT (entnext ENT))
          (setq ENTLIST (entget ENT))
