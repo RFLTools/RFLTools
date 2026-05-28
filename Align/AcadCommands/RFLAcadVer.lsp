@@ -95,17 +95,17 @@
        
        ;;2025
        ((vl-string-search "\\R25.0\\" ACADPROD)
-        "13.6"
+        "13.7"
        )
        
        ;;2026
        ((vl-string-search "\\R25.1\\" ACADPROD)
-        "13.6"
+        "13.8"
        )
        
         ;;2027
        ((vl-string-search "\\R26.0\\" ACADPROD)
-        "13.6"
+        "13.9"
        )
        
 )
