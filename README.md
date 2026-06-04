@@ -1,11 +1,3 @@
-# Proposed README.md — RFLTools (v2)
-
-**This is a suggested rewrite of the root README.md for the RFLTools repository.**
-**Current file:** [github.com/RFLTools/RFLTools/blob/master/README.md](https://github.com/RFLTools/RFLTools/blob/master/README.md)
-**Revisions from v1:** Removed detailed command catalog per feedback. Kept high-level structure only.
-
----
-
 # RFLTools
 
 **AutoCAD / Civil 3D Alignment Design Toolkit**  
