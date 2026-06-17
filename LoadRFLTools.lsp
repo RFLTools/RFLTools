@@ -24684,7 +24684,7 @@
     )
     (setq K (abs (/ L (- G2 G1) 100.0)))
     (setvar "ATTREQ" 0)
-    (if (= nil (tblsearch "BLOCK" "PVI2")) (MAKEENT "PVI2"))
+    (if (= nil (tblsearch "BLOCK" "PVI2")) (RFL:MAKEENT "PVI2"))
     (command "._INSERT"
              "PVI2"
              P
