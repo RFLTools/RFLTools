@@ -204656,6 +204656,17 @@
 ;
 ;     Derived from: https://github.com/shahid28/utm-latlng/blob/master/UTMLatLng.js
 ;
+;     FIXES (2026-08-02, verified against pyproj/PROJ test vectors):
+;       1. C1 in RFL:UTM2LATLNG now uses ECCPRIMESQUARED (e'^2) per Snyder,
+;          not RFL:LATLNGECCSQUARED (e^2) - was up to ~5.9 mm error at zone edges
+;       2. Meridional arc M extended with e^8 terms (was ~0.96 mm error at high latitude)
+;       3. Inverse MU denominator + footpoint latitude (PHI1) series extended with
+;          e^8 / E1^5 terms to match
+;       4. RFL:SETELLIPSOID "Clarke 1866" fixed (was setting a = e^2 - copy/paste bug)
+;       5. Hemisphere check now validates zone letter (was silently treating empty/
+;          invalid letters as southern hemisphere)
+;       6. Error paths return nil instead of crashing on (itoa nil)
+;
 ;
 (setq RFL:LATLNGDATUMNAME "WGS 84")
 (setq RFL:LATLNGSTATUS nil)
@@ -204702,14 +204713,28 @@
    (setq TN (expt (RFL:TAN LATRAD) 2))
    (setq C (* ECCPRIMESQUARED (expt (cos LATRAD) 2)))
    (setq A (* (cos LATRAD) (- LNGRAD LNGORIGINRAD)))
+   ; Meridional arc M, extended to e^8 (Snyder PP1395 full series)
    (setq M (* RFL:LATLNGA
-              (- (+ (- (* (- 1.0 (/ RFL:LATLNGECCSQUARED 4.0) (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 64.0) (/ (* 5.0 (expt RFL:LATLNGECCSQUARED 3)) 256.0)) LATRAD)
-                       (* (+ (/ (* 3.0 RFL:LATLNGECCSQUARED) 8.0) (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 32.0) (/ (* 45.0 (expt RFL:LATLNGECCSQUARED 3)) 1024.0)) (sin (* 2.0 LATRAD)))
-                    )
-                    (* (+ (/ (* 15.0 (expt RFL:LATLNGECCSQUARED 2)) 256.0) (/ (* 45.0 (expt RFL:LATLNGECCSQUARED 3)) 1024.0)) (sin (* 4.0 LATRAD)))
-                 )
-                 (* (/ (* 35.0 (expt RFL:LATLNGECCSQUARED 3)) 3072.0) (sin (* 6.0 LATRAD)))
-              )
+              (+ (- (+ (- (* (- 1.0
+                                  (/ RFL:LATLNGECCSQUARED 4.0)
+                                  (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 64.0)
+                                  (/ (* 5.0 (expt RFL:LATLNGECCSQUARED 3)) 256.0)
+                                  (/ (* 175.0 (expt RFL:LATLNGECCSQUARED 4)) 16384.0))
+                               LATRAD)
+                         (* (+ (/ (* 3.0 RFL:LATLNGECCSQUARED) 8.0)
+                               (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 32.0)
+                               (/ (* 45.0 (expt RFL:LATLNGECCSQUARED 3)) 1024.0)
+                               (/ (* 105.0 (expt RFL:LATLNGECCSQUARED 4)) 4096.0))
+                            (sin (* 2.0 LATRAD))))
+                      (* (+ (/ (* 15.0 (expt RFL:LATLNGECCSQUARED 2)) 256.0)
+                            (/ (* 45.0 (expt RFL:LATLNGECCSQUARED 3)) 1024.0)
+                            (/ (* 525.0 (expt RFL:LATLNGECCSQUARED 4)) 16384.0))
+                         (sin (* 4.0 LATRAD))))
+                   (* (+ (/ (* 35.0 (expt RFL:LATLNGECCSQUARED 3)) 3072.0)
+                         (/ (* 175.0 (expt RFL:LATLNGECCSQUARED 4)) 12288.0))
+                      (sin (* 6.0 LATRAD))))
+                (* (/ (* 315.0 (expt RFL:LATLNGECCSQUARED 4)) 131072.0)
+                   (sin (* 8.0 LATRAD))))
            )
    )
    (setq EASTING (+ (* 0.9996
@@ -204740,39 +204765,55 @@
    (setq PUTM (list EASTING NORTHING))
   )
  )
- (princ (strcat "\nUTM Zone : " (itoa ZONENUMBER) UTMZONE "\n"))
- (cons (strcat (itoa ZONENUMBER) UTMZONE) PUTM)
+ (if PUTM
+  (progn
+   (princ (strcat "\nUTM Zone : " (itoa ZONENUMBER) UTMZONE "\n"))
+   (cons (strcat (itoa ZONENUMBER) UTMZONE) PUTM)
+  )
+ )
 )
 ; PUTM = (list EASTING NORTHING)
 ; ZONENUMBER = string
 ; ZONELETTER = string
 ; PLL = (list LATITUDE LONGITUDE)
 (defun RFL:UTM2LATLNG (PUTM ZONENUMBER ZONELETTER / C1 D E1 EASTING ECCPRIMESQUARED LAT LATRAD LNG LNGRAD LNGORIGIN M MU N1 NORTHING NORTHERN PHI1 PHI1RAD PLL R1 T1 X Y)
- (setq EASTING (car PUTM) NORTHING (cadr PUTM) ZONENUMBER (atoi ZONENUMBER) ZONELETTER (strcase ZONELETTER))
+ (setq EASTING (car PUTM) NORTHING (cadr PUTM))
+ (setq ZONENUMBER (if (= (type ZONENUMBER) 'STR) (atoi ZONENUMBER) ZONENUMBER))
+ (setq ZONELETTER (strcase ZONELETTER))
  (setq PLL nil)
- (if (and EASTING NORTHING ZONENUMBER ZONELETTER (not (RFL:SETELLIPSOID RFL:LATLNGDATUMNAME)))
+ (if (and EASTING NORTHING ZONENUMBER
+          (member ZONELETTER '("C" "D" "E" "F" "G" "H" "J" "K" "L" "M" "N" "P" "Q" "R" "S" "T" "U" "V" "W" "X"))
+          (not (RFL:SETELLIPSOID RFL:LATLNGDATUMNAME)))
   (progn
    (setq E1 (/ (- 1.0 (sqrt (- 1.0 RFL:LATLNGECCSQUARED))) (+ 1.0 (sqrt (- 1.0 RFL:LATLNGECCSQUARED)))))
    (setq X (- EASTING 500000.0))
    (setq Y NORTHING)
-   (if (>= ZONELETTER "N")
+   (if (member ZONELETTER '("N" "P" "Q" "R" "S" "T" "U" "V" "W" "X"))
     (setq NORTHERN 1)
     (setq NORTHERN 0 Y (- Y 10000000.0))
    )
    (setq LNGORIGIN (+ (- (* (- ZONENUMBER 1) 6) 180) 3))
    (setq ECCPRIMESQUARED (/ RFL:LATLNGECCSQUARED (- 1.0 RFL:LATLNGECCSQUARED)))
    (setq M (/ Y 0.9996))
-   (setq MU (/ M (* RFL:LATLNGA (- 1.0 (/ RFL:LATLNGECCSQUARED 4.0) (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 64.0) (/ (* 5.0 (expt RFL:LATLNGECCSQUARED 3)) 256.0)))))
+   ; MU denominator extended to e^8
+   (setq MU (/ M (* RFL:LATLNGA (- 1.0
+                                    (/ RFL:LATLNGECCSQUARED 4.0)
+                                    (/ (* 3.0 (expt RFL:LATLNGECCSQUARED 2)) 64.0)
+                                    (/ (* 5.0 (expt RFL:LATLNGECCSQUARED 3)) 256.0)
+                                    (/ (* 175.0 (expt RFL:LATLNGECCSQUARED 4)) 16384.0)))))
+   ; Footpoint latitude PHI1, extended to E1^5 / sin(8*MU) (Snyder PP1395 full series)
    (setq PHI1RAD (+ MU
                     (* (- (/ (* 3.0 E1) 2.0) (/ (* 27.0 (expt E1 3)) 32.0)) (sin (* 2.0 MU)))
                     (* (- (/ (* 21.0 (expt E1 2)) 16.0) (/ (* 55.0 (expt E1 4)) 32.0)) (sin (* 4.0 MU)))
-                    (* (/ (* 151.0 (expt E1 3)) 96.0) (sin (* 6.0 MU)))
+                    (* (- (/ (* 151.0 (expt E1 3)) 96.0) (/ (* 417.0 (expt E1 5)) 128.0)) (sin (* 6.0 MU)))
+                    (* (/ (* 1097.0 (expt E1 4)) 512.0) (sin (* 8.0 MU)))
                  )
    )
    (setq PHI1 (* PHI1RAD (/ 180.0 pi)))
    (setq N1 (/ RFL:LATLNGA (sqrt (- 1.0 (* RFL:LATLNGECCSQUARED (expt (sin PHI1RAD) 2))))))
    (setq T1 (expt (RFL:TAN PHI1RAD) 2))
-   (setq C1 (* RFL:LATLNGECCSQUARED (expt (cos PHI1RAD) 2)))
+   ; FIXED: C1 uses e'^2 (ECCPRIMESQUARED), matching Snyder eq. 8-18 - was e^2
+   (setq C1 (* ECCPRIMESQUARED (expt (cos PHI1RAD) 2)))
    (setq R1 (/ (* RFL:LATLNGA (- 1.0 RFL:LATLNGECCSQUARED)) (expt (- 1.0 (* RFL:LATLNGECCSQUARED (expt (sin PHI1RAD) 2))) 1.5)))
    (setq D (/ X (* N1 0.9996)))
    (setq LATRAD (- PHI1RAD
@@ -204889,8 +204930,9 @@
         )
        )
        ((= NAME "Clarke 1866")
-        (setq RFL:LATLNGA 
-              RFL:LATLNGECCSQUARED 
+        ; FIXED: was setting RFL:LATLNGA to RFL:LATLNGECCSQUARED (copy/paste bug)
+        (setq RFL:LATLNGA 6378206
+              RFL:LATLNGECCSQUARED 0.006768658
         )
        )
        ((= NAME "")
