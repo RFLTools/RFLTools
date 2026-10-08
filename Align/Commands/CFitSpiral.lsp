@@ -70,7 +70,7 @@
        )
        (if (and (= (cdr (assoc 0 ENTLIST1)) "ARC") (= (cdr (assoc 0 ENTLIST2)) "ARC"))
         (progn
-;         (RFL:FITSPIRALAA ENT1 ENT2)
+         (RFL:FITSPIRALAA ENT1 ENT2)
         )
        )
       )
