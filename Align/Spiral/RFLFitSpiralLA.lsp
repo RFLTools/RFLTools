@@ -3,10 +3,21 @@
 ;    Program Written by Robert Livingston, 99/07/14
 ;    RFL:FITSPIRALLA Fits a reverse engineered DCA spiral between a line and an arc
 ;
+;    Revised 2026-10-14 (Hermes):
+;      * the two candidate spirals are now built as +/- K along the line from the
+;        perpendicular foot.  The old code went K "toward P1" and "toward P2",
+;        which is the same thing only while the foot lies BETWEEN P1 and P2; when
+;        the foot falls outside the line both candidates collapse onto the same
+;        point and one of them is a spiral that misses the arc entirely,
+;      * a candidate whose tangency point does not land on the arc is rejected,
+;      * a candidate that would have to EXTEND the line past one of its own ends
+;        is rejected in favour of the other; when both are usable the original
+;        rule is kept, so ordinary cases behave exactly as before.
 ;
 (defun RFL:FITSPIRALLA (ENT1 ENT2 / A ANG ANG1 ANG2 ANG3 B C D1 D2 D3 DIR ENTLIST1 ENTLIST2
-                                    K P P1 P2 PC PC1 PC2 PP PLT PLT1 PLT2 PLTST PLTST1 PLTST2 PST PST1 PST2
-                                    R THETA THETA1 THETA2)
+                                    G1 G2 K OK1 OK2 ON1 ON2 P P1 P2 PC PC1 PC2 PP PLT PLT1 PLT2
+                                    PLTST PLTST1 PLTST2 PST PST1 PST2 R THETA THETA1 THETA2
+                                    T1 T2 USESOL1 UUX UUY)
  (setq ENTLIST1 (entget ENT1))
  (setq ENTLIST2 (entget ENT2))
  (setq P1 (cdr (assoc 10 ENTLIST1)))
@@ -51,7 +62,7 @@
                  (+ (cadr P1) (* 0.9 (- (cadr P2) (cadr P1))))))
  )
  (if (< C R)
-  (eval nil)
+  (princ "\nRFL:FITSPIRALLA - the line passes inside the arc, no spiral is possible.")
   (progn
    (setq P (- C R))
    (setq THETA1 0.0)
@@ -65,18 +76,10 @@
     (setq THETA (/ (+ THETA1 THETA2) 2.0))
    )
    (setq K (* R (RFL:SPIRALKR THETA)))
-   (setq PLT1 (list (+ (car PP)
-                       (* (/ K (distance PP P1))
-                          (- (car P1) (car PP))
-                       )
-                    )
-                    (+ (cadr PP)
-                       (* (/ K (distance PP P1))
-                          (- (cadr P1) (cadr PP))
-                       )
-                    )
-              )
-   )
+   (setq UUX (cos (angle P1 P2)) UUY (sin (angle P1 P2)))
+   ;; the tangency point sits K behind the foot, looking along the line
+   (setq PLT1 (list (- (car PP) (* K UUX))
+                    (- (cadr PP) (* K UUY))))
    (setq PLTST1 (list (+ (car PLT1)
                          (* R (- (RFL:SPIRALFXR THETA) (/ (RFL:SPIRALFYR THETA) (RFL:TAN THETA))) (cos (angle P1 P2)))
                       )
@@ -95,18 +98,8 @@
                     )
               )
    )
-   (setq PLT2 (list (+ (car PP)
-                       (* (/ K (distance PP P2))
-                          (- (car P2) (car PP))
-                       )
-                    )
-                    (+ (cadr PP)
-                       (* (/ K (distance PP P2))
-                          (- (cadr P2) (cadr PP))
-                       )
-                    )
-              )
-   )
+   (setq PLT2 (list (+ (car PP) (* K UUX))
+                    (+ (cadr PP) (* K UUY))))
    (setq PLTST2 (list (+ (car PLT2)
                          (* R (- (RFL:SPIRALFXR THETA) (/ (RFL:SPIRALFYR THETA) (RFL:TAN THETA))) (cos (angle P2 P1)))
                       )
@@ -125,39 +118,33 @@
                     )
               )
    )
-   (if (= DIR 1.0)
+   ;; a usable candidate must land on the arc, and must not need the line extended
+   (setq OK1 (< (abs (- (distance PC PST1) R)) (* R RFL:TOL)))
+   (setq OK2 (< (abs (- (distance PC PST2) R)) (* R RFL:TOL)))
+   (setq T1 (+ (* (- (car PLT1) (car P1)) UUX) (* (- (cadr PLT1) (cadr P1)) UUY)))
+   (setq T2 (+ (* (- (car PLT2) (car P1)) UUX) (* (- (cadr PLT2) (cadr P1)) UUY)))
+   (setq ON1 (and (> T1 (- (* D3 RFL:TOL))) (< T1 (+ D3 (* D3 RFL:TOL)))))
+   (setq ON2 (and (> T2 (- (* D3 RFL:TOL))) (< T2 (+ D3 (* D3 RFL:TOL)))))
+   (if (and (not OK1) (not OK2))
+    (princ "\nRFL:FITSPIRALLA - no spiral tangency point lands on the arc.")
     (progn
-     (if (< (RFL:ANGLE3P PST1 PC PC1) (RFL:ANGLE3P PST1 PC PC2))
-      (progn
-       (RFL:DRAWSPIRAL PLT1 PLTST1 PST1 0.0 0.0)
-       (setq ENTLIST1 (subst (list 11 (car PLT1) (cadr PLT1))
-                             (assoc 11 ENTLIST1)
-                             ENTLIST1))
-       (entmod ENTLIST1)
-       (entupd ENT1)
-       (setq ENTLIST2 (subst (cons 50 (angle PC PST1))
-                             (assoc 50 ENTLIST2)
-                             ENTLIST2))
-       (entmod ENTLIST2)
-       (entupd ENT2)
-      )
-      (progn
-       (RFL:DRAWSPIRAL PLT2 PLTST2 PST2 0.0 0.0)
-       (setq ENTLIST1 (subst (list 10 (car PLT2) (cadr PLT2))
-                             (assoc 10 ENTLIST1)
-                             ENTLIST1))
-       (entmod ENTLIST1)
-       (entupd ENT1)
-       (setq ENTLIST2 (subst (cons 51 (angle PC PST2))
-                             (assoc 51 ENTLIST2)
-                             ENTLIST2))
-       (entmod ENTLIST2)
-       (entupd ENT2)
+     (cond
+      ((not OK1) (setq USESOL1 nil))
+      ((not OK2) (setq USESOL1 T))
+      ((and ON1 (not ON2)) (setq USESOL1 T))
+      ((and ON2 (not ON1)) (setq USESOL1 nil))
+      (T
+       (if (= DIR 1.0)
+        (setq USESOL1 (< (RFL:ANGLE3P PST1 PC PC1) (RFL:ANGLE3P PST1 PC PC2)))
+        (setq USESOL1 (> (RFL:ANGLE3P PST1 PC PC1) (RFL:ANGLE3P PST1 PC PC2)))
+       )
       )
      )
-    )
-    (progn
-     (if (> (RFL:ANGLE3P PST1 PC PC1) (RFL:ANGLE3P PST1 PC PC2))
+     (if (= DIR 1.0)
+      (setq G1 50 G2 51)
+      (setq G1 51 G2 50)
+     )
+     (if USESOL1
       (progn
        (RFL:DRAWSPIRAL PLT1 PLTST1 PST1 0.0 0.0)
        (setq ENTLIST1 (subst (list 11 (car PLT1) (cadr PLT1))
@@ -165,8 +152,8 @@
                              ENTLIST1))
        (entmod ENTLIST1)
        (entupd ENT1)
-       (setq ENTLIST2 (subst (cons 51 (angle PC PST1))
-                             (assoc 51 ENTLIST2)
+       (setq ENTLIST2 (subst (cons G1 (angle PC PST1))
+                             (assoc G1 ENTLIST2)
                              ENTLIST2))
        (entmod ENTLIST2)
        (entupd ENT2)
@@ -178,8 +165,8 @@
                              ENTLIST1))
        (entmod ENTLIST1)
        (entupd ENT1)
-       (setq ENTLIST2 (subst (cons 50 (angle PC PST2))
-                             (assoc 50 ENTLIST2)
+       (setq ENTLIST2 (subst (cons G2 (angle PC PST2))
+                             (assoc G2 ENTLIST2)
                              ENTLIST2))
        (entmod ENTLIST2)
        (entupd ENT2)
