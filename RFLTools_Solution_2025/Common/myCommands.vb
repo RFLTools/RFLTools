@@ -88,7 +88,7 @@ Namespace RFLToolsApplication
             End If
         End Function
 
-        <LispFunction("RFL:SpiralKR", "SpiralKLocal")>
+        <LispFunction("RFL:SpiralKR", "SpiralKRLocal")>
         Public Function SpiralKR(ByVal Args As ResultBuffer)
 
             If Args Is Nothing Then

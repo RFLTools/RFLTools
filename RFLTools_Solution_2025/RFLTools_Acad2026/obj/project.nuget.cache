@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "1RfVSCX47kQ=",
+  "dgSpecHash": "4TmJRBkppaY=",
   "success": true,
   "projectFilePath": "Z:\\LISP\\GitHub\\RFLTools\\RFLTools_Solution_2025\\RFLTools_Acad2026\\RFLTools_Acad2026.vbproj",
   "expectedPackageFiles": [
@@ -8,9 +8,9 @@
     "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.core\\25.1.0\\autocad.net.core.25.1.0.nupkg.sha512",
     "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\autocad.net.model\\25.1.0\\autocad.net.model.25.1.0.nupkg.sha512",
     "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\system.data.sqlite\\2.0.2\\system.data.sqlite.2.0.2.nupkg.sha512",
-    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.26\\microsoft.windowsdesktop.app.ref.8.0.26.nupkg.sha512",
-    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.26\\microsoft.netcore.app.ref.8.0.26.nupkg.sha512",
-    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.26\\microsoft.aspnetcore.app.ref.8.0.26.nupkg.sha512"
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.32\\microsoft.windowsdesktop.app.ref.8.0.32.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.32\\microsoft.netcore.app.ref.8.0.32.nupkg.sha512",
+    "C:\\Users\\rob.RFLTOOLS\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.32\\microsoft.aspnetcore.app.ref.8.0.32.nupkg.sha512"
   ],
   "logs": []
 }
