@@ -64,9 +64,15 @@
 ;
 ;   RFL:ALIGNDEF returns an RFL Alignment list based on either a single polyline of a set of entities.
 ;
+;   Revised 2026-10-20 (Hermes):
+;     * single closed LWPOLYLINE - the implied closing segment (last vertex back
+;       to the first) is now appended, so a closed polyline gives a complete loop
+;       instead of stopping one segment short,
+;     * that segment's bulge is read from the group 42 tag following the LAST
+;       vertex, and is flipped when the polyline is walked in reverse.
 ;
-;
-(defun RFL:ALIGNDEF (ALIGNENT PSTART STASTART / ALIGNENTLIST ALIGNENTSET AL BULGE FINDENT P P1 P2 R RFLAG STA)
+(defun RFL:ALIGNDEF (ALIGNENT PSTART STASTART / ALIGNENTLIST ALIGNENTSET AL BULGE BULGELAST
+                                               CLOSEDP FINDENT FIRSTPT P P1 P2 R RFLAG STA TMP)
  (setq AL nil)
  (setq RFL:TOL 0.000001)
  (setq RFLAG 1.0)
@@ -229,6 +235,22 @@
    (setq ALIGNENTLIST (entget ALIGNENT))
    (if (= (cdr (assoc 0 ALIGNENTLIST)) "LWPOLYLINE")
     (progn
+     ;; ---- closed polyline?  and the bulge of its implied closing segment ----
+     (setq CLOSEDP (and (assoc 70 ALIGNENTLIST)
+                        (= 1 (logand 1 (cdr (assoc 70 ALIGNENTLIST))))
+                  )
+     )
+     (setq TMP ALIGNENTLIST)
+     (while (/= TMP nil)
+      (if (= (car (car TMP)) 10)
+       (setq BULGELAST TMP)
+      )
+      (setq TMP (cdr TMP))
+     )
+     (setq BULGELAST (cdr (assoc 42 (cdr BULGELAST))))
+     (if (= BULGELAST nil)
+      (setq BULGELAST 0.0)
+     )
      (setq P1 (cdr (assoc 10 ALIGNENTLIST)))
      (if (> (distance P1 PSTART) RFL:TOL)
       (progn
@@ -244,6 +266,7 @@
        )
        (setq P1 (cdr (car ALIGNENTLIST)))
        (setq P1 (list (car P1) (cadr P1)))
+       (setq FIRSTPT P1)
        (setq ALIGNENTLIST (cdr ALIGNENTLIST))
        (setq BULGE 0.0)
        (while (/= ALIGNENTLIST nil)
@@ -262,6 +285,14 @@
               )
         )
         (setq ALIGNENTLIST (cdr ALIGNENTLIST))
+       )
+       ;; ---- close the loop ----
+       (if (and CLOSEDP (> (distance P1 FIRSTPT) RFL:TOL))
+        (progn
+         (setq BULGE (* RFLAG BULGELAST))
+         (setq AL (append AL (list (list STA P1 FIRSTPT BULGE))))
+         (setq STA (+ STA (RFL:ARCLENGTH P1 FIRSTPT BULGE)))
+        )
        )
       )
       (princ "\n**** POINT NOT AT START OF ALIGNMENT ****")
@@ -6711,8 +6742,13 @@
 ;
 ;     DRAPEALIGN drapes a RFL Alignment
 ;
+;     Revised 2026-10-20 (Hermes):
+;       * prints a drape summary before returning - number of vertices added and
+;         the minimum / maximum elevation of the resulting 3D polyline,
+;       * OGLIST added to the local list (it was leaking as a global, so a run that
+;         failed at the surface stage would have reported the previous run's points).
 ;
-(defun C:DRAPEALIGN (/ *error* ALSAVE ANG ANGBASE ANGDIR ATOTAL C CMAX CMDECHO L LSTEP NODE OBSURFACE OSMODE ORTHOMODE OSTOL P1 P2 R TMP TMPLIST)
+(defun C:DRAPEALIGN (/ *error* ALSAVE ANG ANGBASE ANGDIR ATOTAL C CMAX CMDECHO EMIN EMAX L LSTEP NODE NVERT OBSURFACE OGLIST OSMODE ORTHOMODE OSTOL P1 P2 R TMP TMPLIST Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq ANGBASE (getvar "ANGBASE"))
@@ -6849,8 +6885,36 @@
  (setvar "OSMODE" OSMODE)
  (setvar "ORTHOMODE" ORTHOMODE)
  (setq RFL:ALIGNLIST ALSAVE)
+
+ ;; ---------------- drape summary ----------------
+ (if (/= nil OGLIST)
+  (progn
+   (setq NVERT 0 EMIN nil EMAX nil)
+   (foreach NODE OGLIST
+    (setq NVERT (1+ NVERT))
+    (setq Z (caddr NODE))
+    (if (/= nil Z)
+     (progn
+      (if (or (= nil EMIN) (< Z EMIN))
+       (setq EMIN Z)
+      )
+      (if (or (= nil EMAX) (> Z EMAX))
+       (setq EMAX Z)
+      )
+     )
+    )
+   )
+   (princ (strcat "\n\nDRAPEALIGN : " (itoa NVERT) " vertices added"))
+   (if (/= nil EMIN)
+    (princ (strcat "\n             elevation : min " (rtos EMIN 2 3)
+                   "   max " (rtos EMAX 2 3)
+				   "\n"))
+   )
+  )
+ )
  (eval nil)
-);
+)
+;
 ;
 ;     Program written by Robert Livingston 2014-11-24
 ;

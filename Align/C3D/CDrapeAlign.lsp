@@ -4,8 +4,13 @@
 ;
 ;     DRAPEALIGN drapes a RFL Alignment
 ;
+;     Revised 2026-10-20 (Hermes):
+;       * prints a drape summary before returning - number of vertices added and
+;         the minimum / maximum elevation of the resulting 3D polyline,
+;       * OGLIST added to the local list (it was leaking as a global, so a run that
+;         failed at the surface stage would have reported the previous run's points).
 ;
-(defun C:DRAPEALIGN (/ *error* ALSAVE ANG ANGBASE ANGDIR ATOTAL C CMAX CMDECHO L LSTEP NODE OBSURFACE OSMODE ORTHOMODE OSTOL P1 P2 R TMP TMPLIST)
+(defun C:DRAPEALIGN (/ *error* ALSAVE ANG ANGBASE ANGDIR ATOTAL C CMAX CMDECHO EMIN EMAX L LSTEP NODE NVERT OBSURFACE OGLIST OSMODE ORTHOMODE OSTOL P1 P2 R TMP TMPLIST Z)
  (setq CMDECHO (getvar "CMDECHO"))
  (setvar "CMDECHO" 0)
  (setq ANGBASE (getvar "ANGBASE"))
@@ -142,5 +147,32 @@
  (setvar "OSMODE" OSMODE)
  (setvar "ORTHOMODE" ORTHOMODE)
  (setq RFL:ALIGNLIST ALSAVE)
+
+ ;; ---------------- drape summary ----------------
+ (if (/= nil OGLIST)
+  (progn
+   (setq NVERT 0 EMIN nil EMAX nil)
+   (foreach NODE OGLIST
+    (setq NVERT (1+ NVERT))
+    (setq Z (caddr NODE))
+    (if (/= nil Z)
+     (progn
+      (if (or (= nil EMIN) (< Z EMIN))
+       (setq EMIN Z)
+      )
+      (if (or (= nil EMAX) (> Z EMAX))
+       (setq EMAX Z)
+      )
+     )
+    )
+   )
+   (princ (strcat "\n\nDRAPEALIGN : " (itoa NVERT) " vertices added"))
+   (if (/= nil EMIN)
+    (princ (strcat "\n             elevation : min " (rtos EMIN 2 3)
+                   "   max " (rtos EMAX 2 3)
+				   "\n"))
+   )
+  )
+ )
  (eval nil)
 )
